@@ -21,6 +21,7 @@
   },
   "homepage": "https://github.com/M-CreativeLab/jsar-dom#readme",
   "dependencies": {
+    "css": "^3.0.0",
     "css-parse": "^2.0.0",
     "cssstyle": "^3.0.0",
     "domexception": "^4.0.0",
@@ -33,6 +34,7 @@
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.1",
+    "@types/css": "^0.0.37",
     "@types/cssstyle": "^2.2.3",
     "@types/domexception": "^4.0.2",
     "@types/node": "^20.3.3",

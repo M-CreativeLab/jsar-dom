@@ -151,6 +151,7 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;
+  _defaultView: Window & typeof globalThis;
 
   _lastModified: string;
   _styleCache: any;
