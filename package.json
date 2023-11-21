@@ -1,0 +1,48 @@
+{
+  "name": "@yodaos-jsar/dom",
+  "version": "0.3.0-alpha.0",
+  "description": "The DOM implementation for JSAR runtime",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/M-CreativeLab/jsar-dom.git"
+  },
+  "keywords": [
+    "dom",
+    "jsar"
+  ],
+  "author": "Yazhong Liu <yorkiefixer@gmail.com>",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/M-CreativeLab/jsar-dom/issues"
+  },
+  "homepage": "https://github.com/M-CreativeLab/jsar-dom#readme",
+  "dependencies": {
+    "css-parse": "^2.0.0",
+    "cssstyle": "^3.0.0",
+    "domexception": "^4.0.0",
+    "fast-xml-parser": "^4.2.6",
+    "metaviewport-parser": "^0.3.0",
+    "nwsapi": "^2.2.7",
+    "symbol-tree": "^3.2.4",
+    "time-ranges": "^0.1.0"
+  },
+  "devDependencies": {
+    "@types/babel__core": "^7.20.1",
+    "@types/cssstyle": "^2.2.3",
+    "@types/domexception": "^4.0.2",
+    "@types/node": "^20.3.3",
+    "@types/nwsapi": "^2.2.5",
+    "@types/symbol-tree": "^3.2.4",
+    "ts-loader": "^9.4.4",
+    "typescript": "^5.1.6",
+    "webpack": "^5.88.1",
+    "webpack-cli": "^5.1.4"
+  },
+  "peerDependencies": {
+    "babylonjs": "^6.10.0"
+  }
+}
