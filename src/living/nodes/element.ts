@@ -2,8 +2,44 @@ import { Tags } from 'babylonjs';
 import { AttrImpl } from '../attributes/Attr';
 import { NodeImpl } from './Node';
 import { SpatialDocumentImpl } from './SpatialDocument';
+import { NativeDocument } from '../../impl-interfaces';
+import NamedNodeMapImpl from '../attributes/NamedNodeMap';
+import { HTML_NS } from '../helpers/namespaces';
+import { asciiLowercase, asciiUppercase } from '../helpers/strings';
+import { hasAttributeByName, hasAttributeByNameNS } from '../attributes';
+import DOMRectImpl from '../geometry/DOMRect';
+import { Mixin } from 'ts-mixer';
+import ParentNodeImpl from './ParentNode';
+import ChildNodeImpl from './ChildNode';
+import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
 
-export class ElementImpl extends NodeImpl implements Element {
+function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
+  if (id && elm && doc) {
+    if (!doc._ids[id]) {
+      doc._ids[id] = [];
+    }
+    doc._ids[id].push(elm);
+  }
+}
+
+function detachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
+  if (id && elm && doc) {
+    if (doc._ids && doc._ids[id]) {
+      const elms = doc._ids[id];
+      for (let i = 0; i < elms.length; i++) {
+        if (elms[i] === elm) {
+          elms.splice(i, 1);
+          --i;
+        }
+      }
+      if (elms.length === 0) {
+        delete doc._ids[id];
+      }
+    }
+  }
+}
+
+export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, ParentNodeImpl, ChildNodeImpl) implements Element {
   attributes: NamedNodeMap;
   clientHeight: number;
   clientLeft: number;
@@ -21,9 +57,14 @@ export class ElementImpl extends NodeImpl implements Element {
   scrollLeft: number;
   scrollTop: number;
   scrollWidth: number;
-  shadowRoot: ShadowRoot;
+  get shadowRoot(): ShadowRoot {
+    const shadow = this._shadowRoot;
+    if (shadow === null || shadow.mode === 'closed') {
+      return null;
+    }
+    return shadow;
+  }
   slot: string;
-  tagName: string;
 
   ariaAtomic: string;
   ariaAutoComplete: string;
@@ -65,11 +106,10 @@ export class ElementImpl extends NodeImpl implements Element {
   role: string;
 
   innerHTML: string;
-  nextElementSibling: Element;
-  previousElementSibling: Element;
   assignedSlot: HTMLSlotElement;
 
   _version: number;
+  _attributes: NamedNodeMapImpl;
   _attributeList: AttrImpl[];
   _namespaceURI: string | null;
   _prefix: string | null;
@@ -79,10 +119,11 @@ export class ElementImpl extends NodeImpl implements Element {
   _isValue: boolean;
   _ownerDocument: SpatialDocumentImpl;
   _attributesByNameMap: Map<string, AttrImpl[]> = new Map();
+  _cachedTagName: string | null;
 
   constructor(
-    hostObject,
-    _args,
+    hostObject: NativeDocument,
+    args,
     privateData: {
       namespace?: string;
       prefix?: string;
@@ -92,7 +133,7 @@ export class ElementImpl extends NodeImpl implements Element {
       isValue?: boolean;
     }
   ) {
-    super(hostObject, [], null);
+    super(hostObject, args, null);
 
     this._namespaceURI = privateData.namespace;
     this._prefix = privateData.prefix;
@@ -102,7 +143,10 @@ export class ElementImpl extends NodeImpl implements Element {
     this._isValue = privateData.isValue;
     this._shadowRoot = null;
     this._attributeList = [];
-  
+    this._attributes = new NamedNodeMapImpl(this._hostObject, [], {
+      element: this,
+    });
+
     this.nodeType = this.ELEMENT_NODE;
     this.scrollTop = 0;
     this.scrollLeft = 0;
@@ -122,6 +166,46 @@ export class ElementImpl extends NodeImpl implements Element {
 
   get classList() {
     return Tags.GetTags(this, false);
+  }
+
+  get _qualifiedName() {
+    return this._prefix !== null ? this._prefix + ':' + this._localName : this._localName;
+  }
+
+  get tagName() {
+    // This getter can be a hotpath in getComputedStyle.
+    // All these are invariants during the instance lifetime so we can safely cache the computed tagName.
+    // We could create it during construction but since we already identified this as potentially slow we do it lazily.
+    if (this._cachedTagName === null) {
+      if (this.namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {
+        this._cachedTagName = asciiUppercase(this._qualifiedName);
+      } else {
+        this._cachedTagName = this._qualifiedName;
+      }
+    }
+    return this._cachedTagName;
+  }
+
+  _attach() {
+    const id = this.getAttributeNS(null, 'id');
+    if (id) {
+      attachId(id, this, this._ownerDocument);
+    }
+
+    // If the element is initially in an HTML document but is later
+    // inserted in another type of document, the tagName should no
+    // longer be uppercase. Therefore the cached tagName is reset.
+    this._cachedTagName = null;
+    super._attach();
+  }
+
+  _detach(): void {
+    super._detach();
+
+    const id = this.getAttributeNS(null, "id");
+    if (id) {
+      detachId(id, this, this._ownerDocument);
+    }
   }
 
   attachShadow(init: ShadowRootInit): ShadowRoot {
@@ -156,7 +240,7 @@ export class ElementImpl extends NodeImpl implements Element {
     throw new Error('Method not implemented.');
   }
   getBoundingClientRect(): DOMRect {
-    throw new Error('Method not implemented.');
+    return new DOMRectImpl();
   }
   getClientRects(): DOMRectList {
     throw new Error('Method not implemented.');
@@ -180,10 +264,16 @@ export class ElementImpl extends NodeImpl implements Element {
     throw new Error('Method not implemented.');
   }
   hasAttribute(qualifiedName: string): boolean {
-    throw new Error('Method not implemented.');
+    if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === "html") {
+      qualifiedName = asciiLowercase(qualifiedName);
+    }
+    return hasAttributeByName(this, qualifiedName);
   }
   hasAttributeNS(namespace: string, localName: string): boolean {
-    throw new Error('Method not implemented.');
+    if (namespace === '') {
+      namespace = null;
+    }
+    return hasAttributeByNameNS(this, namespace, localName);
   }
   hasAttributes(): boolean {
     throw new Error('Method not implemented.');
@@ -260,48 +350,11 @@ export class ElementImpl extends NodeImpl implements Element {
   webkitMatchesSelector(selectors: string): boolean {
     throw new Error('Method not implemented.');
   }
-  
+
   animate(keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: number | KeyframeAnimationOptions): Animation {
     throw new Error('Method not implemented.');
   }
   getAnimations(options?: GetAnimationsOptions): Animation[] {
-    throw new Error('Method not implemented.');
-  }
-  after(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  before(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  remove(): void {
-    throw new Error('Method not implemented.');
-  }
-  replaceWith(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  append(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  prepend(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  querySelector<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K];
-  querySelector<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K];
-  querySelector<K extends keyof MathMLElementTagNameMap>(selectors: K): MathMLElementTagNameMap[K];
-  querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K];
-  querySelector<E extends Element = Element>(selectors: string): E;
-  querySelector(selectors: unknown): unknown {
-    throw new Error('Method not implemented.');
-  }
-  querySelectorAll<K extends keyof HTMLElementTagNameMap>(selectors: K): NodeListOf<HTMLElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof SVGElementTagNameMap>(selectors: K): NodeListOf<SVGElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof MathMLElementTagNameMap>(selectors: K): NodeListOf<MathMLElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
-  querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
-  querySelectorAll(selectors: unknown): unknown {
-    throw new Error('Method not implemented.');
-  }
-  replaceChildren(...nodes: (string | Node)[]): void {
     throw new Error('Method not implemented.');
   }
 }

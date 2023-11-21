@@ -147,6 +147,7 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   title: string;
   vlinkColor: string;
 
+  _ids = Object.create(null);
   _parsingMode: string = 'xsml';
   _scriptingDisabled: boolean = false;
   _encoding: string;
