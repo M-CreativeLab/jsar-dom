@@ -1,4 +1,4 @@
-import DOMRectReadOnlyImpl from './domrect-readonly';
+import DOMRectReadOnlyImpl from './DOMRectReadOnly';
 
 export default class DOMRectImpl extends DOMRectReadOnlyImpl implements DOMRect {
   static fromRect(other?: DOMRectInit): DOMRect {

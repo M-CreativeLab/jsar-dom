@@ -1,5 +1,5 @@
 import DOMException from 'domexception';
-import { XSMLShadowRoot } from '../nodes/shadow-root';
+import { XSMLShadowRoot } from '../nodes/ShadowRoot';
 
 export class UIEventImpl extends Event implements UIEvent {
   detail: number;

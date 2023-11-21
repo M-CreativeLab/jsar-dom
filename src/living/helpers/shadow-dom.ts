@@ -3,9 +3,9 @@
 import { nodeRoot } from './node';
 import { HTML_NS } from './namespaces';
 import { domSymbolTree } from './internal-constants';
-import { NodeImpl } from '../nodes/node';
+import { NodeImpl } from '../nodes/Node';
 import { signalSlotList, queueMutationObserverMicrotask } from './mutation-observers';
-import { ElementImpl } from '../nodes/element';
+import { ElementImpl } from '../nodes/Element';
 import { XSMLNode } from '../../xsml-interfaces';
 
 // Valid host element for ShadowRoot.

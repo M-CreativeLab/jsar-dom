@@ -1,6 +1,6 @@
 import * as BABYLON from 'babylonjs';
-import { NodeImpl } from './node';
-import { XSMLShadowRoot } from './shadow-root';
+import { NodeImpl } from './Node';
+import { XSMLShadowRoot } from './ShadowRoot';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import { NativeDocument } from '../../impl-interfaces';
 

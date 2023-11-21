@@ -4,8 +4,8 @@
 // mutation observer creation.
 // In order to get around this issue, we will assign an increasing id for each mutation observer, this way we would be
 
-import { NodeImpl } from '../nodes/node';
-import { MutationRecordImpl } from './mutation-record';
+import { NodeImpl } from '../nodes/Node';
+import { MutationRecordImpl } from './MutationRecord';
 
 // able to invoke the callback in the creation order without having to keep a list of all the mutation observers.
 let mutationObserverId = 0;

@@ -1,5 +1,5 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { ElementImpl } from '../nodes/element';
+import { ElementImpl } from '../nodes/Element';
 import * as attributes from '../attributes';
 
 export default class NamedNodeMapImpl implements NamedNodeMap {

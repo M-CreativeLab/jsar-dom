@@ -1,5 +1,5 @@
 import DOMException from 'domexception';
-import { UIEventImpl } from './ui-event';
+import { UIEventImpl } from './UIEvent';
 
 export class MouseEventImpl extends UIEventImpl implements MouseEvent {
   altKey: boolean;

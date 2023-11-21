@@ -1,4 +1,4 @@
-import { ElementImpl } from './element';
+import { ElementImpl } from './Element';
 
 export class NodeListImpl<T extends Node> implements NodeList {
   #list: T[] = [];

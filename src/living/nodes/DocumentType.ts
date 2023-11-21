@@ -1,5 +1,5 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { NodeImpl } from './node';
+import { NodeImpl } from './Node';
 
 export class DocumentTypeImpl extends NodeImpl implements DocumentType {
   name: string;

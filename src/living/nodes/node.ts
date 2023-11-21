@@ -3,17 +3,17 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { clone, isInclusiveAncestor, nodeRoot } from '../helpers/node';
 import { setAnExistingAttributeValue } from '../helpers/attributes';
 import { assignSlot, assignSlotable, assignSlotableForTree, isShadowRoot, isSlot, shadowIncludingRoot, signalSlotChange } from '../helpers/shadow-dom';
-import { AttrImpl } from '../attributes/attr';
-import { ElementImpl } from './element';
+import { AttrImpl } from '../attributes/Attr';
+import { ElementImpl } from './Element';
 import { simultaneousIterators } from '../../utils';
-import { NodeListImpl } from './node-list';
-import { XSMLShadowRoot } from './shadow-root';
-import { RangeImpl } from '../range/range';
+import { NodeListImpl } from './NodeList';
+import { XSMLShadowRoot } from './ShadowRoot';
+import { RangeImpl } from '../range/Range';
 import { queueTreeMutationRecord } from '../helpers/mutation-observers';
 import { invalidateStyleCache } from '../helpers/style-rules';
-import { CharacterDataImpl } from './text';
+import { CharacterDataImpl } from './Text';
 import { NativeDocument } from '../../impl-interfaces';
-import { SpatialDocumentImpl } from './spatial-document';
+import { SpatialDocumentImpl } from './SpatialDocument';
 
 function nodeEquals(a: Node, b: Node) {
   if (a.nodeType !== b.nodeType) {

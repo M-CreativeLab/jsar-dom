@@ -1,4 +1,4 @@
-import { NodeImpl } from '../nodes/node';
+import { NodeImpl } from '../nodes/Node';
 
 export const invalidateStyleCache = (elementImpl: NodeImpl) => {
   if (elementImpl._attached) {

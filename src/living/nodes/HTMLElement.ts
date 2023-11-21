@@ -1,5 +1,5 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { ElementImpl } from './element';
+import { ElementImpl } from './Element';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   accessKey: string;

@@ -1,7 +1,7 @@
 import { Tags } from 'babylonjs';
 import { CreateXSMLType, XSMLBaseDocument } from '../../xsml-interfaces';
-import { AttrImpl } from '../attributes/attr';
-import { NodeImpl } from './node';
+import { AttrImpl } from '../attributes/Attr';
+import { NodeImpl } from './Node';
 
 export class ElementImpl extends NodeImpl implements CreateXSMLType<Element> {
   attributes: NamedNodeMap;

@@ -2,8 +2,8 @@
 import DOMException from 'domexception';
 import { HTML_NS } from './namespaces';
 import { asciiLowercase } from './strings';
-import { ElementImpl } from '../nodes/element';
-import { AttrImpl } from '../attributes/attr';
+import { ElementImpl } from '../nodes/Element';
+import { AttrImpl } from '../attributes/Attr';
 
 // const { queueAttributeMutationRecord } = require("./helpers/mutation-observers");
 // const { enqueueCECallbackReaction } = require("./helpers/custom-elements");

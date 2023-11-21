@@ -1,7 +1,7 @@
 import DOMException from 'domexception';
 import { HTML_NS, SVG_NS } from './namespaces';
 import { domSymbolTree } from './internal-constants';
-import { XSMLShadowRoot } from '../nodes/shadow-root';
+import { XSMLShadowRoot } from '../nodes/ShadowRoot';
 
 const interfaces = require("../interfaces");
 

@@ -1,18 +1,20 @@
 import BABYLON from 'babylonjs';
+import { Mixin } from 'ts-mixer';
 import { NativeDocument } from '../../impl-interfaces';
-import { DocumentTypeImpl } from './document-type';
-import { SpatialObject } from './spatial-object';
-import { XSMLShadowRoot } from './shadow-root';
-import { NodeImpl } from './node';
-import { HTMLElementImpl } from './html-element';
+import { DocumentTypeImpl } from './DocumentType';
+import { SpatialObject } from './SpatialObject';
+import { XSMLShadowRoot } from './ShadowRoot';
+import { NodeImpl } from './Node';
+import { HTMLElementImpl } from './HTMLElement';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
-import { AttrImpl } from '../attributes/attr';
+import { AttrImpl } from '../attributes/Attr';
 import { domSymbolTree } from '../helpers/internal-constants';
-import { TextImpl } from './text';
-import { UIEventImpl } from '../events/ui-event';
-import { MouseEventImpl } from '../events/mouse-event';
-import { RangeImpl } from '../range/range';
-import StyleSheetListImpl from '../cssom/stylesheet-list';
+import { TextImpl } from './Text';
+import { UIEventImpl } from '../events/UIEvent';
+import { MouseEventImpl } from '../events/MouseEvent';
+import { RangeImpl } from '../range/Range';
+import StyleSheetListImpl from '../cssom/StyleSheetList';
+import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
 
 type DocumentInitOptions = {
   screenWidth: number;
@@ -43,7 +45,7 @@ const eventInterfaceTable = {
  * The `SpatialDocument` is a new Web API, it represents the document object in space computing.
  * It is the root of the document tree, and provides the primary access to the document's data.
  */
-export class SpatialDocumentImpl extends NodeImpl implements Document {
+export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImpl) implements Document {
   #nativeDocument: NativeDocument;
   #screenWidth: number;
   #screenHeight: number;
@@ -125,14 +127,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     throw new Error('Method not implemented.');
   }
 
-  get styleSheets(): StyleSheetList {
-    if (!this._styleSheets) {
-      this._styleSheets = new StyleSheetListImpl();
-    }
-    return this._styleSheets;
-  }
-
-
   get visibilityState(): DocumentVisibilityState {
     return 'visible';
   }
@@ -160,7 +154,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 
   _lastModified: string;
   _styleCache: any;
-  _styleSheets: StyleSheetListImpl;
   _lastFocusedElement: Element | null;
 
   /** Used for spatial objects */
@@ -473,20 +466,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   writeln(..._: string[]): void {
     throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
   }
-  activeElement: Element;
-  adoptedStyleSheets: CSSStyleSheet[];
-  fullscreenElement: Element;
-  pictureInPictureElement: Element;
-  pointerLockElement: Element;
-  elementFromPoint(x: number, y: number): Element {
-    throw new Error('Method not implemented.');
-  }
-  elementsFromPoint(x: number, y: number): Element[] {
-    throw new Error('Method not implemented.');
-  }
-  getAnimations(): Animation[] {
-    throw new Error('Method not implemented.');
-  }
+  
   fonts: FontFaceSet;
   onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;
   onanimationcancel: (this: GlobalEventHandlers, ev: AnimationEvent) => any;

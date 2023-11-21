@@ -2,9 +2,9 @@ import * as BABYLON from 'babylonjs';
 import nwsapi from 'nwsapi';
 import DOMException from 'domexception';
 
-import { SpatialObject } from './spatial-object';
-import { NodeImpl } from './node';
-import { DocumentTypeImpl } from './document-type';
+import { SpatialObject } from './SpatialObject';
+import { NodeImpl } from './Node';
+import { DocumentTypeImpl } from './DocumentType';
 import { NativeDocument } from '../../impl-interfaces';
 
 export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {

@@ -1,7 +1,7 @@
 import { XSMLBaseDocument, XSMLNode } from '../../xsml-interfaces';
-import { AttrImpl } from '../attributes/attr';
-import { ElementImpl } from '../nodes/element';
-import { NodeImpl } from '../nodes/node';
+import { AttrImpl } from '../attributes/Attr';
+import { ElementImpl } from '../nodes/Element';
+import { NodeImpl } from '../nodes/Node';
 import { cloningSteps, domSymbolTree } from './internal-constants';
 
 // https://dom.spec.whatwg.org/#concept-node-length

@@ -1,5 +1,5 @@
-import { AttrImpl } from './attributes/attr';
-import { ElementImpl } from './nodes/element';
+import { AttrImpl } from './attributes/Attr';
+import { ElementImpl } from './nodes/Element';
 import { queueAttributeMutationRecord } from './helpers/mutation-observers';
 import { HTML_NS } from './helpers/namespaces';
 import { asciiLowercase } from './helpers/strings';

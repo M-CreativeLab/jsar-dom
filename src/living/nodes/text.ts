@@ -1,8 +1,8 @@
 import DOMException from 'domexception';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { MUTATION_TYPE, queueMutationRecord } from '../helpers/mutation-observers';
-import { RangeImpl } from '../range/range';
-import { NodeImpl } from './node';
+import { RangeImpl } from '../range/Range';
+import { NodeImpl } from './Node';
 import { assignSlot, assignSlotable, findSlot } from '../helpers/shadow-dom';
 import { NativeDocument } from '../../impl-interfaces';
 

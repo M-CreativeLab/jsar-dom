@@ -1,4 +1,4 @@
-import { NodeListImpl } from '../nodes/node-list';
+import { NodeListImpl } from '../nodes/NodeList';
 
 // https://dom.spec.whatwg.org/#mutationrecord
 export class MutationRecordImpl implements MutationRecord {

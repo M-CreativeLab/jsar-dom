@@ -28,7 +28,8 @@
     "metaviewport-parser": "^0.3.0",
     "nwsapi": "^2.2.7",
     "symbol-tree": "^3.2.4",
-    "time-ranges": "^0.1.0"
+    "time-ranges": "^0.1.0",
+    "ts-mixer": "^6.0.3"
   },
   "devDependencies": {
     "@types/babel__core": "^7.20.1",

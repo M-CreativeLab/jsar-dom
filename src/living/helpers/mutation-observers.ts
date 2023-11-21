@@ -1,8 +1,8 @@
 import { domSymbolTree } from './internal-constants';
 import { reportException } from './runtime-script-errors';
-import { MutationRecordImpl } from '../mutation-observer/mutation-record';
-import { MutationObserverImpl } from '../mutation-observer/mutation-observer';
-import { NodeImpl } from '../nodes/node';
+import { MutationRecordImpl } from '../mutation-observer/MutationRecord';
+import { MutationObserverImpl } from '../mutation-observer/MutationObserver';
+import { NodeImpl } from '../nodes/Node';
 
 export const MUTATION_TYPE = {
   ATTRIBUTES: 'attributes',

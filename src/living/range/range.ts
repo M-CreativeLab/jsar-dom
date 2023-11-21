@@ -1,9 +1,9 @@
 import DOMException from 'domexception';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { clone, isFollowing, isInclusiveAncestor, nodeLength, nodeRoot } from '../helpers/node';
-import { AbstractRangeImpl, BoundaryPoint } from './abstract-range';
+import { AbstractRangeImpl, BoundaryPoint } from './AbstractRange';
 import { HTML_NS } from '../helpers/namespaces';
-import { NodeImpl } from '../nodes/node';
+import { NodeImpl } from '../nodes/Node';
 
 // Returns 0 if equal, +1 for after and -1 for before
 // https://dom.spec.whatwg.org/#concept-range-bp-after
