@@ -14,6 +14,7 @@ import { invalidateStyleCache } from '../helpers/style-rules';
 import { CharacterDataImpl } from './Text';
 import { NativeDocument } from '../../impl-interfaces';
 import { SpatialDocumentImpl } from './SpatialDocument';
+import ParentNodeImpl from './ParentNode';
 
 function nodeEquals(a: Node, b: Node) {
   if (a.nodeType !== b.nodeType) {
@@ -209,7 +210,7 @@ export class NodeImpl extends EventTarget implements Node {
     return domSymbolTree.parent(this);
   }
 
-  get parentNode(): ParentNode {
+  get parentNode(): ParentNodeImpl {
     return domSymbolTree.parent(this);
   }
 

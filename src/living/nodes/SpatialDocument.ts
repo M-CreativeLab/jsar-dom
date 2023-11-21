@@ -15,6 +15,8 @@ import { MouseEventImpl } from '../events/MouseEvent';
 import { RangeImpl } from '../range/Range';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
 import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
+import ParentNodeImpl from './ParentNode';
+import nwsapi from 'nwsapi';
 
 type DocumentInitOptions = {
   screenWidth: number;
@@ -45,7 +47,7 @@ const eventInterfaceTable = {
  * The `SpatialDocument` is a new Web API, it represents the document object in space computing.
  * It is the root of the document tree, and provides the primary access to the document's data.
  */
-export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImpl) implements Document {
+export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImpl, ParentNodeImpl) implements Document {
   #nativeDocument: NativeDocument;
   #screenWidth: number;
   #screenHeight: number;
@@ -155,6 +157,10 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   _lastModified: string;
   _styleCache: any;
   _lastFocusedElement: Element | null;
+
+  // CSS selectors
+  _nwsapi: nwsapi.NWSAPI;
+  _nwsapiDontThrow: nwsapi.NWSAPI;
 
   /** Used for spatial objects */
   _idsOfSpatialObjects: { [key: string]: SpatialObject } = {};

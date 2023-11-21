@@ -1,9 +1,9 @@
 import { Tags } from 'babylonjs';
-import { CreateXSMLType, XSMLBaseDocument } from '../../xsml-interfaces';
 import { AttrImpl } from '../attributes/Attr';
 import { NodeImpl } from './Node';
+import { SpatialDocumentImpl } from './SpatialDocument';
 
-export class ElementImpl extends NodeImpl implements CreateXSMLType<Element> {
+export class ElementImpl extends NodeImpl implements Element {
   attributes: NamedNodeMap;
   clientHeight: number;
   clientLeft: number;
@@ -77,7 +77,7 @@ export class ElementImpl extends NodeImpl implements CreateXSMLType<Element> {
   _ceState: string | null;
   _ceDefinition: string | null;
   _isValue: boolean;
-  _ownerDocument: XSMLBaseDocument;
+  _ownerDocument: SpatialDocumentImpl;
   _attributesByNameMap: Map<string, AttrImpl[]> = new Map();
 
   constructor(
@@ -108,7 +108,7 @@ export class ElementImpl extends NodeImpl implements CreateXSMLType<Element> {
     this.scrollLeft = 0;
   }
 
-  get ownerDocument(): XSMLBaseDocument {
+  get ownerDocument(): SpatialDocumentImpl {
     return this._ownerDocument;
   }
 
