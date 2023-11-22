@@ -63,13 +63,13 @@ export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
     throw new Error('Method not implemented.');
   }
 
-  append(...nodes: (string | Node)[]): void {
-    super.append(...nodes);
-  }
+  // append(...nodes: (string | Node)[]): void {
+  //   super.append(...nodes);
+  // }
 
-  prepend(...nodes: (string | Node)[]): void {
-    super.append(...nodes);
-  }
+  // prepend(...nodes: (string | Node)[]): void {
+  //   super.append(...nodes);
+  // }
 
   appendChild<T extends Node>(node: T): T {
     if (!(node instanceof HTMLElementImpl)) {
