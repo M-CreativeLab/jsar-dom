@@ -4,10 +4,6 @@ on:
   push:
     branches: [ "main" ]
 
-env:
-  BUILD_TYPE: Release
-  NODE_ENV: dev
-
 jobs:
   build:
     runs-on: ${{ matrix.os }}
