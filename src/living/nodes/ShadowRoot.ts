@@ -1,6 +1,4 @@
 import * as BABYLON from 'babylonjs';
-import { Mixin } from 'ts-mixer';
-import nwsapi from 'nwsapi';
 import DOMException from 'domexception';
 
 import { NativeDocument } from '../../impl-interfaces';
@@ -8,11 +6,12 @@ import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynam
 
 import { SpatialObject } from './SpatialObject';
 import { NodeImpl } from './Node';
-import { DocumentTypeImpl } from './DocumentType';
 import DocumentFragmentImpl from './DocumentFragment';
 import { HTMLElementImpl } from './HTMLElement';
+import { applyMixins } from '../../mixin';
 
-export class XSMLShadowRoot extends Mixin(NodeImpl, DocumentFragmentImpl) implements ShadowRoot {
+export interface XSMLShadowRoot extends NodeImpl, DocumentFragmentImpl { };
+export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
   delegatesFocus: boolean;
   host: Element;
   mode: ShadowRootMode;
@@ -98,8 +97,10 @@ export class XSMLShadowRoot extends Mixin(NodeImpl, DocumentFragmentImpl) implem
   elementsFromPoint(x: number, y: number): Element[] {
     throw new Error('Method not implemented.');
   }
-  
+
   _adoptNode(node: Node): Node {
     throw new Error('Method not implemented.');
   }
 }
+
+applyMixins(XSMLShadowRoot, [DocumentFragmentImpl]);

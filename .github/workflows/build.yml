@@ -1,0 +1,29 @@
+name: Build
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+env:
+  BUILD_TYPE: Release
+  NODE_ENV: dev
+
+jobs:
+  build:
+    runs-on: macos-12
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build JavaScript Framework
+      working-directory: ${{github.workspace}}/build
+      run: make jsframework
+    - name: Build Targets
+      working-directory: ${{github.workspace}}/build
+      run: make darwin android
+    - name: Run Tests
+      working-directory: ${{github.workspace}}/build
+      run: |
+        ./targets/darwin/test-jsar ../Source/tests/xsml/simple.xsml
+        ./targets/darwin/test-jsar ../Source/tests/xsml/glb-loading.xsml
