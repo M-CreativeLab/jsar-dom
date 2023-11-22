@@ -1,13 +1,62 @@
-import { NativeDocument } from './impl-interfaces';
+import { NativeDocument, ResourceLoader } from '../impl-interfaces';
+import { PerformanceImpl } from '../living/hr-time/Performance';
+import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
+
+export type WindowOrDOMInit = {
+  url: string;
+  nativeDocument: NativeDocument;
+  referrer?: string;
+  contentType?: string;
+  storageQuota?: number;
+  runScripts?: 'dangerously' | 'outside-only' | 'never';
+};
 
 /**
  * A `BaseWindowImpl` which implements the window interfaces, and will be the global object to be used
  * in the XSML TypeScript.
  */
 export class BaseWindowImpl extends EventTarget implements Window {
+  #document: SpatialDocumentImpl;
   #nativeDocument: NativeDocument;
+  #resourceLoader: ResourceLoader;
   #performanceInstance: Performance = null;
   #listOfActiveTimers: Map<number, number> = new Map();
+
+  constructor(init: WindowOrDOMInit) {
+    super();
+
+    this.#nativeDocument = init.nativeDocument;
+    this.#setup(init);
+
+    const windowInitialized = performance.now();
+    this.#resourceLoader = this.#nativeDocument.userAgent.resourceLoader;
+    this.#document = new SpatialDocumentImpl(this.#nativeDocument, {
+      // TODO
+    }, {
+      options: {
+        url: init.url,
+        contentType: init.contentType,
+        encoding: 'utf-8',
+        scriptingDisabled: init.runScripts === 'never',
+        xsmlVersion: '1.0',
+        defaultView: this as any,
+      },
+    });
+    this.#nativeDocument.attachedDocument = this.#document;
+
+    // Create the performance instance.
+    this.#performanceInstance = new PerformanceImpl(this.#nativeDocument, [], {
+      timeOrigin: performance.timeOrigin + windowInitialized,
+      nowAtTimeOrigin: windowInitialized,
+    });
+  }
+
+  #setup(init: WindowOrDOMInit) {
+    const { runScripts } = init;
+    if (runScripts === 'outside-only' || runScripts === 'dangerously') {
+      // Setup for executing scripts.
+    }
+  }
 
   [index: number]: Window;
   get length(): number {
@@ -27,7 +76,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
     return this.#nativeDocument.userAgent.devicePixelRatio;
   }
   get document(): Document {
-    return this.#nativeDocument.attachedDocument;
+    return this.#document;
   }
   get event(): Event {
     throw new Error('`window.event` has been deprecated.');
@@ -137,6 +186,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
   visualViewport: VisualViewport;
   window: Window & typeof globalThis;
+
   alert(message?: any): void {
     this.#nativeDocument.userAgent.alert(message);
   }
@@ -476,6 +526,6 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
 }
 
-export function setupWindow() {
-  // TODO
+export function createWindow(init: WindowOrDOMInit) {
+  return new BaseWindowImpl(init);
 }

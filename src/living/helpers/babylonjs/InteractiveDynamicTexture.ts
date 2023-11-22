@@ -170,11 +170,11 @@ export class InteractiveDynamicTexture extends DynamicTexture {
     }
     this.applyYInversionOnUpdate = invertY;
     this._ownerNativeDocument = ownerNativeDocument;
-    
-    const rootContainer = HTMLElementImpl.createElement(ownerNativeDocument, 'div');
+
+    const rootContainer = this._ownerNativeDocument.attachedDocument.createElement('div');
     rootContainer.style.height = `${height}px`;
     rootContainer.style.width = `${width}px`;
-    this._rootContainer = rootContainer;
+    this._rootContainer = rootContainer as HTMLDivElementImpl;
 
     this.hasAlpha = true;
     if (!width || !height) {

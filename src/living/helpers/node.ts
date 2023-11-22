@@ -1,11 +1,10 @@
-import { XSMLBaseDocument, XSMLNode } from '../../xsml-interfaces';
 import { AttrImpl } from '../attributes/Attr';
-import { ElementImpl } from '../nodes/Element';
 import { NodeImpl } from '../nodes/Node';
+import { SpatialDocumentImpl } from '../nodes/SpatialDocument';
 import { cloningSteps, domSymbolTree } from './internal-constants';
 
 // https://dom.spec.whatwg.org/#concept-node-length
-export function nodeLength(node: XSMLNode) {
+export function nodeLength(node: Node) {
   switch (node.nodeType) {
     case node.DOCUMENT_TYPE_NODE:
       return 0;
@@ -21,7 +20,7 @@ export function nodeLength(node: XSMLNode) {
 }
 
 // https://dom.spec.whatwg.org/#concept-tree-root
-export function nodeRoot(node: XSMLNode) {
+export function nodeRoot(node: Node) {
   while (domSymbolTree.parent(node)) {
     node = domSymbolTree.parent(node);
   }
@@ -29,7 +28,7 @@ export function nodeRoot(node: XSMLNode) {
 }
 
 // https://dom.spec.whatwg.org/#concept-tree-inclusive-ancestor
-export function isInclusiveAncestor(ancestorNode: XSMLNode, node: XSMLNode) {
+export function isInclusiveAncestor(ancestorNode: Node, node: Node) {
   while (node) {
     if (ancestorNode === node) {
       return true;
@@ -40,7 +39,7 @@ export function isInclusiveAncestor(ancestorNode: XSMLNode, node: XSMLNode) {
 }
 
 // https://dom.spec.whatwg.org/#concept-tree-following
-export function isFollowing(nodeA: XSMLNode, nodeB: XSMLNode) {
+export function isFollowing(nodeA: Node, nodeB: Node) {
   if (nodeA === nodeB) {
     return false;
   }
@@ -55,9 +54,9 @@ export function isFollowing(nodeA: XSMLNode, nodeB: XSMLNode) {
   return false;
 }
 
-export function clone(node: NodeImpl, document?: XSMLBaseDocument, cloneChildren?: boolean) {
+export function clone(node: NodeImpl, document?: SpatialDocumentImpl, cloneChildren?: boolean) {
   if (document === undefined) {
-    document = node.ownerDocument;
+    document = node.ownerDocument as SpatialDocumentImpl;
   }
 
   let copy;

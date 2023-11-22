@@ -16,7 +16,8 @@ function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
   }
 }
 
-export default class ParentNodeImpl extends NodeImpl implements ParentNode {
+export default interface ParentNodeImpl extends NodeImpl { };
+export default class ParentNodeImpl implements ParentNode {
   protected _childrenList: HTMLCollectionImpl | null = null;
 
   get children(): HTMLCollection {
@@ -56,7 +57,10 @@ export default class ParentNodeImpl extends NodeImpl implements ParentNode {
   }
 
   append(...nodes: (string | Node)[]): void {
-    this._append(convertNodesIntoNode(this._ownerDocument, nodes));
+    if (!(this instanceof NodeImpl)) {
+      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+    }
+    this._append(convertNodesIntoNode(this._ownerDocument, nodes) as NodeImpl);
   }
 
   prepend(...nodes: (string | Node)[]): void {
@@ -69,7 +73,13 @@ export default class ParentNodeImpl extends NodeImpl implements ParentNode {
   querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K];
   querySelector<E extends Element = Element>(selectors: string): E;
   querySelector(selectors: unknown): Element | null {
-    if (!(this instanceof Element) && !(this instanceof Document)) {
+    if (!(this instanceof NodeImpl)) {
+      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+    }
+    if (
+      !(this instanceof Element) &&
+      !(this instanceof Document)
+    ) {
       throw new DOMException('ParentNode must be an Element or a Document.', 'HierarchyRequestError');
     }
     if (shouldAlwaysSelectNothing(this)) {
@@ -85,6 +95,9 @@ export default class ParentNodeImpl extends NodeImpl implements ParentNode {
   querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
   querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
   querySelectorAll(selectors: unknown): NodeListOf<Element> {
+    if (!(this instanceof NodeImpl)) {
+      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+    }
     if (!(this instanceof Element) && !(this instanceof Document)) {
       throw new DOMException('ParentNode must be an Element or a Document.', 'HierarchyRequestError');
     }
@@ -101,7 +114,7 @@ export default class ParentNodeImpl extends NodeImpl implements ParentNode {
   }
 
   replaceChildren(...nodes: (string | Node)[]): void {
-    const node = convertNodesIntoNode(this._ownerDocument, nodes);
+    const node = convertNodesIntoNode<NodeImpl>(this._ownerDocument, nodes);
     this._preInsertValidity(node, null);
     this._replaceAll(node);
   }

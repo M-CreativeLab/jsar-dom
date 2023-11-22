@@ -1,8 +1,8 @@
 import { convertNodesIntoNode } from '../node';
 import { NodeImpl } from './Node';
 
-export default class ChildNodeImpl extends NodeImpl implements ChildNode {
-
+export default interface ChildNodeImpl extends NodeImpl {};
+export default class ChildNodeImpl implements ChildNode {
   after(...nodes: (string | Node)[]): void {
     const parent = this.parentNode;
     if (parent) {
@@ -63,7 +63,7 @@ export default class ChildNodeImpl extends NodeImpl implements ChildNode {
         idx = nodes.indexOf(viableNextSibling);
       }
 
-      const node = convertNodesIntoNode(this._ownerDocument, nodes);
+      const node = convertNodesIntoNode<NodeImpl>(this._ownerDocument, nodes);
       if (this.parentNode === parent) {
         parent._replace(node, this);
       } else {

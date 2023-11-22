@@ -6,12 +6,13 @@ import { NativeDocument } from '../../impl-interfaces';
 import NamedNodeMapImpl from '../attributes/NamedNodeMap';
 import { HTML_NS } from '../helpers/namespaces';
 import { asciiLowercase, asciiUppercase } from '../helpers/strings';
-import { hasAttributeByName, hasAttributeByNameNS } from '../attributes';
+import { getAttributeByName, getAttributeByNameNS, hasAttributeByName, hasAttributeByNameNS } from '../attributes';
 import DOMRectImpl from '../geometry/DOMRect';
-import { Mixin } from 'ts-mixer';
 import ParentNodeImpl from './ParentNode';
 import ChildNodeImpl from './ChildNode';
 import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
+import { applyMixins } from '../../mixin';
+import { attributeNames } from '../helpers/attributes';
 
 function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   if (id && elm && doc) {
@@ -39,7 +40,8 @@ function detachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   }
 }
 
-export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, ParentNodeImpl, ChildNodeImpl) implements Element {
+export interface ElementImpl extends NodeImpl, NonDocumentTypeChildNodeImpl, ParentNodeImpl, ChildNodeImpl { };
+export class ElementImpl extends NodeImpl implements Element {
   attributes: NamedNodeMap;
   clientHeight: number;
   clientLeft: number;
@@ -135,7 +137,7 @@ export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, P
   ) {
     super(hostObject, args, null);
 
-    this._namespaceURI = privateData.namespace;
+    this._namespaceURI = privateData.namespace || HTML_NS;
     this._prefix = privateData.prefix;
     this._localName = privateData.localName;
     this._ceState = privateData.ceState;
@@ -169,19 +171,15 @@ export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, P
   }
 
   get _qualifiedName() {
-    return this._prefix !== null ? this._prefix + ':' + this._localName : this._localName;
+    return this._prefix ? this._prefix + ':' + this._localName : this._localName;
   }
 
   get tagName() {
     // This getter can be a hotpath in getComputedStyle.
     // All these are invariants during the instance lifetime so we can safely cache the computed tagName.
     // We could create it during construction but since we already identified this as potentially slow we do it lazily.
-    if (this._cachedTagName === null) {
-      if (this.namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {
-        this._cachedTagName = asciiUppercase(this._qualifiedName);
-      } else {
-        this._cachedTagName = this._qualifiedName;
-      }
+    if (this._cachedTagName == null) {
+      this._cachedTagName = asciiUppercase(this._qualifiedName);
     }
     return this._cachedTagName;
   }
@@ -225,19 +223,27 @@ export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, P
     throw new Error('Method not implemented.');
   }
   getAttribute(qualifiedName: string): string {
-    throw new Error('Method not implemented.');
+    const attr = getAttributeByName(this, qualifiedName);
+    if (!attr) {
+      return null;
+    }
+    return attr.value;
   }
   getAttributeNS(namespace: string, localName: string): string {
-    throw new Error('Method not implemented.');
+    const attr = getAttributeByNameNS(this, namespace, localName);
+    if (!attr) {
+      return null;
+    }
+    return attr.value;
   }
   getAttributeNames(): string[] {
-    throw new Error('Method not implemented.');
+    return attributeNames(this);
   }
   getAttributeNode(qualifiedName: string): Attr {
-    throw new Error('Method not implemented.');
+    return getAttributeByName(this, qualifiedName);
   }
   getAttributeNodeNS(namespace: string, localName: string): Attr {
-    throw new Error('Method not implemented.');
+    return getAttributeByNameNS(this, namespace, localName);
   }
   getBoundingClientRect(): DOMRect {
     return new DOMRectImpl();
@@ -358,3 +364,5 @@ export class ElementImpl extends Mixin(NodeImpl, NonDocumentTypeChildNodeImpl, P
     throw new Error('Method not implemented.');
   }
 }
+
+applyMixins(ElementImpl, [ParentNodeImpl, ChildNodeImpl, NonDocumentTypeChildNodeImpl]);

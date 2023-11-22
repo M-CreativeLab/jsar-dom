@@ -152,12 +152,6 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
     throw new Error('Method not implemented.');
   }
 
-  static createElement(nativeDocument: NativeDocument, tagName: 'div'): HTMLDivElementImpl;
-  static createElement(nativeDocument: NativeDocument, tagName: 'span'): HTMLSpanElementImpl;
-  static createElement(nativeDocument: NativeDocument, tagName: string): HTMLElementImpl {
-    throw new Error('Method not implemented.');
-  }
-
   /**
    * The layout node to be used for the HTML layout.
    * 

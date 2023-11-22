@@ -45,7 +45,7 @@ export interface RequestManager {
   size();
 }
 
-type UserAgentInit = {
+export type UserAgentInit = {
   /**
    * Default stylesheet to use for the document.
    */
@@ -69,11 +69,6 @@ export interface UserAgent {
    * See `options.devicePixelRatio`.
    */
   devicePixelRatio: number;
-
-  /**
-   * Construct a new `UserAgent` instance with the given init options.
-   */
-  new(init: UserAgentInit): UserAgent;
 
   /**
    * A `DOMParser` instance is used to parse and load the given XSML text content.

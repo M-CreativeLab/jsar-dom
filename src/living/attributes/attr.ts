@@ -1,8 +1,7 @@
-import { CreateXSMLType } from '../../xsml-interfaces';
 import { setAnExistingAttributeValue } from '../helpers/attributes';
 import { NodeImpl } from '../nodes/Node';
 
-export class AttrImpl extends NodeImpl implements CreateXSMLType<Attr> {
+export class AttrImpl extends NodeImpl implements Attr {
   specified: boolean;
 
   #namespace: string | null;

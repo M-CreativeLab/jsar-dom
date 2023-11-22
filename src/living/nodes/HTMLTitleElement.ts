@@ -6,7 +6,7 @@ export default class HTMLTitleElementImpl extends HTMLElementImpl implements HTM
   constructor(
     nativeDocument: NativeDocument,
     args,
-    privateData: {}
+    privateData: {} = null
   ) {
     super(nativeDocument, args, {
       localName: 'title',

@@ -1,5 +1,4 @@
 import BABYLON from 'babylonjs';
-import { Mixin } from 'ts-mixer';
 import { NativeDocument } from '../../impl-interfaces';
 import { DocumentTypeImpl } from './DocumentType';
 import { SpatialObject } from './SpatialObject';
@@ -15,28 +14,49 @@ import { RangeImpl } from '../range/Range';
 import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
 import ParentNodeImpl from './ParentNode';
 import nwsapi from 'nwsapi';
+import { CustomEventImpl } from '../events/CustomEvent';
+import ErrorEventImpl from '../events/ErrorEvent';
+import FocusEventImpl from '../events/FocusEvent';
+import HashChangeEventImpl from '../events/HashChangeEvent';
+import KeyboardEventImpl from '../events/KeyboardEvent';
+import MessageEventImpl from '../events/MessageEvent';
+import PopStateEventImpl from '../events/PopStateEvent';
+import ProgressEventImpl from '../events/ProgressEvent';
+import TouchEventImpl from '../events/TouchEvent';
+import { applyMixins } from '../../mixin';
+import { canParseURL } from '../helpers/url';
+import HTMLHeadElementImpl from './HTMLHeadElement';
+import HTMLTitleElementImpl from './HTMLTitleElement';
+import HTMLMetaElementImpl from './HTMLMetaElement';
+import { domSymbolTree } from '../helpers/internal-constants';
+import HTMLSpaceElement from './HTMLSpaceElement';
+import { HTML_NS, SVG_NS } from '../helpers/namespaces';
+import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
+import { childTextContent } from '../helpers/text';
+import { stripAndCollapseASCIIWhitespace } from '../helpers/strings';
+import { ElementImpl } from './Element';
 
 type DocumentInitOptions = {
-  screenWidth: number;
-  screenHeight: number;
+  screenWidth?: number;
+  screenHeight?: number;
 };
 
 const eventInterfaceTable = {
-  customevent: CustomEvent,
-  errorevent: ErrorEvent,
+  customevent: CustomEventImpl,
+  errorevent: ErrorEventImpl,
   event: Event,
   events: Event,
-  focusevent: FocusEvent,
-  hashchangeevent: HashChangeEvent,
+  focusevent: FocusEventImpl,
+  hashchangeevent: HashChangeEventImpl,
   htmlevents: Event,
-  keyboardevent: KeyboardEvent,
-  messageevent: MessageEvent,
+  keyboardevent: KeyboardEventImpl,
+  messageevent: MessageEventImpl,
   mouseevent: MouseEventImpl,
   mouseevents: MouseEventImpl,
-  popstateevent: PopStateEvent,
-  progressevent: ProgressEvent,
+  popstateevent: PopStateEventImpl,
+  progressevent: ProgressEventImpl,
   svgevents: Event,
-  touchevent: TouchEvent,
+  touchevent: TouchEventImpl,
   uievent: UIEventImpl,
   uievents: UIEventImpl,
 };
@@ -45,7 +65,8 @@ const eventInterfaceTable = {
  * The `SpatialDocument` is a new Web API, it represents the document object in space computing.
  * It is the root of the document tree, and provides the primary access to the document's data.
  */
-export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImpl, ParentNodeImpl) implements Document {
+export interface SpatialDocumentImpl extends NodeImpl, DocumentOrShadowRootImpl, ParentNodeImpl { };
+export class SpatialDocumentImpl extends NodeImpl implements Document {
   #nativeDocument: NativeDocument;
   #screenWidth: number;
   #screenHeight: number;
@@ -85,11 +106,20 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   defaultView: Window & typeof globalThis;
   designMode: string;
   dir: string;
-  documentElement: HTMLElement;
+  get documentElement(): HTMLElement {
+    for (const childNode of domSymbolTree.childrenIterator(this)) {
+      if (childNode.nodeType === NodeImpl.ELEMENT_NODE) {
+        return childNode;
+      }
+    }
+    return null;
+  }
   fgColor: string;
   fullscreen: boolean;
   fullscreenEnabled: boolean;
-  head: HTMLHeadElement;
+  get head(): HTMLHeadElement {
+    return this.documentElement ? firstChildWithLocalName(this.documentElement, 'head') : null;
+  }
   hidden: boolean;
   get images(): HTMLCollectionOf<HTMLImageElement> {
     throw new DOMException('document.images is not supported', 'NotSupportedError');
@@ -144,9 +174,56 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   rootElement: SVGSVGElement;
   scrollingElement: Element;
   timeline: DocumentTimeline;
-  title: string;
+  get title(): string {
+    const documentElement = this.documentElement as HTMLElementImpl;
+    let value = '';
+
+    if (documentElement && documentElement.localName === 'svg') {
+      const svgTitleElement = firstChildWithLocalName(documentElement, 'title', SVG_NS);
+
+      if (svgTitleElement) {
+        value = childTextContent(svgTitleElement);
+      }
+    } else {
+      const titleElement = firstDescendantWithLocalName(this, 'title');
+      if (titleElement) {
+        value = childTextContent(titleElement);
+      }
+    }
+    value = stripAndCollapseASCIIWhitespace(value);
+    return value;
+  }
+  set title(value) {
+    const documentElement = this.documentElement as HTMLElementImpl;
+    let element: ElementImpl;
+
+    if (documentElement && documentElement._localName === 'svg') {
+      element = firstChildWithLocalName(documentElement, 'title', SVG_NS);
+      if (!element) {
+        element = this.createElementNS(SVG_NS, 'title') as unknown as ElementImpl;
+        this._insert(element, documentElement.firstChild as unknown as NodeImpl);
+      }
+      element.textContent = value;
+    } else if (documentElement && documentElement._namespaceURI === HTML_NS) {
+      const titleElement = firstDescendantWithLocalName(this, 'title');
+      const headElement = this.head as HTMLHeadElementImpl;
+
+      if (titleElement === null && headElement === null) {
+        return;
+      }
+      if (titleElement !== null) {
+        element = titleElement;
+      } else {
+        element = this.createElement('title') as unknown as ElementImpl;
+        headElement._append(element);
+      }
+      element.textContent = value;
+    }
+  }
+
   vlinkColor: string;
 
+  _xsmlVersion: string;
   _ids = Object.create(null);
   _parsingMode: string = 'xsml';
   _scriptingDisabled: boolean = false;
@@ -175,6 +252,8 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
         contentType: string;
         encoding: string;
         scriptingDisabled?: boolean;
+        xsmlVersion: string;
+        defaultView: Window & typeof globalThis;
       }
     }
   ) {
@@ -191,15 +270,17 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
       publicId: '-//W3C//DTD XSML 1.0//EN',
       systemId: 'https://jsar.netlify.app/spec/xsml-1.0.dtd',
     }) as unknown as DocumentType;
+    this.nodeType = NodeImpl.DOCUMENT_NODE;
     this.domain = '';
     this.contentType = privateData.options.contentType || 'application/xsml';
 
+    this._ownerDocument = this;
     this._attached = true;
     this._scriptingDisabled = privateData.options.scriptingDisabled;
     this._encoding = privateData.options.encoding || 'UTF-8';
 
     const urlOption = privateData.options.url === undefined ? 'about:blank' : privateData.options.url;
-    if (URL.canParse(urlOption) === null) {
+    if (canParseURL(urlOption) === null) {
       throw new TypeError(`Could not parse ${urlOption} as a URL.`);
     }
     this._URL = new URL(urlOption);
@@ -472,7 +553,7 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   writeln(..._: string[]): void {
     throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
   }
-  
+
   fonts: FontFaceSet;
   onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;
   onanimationcancel: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
@@ -634,26 +715,29 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
    * Create an element by tag name which could be append to a `XSMLShadowRoot`.
    * @param tagName the tag name: "div", "span", "b", "a", "button" ...
    */
+  createElement(tagName: 'head'): HTMLTitleElement;
+  createElement(tagName: 'title'): HTMLTitleElement;
+  createElement(tagName: 'meta'): HTMLMetaElement;
+  // createElement(tagName: 'space'): HTMLSpaceElement;
+  createElement(tagName: 'div'): HTMLDivElement;
+  createElement(tagName: 'span'): HTMLSpanElement;
+  createElement(tagName: 'a'): HTMLAnchorElement;
+  createElement(tagName: 'img'): HTMLImageElement;
+  createElement(tagName: string): HTMLElement;
   createElement(tagName: string): HTMLElement {
-    let element: HTMLElementImpl;
-    switch (tagName.toUpperCase()) {
-      case 'DIV':
-        element = HTMLElementImpl.createElement(this.#nativeDocument, 'div');
-        break;
-      case 'SPAN':
-        element = HTMLElementImpl.createElement(this.#nativeDocument, 'span');
-        break;
-      case 'P':
-        element = HTMLElementImpl.createElement(this.#nativeDocument, 'p');
-        break;
-      case 'BUTTON':
-      case 'A':
-      case 'B':
-      case 'I':
-      default:
-        throw new TypeError(`Unknown element type: ${tagName}`);
+    if (tagName === 'head') {
+      return new HTMLHeadElementImpl(this.#nativeDocument, []);
+    } else if (tagName === 'title') {
+      return new HTMLTitleElementImpl(this.#nativeDocument, []);
+    } else if (tagName === 'meta') {
+      return new HTMLMetaElementImpl(this.#nativeDocument, []);
+    } else if (tagName === 'space') {
+      return new HTMLSpaceElement(this.#nativeDocument, []);
+    } else {
+      return new HTMLElementImpl(this.#nativeDocument, [], {
+        localName: tagName,
+      });
     }
-    return element;
   }
 
   /**
@@ -876,9 +960,11 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
 
   /**
    * Get the node by the id.
+   * 
+   * @deprecated
    */
   getNodeById(id: string): BABYLON.Node {
-    this.#nativeDocument.logger.warn(`The method "getNodeById()" is deprecated, please use "getSpatialObjectById()" instead.`);
+    this.#nativeDocument.console.warn(`The method "getNodeById()" is deprecated, please use "getSpatialObjectById()" instead.`);
     return this.scene.getNodeById(id);
   }
 
@@ -890,8 +976,11 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
   }
 
   // https://dom.spec.whatwg.org/#concept-node-adopt
-  _adoptNode(_node: Node) {
-    throw new DOMException('SpatialDocument do not support adoptNode().', 'NotSupportedError');
+  _adoptNode(node: Node) {
+    const parent = domSymbolTree.parent(node);
+    if (parent) {
+      parent._remove(node);
+    }
   }
 
   _runPreRemovingSteps(_oldNode: NodeImpl) {
@@ -919,3 +1008,5 @@ export class SpatialDocumentImpl extends Mixin(NodeImpl, DocumentOrShadowRootImp
     });
   }
 }
+
+applyMixins(SpatialDocumentImpl, [DocumentOrShadowRootImpl, ParentNodeImpl]);

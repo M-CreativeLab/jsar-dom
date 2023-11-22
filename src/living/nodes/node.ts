@@ -608,14 +608,15 @@ export class NodeImpl extends EventTarget implements Node {
 
         case this.ELEMENT_NODE:
           if (
-            parentChildren.some(child => child.nodeType === this.ELEMENT_NODE) ||
-            (childImpl && childImpl.nodeType === this.DOCUMENT_TYPE_NODE) ||
+            parentChildren.some(child => child.nodeType === NodeImpl.ELEMENT_NODE) ||
+            (childImpl && childImpl.nodeType === NodeImpl.DOCUMENT_TYPE_NODE) ||
             (
               childImpl &&
               domSymbolTree.nextSibling(childImpl) &&
-              domSymbolTree.nextSibling(childImpl).nodeType === this.DOCUMENT_TYPE_NODE
+              domSymbolTree.nextSibling(childImpl).nodeType === NodeImpl.DOCUMENT_TYPE_NODE
             )
           ) {
+            console.log(parentChildren, nodeChildren);
             throw new DOMException(
               `Invalid insertion of ${nodeName} node in ${parentName} node.`,
               'HierarchyRequestError'

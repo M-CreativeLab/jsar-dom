@@ -1,13 +1,14 @@
-import { NodeImpl } from './nodes/Node';
+import DocumentFragmentImpl from './nodes/DocumentFragment';
 import { SpatialDocumentImpl } from './nodes/SpatialDocument';
 
-export function convertNodesIntoNode(document: SpatialDocumentImpl, nodes: (string | Node)[]): NodeImpl {
+export function convertNodesIntoNode<T = Node>(document: SpatialDocumentImpl, nodes: (string | Node)[]): T {
   if (nodes.length === 1) { // note: I'd prefer to check instanceof Node rather than string
-    return typeof nodes[0] === 'string' ? document.createTextNode(nodes[0]) : nodes[0];
+    return (typeof nodes[0] === 'string' ? document.createTextNode(nodes[0]) : nodes[0]) as T;
   }
-  const fragment = document.createDocumentFragment();
+  const fragment = document.createDocumentFragment() as DocumentFragmentImpl;
   for (let i = 0; i < nodes.length; i++) {
-    fragment._append(typeof nodes[i] === 'string' ? document.createTextNode(nodes[i]) : nodes[i]);
+    const child = typeof nodes[i] === 'string' ? document.createTextNode(nodes[i] as string) : nodes[i];
+    fragment.appendChild(child as Node);
   }
-  return fragment;
+  return fragment as T;
 }

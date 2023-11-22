@@ -1,11 +1,21 @@
+import { NativeDocument } from '../../impl-interfaces';
+
 export class PerformanceImpl extends EventTarget implements Performance {
   private _nowAtTimeOrigin: number;
   timeOrigin: number;
   onresourcetimingbufferfull: (this: Performance, ev: Event) => any;
 
-  constructor() {
+  constructor(
+    _hostObject: NativeDocument,
+    _args,
+    privateData: {
+      timeOrigin: number;
+      nowAtTimeOrigin: number;
+    }
+  ) {
     super();
-    this._nowAtTimeOrigin = performance.now();
+    this.timeOrigin = privateData.timeOrigin;
+    this._nowAtTimeOrigin = privateData.nowAtTimeOrigin;
   }
 
   get eventCounts() {

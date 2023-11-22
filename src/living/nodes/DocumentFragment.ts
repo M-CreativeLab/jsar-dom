@@ -1,9 +1,10 @@
-import { Mixin } from 'ts-mixer';
 import { NodeImpl } from './Node';
 import ParentNodeImpl from './ParentNode';
 import { domSymbolTree } from '../helpers/internal-constants';
+import { applyMixins } from '../../mixin';
 
-export default class DocumentFragmentImpl extends Mixin(NodeImpl, ParentNodeImpl) implements DocumentFragment {
+export default interface DocumentFragmentImpl extends NodeImpl, ParentNodeImpl { };
+export default class DocumentFragmentImpl extends NodeImpl implements DocumentFragment {
   getElementById(elementId: string): HTMLElement {
     if (elementId === '') {
       return null;
@@ -17,3 +18,5 @@ export default class DocumentFragmentImpl extends Mixin(NodeImpl, ParentNodeImpl
     return null;
   }
 }
+
+applyMixins(DocumentFragmentImpl, [ParentNodeImpl]);
