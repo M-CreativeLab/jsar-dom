@@ -17,6 +17,6 @@ export class JSARDOM {
   }
 
   get document(): SpatialDocumentImpl {
-    return this[windowSymbol].document as SpatialDocumentImpl;
+    return this[windowSymbol].document as unknown as SpatialDocumentImpl;
   }
 }
