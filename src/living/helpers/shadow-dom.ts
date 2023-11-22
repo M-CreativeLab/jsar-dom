@@ -6,7 +6,6 @@ import { domSymbolTree } from './internal-constants';
 import { NodeImpl } from '../nodes/Node';
 import { signalSlotList, queueMutationObserverMicrotask } from './mutation-observers';
 import { ElementImpl } from '../nodes/Element';
-import { XSMLNode } from '../../xsml-interfaces';
 
 // Valid host element for ShadowRoot.
 // Defined in: https://dom.spec.whatwg.org/#dom-element-attachshadow

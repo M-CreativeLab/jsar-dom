@@ -1,5 +1,8 @@
-import { NativeDocument } from '../../impl-interfaces';
+import { LayoutNode, NativeDocument } from '../../impl-interfaces';
+import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 import { ElementImpl } from './Element';
+import HTMLDivElementImpl from './HTMLDivElement';
+import HTMLSpanElementImpl from './HTMLSpanElement';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   accessKey: string;
@@ -149,7 +152,73 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
     throw new Error('Method not implemented.');
   }
 
+  static createElement(nativeDocument: NativeDocument, tagName: 'div'): HTMLDivElementImpl;
+  static createElement(nativeDocument: NativeDocument, tagName: 'span'): HTMLSpanElementImpl;
   static createElement(nativeDocument: NativeDocument, tagName: string): HTMLElementImpl {
     throw new Error('Method not implemented.');
+  }
+
+  /**
+   * The layout node to be used for the HTML layout.
+   * 
+   * @internal
+   */
+  _layoutNode: LayoutNode;
+
+  /**
+   * Update the target texture of this HTML element.
+   * 
+   * @internal
+   * @param targetTexture 
+   */
+  _updateTargetTexture(targetTexture: InteractiveDynamicTexture) {
+    // TODO
+  }
+
+  /**
+   * Render the controller itself.
+   * 
+   * @internal
+   * @param rect 
+   * @param base 
+   */
+  _renderControlSelf(rect: DOMRect, base: DOMRectReadOnly): void {
+    const x = rect.x + base.x;
+    const y = rect.y + base.y;
+    const width = rect.width;
+    const height = rect.height;
+  }
+
+  /**
+   * Process the element picking.
+   * 
+   * @internal
+   * @param x 
+   * @param y 
+   * @param _type 
+   */
+  _processPicking(x: number, y: number, _type?: number) {
+    // TODO
+  }
+
+  /**
+   * Process the pointer events.
+   * 
+   * @internal
+   * @param x 
+   * @param y 
+   * @param type 
+   * @returns 
+   */
+  _processPointerEvent(x: number, y: number, type: number): boolean {
+    // TODO
+    return true;
+  }
+
+  /**
+   * @internal
+   */
+  _dispose() {
+
   }
 }

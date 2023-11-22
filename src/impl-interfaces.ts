@@ -115,6 +115,22 @@ export interface NativeEngine extends EventTarget {
   addEventListener(type: 'DOMContentLoaded', listener: (event: Event) => void): void;
 }
 
+type LayoutResult = {
+  childCount: number;
+  child(i: number): LayoutResult;
+  unref(): void;
+} & DOMRect;
+
+export interface LayoutNode {
+  new(style: CSSStyleSheet): LayoutNode;
+
+  setStyle(newStyle: CSSStyleSheet): void;
+  appendChild(child: LayoutNode): void;
+  removeChild(child: LayoutNode): void;
+  computeLayout(targetDescriptor: { height: number; width: number }): LayoutResult;
+  dispose(): void;
+}
+
 /**
  * The entry point that implementation must provide to the native engine.
  */
