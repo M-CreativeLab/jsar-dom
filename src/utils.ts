@@ -1,3 +1,6 @@
+import { TreePosition } from 'symbol-tree';
+import { domSymbolTree } from './living/helpers/internal-constants';
+
 export const simultaneousIterators = function* (first, second) {
   for (; ;) {
     const firstResult = first.next();
@@ -14,14 +17,14 @@ export const simultaneousIterators = function* (first, second) {
   }
 };
 
-// export const treeOrderSorter = function (a, b) {
-//   const compare = domSymbolTree.compareTreePosition(a, b);
-//   if (compare & SYMBOL_TREE_POSITION.PRECEDING) { // b is preceding a
-//     return 1;
-//   }
-//   if (compare & SYMBOL_TREE_POSITION.FOLLOWING) {
-//     return -1;
-//   }
-//   // disconnected or equal:
-//   return 0;
-// };
+export const treeOrderSorter = function (a, b) {
+  const compare = domSymbolTree.compareTreePosition(a, b);
+  if (compare & TreePosition.PRECEDING) { // b is preceding a
+    return 1;
+  }
+  if (compare & TreePosition.FOLLOWING) {
+    return -1;
+  }
+  // disconnected or equal:
+  return 0;
+};

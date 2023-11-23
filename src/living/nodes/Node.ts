@@ -1,7 +1,7 @@
 import DOMException from 'domexception';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { clone, isInclusiveAncestor, nodeRoot } from '../helpers/node';
-import { setAnExistingAttributeValue } from '../helpers/attributes';
+import { setAnExistingAttributeValue } from '../attributes';
 import { assignSlot, assignSlotable, assignSlotableForTree, isShadowRoot, isSlot, shadowIncludingRoot, signalSlotChange } from '../helpers/shadow-dom';
 import { AttrImpl } from '../attributes/Attr';
 import { ElementImpl } from './Element';

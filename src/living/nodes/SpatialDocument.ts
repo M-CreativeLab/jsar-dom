@@ -993,19 +993,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     // }
   }
 
-  _createAttribute({
-    localName,
-    value,
-    namespace,
-    namespacePrefix
-  }) {
-    return new AttrImpl(this._hostObject, [], {
-      localName,
-      value,
-      namespace,
-      namespacePrefix,
-      ownerDocument: this
-    });
+  _createAttribute(privateData: ConstructorParameters<typeof AttrImpl>[2]) {
+    return new AttrImpl(this._hostObject, [], privateData);
   }
 }
 

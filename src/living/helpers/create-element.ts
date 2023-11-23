@@ -2,14 +2,10 @@ import DOMException from 'domexception';
 import { HTML_NS, SVG_NS } from './namespaces';
 import { domSymbolTree } from './internal-constants';
 import { XSMLShadowRoot } from '../nodes/ShadowRoot';
-
-const interfaces = require("../interfaces");
-
-const { validateAndExtract } = require("./validate-names");
-const reportException = require("./runtime-script-errors");
-const {
-  isValidCustomElementName, upgradeElement, lookupCEDefinition, enqueueCEUpgradeReaction
-} = require("./custom-elements");
+import * as interfaces from '../interfaces';
+import { isValidCustomElementName, lookupCEDefinition } from './custom-elements';
+import { SpatialDocumentImpl } from '../nodes/SpatialDocument';
+import { validateAndExtract } from './validate-names';
 
 const INTERFACE_TAG_MAPPING = {
   // https://html.spec.whatwg.org/multipage/dom.html#elements-in-the-dom%3Aelement-interface
@@ -120,6 +116,37 @@ const HTML_ELEMENTS_NAMES = [
   'strike', 'tt'
 ];
 
+// https://html.spec.whatwg.org/multipage/dom.html#elements-in-the-dom:element-interface
+export function getHTMLElementInterface(name: string) {
+  if (UNKNOWN_HTML_ELEMENTS_NAMES.includes(name)) {
+    return interfaces.getInterfaceWrapper("HTMLUnknownElement");
+  }
+
+  if (HTML_ELEMENTS_NAMES.includes(name)) {
+    return interfaces.getInterfaceWrapper("HTMLElement");
+  }
+
+  const specDefinedInterface = TAG_INTERFACE_LOOKUP[HTML_NS][name];
+  if (specDefinedInterface !== undefined) {
+    return interfaces.getInterfaceWrapper(specDefinedInterface);
+  }
+
+  if (isValidCustomElementName(name)) {
+    return interfaces.getInterfaceWrapper('HTMLElement');
+  }
+
+  return interfaces.getInterfaceWrapper('HTMLUnknownElement');
+}
+
+// https://svgwg.org/svg2-draft/types.html#ElementsInTheSVGDOM
+export function getSVGInterface(name: string) {
+  const specDefinedInterface = TAG_INTERFACE_LOOKUP[SVG_NS][name];
+  if (specDefinedInterface !== undefined) {
+    return interfaces.getInterfaceWrapper(specDefinedInterface);
+  }
+  return interfaces.getInterfaceWrapper('SVGElement');
+}
+
 // Returns the list of valid tag names that can bo associated with a element given its namespace and name.
 export function getValidTagNames(namespace: string, name: string) {
   if (INTERFACE_TAG_MAPPING[namespace] && INTERFACE_TAG_MAPPING[namespace][name]) {
@@ -130,7 +157,7 @@ export function getValidTagNames(namespace: string, name: string) {
 
 // https://dom.spec.whatwg.org/#concept-create-element
 export function createElement(
-  document: XSMLShadowRoot,
+  document: SpatialDocumentImpl,
   localName: string,
   namespace: string,
   prefix: string = null,
@@ -256,8 +283,8 @@ export function createElement(
 }
 
 // https://dom.spec.whatwg.org/#internal-createelementns-steps
-export function internalCreateElementNSSteps(document: XSMLShadowRoot, namespace: string, qualifiedName: string, options) {
-  const extracted = validateAndExtract(document._hostObject, namespace, qualifiedName);
+export function internalCreateElementNSSteps(document: SpatialDocumentImpl, namespace: string, qualifiedName: string, options) {
+  const extracted = validateAndExtract(namespace, qualifiedName);
 
   let isValue = null;
   if (options && options.is !== undefined) {

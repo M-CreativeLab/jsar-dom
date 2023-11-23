@@ -1,4 +1,4 @@
-import { Tags } from 'babylonjs';
+import DOMException from 'domexception';
 import { AttrImpl } from '../attributes/Attr';
 import { NodeImpl } from './Node';
 import { SpatialDocumentImpl } from './SpatialDocument';
@@ -6,13 +6,19 @@ import { NativeDocument } from '../../impl-interfaces';
 import NamedNodeMapImpl from '../attributes/NamedNodeMap';
 import { HTML_NS } from '../helpers/namespaces';
 import { asciiLowercase, asciiUppercase } from '../helpers/strings';
-import { getAttributeByName, getAttributeByNameNS, hasAttributeByName, hasAttributeByNameNS } from '../attributes';
+import { appendAttribute, changeAttribute, getAttributeByName, getAttributeByNameNS, hasAttribute, hasAttributeByName, hasAttributeByNameNS, removeAttribute, removeAttributeByName, removeAttributeByNameNS } from '../attributes';
 import DOMRectImpl from '../geometry/DOMRect';
 import ParentNodeImpl from './ParentNode';
 import ChildNodeImpl from './ChildNode';
 import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
 import { applyMixins } from '../../mixin';
-import { attributeNames } from '../helpers/attributes';
+import { attributeNames, setAttribute, setAttributeValue } from '../attributes';
+import { CustomElementDefinition } from '../custom-elements/CustomElementRegistry';
+import * as namedPropertiesWindow from '../named-properties-window';
+import * as validateNames from '../helpers/validate-names';
+import DOMTokenListImpl from './DOMTokenList';
+import { addNwsapi } from '../helpers/selectors';
+import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
 
 function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   if (id && elm && doc) {
@@ -116,9 +122,11 @@ export class ElementImpl extends NodeImpl implements Element {
   _namespaceURI: string | null;
   _prefix: string | null;
   _localName: string;
-  _ceState: string | null;
-  _ceDefinition: string | null;
+  _ceState: string;
+  _ceDefinition: CustomElementDefinition;
+  _ceReactionQueue: any[];
   _isValue: boolean;
+  _classList: DOMTokenListImpl;
   _ownerDocument: SpatialDocumentImpl;
   _attributesByNameMap: Map<string, AttrImpl[]> = new Map();
   _cachedTagName: string | null;
@@ -131,7 +139,7 @@ export class ElementImpl extends NodeImpl implements Element {
       prefix?: string;
       localName: string;
       ceState?: string;
-      ceDefinition?: string;
+      ceDefinition?: CustomElementDefinition;
       isValue?: boolean;
     }
   ) {
@@ -159,15 +167,21 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   get className(): string {
-    return Tags.GetTags(this, true);
+    throw new DOMException('className is not supported', 'NotSupportedError');
   }
 
   set className(value: string) {
-    Tags.AddTagsTo(this, value);
+    throw new DOMException('className is not supported', 'NotSupportedError');
   }
 
   get classList() {
-    return Tags.GetTags(this, false);
+    if (this._classList === undefined) {
+      this._classList = new DOMTokenListImpl(this._hostObject, [], {
+        element: this,
+        attributeLocalName: 'class'
+      });
+    }
+    return this._classList;
   }
 
   get _qualifiedName() {
@@ -206,12 +220,30 @@ export class ElementImpl extends NodeImpl implements Element {
     }
   }
 
+  _attrModified(name: string, value: string, oldValue: string) {
+    this._modified();
+    namedPropertiesWindow.elementAttributeModified(this, name, value, oldValue);
+
+    if (name === 'id' && this._attached) {
+      const doc = this._ownerDocument;
+      detachId(oldValue, this, doc);
+      attachId(value, this, doc);
+    }
+
+    // update classList
+    if (name === 'class' && this._classList !== undefined) {
+      this._classList._attrModified()
+    }
+  }
+
   attachShadow(init: ShadowRootInit): ShadowRoot {
     throw new Error('Method not implemented.');
   }
+
   checkVisibility(options?: CheckVisibilityOptions): boolean {
     throw new Error('Method not implemented.');
   }
+
   closest<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K];
   closest<K extends keyof SVGElementTagNameMap>(selector: K): SVGElementTagNameMap[K];
   closest<K extends keyof MathMLElementTagNameMap>(selector: K): MathMLElementTagNameMap[K];
@@ -219,9 +251,11 @@ export class ElementImpl extends NodeImpl implements Element {
   closest(selectors: unknown): unknown {
     throw new Error('Method not implemented.');
   }
+
   computedStyleMap(): StylePropertyMapReadOnly {
     throw new Error('Method not implemented.');
   }
+
   getAttribute(qualifiedName: string): string {
     const attr = getAttributeByName(this, qualifiedName);
     if (!attr) {
@@ -229,6 +263,7 @@ export class ElementImpl extends NodeImpl implements Element {
     }
     return attr.value;
   }
+
   getAttributeNS(namespace: string, localName: string): string {
     const attr = getAttributeByNameNS(this, namespace, localName);
     if (!attr) {
@@ -236,39 +271,48 @@ export class ElementImpl extends NodeImpl implements Element {
     }
     return attr.value;
   }
+
   getAttributeNames(): string[] {
     return attributeNames(this);
   }
+
   getAttributeNode(qualifiedName: string): Attr {
     return getAttributeByName(this, qualifiedName);
   }
+
   getAttributeNodeNS(namespace: string, localName: string): Attr {
     return getAttributeByNameNS(this, namespace, localName);
   }
+
   getBoundingClientRect(): DOMRect {
     return new DOMRectImpl();
   }
+
   getClientRects(): DOMRectList {
     throw new Error('Method not implemented.');
   }
+
   getElementsByClassName(classNames: string): HTMLCollectionOf<Element> {
-    throw new Error('Method not implemented.');
+    return listOfElementsWithClassNames(classNames, this);
   }
+
   getElementsByTagName<K extends keyof HTMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementTagNameMap[K]>;
   getElementsByTagName<K extends keyof SVGElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<SVGElementTagNameMap[K]>;
   getElementsByTagName<K extends keyof MathMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<MathMLElementTagNameMap[K]>;
   getElementsByTagName<K extends keyof HTMLElementDeprecatedTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementDeprecatedTagNameMap[K]>;
   getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element>;
-  getElementsByTagName(qualifiedName: unknown): unknown {
-    throw new Error('Method not implemented.');
+  getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element> {
+    return listOfElementsWithQualifiedName(qualifiedName, this);
   }
+
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/1999/xhtml', localName: string): HTMLCollectionOf<HTMLElement>;
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/2000/svg', localName: string): HTMLCollectionOf<SVGElement>;
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/1998/Math/MathML', localName: string): HTMLCollectionOf<MathMLElement>;
   getElementsByTagNameNS(namespace: string, localName: string): HTMLCollectionOf<Element>;
-  getElementsByTagNameNS(namespace: unknown, localName: unknown): HTMLCollectionOf<Element> | HTMLCollectionOf<HTMLElement> | HTMLCollectionOf<SVGElement> | HTMLCollectionOf<MathMLElement> {
-    throw new Error('Method not implemented.');
+  getElementsByTagNameNS(namespace: string, localName: string): HTMLCollectionOf<Element> {
+    return listOfElementsWithNamespaceAndLocalName(namespace, localName, this);
   }
+
   hasAttribute(qualifiedName: string): boolean {
     if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === "html") {
       qualifiedName = asciiLowercase(qualifiedName);
@@ -296,20 +340,33 @@ export class ElementImpl extends NodeImpl implements Element {
   insertAdjacentText(where: InsertPosition, data: string): void {
     throw new Error('Method not implemented.');
   }
+
   matches(selectors: string): boolean {
-    throw new Error('Method not implemented.');
+    const matcher = addNwsapi(this);
+    return matcher.match(selectors, this);
   }
+
   releasePointerCapture(pointerId: number): void {
     throw new Error('Method not implemented.');
   }
+
   removeAttribute(qualifiedName: string): void {
-    throw new Error('Method not implemented.');
+    removeAttributeByName(this, qualifiedName);
   }
+
   removeAttributeNS(namespace: string, localName: string): void {
-    throw new Error('Method not implemented.');
+    removeAttributeByNameNS(this, namespace, localName);
   }
+
   removeAttributeNode(attr: Attr): Attr {
-    throw new Error('Method not implemented.');
+    if (!hasAttribute(this, attr as AttrImpl)) {
+      throw new DOMException(
+        'Tried to remove an attribute that was not present',
+        'NotFoundError'
+      );
+    }
+    removeAttribute(this, attr as AttrImpl);
+    return attr;
   }
   requestFullscreen(options?: FullscreenOptions): Promise<void> {
     throw new Error('Method not implemented.');
@@ -336,23 +393,47 @@ export class ElementImpl extends NodeImpl implements Element {
     throw new Error('Method not implemented.');
   }
   setAttribute(qualifiedName: string, value: string): void {
-    throw new Error('Method not implemented.');
+    validateNames.name(qualifiedName);
+    if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {
+      qualifiedName = asciiLowercase(qualifiedName);
+    }
+    const attribute = getAttributeByName(this, qualifiedName);
+    if (attribute === null) {
+      const newAttr = this._ownerDocument._createAttribute({
+        localName: qualifiedName,
+        value
+      });
+      appendAttribute(this, newAttr);
+      return;
+    }
+    changeAttribute(this, attribute, value);
   }
+
   setAttributeNS(namespace: string, qualifiedName: string, value: string): void {
-    throw new Error('Method not implemented.');
+    const extracted = validateNames.validateAndExtract(namespace, qualifiedName);
+
+    // Because of widespread use of this method internally, e.g. to manually implement attribute/content reflection, we
+    // centralize the conversion to a string here, so that all call sites don't have to do it.
+    value = `${value}`;
+    setAttributeValue(this, extracted.localName, value, extracted.prefix, extracted.namespace);
   }
+
   setAttributeNode(attr: Attr): Attr {
-    throw new Error('Method not implemented.');
+    return setAttribute(this, attr as AttrImpl);
   }
+
   setAttributeNodeNS(attr: Attr): Attr {
-    throw new Error('Method not implemented.');
+    return setAttribute(this, attr as AttrImpl);
   }
+
   setPointerCapture(pointerId: number): void {
     throw new Error('Method not implemented.');
   }
+
   toggleAttribute(qualifiedName: string, force?: boolean): boolean {
     throw new Error('Method not implemented.');
   }
+
   webkitMatchesSelector(selectors: string): boolean {
     throw new Error('Method not implemented.');
   }
@@ -360,6 +441,7 @@ export class ElementImpl extends NodeImpl implements Element {
   animate(keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: number | KeyframeAnimationOptions): Animation {
     throw new Error('Method not implemented.');
   }
+
   getAnimations(options?: GetAnimationsOptions): Animation[] {
     throw new Error('Method not implemented.');
   }

@@ -1,4 +1,5 @@
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
+import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
 import { PerformanceImpl } from '../living/hr-time/Performance';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 
@@ -27,6 +28,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
 
     this.#nativeDocument = init.nativeDocument;
     this.#setup(init);
+    this._customElementRegistry = new CustomElementRegistryImpl(this.#nativeDocument);
 
     const windowInitialized = performance.now();
     this.#resourceLoader = this.#nativeDocument.userAgent.resourceLoader;
@@ -56,6 +58,21 @@ export class BaseWindowImpl extends EventTarget implements Window {
     if (runScripts === 'outside-only' || runScripts === 'dangerously') {
       // Setup for executing scripts.
     }
+  }
+
+  /**
+   * Internals access
+   */
+
+  /**
+   * @internal
+   */
+  _customElementRegistry: CustomElementRegistryImpl;
+  /**
+   * @internal
+   */
+  get _nativeDocument(): NativeDocument {
+    return this.#nativeDocument;
   }
 
   [index: number]: Window;
