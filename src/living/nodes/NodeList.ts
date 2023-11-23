@@ -1,15 +1,24 @@
-import { ElementImpl } from './Element';
+import { NativeDocument } from '../../impl-interfaces';
+import { NodeImpl } from './Node';
 
 export class NodeListImpl<T extends Node> implements NodeList {
   #list: T[] = [];
   #isLive: boolean;
   #version: number = -1;
-  #element: ElementImpl;
-  #hostObject: any;
+  #element: NodeImpl;
+  _hostObject: NativeDocument;
   #query: () => T[];
 
-  constructor(hostObject: any, args, privateData) {
-    this.#hostObject = hostObject;
+  constructor(
+    hostObject: NativeDocument,
+    args,
+    privateData: {
+      query?: () => T[];
+      element?: NodeImpl;
+      nodes?: T[];
+    }
+  ) {
+    this._hostObject = hostObject;
     if (privateData.nodes) {
       this.#list = [...privateData.nodes];
       this.#isLive = false;

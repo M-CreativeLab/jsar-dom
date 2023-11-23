@@ -36,6 +36,11 @@ import { childTextContent } from '../helpers/text';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { ElementImpl } from './Element';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
+import { applyMemoizeQueryOn } from '../../utils';
+import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
+import { NodeListImpl } from './NodeList';
+import IterableWeakSet from '../helpers/iterable-weak-set';
+import NodeIteratorImpl from '../traversal/NodeIterator';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -135,7 +140,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     throw new DOMException('document.forms is not supported', 'NotSupportedError');
   }
   get scripts(): HTMLCollectionOf<HTMLScriptElement> {
-    return null;
+    return this.getElementsByTagName('script');
   }
   get anchors(): HTMLCollectionOf<HTMLAnchorElement> {
     throw new DOMException('document.anchors is not supported', 'NotSupportedError');
@@ -231,6 +236,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _encoding: string;
   _URL: URL;
   _defaultView: Window & typeof globalThis;
+  _workingNodeIterators: IterableWeakSet<NodeIteratorImpl>;
 
   _lastModified: string;
   _styleCache: any;
@@ -285,6 +291,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       throw new TypeError(`Could not parse ${urlOption} as a URL.`);
     }
     this._URL = new URL(urlOption);
+    this._workingNodeIterators = new IterableWeakSet();
 
     // Cache of computed element styles
     this._styleCache = null;
@@ -450,7 +457,13 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   createNodeIterator(root: Node, whatToShow?: number, filter?: NodeFilter): NodeIterator {
-    throw new Error('Method not implemented.');
+    const nodeIterator = new NodeIteratorImpl(this._hostObject, [], {
+      root: root as unknown as NodeImpl,
+      whatToShow,
+      filter,
+    });
+    this._workingNodeIterators.add(nodeIterator);
+    return nodeIterator;
   }
 
   createProcessingInstruction(target: string, data: string): ProcessingInstruction {
@@ -491,15 +504,32 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   getElementById(elementId: string): HTMLElement {
-    throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
+    if (!this._ids[elementId]) {
+      return null;
+    }
+
+    // Let's find the first element with where it's root is the document.
+    const matchElement = this._ids[elementId].find(candidate => {
+      let root = candidate;
+      while (domSymbolTree.parent(root)) {
+        root = domSymbolTree.parent(root);
+      }
+      return root === this;
+    });
+    return matchElement || null;
   }
 
   getElementsByClassName(classNames: string): HTMLCollectionOf<Element> {
-    throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
+    return listOfElementsWithClassNames(classNames, this);
   }
 
   getElementsByName(elementName: string): NodeListOf<HTMLElement> {
-    throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
+    return new NodeListImpl(this._hostObject, [], {
+      element: this,
+      query: () => domSymbolTree.treeToArray(this, {
+        filter: node => node.getAttributeNS && node.getAttributeNS(null, 'name') === elementName,
+      }),
+    });
   }
 
   getElementsByTagName<K extends keyof HTMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementTagNameMap[K]>;
@@ -507,16 +537,16 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   getElementsByTagName<K extends keyof MathMLElementTagNameMap>(qualifiedName: K): HTMLCollectionOf<MathMLElementTagNameMap[K]>;
   getElementsByTagName<K extends keyof HTMLElementDeprecatedTagNameMap>(qualifiedName: K): HTMLCollectionOf<HTMLElementDeprecatedTagNameMap[K]>;
   getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element>;
-  getElementsByTagName(qualifiedName: unknown): HTMLCollectionOf<Element> {
-    throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
+  getElementsByTagName(qualifiedName: string): HTMLCollectionOf<Element> {
+    return listOfElementsWithQualifiedName(qualifiedName, this);
   }
 
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/1999/xhtml', localName: string): HTMLCollectionOf<HTMLElement>;
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/2000/svg', localName: string): HTMLCollectionOf<SVGElement>;
   getElementsByTagNameNS(namespaceURI: 'http://www.w3.org/1998/Math/MathML', localName: string): HTMLCollectionOf<MathMLElement>;
   getElementsByTagNameNS(namespace: string, localName: string): HTMLCollectionOf<Element>;
-  getElementsByTagNameNS(namespace: unknown, localName: unknown): HTMLCollectionOf<Element> | HTMLCollectionOf<HTMLElement> | HTMLCollectionOf<SVGElement> | HTMLCollectionOf<MathMLElement> {
-    throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
+  getElementsByTagNameNS(namespace: string, localName: string): HTMLCollectionOf<Element> {
+    return listOfElementsWithNamespaceAndLocalName(namespace, localName, this);
   }
 
   getSelection(): Selection {
@@ -998,14 +1028,14 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     }
   }
 
-  _runPreRemovingSteps(_oldNode: NodeImpl) {
+  _runPreRemovingSteps(oldNode: NodeImpl) {
     // https://html.spec.whatwg.org/#focus-fixup-rule
-    // if (oldNode === this.activeElement) {
-    //   this._lastFocusedElement = null;
-    // }
-    // for (const activeNodeIterator of this._workingNodeIterators) {
-    //   activeNodeIterator._preRemovingSteps(oldNode);
-    // }
+    if (oldNode === this.activeElement) {
+      this._lastFocusedElement = null;
+    }
+    for (const activeNodeIterator of this._workingNodeIterators) {
+      activeNodeIterator._preRemovingSteps(oldNode);
+    }
   }
 
   _createAttribute(privateData: ConstructorParameters<typeof AttrImpl>[2]) {
@@ -1014,3 +1044,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 }
 
 applyMixins(SpatialDocumentImpl, [DocumentOrShadowRootImpl, ParentNodeImpl]);
+applyMemoizeQueryOn(SpatialDocumentImpl.prototype, 'getElementsByTagName');
+applyMemoizeQueryOn(SpatialDocumentImpl.prototype, 'getElementsByTagNameNS');
+applyMemoizeQueryOn(SpatialDocumentImpl.prototype, 'getElementsByClassName');

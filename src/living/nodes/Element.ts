@@ -19,6 +19,7 @@ import * as validateNames from '../helpers/validate-names';
 import DOMTokenListImpl from './DOMTokenList';
 import { addNwsapi } from '../helpers/selectors';
 import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
+import { applyMemoizeQueryOn } from '../../utils';
 
 function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   if (id && elm && doc) {
@@ -448,3 +449,6 @@ export class ElementImpl extends NodeImpl implements Element {
 }
 
 applyMixins(ElementImpl, [ParentNodeImpl, ChildNodeImpl, NonDocumentTypeChildNodeImpl]);
+applyMemoizeQueryOn(ElementImpl.prototype, 'getElementsByTagName');
+applyMemoizeQueryOn(ElementImpl.prototype, 'getElementsByTagNameNS');
+applyMemoizeQueryOn(ElementImpl.prototype, 'getElementsByClassName');

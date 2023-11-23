@@ -11,7 +11,8 @@
       "node"
     ],
     "lib": [
-      "ES6",
+      "ESNext.WeakRef",
+      "ESNext",
       "DOM"
     ]
   },
