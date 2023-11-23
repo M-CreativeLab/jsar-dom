@@ -46,27 +46,27 @@ export class HeadlessNativeDocument implements NativeDocument {
   }
 
   getNativeScene(): BABYLON.Scene {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   getContainerPose(): XRPose {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   getPreloadedMeshes(): Map<string, BABYLON.AbstractMesh[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   getPreloadedAnimationGroups(): Map<string, BABYLON.AnimationGroup[]> {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   observeInputEvent(name?: string): void {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   createBoundTransformNode(nameOrId: string): BABYLON.TransformNode {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   stop(): void {
-    throw new Error("Method not implemented.");
+    // TODO
   }
   close(): void {
-    throw new Error("Method not implemented.");
+    // TODO
   }
 }

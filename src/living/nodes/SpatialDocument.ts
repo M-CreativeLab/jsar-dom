@@ -33,8 +33,9 @@ import HTMLSpaceElement from './HTMLSpaceElement';
 import { HTML_NS, SVG_NS } from '../helpers/namespaces';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
 import { childTextContent } from '../helpers/text';
-import { stripAndCollapseASCIIWhitespace } from '../helpers/strings';
+import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { ElementImpl } from './Element';
+import { validateAndExtract, name as validateName } from '../helpers/validate-names';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -328,11 +329,25 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   createAttribute(localName: string): Attr {
-    throw new Error('Method not implemented.');
+    validateName(localName);
+    if (this._parsingMode === 'html') {
+      localName = asciiLowercase(localName);
+    }
+    return this._createAttribute({ localName });
   }
 
   createAttributeNS(namespace: string, qualifiedName: string): Attr {
-    throw new Error('Method not implemented.');
+    if (namespace === undefined) {
+      namespace = null;
+    }
+    namespace = namespace !== null ? String(namespace) : namespace;
+
+    const extracted = validateAndExtract(namespace, qualifiedName);
+    return this._createAttribute({
+      namespace: extracted.namespace,
+      namespacePrefix: extracted.prefix,
+      localName: extracted.localName
+    });
   }
 
   createCDATASection(data: string): CDATASection {

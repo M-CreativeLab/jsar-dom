@@ -1,6 +1,7 @@
 import { XMLParser } from 'fast-xml-parser';
 import { toNode } from './xml-utils';
 import { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
+import { TextImpl } from '../../living/nodes/Text';
 
 class XSMLParser {
   xmlParser: XMLParser;
@@ -35,11 +36,22 @@ class XSMLParser {
   }
 
   #createElement(node: ReturnType<typeof toNode>, parent: Document | Element, ownerDocument: Document): HTMLElement {
+    // TODO: handle custom-element creation.
+
     const element = ownerDocument.createElement(node.name);
+    // adopt the attributes.
     for (const [key, value] of Object.entries(node.attrs)) {
       element.setAttribute(key, value);
     }
     parent.appendChild(element);
+
+    // handle the text content
+    if (node.text) {
+      const textNode = new TextImpl((ownerDocument as unknown as SpatialDocumentImpl)._hostObject, [], {
+        data: node.text,
+      });
+      parent.appendChild(textNode);
+    }
     return element;
   }
 

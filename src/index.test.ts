@@ -1,9 +1,19 @@
-import { describe, it } from '@jest/globals';
+import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
 import { JSARDOM } from './';
 import { HeadlessNativeDocument } from './impl-headless';
 
+let sharedNativeDocument: HeadlessNativeDocument;
+
+beforeAll(() => {
+  sharedNativeDocument = new HeadlessNativeDocument();
+});
+
+afterAll(() => {
+  sharedNativeDocument.close();
+});
+
 describe('JSARDOM', () => {
-  it('should be able to create a new JSARDOM instance from empty document', () => {
+  it('should be able to create a new JSARDOM instance from simple document', () => {
     const dom = new JSARDOM(`
 <xsml>
   <head>
@@ -14,8 +24,9 @@ describe('JSARDOM', () => {
 </xsml>
     `, {
       url: 'https://example.com',
-      nativeDocument: new HeadlessNativeDocument(),
+      nativeDocument: sharedNativeDocument,
     });
-    console.log(dom.document.title);
+    expect(dom.document.title).toBe('Example');
+    expect(dom.window.document.title).toBe('Example');
   });
 });
