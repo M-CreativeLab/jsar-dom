@@ -3,11 +3,9 @@ import { JSARDOM } from './';
 import { HeadlessNativeDocument } from './impl-headless';
 
 let sharedNativeDocument: HeadlessNativeDocument;
-
 beforeAll(() => {
   sharedNativeDocument = new HeadlessNativeDocument();
 });
-
 afterAll(() => {
   sharedNativeDocument.close();
 });

@@ -231,7 +231,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       const { code, esmImports } = await this._compile(this.textContent);
       this._evalInternal(code);
     } catch (err) {
-      throw new DOMException(err.message, 'SyntaxError');
+      throw new SyntaxError(err.message);
     }
   }
 

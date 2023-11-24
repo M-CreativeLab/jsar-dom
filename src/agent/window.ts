@@ -55,6 +55,9 @@ export class BaseWindowImpl extends EventTarget implements Window {
       timeOrigin: performance.timeOrigin + windowInitialized,
       nowAtTimeOrigin: windowInitialized,
     });
+  
+    // Set the references.
+    this.window = this as any;
   }
 
   #setup(init: WindowOrDOMInit) {
