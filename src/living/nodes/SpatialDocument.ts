@@ -32,7 +32,6 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import HTMLSpaceElement from './HTMLSpaceElement';
 import { HTML_NS, SVG_NS } from '../helpers/namespaces';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
-import { childTextContent } from '../helpers/text';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { ElementImpl } from './Element';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
@@ -41,6 +40,7 @@ import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, 
 import { NodeListImpl } from './NodeList';
 import IterableWeakSet from '../helpers/iterable-weak-set';
 import NodeIteratorImpl from '../traversal/NodeIterator';
+import HTMLScriptElementImpl from './HTMLScriptElement';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -180,20 +180,21 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   rootElement: SVGSVGElement;
   scrollingElement: Element;
   timeline: DocumentTimeline;
+  vlinkColor: string;
+
   get title(): string {
     const documentElement = this.documentElement as HTMLElementImpl;
     let value = '';
 
     if (documentElement && documentElement.localName === 'svg') {
       const svgTitleElement = firstChildWithLocalName(documentElement, 'title', SVG_NS);
-
       if (svgTitleElement) {
-        value = childTextContent(svgTitleElement);
+        value = svgTitleElement.textContent;
       }
     } else {
       const titleElement = firstDescendantWithLocalName(this, 'title');
       if (titleElement) {
-        value = childTextContent(titleElement);
+        value = titleElement.textContent;
       }
     }
     value = stripAndCollapseASCIIWhitespace(value);
@@ -226,8 +227,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       element.textContent = value;
     }
   }
-
-  vlinkColor: string;
 
   _xsmlVersion: string;
   _ids = Object.create(null);
@@ -763,6 +762,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   createElement(tagName: 'head'): HTMLTitleElement;
   createElement(tagName: 'title'): HTMLTitleElement;
   createElement(tagName: 'meta'): HTMLMetaElement;
+  createElement(tagName: 'script'): HTMLScriptElementImpl;
   // createElement(tagName: 'space'): HTMLSpaceElement;
   createElement(tagName: 'div'): HTMLDivElement;
   createElement(tagName: 'span'): HTMLSpanElement;
@@ -776,6 +776,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       return new HTMLTitleElementImpl(this.#nativeDocument, []);
     } else if (tagName === 'meta') {
       return new HTMLMetaElementImpl(this.#nativeDocument, []);
+    } else if (tagName === 'script') {
+      return new HTMLScriptElementImpl(this.#nativeDocument, []);
     } else if (tagName === 'space') {
       return new HTMLSpaceElement(this.#nativeDocument, []);
     } else {
@@ -872,6 +874,31 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    */
   _getSpatialObjectByGuid(guid: string): SpatialObject {
     return this._guidSOfSpatialObjects[guid];
+  }
+
+  /**
+   * Wrap and execute a function with time profiling.
+   * 
+   * @internal
+   * @param tag the log tag
+   * @param fn the function to be executed, it accepts an async function or blocking function.
+   */
+  async _executeWithTimeProfiler<T>(tag: string, fn: (...args: any[]) => Promise<T> | T): Promise<T> {
+    const startTime = performance.now();
+
+    let r: T;
+    const valueFuture = fn();
+    if (valueFuture instanceof Promise) {
+        r = await valueFuture;
+    } else {
+        r = valueFuture;
+    }
+    const endTime = performance.now();
+    const executionTime = endTime - startTime;
+    const message = `${tag} takes ${Math.floor(executionTime)}ms`;
+
+    this.#nativeDocument.console.info(message);
+    return r;
   }
 
   #cloneWithOriginalRefs(

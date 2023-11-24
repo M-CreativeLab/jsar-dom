@@ -23,6 +23,9 @@ export class BaseWindowImpl extends EventTarget implements Window {
   #performanceInstance: Performance = null;
   #listOfActiveTimers: Map<number, number> = new Map();
 
+  URL = URL;
+  Blob = Blob;
+
   constructor(init: WindowOrDOMInit) {
     super();
 
@@ -44,6 +47,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
         defaultView: this as any,
       },
     });
+    this.#document._defaultView = this as any;
     this.#nativeDocument.attachedDocument = this.#document;
 
     // Create the performance instance.
@@ -200,6 +204,9 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
   get top(): Window {
     throw new Error('`window.top` is not supported.');
+  }
+  get console(): Console {
+    return this.#nativeDocument.console;
   }
   visualViewport: VisualViewport;
   window: Window & typeof globalThis;

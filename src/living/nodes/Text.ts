@@ -21,15 +21,15 @@ export class CharacterDataImpl extends NodeImpl implements CharacterData {
   }
 
   // https://dom.spec.whatwg.org/#dom-characterdata-data
-  get data() {
+  get data(): string {
     return this._data;
   }
-  set data(data) {
+  set data(data: string) {
     this.replaceData(0, this.length, data);
   }
 
   // https://dom.spec.whatwg.org/#dom-characterdata-length
-  get length() {
+  get length(): number {
     return this._data.length;
   }
 
@@ -132,9 +132,7 @@ export class TextImpl extends CharacterDataImpl implements Text {
   constructor(
     hostObject: NativeDocument,
     args,
-    privateData: {
-      data: string;
-    }
+    privateData: ConstructorParameters<typeof CharacterDataImpl>[2]
   ) {
     super(hostObject, args, privateData);
     this.nodeType = NodeImpl.TEXT_NODE;

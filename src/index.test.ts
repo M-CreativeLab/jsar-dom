@@ -29,4 +29,23 @@ describe('JSARDOM', () => {
     expect(dom.document.title).toBe('Example');
     expect(dom.window.document.title).toBe('Example');
   });
+
+  it('should be able to execute script', () => {
+    new JSARDOM(`
+<xsml>
+  <head>
+    <title>Example</title>
+    <script src="https://example.com"></script>
+    <script type="module">
+      console.log('hello world', new URL('https://example.com'));
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>
+    `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+  });
 });
