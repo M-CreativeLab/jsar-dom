@@ -5,7 +5,7 @@ import * as BABYLON from 'babylonjs';
 import * as babel from '@babel/core';
 import typescriptTransformPlugin from '@babel/plugin-transform-typescript';
 import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';
-import DOMException from 'domexception';
+import DOMException from '../domexception';
 
 import { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
@@ -177,52 +177,100 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   /**
    * Indicates whether the script should be executed asynchronously.
    */
-  async: boolean;
+  get async(): boolean {
+    return this.hasAttribute('async');
+  }
+  set async(value: boolean) {
+    this.setAttribute('async', value.toString());
+  }
   /**
    * The character encoding of the external script file.
    */
-  charset: string;
+  get charset(): string {
+    return this.getAttribute('charset') || '';
+  }
+  set charset(value: string) {
+    this.setAttribute('charset', value);
+  }
   /**
    * The CORS (Cross-Origin Resource Sharing) setting for the script element.
    */
-  crossOrigin: string;
+  get crossOrigin(): string{
+    return this.getAttribute('crossorigin') || '';
+  }
+  set crossOrigin(value: string) {
+    this.setAttribute('crossorigin', value);
+  }
   /**
    * Indicates whether the script should be executed after the page has finished parsing.
    */
-  defer: boolean;
+  get defer(): boolean {
+    return this.hasAttribute('defer');
+  }
+  set defer(value: boolean) {
+    this.setAttribute('defer', value.toString());
+  }
   /**
    * The event associated with the HTMLScriptElement.
    */
-  event: string;
+  get event(): string {
+    throw new DOMException('The event property is not supported.', 'NOT_SUPPORTED_ERR');
+  }
   /**
    * The value of the `htmlFor` attribute of an HTML `<script>` element.
    */
-  htmlFor: string;
+  get htmlFor(): string {
+    throw new DOMException('The htmlFor property is not supported.', 'NOT_SUPPORTED_ERR');
+  }
   /**
    * The integrity attribute of the HTMLScriptElement.
    * It represents a cryptographic hash of the script resource being applied.
    */
-  integrity: string;
+  get integrity(): string {
+    return this.getAttribute('integrity') || '';
+  }
   /**
    * Indicates whether the script should be treated as a module or not.
    */
-  noModule: boolean;
+  get noModule(): boolean {
+    return this.hasAttribute('nomodule');
+  }
   /**
    * The referrer policy for the HTMLScriptElement.
    */
-  referrerPolicy: string;
+  get referrerPolicy(): string {
+    return this.getAttribute('referrerpolicy') || '';
+  }
+  set referrerPolicy(value: string) {
+    this.setAttribute('referrerpolicy', value);
+  }
   /**
    * The source URL of the script.
    */
-  src: string;
+  get src(): string {
+    return this.getAttribute('src');
+  }
+  set src(value: string) {
+    this.setAttribute('src', value);
+  }
   /**
    * The text content of the HTMLScriptElement.
    */
-  text: string;
+  get text(): string {
+    return this.textContent;
+  }
+  set text(value: string) {
+    this.textContent = value;
+  }
   /**
    * The type of the script.
    */
-  type: string;
+  get type(): string {
+    return this.getAttribute('type') || 'classic';
+  }
+  set type(value: string) {
+    this.setAttribute('type', value);
+  }
 
   private _basePath: string;
   private _code: string = '';
@@ -306,14 +354,16 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @throws {TypeError} If the import path is not a relative path.
    */
   private async _addModuleRecursively(esmImports: string[], basePath: string = this._basePath) {
-    for (let importPath of esmImports) {
-      const isRelative = importPath.startsWith('./') || importPath.startsWith('../');
-      if (isRelative) {
-        await this._addCompiledModule(joinUrl(importPath, basePath));
-      } else {
-        throw new TypeError(`The import path must be relative path.`);
-      }
-    }
+    return Promise.all(
+      esmImports.map(async (importPath) => {
+        const isRelative = importPath.startsWith('./') || importPath.startsWith('../');
+        if (isRelative) {
+          await this._addCompiledModule(joinUrl(importPath, basePath));
+        } else {
+          throw new TypeError(`The import path must be relative path.`);
+        }
+      })
+    );
   }
 
   /**
@@ -405,7 +455,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
      */
     const src = this.getAttribute('src');
     if (src && this.textContent) {
-      throw new DOMException('The script element must not have both a src attribute and a script content.', 'SyntaxError');
+      throw new DOMException('The script element must not have both a src attribute and a script content.', 'SYNTAX_ERR');
     }
     if (!this.textContent && src) {
       this._basePath = path.dirname(src);
@@ -484,7 +534,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
         importModuleDynamically: (_specifier) => {
           // Because we have removed the dynamic import()s in code compilation, this is impossible to be called here.
           // TODO: implement the dynamic import() here?
-          throw new DOMException('Fatel error to compile the script.', 'SyntaxError');
+          throw new DOMException('Fatel error to compile the script.', 'SYNTAX_ERR');
         },
       });
     } else {
@@ -567,5 +617,4 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       return this._getModuleExports(this._compiledModules.get(scriptUri), scriptUri);
     };
   }
-
 }

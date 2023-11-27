@@ -510,11 +510,11 @@ export class BaseWindowImpl extends EventTarget implements Window {
   reportError(e: any): void {
     throw new Error('`window.reportError()` is not supported.');
   }
-  setInterval(handler: TimerHandler, timeout?: number, ...args: any[]): number {
-    throw new Error('`window.setInterval()` is not allowed in XSML.');
-  }
   setTimeout(handler: TimerHandler, timeout?: number, ...args: any[]): number {
     throw new Error('`window.setTimeout()` is not allowed in XSML.');
+  }
+  setInterval(handler: TimerHandler, timeout?: number, ...args: any[]): number {
+    throw new Error('`window.setInterval()` is not allowed in XSML.');
   }
   structuredClone<T = any>(value: T, options?: StructuredSerializeOptions): T {
     throw new Error('`window.structuredClone()` is not supported.');

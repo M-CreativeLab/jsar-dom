@@ -38,7 +38,6 @@ class XSMLParser {
 
     // Traverse the tree and create the DOM.
     this.#traverse(xsmlNode, xsmlElement, ownerDocument);
-
   }
 
   #createElementOrTextNode(node: ReturnType<typeof toNode>, ownerDocument: Document): TextImpl | HTMLElementImpl {
