@@ -33,7 +33,6 @@ describe('JSARDOM', () => {
 <xsml>
   <head>
     <title>Example</title>
-    <script src="https://example.com"></script>
     <script type="module">
       console.log('hello world', new URL('https://example.com'));
     </script>

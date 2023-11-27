@@ -4,6 +4,25 @@ import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 
 class HeadlessEngine extends EventTarget implements NativeEngine { }
 
+class HeadlessResourceLoader implements ResourceLoader {
+  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'string'): Promise<string>;
+  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'json'): Promise<object>;
+  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'arraybuffer'): Promise<ArrayBuffer>;
+  fetch<T = string | object | ArrayBuffer>(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<T>;
+  fetch(url: string, options: unknown, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object> | Promise<ArrayBuffer> | Promise<string> {
+    return fetch(url, options)
+      .then((resp) => {
+        if (returnsAs === 'string') {
+          return resp.text();
+        } else if (returnsAs === 'json') {
+          return resp.json();
+        } else if (returnsAs === 'arraybuffer') {
+          return resp.arrayBuffer();
+        }
+      });
+  }
+}
+
 class HeadlessUserAgent implements UserAgent {
   defaultStylesheet: string;
   devicePixelRatio: number;
@@ -14,7 +33,7 @@ class HeadlessUserAgent implements UserAgent {
   constructor(init: UserAgentInit) {
     this.defaultStylesheet = init.defaultStylesheet;
     this.devicePixelRatio = init.devicePixelRatio;
-    this.resourceLoader = null;
+    this.resourceLoader = new HeadlessResourceLoader();
     this.requestManager = null;
   }
   alert(message?: string): void {

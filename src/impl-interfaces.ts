@@ -27,14 +27,16 @@ type ResourceFetchOptions = {
  * A `ResourceLoader` is used to load resources, such as scripts, models, textures, audio, etc.
  */
 export interface ResourceLoader {
-  new(strictSSL: boolean): ResourceLoader;
   /**
    * The method to fetch the given url with the given options.
    * 
    * @param url the request url.
    * @param options the request options.
    */
-  fetch(url: string, options: ResourceFetchOptions): Promise<any>;
+  fetch(url: string, options: ResourceFetchOptions, returnsAs: 'string'): Promise<string>;
+  fetch(url: string, options: ResourceFetchOptions, returnsAs: 'json'): Promise<object>;
+  fetch(url: string, options: ResourceFetchOptions, returnsAs: 'arraybuffer'): Promise<ArrayBuffer>;
+  fetch<T = string | object | ArrayBuffer>(url: string, options: ResourceFetchOptions, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<T>;
 }
 
 export interface RequestManager {
