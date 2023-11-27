@@ -43,6 +43,7 @@ class HeadlessUserAgent implements UserAgent {
     this.resourceLoader = new HeadlessResourceLoader();
     this.requestManager = null;
   }
+  versionString: string;
   alert(message?: string): void {
     throw new Error('Method not implemented.');
   }
