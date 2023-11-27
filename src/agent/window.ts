@@ -2,6 +2,7 @@ import { NativeDocument, ResourceLoader } from '../impl-interfaces';
 import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
 import { PerformanceImpl } from '../living/hr-time/Performance';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
+import { NavigatorImpl } from './navigator';
 
 export type WindowOrDOMInit = {
   url: string;
@@ -49,6 +50,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
     });
     this.#document._defaultView = this as any;
     this.#nativeDocument.attachedDocument = this.#document;
+    this.navigator = new NavigatorImpl(this.#nativeDocument, []);
 
     // Create the performance instance.
     this.#performanceInstance = new PerformanceImpl(this.#nativeDocument, [], {
@@ -334,10 +336,10 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
 
   cancelAnimationFrame(handle: number): void {
-    throw new Error('`window.cancelAnimationFrame()` is not allowed in XSML.');
+    throw new Error('`window.cancelAnimationFrame()` is not allowed in XSML, please use `XRSession.requestAnimationFrame()` instead.');
   }
   requestAnimationFrame(callback: FrameRequestCallback): number {
-    throw new Error('`window.requestAnimationFrame()` is not allowed in XSML.');
+    throw new Error('`window.requestAnimationFrame()` is not allowed in XSML, please use `XRSession.cancelAnimationFrame()` instead.');
   }
 
   onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;

@@ -64,6 +64,10 @@ export type UserAgentInit = {
  */
 export interface UserAgent {
   /**
+   * The version string of the useragent.
+   */
+  versionString: string;
+  /**
    * See `options.defaultStylesheet`.
    */
   defaultStylesheet: string;

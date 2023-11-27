@@ -1,4 +1,5 @@
 import path from 'path';
+import assert from 'assert';
 import vm from 'vm';
 import * as BABYLON from 'babylonjs';
 import * as babel from '@babel/core';
@@ -461,16 +462,21 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param code The code to be evaluated.
    * @private
    */
-  private _evalInternal(code: string, _options: { basePath: string }) {
+  private _evalInternal(code: string, options: { basePath: string }) {
     const cjsModule = { exports: {} };
     const context = Object.assign(this._ownerDocument._defaultView, {
       // Babylon.js
       BABYLON,
+
       // Node.js
       Buffer,
-      // cjs
+      assert,
+
+      // cjs & esm functions
       module: cjsModule,
       exports: cjsModule.exports,
+      require: this._createRequireFunction(options),
+      __dynamicImport__: this._createDynamicImporter(options),
     });
 
     if (vm && typeof vm.runInNewContext === 'function') {
@@ -491,5 +497,75 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // FIXME: null to this?
       fn.apply(null, args);
     }
+    return context;
   }
+
+  /**
+   * This is a convenience method to get the exports of the module.
+   * @param module the compiled module.
+   * @param scriptUri the uri of the script.
+   * @returns the exports of the module.
+   */
+  private _getModuleExports(module: CompiledModule, scriptUri: string) {
+    if (module.type === 'json' || module.type === 'binary') {
+      return module.result;
+    }
+    if (module.type === 'script') {
+      const result = module.result as CompiledScriptResult;
+      const ret = this._evalInternal(result.code, {
+        basePath: path.dirname(scriptUri),
+      });
+      return ret?.exports || {};
+    }
+  }
+
+  /**
+   * Creates a require function for importing modules.
+   * @param options - The options for creating the require function.
+   * @param options.basePath - The base path for resolving relative module paths.
+   * @returns The require function.
+   * @throws {TypeError} If the import path is not a relative path.
+   * @throws {TypeError} If the module cannot be found.
+   */
+  private _createRequireFunction(options: { basePath: string }) {
+    return (id: string) => {
+      const isRelative = id.startsWith('./') || id.startsWith('../');
+      if (!isRelative) {
+        // FIXME: only support relative path now, absolute path will be supported by the future.
+        throw new TypeError(`The import path must be relative path.`);
+      }
+      const scriptUri = joinUrl(id, options.basePath);
+      if (!this._compiledModules.has(scriptUri)) {
+        throw new TypeError(`Could not find the module: ${id}`);
+      }
+      return this._getModuleExports(this._compiledModules.get(scriptUri), scriptUri);
+    };
+  }
+
+  /**
+   * Creates a importer function for dynamic `import()`.
+   * @param options - The options for creating the dynamic importer.
+   * @param options.basePath - The base path for resolving relative import paths.
+   * @returns The dynamic importer function.
+   */
+  private _createDynamicImporter(options: { basePath: string }) {
+    return async (specifier: string) => {
+      const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
+      if (!isRelative) {
+        // FIXME: only support relative path now, absolute path will be supported by the future.
+        throw new TypeError(`The import path must be relative path.`);
+      }
+      const scriptUri = joinUrl(specifier, options.basePath);
+      // Load and compile the module if it is not loaded.
+      if (!this._compiledModules.has(scriptUri)) {
+        await this._addCompiledModule(scriptUri);
+      }
+      // Check again when the module loading is finished.
+      if (!this._compiledModules.has(scriptUri)) {
+        throw new TypeError(`Could not find the module: ${specifier}`);
+      }
+      return this._getModuleExports(this._compiledModules.get(scriptUri), scriptUri);
+    };
+  }
+
 }
