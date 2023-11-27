@@ -1,3 +1,9 @@
+/**
+ * Applies mixins to a derived class.
+ * 
+ * @param derivedCtor - The derived class constructor.
+ * @param constructors - An array of mixin constructors.
+ */
 export function applyMixins(derivedCtor: any, constructors: any[]) {
   constructors.forEach((baseCtor) => {
     Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {

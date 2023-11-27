@@ -38,10 +38,23 @@ export function memoizeQuery(fn: Function) {
   };
 }
 
+/**
+ * Applies memoization to a query function on a prototype.
+ * @param {object} proto - The prototype object.
+ * @param {string} name - The name of the query function.
+ */
 export function applyMemoizeQueryOn(proto, name) {
   proto[name] = memoizeQuery(proto[name]);
 }
 
+/**
+ * Creates an iterator that iterates over two iterators simultaneously.
+ * 
+ * @generator
+ * @param {Iterator} first - The first iterator.
+ * @param {Iterator} second - The second iterator.
+ * @yields {[any, any]} - An array containing the next value from each iterator.
+ */
 export const simultaneousIterators = function* (first, second) {
   for (; ;) {
     const firstResult = first.next();
@@ -58,6 +71,12 @@ export const simultaneousIterators = function* (first, second) {
   }
 };
 
+/**
+ * Sorts two nodes based on their tree order.
+ * @param a - The first node.
+ * @param b - The second node.
+ * @returns 1 if b is preceding a, -1 if a is preceding b, or 0 if they are disconnected or equal.
+ */
 export const treeOrderSorter = function (a, b) {
   const compare = domSymbolTree.compareTreePosition(a, b);
   if (compare & TreePosition.PRECEDING) { // b is preceding a

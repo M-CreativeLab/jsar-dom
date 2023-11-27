@@ -1,8 +1,16 @@
 import { convertNodesIntoNode } from '../node';
 import { NodeImpl } from './Node';
 
+/**
+ * Represents an implementation of the ChildNode interface.
+ */
 export default interface ChildNodeImpl extends NodeImpl {};
 export default class ChildNodeImpl implements ChildNode {
+  /**
+   * Inserts nodes or strings after the current node.
+   * 
+   * @param nodes - The nodes or strings to insert.
+   */
   after(...nodes: (string | Node)[]): void {
     const parent = this.parentNode;
     if (parent) {
@@ -21,6 +29,12 @@ export default class ChildNodeImpl implements ChildNode {
     }
   }
 
+  /**
+   * Inserts the specified nodes or strings before the current node.
+   * 
+   * @param nodes - The nodes or strings to insert.
+   * @returns void
+   */
   before(...nodes: (string | Node)[]): void {
     const parent = this.parentNode;
     if (parent) {
@@ -42,6 +56,9 @@ export default class ChildNodeImpl implements ChildNode {
     }
   }
 
+  /**
+   * Removes the node from its parent node.
+   */
   remove(): void {
     if (!this.parentNode) {
       return;
@@ -49,6 +66,11 @@ export default class ChildNodeImpl implements ChildNode {
     this.parentNode._remove(this);
   }
 
+  /**
+   * Replaces the child nodes of the current node with the specified nodes.
+   * 
+   * @param nodes - The nodes to replace the child nodes with.
+   */
   replaceWith(...nodes: (string | Node)[]): void {
     const parent = this.parentNode;
     if (parent) {

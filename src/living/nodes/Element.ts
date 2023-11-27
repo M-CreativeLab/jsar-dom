@@ -21,6 +21,12 @@ import { addNwsapi } from '../helpers/selectors';
 import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
 import { applyMemoizeQueryOn } from '../../utils';
 
+/**
+ * Attaches an ID to an element in the document.
+ * @param id - The ID to attach.
+ * @param elm - The element to attach the ID to.
+ * @param doc - The document to which the element belongs.
+ */
 function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   if (id && elm && doc) {
     if (!doc._ids[id]) {
@@ -30,6 +36,13 @@ function attachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   }
 }
 
+/**
+ * Detaches an element with the specified ID from the document.
+ * 
+ * @param id - The ID of the element to detach.
+ * @param elm - The element to detach.
+ * @param doc - The document from which to detach the element.
+ */
 function detachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   if (id && elm && doc) {
     if (doc._ids && doc._ids[id]) {
@@ -47,6 +60,10 @@ function detachId(id: string, elm: Element, doc: SpatialDocumentImpl) {
   }
 }
 
+/**
+ * Represents an implementation of the Element interface.
+ * Inherits from NodeImpl, NonDocumentTypeChildNodeImpl, ParentNodeImpl, and ChildNodeImpl.
+ */
 export interface ElementImpl extends NodeImpl, NonDocumentTypeChildNodeImpl, ParentNodeImpl, ChildNodeImpl { };
 export class ElementImpl extends NodeImpl implements Element {
   attributes: NamedNodeMap;
