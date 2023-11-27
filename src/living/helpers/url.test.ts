@@ -1,5 +1,17 @@
 import { describe, it, expect } from '@jest/globals';
-import { join } from './url';
+import { canParseURL, join } from './url';
+
+describe('canParseURL', () => {
+  it('should return true for a valid URL', () => {
+    const url = 'http://example.com';
+    expect(canParseURL(url)).toBe(true);
+  });
+
+  it('should return false for an invalid URL', () => {
+    const url = 'example.com';
+    expect(canParseURL(url)).toBe(false);
+  });
+});
 
 describe('join', () => {
   it('should join sub path with base path', () => {
