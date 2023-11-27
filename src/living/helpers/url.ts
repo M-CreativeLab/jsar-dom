@@ -1,6 +1,11 @@
 import path from 'path';
 
-export function canParseURL(url): boolean {
+/**
+ * Checks if a given string can be parsed as a valid URL.
+ * @param url - The string to be checked.
+ * @returns True if the string can be parsed as a valid URL, false otherwise.
+ */
+export function canParseURL(url: string): boolean {
   try {
     new URL(url);
     return true;
