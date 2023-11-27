@@ -9,6 +9,7 @@ import DOMException from 'domexception';
 import { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
 import { join as joinUrl } from '../helpers/url';
+import { reportException } from '../helpers/runtime-script-errors';
 
 const scriptMIMETypes = new Set([
   'application/javascript',
@@ -224,7 +225,9 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
 
   private _basePath: string;
   private _code: string = '';
+  private _compiledEntryCode: string;
   private _compiledModules: Map<string, CompiledModule> = new Map();
+  private _loaded: boolean = false;
 
   constructor(
     nativeDocument: NativeDocument,
@@ -301,7 +304,6 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
         throw new TypeError(`The import path must be relative path.`);
       }
     }
-
   }
 
   /**
@@ -311,7 +313,6 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param extensions The extensions to try such as ['.ts', '.mjs', '.js'].
    * @returns The script source in utf8 encoding.
    */
-
   async _tryFetchScriptWithExtensions(uri: string, extensions: string[]): Promise<string> {
     const triedUris: string[] = [uri];
     for (let ext of extensions) {
@@ -384,6 +385,43 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     });
   }
 
+  private async _load(): Promise<boolean> {
+    if (this._loaded) {
+      return true;
+    }
+
+    /**
+     * 1. Fetch or use the script content.
+     */
+    const src = this.getAttribute('src');
+    if (src && this.textContent) {
+      throw new DOMException('The script element must not have both a src attribute and a script content.', 'SyntaxError');
+    }
+    if (!this.textContent && src) {
+      this._basePath = path.dirname(src);
+      this._code = await this._hostObject.userAgent.resourceLoader.fetch(src, {}, 'string');
+    } else {
+      this._code = this.textContent;
+    }
+
+    /**
+     * 2. Compile the code.
+     */
+    const { code, esmImports } = await this._compile(this._code);
+
+    /**
+     * 3. Load and compile the dependencies.
+     */
+    await this._addModuleRecursively(esmImports, this._basePath);
+
+    /**
+     * 4. Save the compiled script source
+     */
+    this._compiledEntryCode = code;
+    this._loaded = true;
+    return true;
+  }
+
   /**
    * Asynchronously evaluates the script content or fetches and evaluates the script from the src attribute.
    * @private
@@ -391,22 +429,21 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @throws {SyntaxError} If there is a syntax error in the script content or if both src attribute and script content are present.
    */
   private async _eval() {
-    try {
-      const src = this.getAttribute('src');
-      if (src && this.textContent) {
-        throw new DOMException('The script element must not have both a src attribute and a script content.', 'SyntaxError');
+    /**
+     * Load the script and then execute it.
+     */
+    if (await this._load()) {
+      try {
+        await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
+          return this._evalInternal(this._compiledEntryCode, {
+            basePath: this._basePath,
+          });
+        });
+      } catch (error) {
+        const message = `occurs an error: ${error?.message || 'Unkonwn Error'}, script: ${this.src}`;
+        this.console.error(message, error);
+        // reportException(this._hostObject, error);
       }
-      if (!this.textContent && src) {
-        this._basePath = path.dirname(src);
-        this._code = await this._hostObject.userAgent.resourceLoader.fetch(src, {}, 'string');
-      } else {
-        this._code = this.textContent;
-      }
-
-      const { code, esmImports } = await this._compile(this._code);
-      this._evalInternal(code);
-    } catch (err) {
-      throw err;
     }
   }
 
@@ -415,7 +452,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param code The code to be evaluated.
    * @private
    */
-  private _evalInternal(code: string) {
+  private _evalInternal(code: string, _options: { basePath: string }) {
     const cjsModule = { exports: {} };
     const context = Object.assign(this._ownerDocument._defaultView, {
       // Babylon.js
