@@ -1,9 +1,16 @@
 import * as BABYLON from 'babylonjs';
-import { DOMParser, NativeDocument, NativeEngine, RequestManager, ResourceLoader, UserAgent, UserAgentInit } from './impl-interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
+import {
+  DOMParser,
+  NativeDocument,
+  NativeEngine,
+  RequestManager,
+  ResourceLoader,
+  UserAgent,
+  UserAgentInit
+} from './impl-interfaces';
 
 class HeadlessEngine extends EventTarget implements NativeEngine { }
-
 class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'string'): Promise<string>;
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'json'): Promise<object>;

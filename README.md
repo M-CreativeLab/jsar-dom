@@ -49,7 +49,8 @@ XSML: eXtensible Spatial Markup Language.
 It is a XML-based markup language for describing XR applications. It's designed to be a subset of HTML, and it's also a part of the JSAR project.
 
 > **Why not X3D**
-> X3D is a great standard for describing 3D scenes after VRML, but it's not designed for Web developers and not extending the HTML standard, XSML is designed to be a subset of HTML and it's easy to learn for Web developers.
+>
+> [X3D][] is a great standard for describing 3D scenes after [VRML][], but it's not designed for Web developers and not extending the HTML standard, XSML is designed to be a subset of HTML and it's easy to learn for Web developers.
 
 An example of XSML:
 
@@ -87,3 +88,5 @@ sphere {
 [DOM]: https://dom.spec.whatwg.org/
 [WebXR]: https://www.w3.org/TR/webxr/
 [JSAR]: https://jsar.netlify.app/
+[X3D]: https://en.wikipedia.org/wiki/X3D
+[VRML]: https://en.wikipedia.org/wiki/VRML
