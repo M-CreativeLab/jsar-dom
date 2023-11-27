@@ -1,4 +1,5 @@
 import { NativeDocument, UserAgent as NativeUserAgent } from '../impl-interfaces';
+import XRSystemImpl from '../living/xr/XRSystem';
 
 export class NavigatorImpl implements Navigator {
   clipboard: Clipboard;
@@ -19,7 +20,7 @@ export class NavigatorImpl implements Navigator {
     throw new Error('`navigator.gpu` is not supported.');
   }
   get xr(): XRSystem {
-    throw new Error('`navigator.xr` is not supported.');
+    return this._xrSystem;
   }
   get webdriver(): boolean {
     return false;
@@ -65,12 +66,15 @@ export class NavigatorImpl implements Navigator {
   storage: StorageManager;
 
   private _nativeUserAgent: NativeUserAgent;
+  private _xrSystem: XRSystemImpl;
+
   constructor(
     hostObject: NativeDocument,
     _args,
     _privateData = null
   ) {
     this._nativeUserAgent = hostObject.userAgent;
+    this._xrSystem = new XRSystemImpl(hostObject, []);
   }
 
   canShare(_data?: ShareData): boolean {
