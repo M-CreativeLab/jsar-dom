@@ -31,6 +31,14 @@ class HeadlessResourceLoader implements ResourceLoader {
 }
 
 class HeadlessUserAgent implements UserAgent {
+  versionString: string = '1.0';
+  vendor: string = '';
+  vendorSub: string = '';
+  language: string = 'zh-CN';
+  languages: readonly string[] = [
+    'zh-CN',
+    'en-US',
+  ];
   defaultStylesheet: string;
   devicePixelRatio: number;
   domParser: DOMParser;
@@ -43,7 +51,6 @@ class HeadlessUserAgent implements UserAgent {
     this.resourceLoader = new HeadlessResourceLoader();
     this.requestManager = null;
   }
-  versionString: string;
   alert(message?: string): void {
     throw new Error('Method not implemented.');
   }

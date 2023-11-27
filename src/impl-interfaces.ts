@@ -60,13 +60,29 @@ export type UserAgentInit = {
 };
 
 /**
- * A `UserAgent` represents the client of executing XSML document.
+ * Represents a user agent, which is responsible for interacting with the user and managing resources in a web application.
  */
 export interface UserAgent {
   /**
-   * The version string of the useragent.
+   * The version string of the user agent.
    */
   versionString: string;
+  /**
+   * The vendor name of the user agent.
+   */
+  vendor: string;
+  /**
+   * The vendor subname of the user agent.
+   */
+  vendorSub: string;
+  /**
+   * The language of the user agent.
+   */
+  language: string;
+  /**
+   * The supported languages of the user agent.
+   */
+  languages: readonly string[];
   /**
    * See `options.defaultStylesheet`.
    */
@@ -77,7 +93,7 @@ export interface UserAgent {
   devicePixelRatio: number;
 
   /**
-   * A `DOMParser` instance is used to parse and load the given XSML text content.
+   * A `DOMParser` instance is used to parse and load the given XML text content.
    */
   domParser: DOMParser;
   /**
@@ -90,22 +106,19 @@ export interface UserAgent {
   requestManager: RequestManager;
 
   /**
-   * It sends an alert message to the user, implementor should display the message in a dialog.
-   * @param message the message to alert.
+   * Sends an alert message to the user. The implementor should display the message in a dialog.
+   * @param message The message to alert.
    */
   alert(message?: string): void;
   /**
-   * This method instructs the user agent to display a dialog with an optional message, and to wait 
-   * until the user either confirms or cancels the dialog.
-   * @param message the message to confirm.
+   * Instructs the user agent to display a dialog with an optional message, and to wait until the user either confirms or cancels the dialog.
+   * @param message The message to confirm.
    * @returns A boolean indicating whether OK (true) or Cancel (false) was selected.
    */
   confirm(message?: string): boolean;
   /**
-   * It instructs the user agent to display a dialog with an optional message prompting the user to 
-   * input some text, and to wait until the user either submits the text or cancels the dialog.
-   * @param message A string of text to display to the user. Can be omitted if there is nothing to 
-   *                show in the prompt window.
+   * Instructs the user agent to display a dialog with an optional message prompting the user to input some text, and to wait until the user either submits the text or cancels the dialog.
+   * @param message A string of text to display to the user. Can be omitted if there is nothing to show in the prompt window.
    * @param defaultValue A string containing the default value displayed in the text input field.
    * @returns A string containing the text entered by the user, or `null`.
    */

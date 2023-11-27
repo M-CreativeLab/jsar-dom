@@ -50,13 +50,17 @@ export class NavigatorImpl implements Navigator {
     return `JSAR/${this._nativeUserAgent.versionString || 'Unknown'} (XSML/1.0)`;
   }
   get vendor(): string {
-    return '';
+    return this._nativeUserAgent.vendor;
   }
   get vendorSub(): string {
-    return '';
+    return this._nativeUserAgent.vendorSub;
   }
-  language: string;
-  languages: readonly string[];
+  get language(): string {
+    return this._nativeUserAgent.language;
+  }
+  get languages(): readonly string[] {
+    return this._nativeUserAgent.languages;
+  }
   locks: LockManager;
   onLine: boolean;
   mimeTypes: MimeTypeArray;
