@@ -229,6 +229,15 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   private _compiledModules: Map<string, CompiledModule> = new Map();
   private _loaded: boolean = false;
 
+  /**
+   * Checks if the given type is supported by the HTMLScriptElement.
+   * @param type The type to check.
+   * @returns True if the type is supported, false otherwise.
+   */
+  static supports(type: 'classic' | 'module' | 'importmap' | 'speculationrules'): boolean {
+    return type === 'classic' || type === 'module';
+  }
+
   constructor(
     nativeDocument: NativeDocument,
     args,
