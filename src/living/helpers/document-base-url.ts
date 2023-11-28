@@ -2,16 +2,25 @@ import { SpatialDocumentImpl } from '../nodes/SpatialDocument';
 
 export function documentBaseURL(document: SpatialDocumentImpl): URL {
   // https://html.spec.whatwg.org/multipage/infrastructure.html#document-base-url
-  const firstBase = document.querySelector("base[href]");
-  const fallbackBaseURL = exports.fallbackBaseURL(document);
+  const firstBase = document.querySelector('base[href]');
+  const fallback = fallbackBaseURL(document);
   if (firstBase === null) {
-    return fallbackBaseURL;
+    return fallback;
   }
-  return frozenBaseURL(firstBase, fallbackBaseURL);
+  return frozenBaseURL(firstBase, fallback);
 }
 
 export function documentBaseURLSerialized(document: SpatialDocumentImpl): string {
   return documentBaseURL(document).href;
+}
+
+export function fallbackBaseURL(document: SpatialDocumentImpl): URL {
+  // https://html.spec.whatwg.org/multipage/infrastructure.html#fallback-base-url
+  // Unimplemented: <iframe srcdoc>
+  if (document.URL === 'about:blank' && document._defaultView) {
+    return documentBaseURL(document);
+  }
+  return document._URL;
 }
 
 function frozenBaseURL(baseElement: Element, fallbackBaseURL: URL): URL {

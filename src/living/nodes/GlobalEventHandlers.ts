@@ -1,4 +1,4 @@
-const events = new Set([
+export const events = new Set([
   'abort',
   'auxclick',
   'beforeinput',
@@ -80,7 +80,7 @@ const events = new Set([
   'touchcancel'
 ]);
 
-class GlobalEventHandlersImpl implements GlobalEventHandlers {
+export class GlobalEventHandlersImpl extends EventTarget implements GlobalEventHandlers {
   onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;
   onanimationcancel: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
   onanimationend: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
@@ -176,16 +176,6 @@ class GlobalEventHandlersImpl implements GlobalEventHandlers {
   onwebkitanimationstart: (this: GlobalEventHandlers, ev: Event) => any;
   onwebkittransitionend: (this: GlobalEventHandlers, ev: Event) => any;
   onwheel: (this: GlobalEventHandlers, ev: WheelEvent) => any;
-  addEventListener<K extends keyof GlobalEventHandlersEventMap>(type: K, listener: (this: GlobalEventHandlers, ev: GlobalEventHandlersEventMap[K]) => any, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
-  addEventListener(type: unknown, listener: unknown, options?: unknown): void {
-    throw new Error('Method not implemented.');
-  }
-  removeEventListener<K extends keyof GlobalEventHandlersEventMap>(type: K, listener: (this: GlobalEventHandlers, ev: GlobalEventHandlersEventMap[K]) => any, options?: boolean | EventListenerOptions): void;
-  removeEventListener(type: string, listener: EventListenerOrEventListenerObject, options?: boolean | EventListenerOptions): void;
-  removeEventListener(type: unknown, listener: unknown, options?: unknown): void {
-    throw new Error('Method not implemented.');
-  }
   onbeforexrselect: (this: GlobalEventHandlers, ev: XRSessionEvent) => any;
 
   _registeredHanders = new Set();

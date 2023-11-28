@@ -1,6 +1,7 @@
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
 import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
 import { PerformanceImpl } from '../living/hr-time/Performance';
+import { GlobalEventHandlersImpl } from '../living/nodes/GlobalEventHandlers';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
 
@@ -17,15 +18,38 @@ export type WindowOrDOMInit = {
  * A `BaseWindowImpl` which implements the window interfaces, and will be the global object to be used
  * in the XSML TypeScript.
  */
+export interface BaseWindowImpl extends EventTarget, GlobalEventHandlersImpl { };
 export class BaseWindowImpl extends EventTarget implements Window {
   #document: SpatialDocumentImpl;
   #nativeDocument: NativeDocument;
-  #resourceLoader: ResourceLoader;
   #performanceInstance: Performance = null;
+  #resourceLoader: ResourceLoader;
   #listOfActiveTimers: Map<number, number> = new Map();
 
   URL = URL;
   Blob = Blob;
+
+  /**
+   * Event handlers
+   */
+  onafterprint: (this: WindowEventHandlers, ev: Event) => any;
+  onbeforeprint: (this: WindowEventHandlers, ev: Event) => any;
+  onbeforeunload: (this: WindowEventHandlers, ev: BeforeUnloadEvent) => any;
+  ongamepadconnected: (this: WindowEventHandlers, ev: GamepadEvent) => any;
+  ongamepaddisconnected: (this: WindowEventHandlers, ev: GamepadEvent) => any;
+  onhashchange: (this: WindowEventHandlers, ev: HashChangeEvent) => any;
+  onlanguagechange: (this: WindowEventHandlers, ev: Event) => any;
+  onmessage: (this: WindowEventHandlers, ev: MessageEvent<any>) => any;
+  onmessageerror: (this: WindowEventHandlers, ev: MessageEvent<any>) => any;
+  onoffline: (this: WindowEventHandlers, ev: Event) => any;
+  ononline: (this: WindowEventHandlers, ev: Event) => any;
+  onpagehide: (this: WindowEventHandlers, ev: PageTransitionEvent) => any;
+  onpageshow: (this: WindowEventHandlers, ev: PageTransitionEvent) => any;
+  onpopstate: (this: WindowEventHandlers, ev: PopStateEvent) => any;
+  onrejectionhandled: (this: WindowEventHandlers, ev: PromiseRejectionEvent) => any;
+  onunhandledrejection: (this: WindowEventHandlers, ev: PromiseRejectionEvent) => any;
+  onstorage: (this: WindowEventHandlers, ev: StorageEvent) => any;
+  onunload: (this: WindowEventHandlers, ev: Event) => any;
 
   constructor(init: WindowOrDOMInit) {
     super();
@@ -57,7 +81,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
       timeOrigin: performance.timeOrigin + windowInitialized,
       nowAtTimeOrigin: windowInitialized,
     });
-  
+
     // Set the references.
     this.window = this as any;
   }
@@ -341,121 +365,6 @@ export class BaseWindowImpl extends EventTarget implements Window {
   requestAnimationFrame(callback: FrameRequestCallback): number {
     throw new Error('`window.requestAnimationFrame()` is not allowed in XSML, please use `XRSession.cancelAnimationFrame()` instead.');
   }
-
-  onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;
-  onanimationcancel: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
-  onanimationend: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
-  onanimationiteration: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
-  onanimationstart: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
-  onauxclick: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onbeforeinput: (this: GlobalEventHandlers, ev: InputEvent) => any;
-  onblur: (this: GlobalEventHandlers, ev: FocusEvent) => any;
-  oncancel: (this: GlobalEventHandlers, ev: Event) => any;
-  oncanplay: (this: GlobalEventHandlers, ev: Event) => any;
-  oncanplaythrough: (this: GlobalEventHandlers, ev: Event) => any;
-  onchange: (this: GlobalEventHandlers, ev: Event) => any;
-  onclick: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onclose: (this: GlobalEventHandlers, ev: Event) => any;
-  oncontextmenu: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  oncopy: (this: GlobalEventHandlers, ev: ClipboardEvent) => any;
-  oncuechange: (this: GlobalEventHandlers, ev: Event) => any;
-  oncut: (this: GlobalEventHandlers, ev: ClipboardEvent) => any;
-  ondblclick: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  ondrag: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondragend: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondragenter: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondragleave: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondragover: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondragstart: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondrop: (this: GlobalEventHandlers, ev: DragEvent) => any;
-  ondurationchange: (this: GlobalEventHandlers, ev: Event) => any;
-  onemptied: (this: GlobalEventHandlers, ev: Event) => any;
-  onended: (this: GlobalEventHandlers, ev: Event) => any;
-  onerror: OnErrorEventHandlerNonNull;
-  onfocus: (this: GlobalEventHandlers, ev: FocusEvent) => any;
-  onformdata: (this: GlobalEventHandlers, ev: FormDataEvent) => any;
-  ongotpointercapture: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  oninput: (this: GlobalEventHandlers, ev: Event) => any;
-  oninvalid: (this: GlobalEventHandlers, ev: Event) => any;
-  onkeydown: (this: GlobalEventHandlers, ev: KeyboardEvent) => any;
-  onkeypress: (this: GlobalEventHandlers, ev: KeyboardEvent) => any;
-  onkeyup: (this: GlobalEventHandlers, ev: KeyboardEvent) => any;
-  onload: (this: GlobalEventHandlers, ev: Event) => any;
-  onloadeddata: (this: GlobalEventHandlers, ev: Event) => any;
-  onloadedmetadata: (this: GlobalEventHandlers, ev: Event) => any;
-  onloadstart: (this: GlobalEventHandlers, ev: Event) => any;
-  onlostpointercapture: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onmousedown: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmouseenter: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmouseleave: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmousemove: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmouseout: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmouseover: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onmouseup: (this: GlobalEventHandlers, ev: MouseEvent) => any;
-  onpaste: (this: GlobalEventHandlers, ev: ClipboardEvent) => any;
-  onpause: (this: GlobalEventHandlers, ev: Event) => any;
-  onplay: (this: GlobalEventHandlers, ev: Event) => any;
-  onplaying: (this: GlobalEventHandlers, ev: Event) => any;
-  onpointercancel: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerdown: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerenter: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerleave: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointermove: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerout: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerover: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onpointerup: (this: GlobalEventHandlers, ev: PointerEvent) => any;
-  onprogress: (this: GlobalEventHandlers, ev: ProgressEvent<EventTarget>) => any;
-  onratechange: (this: GlobalEventHandlers, ev: Event) => any;
-  onreset: (this: GlobalEventHandlers, ev: Event) => any;
-  onresize: (this: GlobalEventHandlers, ev: UIEvent) => any;
-  onscroll: (this: GlobalEventHandlers, ev: Event) => any;
-  onscrollend: (this: GlobalEventHandlers, ev: Event) => any;
-  onsecuritypolicyviolation: (this: GlobalEventHandlers, ev: SecurityPolicyViolationEvent) => any;
-  onseeked: (this: GlobalEventHandlers, ev: Event) => any;
-  onseeking: (this: GlobalEventHandlers, ev: Event) => any;
-  onselect: (this: GlobalEventHandlers, ev: Event) => any;
-  onselectionchange: (this: GlobalEventHandlers, ev: Event) => any;
-  onselectstart: (this: GlobalEventHandlers, ev: Event) => any;
-  onslotchange: (this: GlobalEventHandlers, ev: Event) => any;
-  onstalled: (this: GlobalEventHandlers, ev: Event) => any;
-  onsubmit: (this: GlobalEventHandlers, ev: SubmitEvent) => any;
-  onsuspend: (this: GlobalEventHandlers, ev: Event) => any;
-  ontimeupdate: (this: GlobalEventHandlers, ev: Event) => any;
-  ontoggle: (this: GlobalEventHandlers, ev: Event) => any;
-  ontouchcancel?: (this: GlobalEventHandlers, ev: TouchEvent) => any;
-  ontouchend?: (this: GlobalEventHandlers, ev: TouchEvent) => any;
-  ontouchmove?: (this: GlobalEventHandlers, ev: TouchEvent) => any;
-  ontouchstart?: (this: GlobalEventHandlers, ev: TouchEvent) => any;
-  ontransitioncancel: (this: GlobalEventHandlers, ev: TransitionEvent) => any;
-  ontransitionend: (this: GlobalEventHandlers, ev: TransitionEvent) => any;
-  ontransitionrun: (this: GlobalEventHandlers, ev: TransitionEvent) => any;
-  ontransitionstart: (this: GlobalEventHandlers, ev: TransitionEvent) => any;
-  onvolumechange: (this: GlobalEventHandlers, ev: Event) => any;
-  onwaiting: (this: GlobalEventHandlers, ev: Event) => any;
-  onwebkitanimationend: (this: GlobalEventHandlers, ev: Event) => any;
-  onwebkitanimationiteration: (this: GlobalEventHandlers, ev: Event) => any;
-  onwebkitanimationstart: (this: GlobalEventHandlers, ev: Event) => any;
-  onwebkittransitionend: (this: GlobalEventHandlers, ev: Event) => any;
-  onwheel: (this: GlobalEventHandlers, ev: WheelEvent) => any;
-  onbeforexrselect: (this: GlobalEventHandlers, ev: XRSessionEvent) => any;
-  onafterprint: (this: WindowEventHandlers, ev: Event) => any;
-  onbeforeprint: (this: WindowEventHandlers, ev: Event) => any;
-  onbeforeunload: (this: WindowEventHandlers, ev: BeforeUnloadEvent) => any;
-  ongamepadconnected: (this: WindowEventHandlers, ev: GamepadEvent) => any;
-  ongamepaddisconnected: (this: WindowEventHandlers, ev: GamepadEvent) => any;
-  onhashchange: (this: WindowEventHandlers, ev: HashChangeEvent) => any;
-  onlanguagechange: (this: WindowEventHandlers, ev: Event) => any;
-  onmessage: (this: WindowEventHandlers, ev: MessageEvent<any>) => any;
-  onmessageerror: (this: WindowEventHandlers, ev: MessageEvent<any>) => any;
-  onoffline: (this: WindowEventHandlers, ev: Event) => any;
-  ononline: (this: WindowEventHandlers, ev: Event) => any;
-  onpagehide: (this: WindowEventHandlers, ev: PageTransitionEvent) => any;
-  onpageshow: (this: WindowEventHandlers, ev: PageTransitionEvent) => any;
-  onpopstate: (this: WindowEventHandlers, ev: PopStateEvent) => any;
-  onrejectionhandled: (this: WindowEventHandlers, ev: PromiseRejectionEvent) => any;
-  onstorage: (this: WindowEventHandlers, ev: StorageEvent) => any;
-  onunhandledrejection: (this: WindowEventHandlers, ev: PromiseRejectionEvent) => any;
-  onunload: (this: WindowEventHandlers, ev: Event) => any;
 
   get localStorage(): Storage {
     throw new Error('`window.localStorage` is not supported.');

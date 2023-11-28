@@ -11,7 +11,7 @@ import { XSMLShadowRoot } from './ShadowRoot';
 import { RangeImpl } from '../range/Range';
 import { queueTreeMutationRecord } from '../helpers/mutation-observers';
 import { invalidateStyleCache } from '../helpers/style-rules';
-import { CharacterDataImpl } from './Text';
+import CharacterDataImpl from './CharacterData';
 import { NativeDocument } from '../../impl-interfaces';
 import { SpatialDocumentImpl } from './SpatialDocument';
 import ParentNodeImpl from './ParentNode';
