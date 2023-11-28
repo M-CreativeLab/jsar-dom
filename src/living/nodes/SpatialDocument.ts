@@ -813,7 +813,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     const executionTime = endTime - startTime;
     const message = `${tag} takes ${Math.floor(executionTime)}ms`;
 
-    this.#nativeDocument.console.info(message);
+    this.#nativeDocument.console.debug(message);
     return r;
   }
 

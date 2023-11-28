@@ -343,7 +343,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     // handle script (ts, mjs, js or no extension)
     if (resourceExt === '' || supportedScriptExtensions.includes(resourceExt)) {
       const scriptSource = await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions);
-      const result = await this._compile(scriptSource);
+      const result = await this._compile(scriptSource, url);
       this._compiledModules.set(url, new CompiledModule(result, true));
 
       // recursively add the dependencies.
@@ -402,8 +402,8 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param source The source code to compile.
    * @returns A promise that resolves to the compiled script result, which includes the compiled code and any ES module imports.
    */
-  private async _compile(source: string): Promise<CompiledScriptResult> {
-    return await this._ownerDocument._executeWithTimeProfiler('code compilition', async () => {
+  private async _compile(source: string, url: string): Promise<CompiledScriptResult> {
+    return await this._ownerDocument._executeWithTimeProfiler(`code compilition(${url}, size=${source.length})`, async () => {
       /** Used to storage esm dependencies */
       const esmImports: string[] = [];
       let code: string = '';
@@ -477,7 +477,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     /**
      * 2. Compile the code.
      */
-    const { code, esmImports } = await this._compile(this._code);
+    const { code, esmImports } = await this._compile(this._code, this._baseScriptUrl);
 
     /**
      * 3. Load and compile the dependencies.

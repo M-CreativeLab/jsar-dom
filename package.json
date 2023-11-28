@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "jest",
-    "test:ci": "jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\""
+    "test:ci": "jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
+    "headless-bin": "ts-node ./src/impl-headless.ts"
   },
   "repository": {
     "type": "git",
@@ -49,6 +50,7 @@
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.4.4",
+    "ts-node": "^10.9.1",
     "typescript": "^5.3.2",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"
