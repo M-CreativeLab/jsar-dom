@@ -1,4 +1,6 @@
+import fsPromises from 'node:fs/promises';
 import * as BABYLON from 'babylonjs';
+import path from 'path';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import {
   DOMParser,
@@ -9,6 +11,7 @@ import {
   UserAgent,
   UserAgentInit
 } from './impl-interfaces';
+import { canParseURL } from './living/helpers/url';
 
 class HeadlessEngine extends EventTarget implements NativeEngine { }
 class HeadlessResourceLoader implements ResourceLoader {
@@ -17,16 +20,44 @@ class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'arraybuffer'): Promise<ArrayBuffer>;
   fetch<T = string | object | ArrayBuffer>(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<T>;
   fetch(url: string, options: unknown, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object> | Promise<ArrayBuffer> | Promise<string> {
-    return fetch(url, options)
-      .then((resp) => {
-        if (returnsAs === 'string') {
-          return resp.text();
-        } else if (returnsAs === 'json') {
-          return resp.json();
-        } else if (returnsAs === 'arraybuffer') {
-          return resp.arrayBuffer();
-        }
-      });
+    if (!canParseURL(url)) {
+      throw new TypeError('Invalid URL');
+    }
+    const urlObj = new URL(url);
+    if (urlObj.protocol === 'file:') {
+      /** Check if the data should be string or json? */
+      const isStringOrJson = (data: string | Buffer): data is string => {
+        return returnsAs === 'string' || returnsAs === 'json';
+      };
+
+      let readOptions: Parameters<typeof fsPromises.readFile>[1] = {};
+      if (returnsAs === 'string' || returnsAs === 'json') {
+        readOptions.encoding = 'utf8';
+      }
+      return fsPromises.readFile(urlObj.pathname, readOptions)
+        .then((data) => {
+          if (isStringOrJson(data)) {
+            if (returnsAs === 'string') {
+              return data;
+            } else if (returnsAs === 'json') {
+              return JSON.parse(data);
+            }
+          } else {
+            return data.buffer;
+          }
+        });
+    } else {
+      return fetch(url, options)
+        .then((resp) => {
+          if (returnsAs === 'string') {
+            return resp.text();
+          } else if (returnsAs === 'json') {
+            return resp.json();
+          } else if (returnsAs === 'arraybuffer') {
+            return resp.arrayBuffer();
+          }
+        });
+    }
   }
 }
 
@@ -112,6 +143,7 @@ if (require.main === module) {
     process.exit(1);
   }
 
+  // Error.stackTraceLimit = Infinity;
   Promise.all([
     import('./index'),
     import('node:fs/promises'),
@@ -119,8 +151,8 @@ if (require.main === module) {
     const textContent = await fsPromises.readFile(entrypoint, 'utf8');
     const nativeDocument = new HeadlessNativeDocument();
     const dom = new JSARDOM(textContent, {
-      url: 'https://example.com',
       nativeDocument,
+      url: `file://${path.resolve(entrypoint)}`,
     });
     await dom.load();
   });

@@ -1,25 +1,44 @@
-import DOMException from 'domexception';
+import DOMException from '../domexception';
+import { applyMixins } from '../../mixin';
+import { NativeDocument } from '../../impl-interfaces';
+
 import { AttrImpl } from '../attributes/Attr';
 import { NodeImpl } from './Node';
-import { SpatialDocumentImpl } from './SpatialDocument';
-import { NativeDocument } from '../../impl-interfaces';
-import NamedNodeMapImpl from '../attributes/NamedNodeMap';
-import { HTML_NS } from '../helpers/namespaces';
-import { asciiLowercase, asciiUppercase } from '../helpers/strings';
-import { appendAttribute, changeAttribute, getAttributeByName, getAttributeByNameNS, hasAttribute, hasAttributeByName, hasAttributeByNameNS, removeAttribute, removeAttributeByName, removeAttributeByNameNS } from '../attributes';
 import DOMRectImpl from '../geometry/DOMRect';
 import ParentNodeImpl from './ParentNode';
 import ChildNodeImpl from './ChildNode';
 import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
-import { applyMixins } from '../../mixin';
-import { attributeNames, setAttribute, setAttributeValue } from '../attributes';
 import { CustomElementDefinition } from '../custom-elements/CustomElementRegistry';
+import DOMTokenListImpl from './DOMTokenList';
+import { SpatialDocumentImpl } from './SpatialDocument';
+
+import { HTML_NS } from '../helpers/namespaces';
+import { addNwsapi } from '../helpers/selectors';
+import {
+  listOfElementsWithClassNames,
+  listOfElementsWithNamespaceAndLocalName,
+  listOfElementsWithQualifiedName
+} from '../node';
+import {
+  attributeNames,
+  setAttribute,
+  setAttributeValue,
+  appendAttribute,
+  changeAttribute,
+  getAttributeByName,
+  getAttributeByNameNS,
+  hasAttribute,
+  hasAttributeByName,
+  hasAttributeByNameNS,
+  removeAttribute,
+  removeAttributeByName,
+  removeAttributeByNameNS
+} from '../attributes';
+import NamedNodeMapImpl from '../attributes/NamedNodeMap';
+import { applyMemoizeQueryOn } from '../../utils';
 import * as namedPropertiesWindow from '../named-properties-window';
 import * as validateNames from '../helpers/validate-names';
-import DOMTokenListImpl from './DOMTokenList';
-import { addNwsapi } from '../helpers/selectors';
-import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
-import { applyMemoizeQueryOn } from '../../utils';
+import { asciiLowercase, asciiUppercase } from '../helpers/strings';
 
 /**
  * Attaches an ID to an element in the document.
@@ -185,11 +204,11 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   get className(): string {
-    throw new DOMException('className is not supported', 'NotSupportedError');
+    throw new DOMException('className is not supported', 'NOT_SUPPORTED_ERR');
   }
 
   set className(value: string) {
-    throw new DOMException('className is not supported', 'NotSupportedError');
+    throw new DOMException('className is not supported', 'NOT_SUPPORTED_ERR');
   }
 
   get classList() {
@@ -380,7 +399,7 @@ export class ElementImpl extends NodeImpl implements Element {
     if (!hasAttribute(this, attr as AttrImpl)) {
       throw new DOMException(
         'Tried to remove an attribute that was not present',
-        'NotFoundError'
+        'NOT_FOUND_ERR'
       );
     }
     removeAttribute(this, attr as AttrImpl);

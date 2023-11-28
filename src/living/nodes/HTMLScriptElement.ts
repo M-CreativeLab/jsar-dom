@@ -9,7 +9,7 @@ import DOMException from '../domexception';
 
 import { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
-import { join as joinUrl } from '../helpers/url';
+import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
 
 const scriptMIMETypes = new Set([
@@ -87,7 +87,6 @@ class CompiledModule {
  */
 function importsRecordPlugin(_, { esmImports }) {
   const checkAndAddImportSource = (path) => {
-    console.log('import source', path.node);
     if (path.node?.source?.extra?.rawValue) {
       esmImports.push(path.node.source.extra.rawValue);
     }
@@ -272,7 +271,13 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     this.setAttribute('type', value);
   }
 
-  private _basePath: string;
+  /**
+   * The script url in well-formed absolute format.
+   * 
+   * Initially, base script url is assigned to the XSML document url, then it will be re-assigned
+   * when "src" attribute is resolved or changed.
+   */
+  private _baseScriptUrl: string;
   private _code: string = '';
   private _compiledEntryCode: string;
   private _compiledModules: Map<string, CompiledModule> = new Map();
@@ -295,7 +300,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     super(nativeDocument, args, {
       localName: 'script',
     });
-    this._basePath = this.ownerDocument.baseURI;
+    this._baseScriptUrl = documentBaseURL(this._ownerDocument).href;
   }
 
   _attach(): void {
@@ -315,50 +320,50 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     return this._hostObject.userAgent.resourceLoader;
   }
 
-  private async _addCompiledModule(uri: string) {
-    const resourceExt = path.extname(uri);
+  private async _addCompiledModule(url: string) {
+    const resourceExt = path.extname(url);
 
     try {
       // handle JSON
       if (supportedJsonExtensions.includes(resourceExt)) {
-        const json = await this.resourceLoader.fetch(uri, {}, 'json');
-        this._compiledModules.set(uri, new CompiledModule(json));
+        const json = await this.resourceLoader.fetch(url, {}, 'json');
+        this._compiledModules.set(url, new CompiledModule(json));
         return;
       }
       // handle binary
       if (supportedBinaryExtensions.includes(resourceExt)) {
-        const arraybuffer = await this.resourceLoader.fetch(uri, {}, 'arraybuffer');
-        this._compiledModules.set(uri, new CompiledModule(arraybuffer));
+        const arraybuffer = await this.resourceLoader.fetch(url, {}, 'arraybuffer');
+        this._compiledModules.set(url, new CompiledModule(arraybuffer));
         return;
       }
     } catch (err) {
-      this.console.warn(`failed to fetch the module(${uri}) because of ${err}.`);
+      this.console.warn(`failed to fetch the module(${url}) because of ${err}.`);
     }
 
     // handle script (ts, mjs, js or no extension)
     if (resourceExt === '' || supportedScriptExtensions.includes(resourceExt)) {
-      const scriptSource = await this._tryFetchScriptWithExtensions(uri, supportedScriptExtensions);
+      const scriptSource = await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions);
       const result = await this._compile(scriptSource);
-      this._compiledModules.set(uri, new CompiledModule(result, true));
+      this._compiledModules.set(url, new CompiledModule(result, true));
 
       // recursively add the dependencies.
       // NOTE: only script has dependencies.
-      await this._addModuleRecursively(result.esmImports, path.dirname(uri));
+      await this._addModuleRecursively(result.esmImports, url);
     }
   }
 
   /**
    * Recursively adds modules to the script element.
    * @param esmImports - The array of ES module imports.
-   * @param basePath - The base path for resolving relative import paths.
+   * @param baseUrl - The base path for resolving relative import paths.
    * @throws {TypeError} If the import path is not a relative path.
    */
-  private async _addModuleRecursively(esmImports: string[], basePath: string = this._basePath) {
+  private async _addModuleRecursively(esmImports: string[], baseUrl: string = this._baseScriptUrl) {
     return Promise.all(
       esmImports.map(async (importPath) => {
         const isRelative = importPath.startsWith('./') || importPath.startsWith('../');
         if (isRelative) {
-          await this._addCompiledModule(joinUrl(importPath, basePath));
+          await this._addCompiledModule(new URL(importPath, baseUrl).href);
         } else {
           throw new TypeError(`The import path must be relative path.`);
         }
@@ -369,26 +374,26 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   /**
    * This method tries to fetch the given script with the given extensions in order.
    *
-   * @param uri The uri of the script.
+   * @param url The uri of the script.
    * @param extensions The extensions to try such as ['.ts', '.mjs', '.js'].
    * @returns The script source in utf8 encoding.
    */
-  async _tryFetchScriptWithExtensions(uri: string, extensions: string[]): Promise<string> {
-    const triedUris: string[] = [uri];
+  async _tryFetchScriptWithExtensions(url: string, extensions: string[]): Promise<string> {
+    const triedUris: string[] = [url];
     for (let ext of extensions) {
-      triedUris.push(uri + ext);
+      triedUris.push(url + ext);
       try {
-        const scriptSource = await this.resourceLoader.fetch(uri + ext, {}, 'string');
+        const scriptSource = await this.resourceLoader.fetch(url + ext, {}, 'string');
         return scriptSource;
-      } catch (_err) {
-        this.console.warn(`failed to fetch the script because of ${_err}, try next.`);
+      } catch (err) {
+        this.console.warn(`failed to fetch the script because of ${err.message}, try next.`);
       }
     }
     try {
-      return await this.resourceLoader.fetch(uri, {}, 'string');
+      return await this.resourceLoader.fetch(url, {}, 'string');
     } catch (_err) {
       const details = triedUris.map(s => `  ${s}`).join('\n');
-      throw new TypeError(`Failed to fetch the script source: ${uri}, tried uris:\n${details}`);
+      throw new TypeError(`Failed to fetch the script source: ${url}, tried uris:\n${details}`);
     }
   }
 
@@ -431,7 +436,8 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
           }],
           // 3. Transform the code into CommonJS.
           [commonjsTransformPlugin, {
-            importInterop: 'node',
+            // See https://babeljs.io/docs/babel-plugin-transform-modules-commonjs#importinterop
+            importInterop: 'babel',
           }],
           // 4. Transform the dyanmic import() into a function call to __dynamicImport__().
           [dynamicImportsReplacerPlugin],
@@ -458,8 +464,12 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       throw new DOMException('The script element must not have both a src attribute and a script content.', 'SYNTAX_ERR');
     }
     if (!this.textContent && src) {
-      this._basePath = path.dirname(src);
-      this._code = await this._hostObject.userAgent.resourceLoader.fetch(src, {}, 'string');
+      const url = parseURLToResultingURLRecord(src, this._ownerDocument);
+      if (url == null) {
+        throw new DOMException(`The script element has an invalid src attribute: ${src}`, 'SYNTAX_ERR');
+      }
+      this._baseScriptUrl = url.href;
+      this._code = await this._hostObject.userAgent.resourceLoader.fetch(url.href, {}, 'string');
     } else {
       this._code = this.textContent;
     }
@@ -472,7 +482,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     /**
      * 3. Load and compile the dependencies.
      */
-    await this._addModuleRecursively(esmImports, this._basePath);
+    await this._addModuleRecursively(esmImports, this._baseScriptUrl);
 
     /**
      * 4. Save the compiled script source
@@ -497,13 +507,17 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
         try {
           await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
             return this._evalInternal(this._compiledEntryCode, {
-              basePath: this._basePath,
+              baseUrl: this._baseScriptUrl,
             });
           });
         } catch (error) {
-          const message = `occurs an error: ${error?.message || 'Unkonwn Error'}, script: ${this.src}`;
-          this.console.error(message, error);
-          // reportException(this._hostObject, error);
+          this.console.warn('============ Script evaluation failure detection ============');
+          this.console.warn(error?.stack);
+          this.console.warn(`Script src: ${this.src}`);
+          this.console.warn(`Script url: ${this._baseScriptUrl}`);
+          this.console.warn(`${this._compiledEntryCode}`);
+          this.console.warn('============ Script evaluation failure detection ============');
+          reportException(this._hostObject, error);
         }
       }, null, false, this);
     }
@@ -514,15 +528,41 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param code The code to be evaluated.
    * @private
    */
-  private _evalInternal(code: string, options: { basePath: string }) {
-    const cjsModule = { exports: {} };
-    const context = Object.assign(this._ownerDocument._defaultView, {
+  private _evalInternal(code: string, options: { baseUrl: string }) {
+    const cjsModule = {
+      exports: {},
+      // FIXME(Yorkie): add other module properties? such as: `module.id`.
+    };
+    const windowBase = this._ownerDocument._defaultView;
+    const context = vm.createContext({
       // Babylon.js
       BABYLON,
 
       // Node.js
       Buffer,
       assert,
+
+      // Web APIs
+      URL: windowBase.URL,
+      Blob: windowBase.Blob,
+      get console() {
+        return windowBase.console;
+      },
+      get navigator() {
+        return windowBase.navigator;
+      },
+      get document() {
+        return windowBase.document;
+      },
+
+      // XSML APIs
+      get spatialDocument() {
+        return windowBase.document;
+      },
+      get spaceDocument() {
+        windowBase.console.warn('spaceDocument is deprecated, use `spatialDocument` instead.');
+        return windowBase.document;
+      },
 
       // cjs & esm functions
       module: cjsModule,
@@ -555,18 +595,16 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   /**
    * This is a convenience method to get the exports of the module.
    * @param module the compiled module.
-   * @param scriptUri the uri of the script.
+   * @param baseUrl the uri of the script.
    * @returns the exports of the module.
    */
-  private _getModuleExports(module: CompiledModule, scriptUri: string) {
+  private _getModuleExports(module: CompiledModule, baseUrl: string) {
     if (module.type === 'json' || module.type === 'binary') {
       return module.result;
     }
     if (module.type === 'script') {
       const result = module.result as CompiledScriptResult;
-      const ret = this._evalInternal(result.code, {
-        basePath: path.dirname(scriptUri),
-      });
+      const ret = this._evalInternal(result.code, { baseUrl });
       return ret?.exports || {};
     }
   }
@@ -574,23 +612,24 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   /**
    * Creates a require function for importing modules.
    * @param options - The options for creating the require function.
-   * @param options.basePath - The base path for resolving relative module paths.
+   * @param options.baseUrl - The base path for resolving relative module paths.
    * @returns The require function.
    * @throws {TypeError} If the import path is not a relative path.
    * @throws {TypeError} If the module cannot be found.
    */
-  private _createRequireFunction(options: { basePath: string }) {
+  private _createRequireFunction(options: { baseUrl: string }) {
+    let { baseUrl } = options;
     return (id: string) => {
       const isRelative = id.startsWith('./') || id.startsWith('../');
       if (!isRelative) {
         // FIXME: only support relative path now, absolute path will be supported by the future.
         throw new TypeError(`The import path must be relative path.`);
       }
-      const scriptUri = joinUrl(id, options.basePath);
-      if (!this._compiledModules.has(scriptUri)) {
+      const scriptUrl = new URL(id, baseUrl).href;
+      if (!this._compiledModules.has(scriptUrl)) {
         throw new TypeError(`Could not find the module: ${id}`);
       }
-      return this._getModuleExports(this._compiledModules.get(scriptUri), scriptUri);
+      return this._getModuleExports(this._compiledModules.get(scriptUrl), scriptUrl);
     };
   }
 
@@ -600,23 +639,23 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param options.basePath - The base path for resolving relative import paths.
    * @returns The dynamic importer function.
    */
-  private _createDynamicImporter(options: { basePath: string }) {
+  private _createDynamicImporter(options: { baseUrl: string }) {
     return async (specifier: string) => {
       const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
       if (!isRelative) {
         // FIXME: only support relative path now, absolute path will be supported by the future.
         throw new TypeError(`The import path must be relative path.`);
       }
-      const scriptUri = joinUrl(specifier, options.basePath);
+      const scriptUrl = new URL(specifier, options.baseUrl).href;
       // Load and compile the module if it is not loaded.
-      if (!this._compiledModules.has(scriptUri)) {
-        await this._addCompiledModule(scriptUri);
+      if (!this._compiledModules.has(scriptUrl)) {
+        await this._addCompiledModule(scriptUrl);
       }
       // Check again when the module loading is finished.
-      if (!this._compiledModules.has(scriptUri)) {
+      if (!this._compiledModules.has(scriptUrl)) {
         throw new TypeError(`Could not find the module: ${specifier}`);
       }
-      return this._getModuleExports(this._compiledModules.get(scriptUri), scriptUri);
+      return this._getModuleExports(this._compiledModules.get(scriptUrl), scriptUrl);
     };
   }
 }

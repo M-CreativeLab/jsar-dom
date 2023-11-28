@@ -1,11 +1,12 @@
-import DOMException from 'domexception';
+import DOMException from '../domexception';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { addNwsapi } from '../helpers/selectors';
 import { convertNodesIntoNode } from '../node';
-import HTMLCollectionImpl from './HTMLCollection';
 import { NodeImpl } from './Node';
 import { NodeListImpl } from './NodeList';
-import { SpatialDocumentImpl } from './SpatialDocument';
+import { ElementImpl } from './Element';
+import HTMLCollectionImpl from './HTMLCollection';
+import { type SpatialDocumentImpl } from './SpatialDocument';
 
 function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
   // This is true during initialization.
@@ -14,6 +15,15 @@ function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
   } else {
     return false;
   }
+}
+
+/**
+ * Check if a node is a `SpatialDocumentImpl` instance.
+ * 
+ * Here we don't use `instanceof` because it will cause circular dependency.
+ */
+function isSpatialDocument(node: Node): node is SpatialDocumentImpl {
+  return node.nodeType === NodeImpl.DOCUMENT_NODE;
 }
 
 export default interface ParentNodeImpl extends NodeImpl { };
@@ -58,7 +68,7 @@ export default class ParentNodeImpl implements ParentNode {
 
   append(...nodes: (string | Node)[]): void {
     if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
     }
     this._append(convertNodesIntoNode(this._ownerDocument, nodes) as NodeImpl);
   }
@@ -74,13 +84,13 @@ export default class ParentNodeImpl implements ParentNode {
   querySelector<E extends Element = Element>(selectors: string): E;
   querySelector(selectors: unknown): Element | null {
     if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
     }
     if (
-      !(this instanceof Element) &&
-      !(this instanceof Document)
+      !(this instanceof ElementImpl) &&
+      !(isSpatialDocument(this))
     ) {
-      throw new DOMException('ParentNode must be an Element or a Document.', 'HierarchyRequestError');
+      throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
     }
     if (shouldAlwaysSelectNothing(this)) {
       return null;
@@ -96,10 +106,10 @@ export default class ParentNodeImpl implements ParentNode {
   querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
   querySelectorAll(selectors: unknown): NodeListOf<Element> {
     if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HierarchyRequestError');
+      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
     }
     if (!(this instanceof Element) && !(this instanceof Document)) {
-      throw new DOMException('ParentNode must be an Element or a Document.', 'HierarchyRequestError');
+      throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
     }
     if (shouldAlwaysSelectNothing(this)) {
       return new NodeListImpl(this._hostObject, [], {

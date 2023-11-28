@@ -15,6 +15,7 @@ import CharacterDataImpl from './CharacterData';
 import { NativeDocument } from '../../impl-interfaces';
 import { SpatialDocumentImpl } from './SpatialDocument';
 import ParentNodeImpl from './ParentNode';
+import { documentBaseURLSerialized } from '../helpers/document-base-url';
 
 function nodeEquals(a: Node, b: Node) {
   if (a.nodeType !== b.nodeType) {
@@ -169,7 +170,6 @@ export class NodeImpl extends EventTarget implements Node {
   readonly DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 32 = 32;
   static readonly DOCUMENT_POSITION_IMPLEMENTATION_SPECIFIC: 32 = 32;
 
-  baseURI: string;
   nodeType: number;
 
   _version: number = 0;
@@ -208,6 +208,10 @@ export class NodeImpl extends EventTarget implements Node {
       return this.#assignedSlot;
     }
     return domSymbolTree.parent(this);
+  }
+
+  get baseURI(): string {
+    return documentBaseURLSerialized(this._ownerDocument);
   }
 
   get parentNode(): ParentNodeImpl {

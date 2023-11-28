@@ -1,4 +1,5 @@
 import util from 'util';
+import ErrorEventImpl from '../events/ErrorEvent';
 
 const errorReportingMode = Symbol('error reporting mode');
 
@@ -18,7 +19,7 @@ function reportAnError(line: number, col: number, target: EventTarget, errorObje
     message = 'uncaught exception: ' + util.inspect(errorObject);
   }
 
-  const event = new ErrorEvent('error', {
+  const event = new ErrorEventImpl('error', {
     cancelable: true,
     message,
     filename: location,

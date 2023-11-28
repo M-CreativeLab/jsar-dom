@@ -27,7 +27,7 @@ export function matchesDontThrow(elImpl: ElementImpl, selector: string) {
 
 export function addNwsapi(parentNode: ParentNodeImpl) {
   const document = parentNode._ownerDocument;
-  if (document._nwsapiDontThrow) {
+  if (!document._nwsapi) {
     document._nwsapi = initNwsapi(parentNode);
     document._nwsapi.configure({
       LOGERRORS: false,

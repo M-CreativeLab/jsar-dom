@@ -1,8 +1,6 @@
-import { LayoutNode, NativeDocument } from '../../impl-interfaces';
+import { LayoutNode } from '../../impl-interfaces';
 import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 import { ElementImpl } from './Element';
-import HTMLDivElementImpl from './HTMLDivElement';
-import HTMLSpanElementImpl from './HTMLSpanElement';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   accessKey: string;

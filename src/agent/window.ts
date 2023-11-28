@@ -6,7 +6,7 @@ import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
 
 export type WindowOrDOMInit = {
-  url: string;
+  url?: string;
   nativeDocument: NativeDocument;
   referrer?: string;
   contentType?: string;

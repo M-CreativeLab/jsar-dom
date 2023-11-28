@@ -2,12 +2,10 @@ import BABYLON from 'babylonjs';
 import nwsapi from 'nwsapi';
 
 import { NativeDocument } from '../../impl-interfaces';
-import { DocumentTypeImpl } from './DocumentType';
-import { SpatialObject } from './SpatialObject';
-import { XSMLShadowRoot } from './ShadowRoot';
-import { NodeImpl } from './Node';
-import { HTMLElementImpl } from './HTMLElement';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
+import { DocumentTypeImpl } from './DocumentType';
+import { NodeImpl } from './Node';
+import { ElementImpl } from './Element';
 import { AttrImpl } from '../attributes/Attr';
 import { TextImpl } from './Text';
 import { UIEventImpl } from '../events/UIEvent';
@@ -24,26 +22,33 @@ import MessageEventImpl from '../events/MessageEvent';
 import PopStateEventImpl from '../events/PopStateEvent';
 import ProgressEventImpl from '../events/ProgressEvent';
 import TouchEventImpl from '../events/TouchEvent';
-import { applyMixins } from '../../mixin';
-import { canParseURL } from '../helpers/url';
-import { domSymbolTree } from '../helpers/internal-constants';
+import { HTMLElementImpl } from './HTMLElement';
 import HTMLHeadElementImpl from './HTMLHeadElement';
 import HTMLTitleElementImpl from './HTMLTitleElement';
 import HTMLMetaElementImpl from './HTMLMetaElement';
 import HTMLSpaceElement from './HTMLSpaceElement';
 import HTMLScriptElementImpl from './HTMLScriptElement';
-import { HTML_NS, SVG_NS } from '../helpers/namespaces';
-import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
-import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
-import { ElementImpl } from './Element';
-import { validateAndExtract, name as validateName } from '../helpers/validate-names';
-import { applyMemoizeQueryOn } from '../../utils';
-import { listOfElementsWithClassNames, listOfElementsWithNamespaceAndLocalName, listOfElementsWithQualifiedName } from '../node';
 import { NodeListImpl } from './NodeList';
-import IterableWeakSet from '../helpers/iterable-weak-set';
 import NodeIteratorImpl from '../traversal/NodeIterator';
 import { GlobalEventHandlersImpl } from './GlobalEventHandlers';
 import { AsyncResourceQueue, ResourceQueue } from '../../agent/resources/ResourceQueue';
+import { SpatialObject } from './SpatialObject';
+import { XSMLShadowRoot } from './ShadowRoot';
+
+import { applyMixins } from '../../mixin';
+import { applyMemoizeQueryOn } from '../../utils';
+import {
+  listOfElementsWithClassNames,
+  listOfElementsWithNamespaceAndLocalName,
+  listOfElementsWithQualifiedName
+} from '../node';
+import { HTML_NS, SVG_NS } from '../helpers/namespaces';
+import { canParseURL } from '../helpers/url';
+import IterableWeakSet from '../helpers/iterable-weak-set';
+import { domSymbolTree } from '../helpers/internal-constants';
+import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
+import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
+import { validateAndExtract, name as validateName } from '../helpers/validate-names';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -87,10 +92,10 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   get ownerDocument() {
     return null;
   }
-  get URL() {
+  get URL(): string {
     return this._URL.toString();
   }
-  get documentURI() {
+  get documentURI(): string {
     return this._URL.toString();
   }
   alinkColor: string;
@@ -292,7 +297,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     this._encoding = privateData.options.encoding || 'UTF-8';
 
     const urlOption = privateData.options.url === undefined ? 'about:blank' : privateData.options.url;
-    if (canParseURL(urlOption) === null) {
+    if (canParseURL(urlOption) == null) {
       throw new TypeError(`Could not parse ${urlOption} as a URL.`);
     }
     this._URL = new URL(urlOption);

@@ -1,0 +1,8 @@
+<xsml>
+  <head>
+    <title>Example</title>
+    <script type="module" src="foo.ts"></script>
+  </head>
+  <space>
+  </space>
+</xsml>
