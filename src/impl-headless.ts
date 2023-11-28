@@ -34,7 +34,16 @@ class HeadlessResourceLoader implements ResourceLoader {
       if (returnsAs === 'string' || returnsAs === 'json') {
         readOptions.encoding = 'utf8';
       }
-      return fsPromises.readFile(urlObj.pathname, readOptions)
+
+      let { pathname } = urlObj;
+      if (process.platform === 'win32' && pathname[0] === '/') {
+        /**
+         * The Node.js URL parses the Windows path to append a leading "/" on the `pathname`.
+         * This manually removes the leading "/" to avoid related issues.
+         */
+        pathname = pathname.slice(1);
+      }
+      return fsPromises.readFile(pathname, readOptions)
         .then((data) => {
           if (isStringOrJson(data)) {
             if (returnsAs === 'string') {
