@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "module": "ESNext",
+    "module": "CommonJS",
     "jsx": "react-jsx",
     "outDir": "dist",
     "moduleResolution": "Node",

@@ -7,6 +7,10 @@
 export function applyMixins(derivedCtor: any, constructors: any[]) {
   constructors.forEach((baseCtor) => {
     Object.getOwnPropertyNames(baseCtor.prototype).forEach((name) => {
+      // Skip the name "constructor"
+      if (name === 'constructor') {
+        return;
+      }
       Object.defineProperty(
         derivedCtor.prototype,
         name,

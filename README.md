@@ -42,6 +42,16 @@ dom.window.document.querySelector('sphere').spatialStyle.scaling = [1.2, 1.2, 1.
 
 Because JSAR-DOM is not going to be a emulator of the traditional browser, it's an in-production implementation of the WHATWG [DOM][], [WebXR][] and XSML for XR applications, so an instance of implementing the `NativeDocument` interface must be pass to the constructor, which implemented the underlying stuffs like rendering and event handling.
 
+### Using headless `NativeDocument` implementation
+
+If you want to use JSAR-DOM in a headless environment, you can use the `HeadlessNativeDocument` implementation, which is a headless implementation of the `NativeDocument` interface.
+
+```sh
+$ ts-node src/impl-headless.ts ./fixtures/simple.xsml
+```
+
+At JSAR-DOM project, we use the this implementation for tests purpose, you could also use it to see how to write a `NativeDocument` implementation, or just run a XSML application in a headless environment.
+
 ## What's XSML?
 
 XSML: eXtensible Spatial Markup Language.

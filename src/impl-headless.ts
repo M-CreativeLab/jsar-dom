@@ -104,3 +104,24 @@ export class HeadlessNativeDocument implements NativeDocument {
     // TODO
   }
 }
+
+if (require.main === module) {
+  const entrypoint = process.argv[2];
+  if (!entrypoint) {
+    console.error('Usage: ts-node ./src/impl-headless.ts <entrypoint>');
+    process.exit(1);
+  }
+
+  Promise.all([
+    import('./index'),
+    import('node:fs/promises'),
+  ]).then(async ([{ JSARDOM }, fsPromises]) => {
+    const textContent = await fsPromises.readFile(entrypoint, 'utf8');
+    const nativeDocument = new HeadlessNativeDocument();
+    const dom = new JSARDOM(textContent, {
+      url: 'https://example.com',
+      nativeDocument,
+    });
+    await dom.load();
+  });
+}

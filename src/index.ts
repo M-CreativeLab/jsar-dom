@@ -19,4 +19,13 @@ export class JSARDOM {
   get document(): SpatialDocumentImpl {
     return this[windowSymbol].document as unknown as SpatialDocumentImpl;
   }
+
+  async load() {
+    this.document._start();
+    return new Promise<void>(resolve => {
+      this.document.addEventListener('load', (event) => {
+        resolve();
+      });
+    });
+  }
 }

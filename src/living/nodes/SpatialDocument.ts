@@ -43,6 +43,7 @@ import { NodeListImpl } from './NodeList';
 import IterableWeakSet from '../helpers/iterable-weak-set';
 import NodeIteratorImpl from '../traversal/NodeIterator';
 import { GlobalEventHandlersImpl } from './GlobalEventHandlers';
+import { AsyncResourceQueue, ResourceQueue } from '../../agent/resources/ResourceQueue';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -83,7 +84,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   domain: string;
   contentType: string;
 
-  onbeforexrselect: (this: GlobalEventHandlers, ev: XRSessionEvent) => any;
   get ownerDocument() {
     return null;
   }
@@ -169,12 +169,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     return 'visible';
   }
 
-  onfullscreenchange: (this: Document, ev: Event) => any;
-  onfullscreenerror: (this: Document, ev: Event) => any;
-  onpointerlockchange: (this: Document, ev: Event) => any;
-  onpointerlockerror: (this: Document, ev: Event) => any;
-  onreadystatechange: (this: Document, ev: Event) => any;
-  onvisibilitychange: (this: Document, ev: Event) => any;
   pictureInPictureEnabled: boolean;
   plugins: HTMLCollectionOf<HTMLEmbedElement>;
   readyState: DocumentReadyState;
@@ -230,6 +224,13 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     }
   }
 
+  onfullscreenchange: (this: Document, ev: Event) => any;
+  onfullscreenerror: (this: Document, ev: Event) => any;
+  onpointerlockchange: (this: Document, ev: Event) => any;
+  onpointerlockerror: (this: Document, ev: Event) => any;
+  onreadystatechange: (this: Document, ev: Event) => any;
+  onvisibilitychange: (this: Document, ev: Event) => any;
+
   _xsmlVersion: string;
   _ids = Object.create(null);
   _parsingMode: string = 'xsml';
@@ -238,6 +239,9 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _URL: URL;
   _defaultView: Window & typeof globalThis;
   _workingNodeIterators: IterableWeakSet<NodeIteratorImpl>;
+  _asyncQueue = new AsyncResourceQueue();
+  _queue = new ResourceQueue({ paused: false, asyncQueue: this._asyncQueue });
+  _deferQueue = new ResourceQueue({ paused: true });
 
   _lastModified: string;
   _styleCache: any;
@@ -796,9 +800,9 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     let r: T;
     const valueFuture = fn();
     if (valueFuture instanceof Promise) {
-        r = await valueFuture;
+      r = await valueFuture;
     } else {
-        r = valueFuture;
+      r = valueFuture;
     }
     const endTime = performance.now();
     const executionTime = endTime - startTime;
@@ -952,6 +956,65 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    */
   getMaterialById(id: string): BABYLON.Material {
     return this.scene.getMaterialById(id);
+  }
+
+  /**
+   * Start the document, it executes the scripts.
+   */
+  _start(noQueue = false) {
+    // In no queue mode, the document will not execute the scripts.
+    if (noQueue) {
+      this.readyState = 'complete';
+      this.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true }));
+      this.dispatchEvent(new Event('load'));
+      return;
+    }
+
+    // Resume the queue
+    this._queue.resume();
+
+    // Handle the defer and async queue
+    const ownerDocument = this;
+    const dummyPromise = Promise.resolve();
+    this._queue.push(dummyPromise, function onDOMContentLoaded(): Promise<void> {
+      const dispatchEvent = () => {
+        // https://html.spec.whatwg.org/#the-end
+        ownerDocument.readyState = 'interactive';
+        ownerDocument.dispatchEvent(new Event('DOMContentLoaded', { bubbles: true }));
+      };
+      return new Promise<void>(resolve => {
+        if (!ownerDocument._deferQueue.tail) {
+          dispatchEvent();
+          resolve();
+        } else {
+          ownerDocument._deferQueue.setListener(() => {
+            dispatchEvent();
+            resolve();
+          });
+          ownerDocument._deferQueue.resume();
+        }
+      });
+    }, null);
+
+    // Set the readyState to 'complete' once all resources are loaded.
+    // As a side-effect the document's load-event will be dispatched.
+    this._queue.push(dummyPromise, function onLoad(): Promise<void> {
+      const dispatchEvent = () => {
+        ownerDocument.readyState = 'complete';
+        ownerDocument.dispatchEvent(new Event('load'));
+      };
+      return new Promise<void>(resolve => {
+        if (ownerDocument._asyncQueue.count() === 0) {
+          dispatchEvent();
+          resolve();
+        } else {
+          this._asyncQueue.setListener(() => {
+            dispatchEvent();
+            resolve();
+          });
+        }
+      });
+    }, null, true);
   }
 
   // https://dom.spec.whatwg.org/#concept-node-adopt

@@ -6,9 +6,12 @@ module.exports = {
     'src/**/*.ts',
     '!node_modules/**',
   ],
+  setupFiles: [
+    './jest.setup.js',
+  ],
   coverageReporters: [
     'html',
     'text-summary',
     'cobertura',
-  ]
+  ],
 };

@@ -195,7 +195,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   /**
    * The CORS (Cross-Origin Resource Sharing) setting for the script element.
    */
-  get crossOrigin(): string{
+  get crossOrigin(): string {
     return this.getAttribute('crossorigin') || '';
   }
   set crossOrigin(value: string) {
@@ -493,17 +493,19 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
      * Load the script and then execute it.
      */
     if (await this._load()) {
-      try {
-        await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
-          return this._evalInternal(this._compiledEntryCode, {
-            basePath: this._basePath,
+      this.ownerDocument._queue.push(null, async () => {
+        try {
+          await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
+            return this._evalInternal(this._compiledEntryCode, {
+              basePath: this._basePath,
+            });
           });
-        });
-      } catch (error) {
-        const message = `occurs an error: ${error?.message || 'Unkonwn Error'}, script: ${this.src}`;
-        this.console.error(message, error);
-        // reportException(this._hostObject, error);
-      }
+        } catch (error) {
+          const message = `occurs an error: ${error?.message || 'Unkonwn Error'}, script: ${this.src}`;
+          this.console.error(message, error);
+          // reportException(this._hostObject, error);
+        }
+      }, null, false, this);
     }
   }
 

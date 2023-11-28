@@ -28,8 +28,8 @@ describe('JSARDOM', () => {
     expect(dom.window.document.title).toBe('Example');
   });
 
-  it('should be able to execute script', () => {
-    new JSARDOM(`
+  it('should be able to execute script', async () => {
+    const dom = new JSARDOM(`
 <xsml>
   <head>
     <title>Example</title>
@@ -44,5 +44,6 @@ describe('JSARDOM', () => {
       url: 'https://example.com',
       nativeDocument: sharedNativeDocument,
     });
+    await dom.load();
   });
 });
