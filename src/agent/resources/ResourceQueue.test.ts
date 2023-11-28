@@ -61,14 +61,14 @@ describe('ResourceQueue', () => {
     expect(item3.check).not.toHaveBeenCalled();
   });
 
-  // it('should push requests after resuming', async () => {
-  //   const queue = new ResourceQueue({ paused: true });
-  //   queue.resume();
+  it('should push requests after resuming', async () => {
+    const queue = new ResourceQueue({ paused: true });
+    queue.resume();
 
-  //   const onload = jest.fn() as any;
-  //   const dummyPromise = Promise.resolve();
-  //   await queue.push(dummyPromise, onload, null, false);
+    const onload = jest.fn() as any;
+    const dummyPromise = Promise.resolve();
+    await queue.push(dummyPromise, onload, null, false);
 
-  //   expect(onload).toBeCalled();
-  // });
+    expect(onload).toBeCalled();
+  });
 });
