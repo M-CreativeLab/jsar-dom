@@ -19,7 +19,7 @@ jobs:
     - name: Install dependencies
       run: |
         npm ci && npx tsc --version
-    - name: Run Tests
+    - name: Run Integration Tests
       run: |
         npm run headless-bin -- ./fixtures/simple.xsml
         npm run headless-bin -- ./fixtures/esm/script-with-src.xsml
