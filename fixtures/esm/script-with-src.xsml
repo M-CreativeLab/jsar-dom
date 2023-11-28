@@ -1,6 +1,6 @@
 <xsml>
   <head>
-    <title>Example</title>
+    <title>Script Example (External)</title>
     <script type="module" src="foo.ts"></script>
   </head>
   <space>
