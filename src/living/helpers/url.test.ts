@@ -45,7 +45,7 @@ describe('join', () => {
   it('should handle sub path with leading and trailing slashes', () => {
     const sub = '/sub/';
     const base = '/base/';
-    const expected = process.platform === 'win32' ? '\\base\\sub\\' : '/base/sub';
+    const expected = process.platform === 'win32' ? '\\base\\sub\\' : '/base/sub/';
     expect(join(sub, base)).toBe(expected);
   });
 });
