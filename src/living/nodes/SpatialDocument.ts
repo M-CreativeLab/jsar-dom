@@ -127,9 +127,15 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     }
     return null;
   }
-  fgColor: string;
-  fullscreen: boolean;
-  fullscreenEnabled: boolean;
+  get fgColor(): string {
+    return '#ffffff';
+  }
+  get fullscreen(): boolean {
+    throw new DOMException('fullscreen is not supported', 'NotSupportedError');
+  }
+  get fullscreenEnabled(): boolean {
+    return false;
+  }
   get head(): HTMLHeadElement {
     return this.documentElement ? firstChildWithLocalName(this.documentElement, 'head') : null;
   }
@@ -610,31 +616,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   fonts: FontFaceSet;
-  append(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  prepend(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
-  querySelector<K extends keyof HTMLElementTagNameMap>(selectors: K): HTMLElementTagNameMap[K];
-  querySelector<K extends keyof SVGElementTagNameMap>(selectors: K): SVGElementTagNameMap[K];
-  querySelector<K extends keyof MathMLElementTagNameMap>(selectors: K): MathMLElementTagNameMap[K];
-  querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K];
-  querySelector<E extends Element = Element>(selectors: string): E;
-  querySelector(selectors: unknown): Element {
-    throw new Error('Method not implemented.');
-  }
-  querySelectorAll<K extends keyof HTMLElementTagNameMap>(selectors: K): NodeListOf<HTMLElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof SVGElementTagNameMap>(selectors: K): NodeListOf<SVGElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof MathMLElementTagNameMap>(selectors: K): NodeListOf<MathMLElementTagNameMap[K]>;
-  querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
-  querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
-  querySelectorAll(selectors: unknown): NodeListOf<Element> {
-    throw new Error('Method not implemented.');
-  }
-  replaceChildren(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
-  }
   createExpression(expression: string, resolver?: XPathNSResolver): XPathExpression {
     throw new Error('Method not implemented.');
   }
