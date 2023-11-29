@@ -125,9 +125,7 @@ export interface UserAgent {
   prompt(message?: string, defaultValue?: string): string;
 }
 
-export interface NativeEngine extends EventTarget {
-  addEventListener(type: 'DOMContentLoaded', listener: (event: Event) => void): void;
-}
+export interface NativeEngine extends BABYLON.Engine { }
 
 type LayoutResult = {
   childCount: number;
@@ -148,7 +146,7 @@ export interface LayoutNode {
 /**
  * The entry point that implementation must provide to the native engine.
  */
-export interface NativeDocument {
+export interface NativeDocument extends EventTarget {
   engine: NativeEngine;
   /**
    * The UserAgent instance that represents the client of executing XSML document.

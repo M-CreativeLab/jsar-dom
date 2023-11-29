@@ -2,7 +2,6 @@ import BABYLON from 'babylonjs';
 import nwsapi from 'nwsapi';
 
 import { NativeDocument } from '../../impl-interfaces';
-import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import { DocumentTypeImpl } from './DocumentType';
 import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
@@ -26,14 +25,18 @@ import { HTMLElementImpl } from './HTMLElement';
 import HTMLHeadElementImpl from './HTMLHeadElement';
 import HTMLTitleElementImpl from './HTMLTitleElement';
 import HTMLMetaElementImpl from './HTMLMetaElement';
-import HTMLSpaceElement from './HTMLSpaceElement';
 import HTMLScriptElementImpl from './HTMLScriptElement';
 import { NodeListImpl } from './NodeList';
 import NodeIteratorImpl from '../traversal/NodeIterator';
 import { GlobalEventHandlersImpl } from './GlobalEventHandlers';
 import { AsyncResourceQueue, ResourceQueue } from '../../agent/resources/ResourceQueue';
-import { SpatialObject } from './SpatialObject';
+import { SpatialElement } from './SpatialElement';
 import { XSMLShadowRoot } from './ShadowRoot';
+import SpatialSpaceElement from './SpatialSpaceElement';
+import SpatialRefElement from './SpatialRefElement';
+import SpatialCubeElement from './SpatialCubeElement';
+import SpatialPlaneElement from './SpatialPlaneElement';
+import SpatialSphereElement from './SpatialSphereElement';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -49,6 +52,12 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
+import SpatialBoundElement from './SpatialBoundElement';
+import SpatialCylinderElement from './SpatialCylinderElement';
+import SpatialCapsuleElement from './SpatialCapsuleElement';
+import SpatialTorusElement from './SpatialTorusElement';
+import HTMLDivElementImpl from './HTMLDivElement';
+import HTMLSpanElementImpl from './HTMLSpanElement';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -263,8 +272,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _nwsapiDontThrow: nwsapi.NWSAPI;
 
   /** Used for spatial objects */
-  _idsOfSpatialObjects: { [key: string]: SpatialObject } = {};
-  private _guidSOfSpatialObjects: { [key: string]: SpatialObject } = {};
+  _idsOfSpatialObjects: { [key: string]: SpatialElement } = {};
+  private _guidSOfSpatialObjects: { [key: string]: SpatialElement } = {};
 
   constructor(
     nativeDocument: NativeDocument,
@@ -313,7 +322,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     this._styleCache = null;
 
     // Bypass the GOMContentLoaded event from the XSML document.
-    nativeDocument.engine.addEventListener('DOMContentLoaded', (event) => {
+    nativeDocument.addEventListener('DOMContentLoaded', (event) => {
       this.dispatchEvent(new Event(event.type));
     });
   }
@@ -648,7 +657,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     return this.#nativeDocument.getContainerPose();
   }
 
-  attachShadow(target: SpatialObject, options?: ShadowRootInit): XSMLShadowRoot {
+  attachShadow(target: SpatialElement, options?: ShadowRootInit): XSMLShadowRoot {
     return target.attachShadow(options);
   }
 
@@ -656,112 +665,121 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * Create an element by tag name which could be append to a `XSMLShadowRoot`.
    * @param tagName the tag name: "div", "span", "b", "a", "button" ...
    */
+  // Common elements
   createElement(tagName: 'head'): HTMLTitleElement;
   createElement(tagName: 'title'): HTMLTitleElement;
   createElement(tagName: 'meta'): HTMLMetaElement;
-  createElement(tagName: 'script'): HTMLScriptElementImpl;
-  // createElement(tagName: 'space'): HTMLSpaceElement;
+  createElement(tagName: 'script'): HTMLScriptElement;
+  // Spatial elements for spatial rendering
+  createElement(tagName: 'space'): SpatialSpaceElement;
+  createElement(tagName: 'mesh'): SpatialElement;
+  createElement(tagName: 'bound'): SpatialBoundElement;
+  createElement(tagName: 'cube'): SpatialCubeElement;
+  createElement(tagName: 'plane'): SpatialPlaneElement;
+  createElement(tagName: 'sphere'): SpatialSphereElement;
+  createElement(tagName: 'cylinder'): SpatialCylinderElement;
+  createElement(tagName: 'capsule'): SpatialCapsuleElement;
+  createElement(tagName: 'torus'): SpatialTorusElement;
+  createElement(tagName: 'ref'): SpatialRefElement;
+  // HTML elements for texture rendering
   createElement(tagName: 'div'): HTMLDivElement;
   createElement(tagName: 'span'): HTMLSpanElement;
   createElement(tagName: 'a'): HTMLAnchorElement;
   createElement(tagName: 'img'): HTMLImageElement;
-  createElement(tagName: string): HTMLElement;
-  createElement(tagName: string): HTMLElement {
-    if (tagName === 'head') {
-      return new HTMLHeadElementImpl(this.#nativeDocument, []);
-    } else if (tagName === 'title') {
-      return new HTMLTitleElementImpl(this.#nativeDocument, []);
-    } else if (tagName === 'meta') {
-      return new HTMLMetaElementImpl(this.#nativeDocument, []);
-    } else if (tagName === 'script') {
-      return new HTMLScriptElementImpl(this.#nativeDocument, []);
-    } else if (tagName === 'space') {
-      return new HTMLSpaceElement(this.#nativeDocument, []);
-    } else {
-      return new HTMLElementImpl(this.#nativeDocument, [], {
-        localName: tagName,
-      });
+  // Universal signature
+  createElement(tagName: string): Element;
+  createElement(tagName: string): Element {
+    switch (tagName) {
+      // Common elements
+      case 'head':
+        return new HTMLHeadElementImpl(this.#nativeDocument, []);
+      case 'title':
+        return new HTMLTitleElementImpl(this.#nativeDocument, []);
+      case 'meta':
+        return new HTMLMetaElementImpl(this.#nativeDocument, []);
+      case 'script':
+        return new HTMLScriptElementImpl(this.#nativeDocument, []);
+
+      // Spatial elements for spatial rendering
+      case 'space':
+        return new SpatialSpaceElement(this.#nativeDocument, []);
+      case 'bound':
+        return new SpatialBoundElement(this.#nativeDocument, []);
+      case 'cube':
+        return new SpatialCubeElement(this.#nativeDocument, []);
+      case 'plane':
+        return new SpatialPlaneElement(this.#nativeDocument, []);
+      case 'sphere':
+        return new SpatialSphereElement(this.#nativeDocument, []);
+      case 'cylinder':
+        return new SpatialCylinderElement(this.#nativeDocument, []);
+      case 'capsule':
+        return new SpatialCapsuleElement(this.#nativeDocument, []);
+      case 'torus':
+        return new SpatialTorusElement(this.#nativeDocument, []);
+      case 'ref':
+        return new SpatialRefElement(this.#nativeDocument, []);
+
+      // HTML elements for texture rendering
+      case 'div':
+        return new HTMLDivElementImpl(this.#nativeDocument, []);
+      case 'span':
+        return new HTMLSpanElementImpl(this.#nativeDocument, []);
+      case 'a':
+      case 'img':
+      default:
+        return new HTMLElementImpl(this.#nativeDocument, [], {
+          localName: tagName,
+        });
     }
   }
 
   /**
    * Create a new spatial object by the tag name.
+   * 
+   * @deprecated Please use `createElement()` instead.
    * @param tagName the tag name of the spatial element.
    */
   createSpatialObject(tagName: string, attributes: any) {
-    let spatialObject: BABYLON.Node;
-    const getNodeNameOrId = (typeStr: string) => attributes.id || attributes.name || typeStr;
-    const scene = this.#nativeDocument.getNativeScene();
-
-    switch (tagName) {
-      case 'plane':
-        spatialObject = BABYLON.MeshBuilder.CreatePlane(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'cube':
-        spatialObject = BABYLON.MeshBuilder.CreateBox(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'sphere':
-        spatialObject = BABYLON.MeshBuilder.CreateSphere(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'cylinder':
-        spatialObject = BABYLON.MeshBuilder.CreateCylinder(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'capsule':
-        spatialObject = BABYLON.MeshBuilder.CreateCapsule(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'torus':
-        spatialObject = BABYLON.MeshBuilder.CreateTorus(getNodeNameOrId(tagName), attributes, scene);
-        break;
-      case 'bound':
-        spatialObject = this.#nativeDocument.createBoundTransformNode(getNodeNameOrId(tagName));
-        break;
-      case 'mesh':
-        spatialObject = this.#createSpatialObjectFromModel(attributes);
-        break;
-      default:
-        throw new TypeError(`Unknown spatial object type: ${tagName}`);
-    }
-
-    if (attributes.id) {
-      spatialObject.id = attributes.id;
-    }
-    // TODO: move the class & style to here xsml runtime.
-    const createdObject = new SpatialObject(this.#nativeDocument, [], {
-      object: spatialObject,
-      scene: this.scene,
+    this._hostObject.console.warn('createSpatialObject() is deprecated, please use createElement() instead.');
+    const spatialElement = this.createElement(tagName);
+    Object.keys(attributes).forEach((key) => {
+      spatialElement.setAttribute(key, attributes[key]);
     });
-
-    // Save the spatial object to the ids map.
-    if (attributes.id) {
-      /**
-       * Note(Yorkie): we must use the `attributes.id` as the key, because the Babylon.js will generate the id by name, its unexpectable behaviour.
-       */
-      this._idsOfSpatialObjects[attributes.id] = createdObject;
-    }
-
-    // Save the spatial object to the guids map for internal uses.
-    const guid = createdObject[SPATIAL_OBJECT_GUID_SYMBOL];
-    this._guidSOfSpatialObjects[guid] = createdObject;
-    return createdObject;
+    return spatialElement;
   }
 
   /**
-   * This method create a new `SpatialObject` by a reference to the native object `BABYLON.Node`, it's useful to create `SpatialObject`s which is created by model or created by Babylon.js.
+   * This method create a new `SpatialElement` by a reference to the native object `BABYLON.Node`, it's useful to create 
+   * `SpatialElement`s which is created by model or created by Babylon.js.
+   * 
    * @param nativeObject The native object, namely `BABYLON.Node`.
-   * @returns a new `SpatialObject` instance to reference the native object.
+   * @returns a new `SpatialElement` instance to reference the native object.
+   */
+  createSpatialElementByNativeReference(nativeObject: BABYLON.Node) {
+    const element = this.createElement('ref');
+    element.ref(nativeObject);
+    return element;
+  }
+
+  /**
+   * This method create a new `SpatialElement` by a reference to the native object `BABYLON.Node`, it's useful to create `SpatialElement`s 
+   * which is created by model or created by Babylon.js.
+   * 
+   * @deprecated Please use `createSpatialElementByNativeReference()` instead.
+   * @param nativeObject The native object, namely `BABYLON.Node`.
+   * @returns a new `SpatialElement` instance to reference the native object.
    */
   createSpatialObjectByNativeReference(nativeObject: BABYLON.Node) {
-    return new SpatialObject(this.#nativeDocument, [], {
-      object: nativeObject,
-      scene: this.scene,
-    });
+    this._hostObject.console.warn('createSpatialObjectByNativeReference() is deprecated, please use createSpatialElementByNativeReference() instead.');
+    return this.createSpatialElementByNativeReference(nativeObject);
   }
 
   /**
    * The `getSpatialObjectById()` method of the `SpatialDocument` interface returns an `SpatialObject` object representing the object whose id property matches the specified string. 
    * Since element IDs are required to be unique if specified, they're a useful way to get access to a specific element quickly.
    */
-  getSpatialObjectById(id: string): SpatialObject {
+  getSpatialObjectById(id: string): SpatialElement {
     return this._idsOfSpatialObjects[id];
   }
 
@@ -769,7 +787,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * This is used to get the spatial object by the transmute GUID.
    * @internal
    */
-  _getSpatialObjectByGuid(guid: string): SpatialObject {
+  _getSpatialObjectByGuid(guid: string): SpatialElement {
     return this._guidSOfSpatialObjects[guid];
   }
 

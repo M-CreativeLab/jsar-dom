@@ -13,7 +13,11 @@ import {
 } from './impl-interfaces';
 import { canParseURL } from './living/helpers/url';
 
-class HeadlessEngine extends EventTarget implements NativeEngine { }
+interface HeadlessEngine extends BABYLON.NullEngine, EventTarget { }
+class HeadlessEngine extends BABYLON.NullEngine implements NativeEngine {
+  // TODO
+}
+
 class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'string'): Promise<string>;
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'json'): Promise<object>;
@@ -102,7 +106,7 @@ class HeadlessUserAgent implements UserAgent {
   }
 }
 
-export class HeadlessNativeDocument implements NativeDocument {
+export class HeadlessNativeDocument extends EventTarget implements NativeDocument {
   engine: NativeEngine;
   userAgent: UserAgent;
   baseURI: string;
@@ -110,17 +114,22 @@ export class HeadlessNativeDocument implements NativeDocument {
   attachedDocument: SpatialDocumentImpl;
   closed: boolean = false;
 
+  private _scene: BABYLON.Scene;
+
   constructor() {
+    super();
+
     this.engine = new HeadlessEngine();
     this.userAgent = new HeadlessUserAgent({
       defaultStylesheet: '',
       devicePixelRatio: 1,
     });
     this.console = globalThis.console;
+    this._scene = new BABYLON.Scene(this.engine);
   }
 
   getNativeScene(): BABYLON.Scene {
-    throw new Error('Method not implemented.');
+    return this._scene;
   }
   getContainerPose(): XRPose {
     throw new Error('Method not implemented.');

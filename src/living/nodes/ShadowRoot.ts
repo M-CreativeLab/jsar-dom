@@ -4,7 +4,7 @@ import DOMException from 'domexception';
 import { NativeDocument } from '../../impl-interfaces';
 import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 
-import { SpatialObject } from './SpatialObject';
+import { SpatialElement } from './SpatialElement';
 import { NodeImpl } from './Node';
 import DocumentFragmentImpl from './DocumentFragment';
 import { HTMLElementImpl } from './HTMLElement';
@@ -29,7 +29,7 @@ export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
   /** @internal */
   _lastFocusedElement: Element;
   /** @internal */
-  _targetSpatialObject: SpatialObject;
+  _targetSpatialElement: SpatialElement;
   /** @internal */
   _interactiveDynamicTexture: InteractiveDynamicTexture;
 
@@ -42,17 +42,17 @@ export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
     hostObject: NativeDocument,
     args: [ShadowRootInit?],
     privateData: {
-      target: SpatialObject;
+      target: SpatialElement;
     }
   ) {
     super(hostObject, [], null);
 
     this.nodeType = NodeImpl.prototype.DOCUMENT_NODE;
 
-    this._targetSpatialObject = privateData.target;
+    this._targetSpatialElement = privateData.target;
     this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(
       this._hostObject,
-      this._targetSpatialObject.asNativeType<BABYLON.AbstractMesh>());
+      this._targetSpatialElement.asNativeType<BABYLON.AbstractMesh>());
   }
 
   getNativeTexture(): InteractiveDynamicTexture {
