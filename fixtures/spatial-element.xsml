@@ -1,0 +1,58 @@
+<xsml>
+  <head>
+    <title>Example</title>
+  </head>
+  <space>
+    <cube size="20" />
+    <bound>
+      <sphere id="sphere1" diameter="10" />
+    </bound>
+    <plane>
+      <sphere id="sphere2" diameter="20" />
+      <cylinder height="10" />
+      <capsule radius="20" />
+      <torus diameter="10" thickness="1" />
+    </plane>
+  </space>
+  <script type="module">
+    const cube = spatialDocument.querySelector('cube');
+    assert.equal(cube.asNativeType().getClassName(), 'Mesh');
+    assert.equal(cube.tagName, 'CUBE');
+    assert.equal(cube.size, 20);
+
+    const bound = spatialDocument.querySelector('bound');
+    assert.equal(bound.asNativeType().getClassName(), 'TransformNode');
+
+    const sphere1 = spatialDocument.querySelector('#sphere1');
+    assert.equal(sphere1.asNativeType().getClassName(), 'Mesh');
+    assert.equal(sphere1.tagName, 'SPHERE');
+    assert.equal(sphere1.diameter, 10);
+    // assert that sphere1 is a child of bound
+    assert.equal(sphere1.asNativeType().parent.uniqueId, bound.asNativeType().uniqueId);
+
+    const sphere2 = spatialDocument.querySelector('#sphere2');
+    assert.equal(sphere2.asNativeType().getClassName(), 'Mesh');
+    assert.equal(sphere2.tagName, 'SPHERE');
+    assert.equal(sphere2.diameter, 20);
+
+    const plane = sphere2.parentNode;
+    assert.equal(plane.asNativeType().getClassName(), 'Mesh');
+    assert.equal(plane.tagName, 'PLANE');
+    
+    const cylinder = plane.querySelector('cylinder');
+    assert.equal(cylinder.asNativeType().getClassName(), 'Mesh');
+    assert.equal(cylinder.tagName, 'CYLINDER');
+    assert.equal(cylinder.height, 10);
+
+    const capsule = plane.querySelector('capsule');
+    assert.equal(capsule.asNativeType().getClassName(), 'Mesh');
+    assert.equal(capsule.tagName, 'CAPSULE');
+    assert.equal(capsule.radius, 20);
+
+    const torus = plane.querySelector('torus');
+    assert.equal(torus.asNativeType().getClassName(), 'Mesh');
+    assert.equal(torus.tagName, 'TORUS');
+    assert.equal(torus.diameter, 10);
+    assert.equal(torus.thickness, 1);
+  </script>
+</xsml>

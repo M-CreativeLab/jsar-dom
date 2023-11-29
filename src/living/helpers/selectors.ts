@@ -16,7 +16,7 @@ export function matchesDontThrow(elImpl: ElementImpl, selector: string) {
   if (!document._nwsapiDontThrow) {
     document._nwsapiDontThrow = initNwsapi(elImpl);
     document._nwsapiDontThrow.configure({
-      IDS_DUPES: true,
+      IDS_DUPES: false,
       MIXEDCASE: true,
       LOGERRORS: false,
       VERBOSITY: false,
@@ -31,7 +31,7 @@ export function addNwsapi(parentNode: ParentNodeImpl) {
     document._nwsapi = initNwsapi(parentNode);
     document._nwsapi.configure({
       LOGERRORS: false,
-      IDS_DUPES: true,
+      IDS_DUPES: false,
       MIXEDCASE: true
     });
   }

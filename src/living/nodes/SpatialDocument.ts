@@ -173,18 +173,21 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   get all(): HTMLAllCollection {
     throw new DOMException('document.all is not supported', 'NotSupportedError');
   }
-  implementation: DOMImplementation;
+  get implementation(): DOMImplementation {
+    throw new DOMException('document.implementation is not supported', 'NotSupportedError');
+  }
   get lastModified(): string {
     return this._lastModified;
   }
-  linkColor: string;
+  get linkColor(): string {
+    return '#0000ee';
+  }
   get location(): Location {
     throw new Error('Method not implemented.');
   }
   set location(href: Location) {
     throw new Error('Method not implemented.');
   }
-
   get visibilityState(): DocumentVisibilityState {
     return 'visible';
   }
@@ -253,7 +256,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 
   _xsmlVersion: string;
   _ids = Object.create(null);
-  _parsingMode: string = 'xsml';
+  _parsingMode: string = 'html';
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;

@@ -285,7 +285,7 @@ export class NodeImpl extends EventTarget implements Node {
 
   get parentElement() {
     const parentNode = domSymbolTree.parent(this);
-    return parentNode !== null && parentNode.nodeType === this.ELEMENT_NODE ? parentNode : null;
+    return parentNode !== null && parentNode.nodeType === NodeImpl.ELEMENT_NODE ? parentNode : null;
   }
 
   get nodeValue() {

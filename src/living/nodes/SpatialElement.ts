@@ -12,6 +12,10 @@ export class SpatialElement extends ElementImpl {
   protected _id: string;
   [SPATIAL_OBJECT_GUID_SYMBOL]: string;
 
+  static isSpatialElement(node: Node): node is SpatialElement {
+    return node.nodeType === NodeImpl.ELEMENT_NODE && node instanceof SpatialElement;
+  }
+
   constructor(
     hostObject: NativeDocument,
     _args,
@@ -49,7 +53,12 @@ export class SpatialElement extends ElementImpl {
       this._internalObject = node;
     }
     if (this._internalObject) {
+      /** Add the SpatialObject GUID */
       this._internalObject[SPATIAL_OBJECT_GUID_SYMBOL] = this[SPATIAL_OBJECT_GUID_SYMBOL];
+      /** Append the native node(Babylon) into parent if it's a spatial element. */
+      if (this.parentNode && SpatialElement.isSpatialElement(this.parentNode)) {
+        this._internalObject.parent = this.parentNode.asNativeType();
+      }
     }
     super._attach();
   }

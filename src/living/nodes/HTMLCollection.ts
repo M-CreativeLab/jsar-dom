@@ -3,7 +3,7 @@ import { HTML_NS } from '../helpers/namespaces';
 import { NodeImpl } from './Node';
 
 export default class HTMLCollectionImpl implements HTMLCollection {
-  _version: number;
+  _version: number = -1;
   _element: NodeImpl;
   _query: () => HTMLElement[];
   private _list: HTMLElement[] = [];
@@ -17,6 +17,7 @@ export default class HTMLCollectionImpl implements HTMLCollection {
     }) {
     this._element = privateData.element;
     this._query = privateData.query;
+    this._update();
   }
 
   item(index: number): Element {
