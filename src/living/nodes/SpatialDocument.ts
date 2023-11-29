@@ -37,6 +37,12 @@ import SpatialRefElement from './SpatialRefElement';
 import SpatialCubeElement from './SpatialCubeElement';
 import SpatialPlaneElement from './SpatialPlaneElement';
 import SpatialSphereElement from './SpatialSphereElement';
+import SpatialBoundElement from './SpatialBoundElement';
+import SpatialCylinderElement from './SpatialCylinderElement';
+import SpatialCapsuleElement from './SpatialCapsuleElement';
+import SpatialTorusElement from './SpatialTorusElement';
+import HTMLDivElementImpl from './HTMLDivElement';
+import HTMLSpanElementImpl from './HTMLSpanElement';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -52,12 +58,6 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
-import SpatialBoundElement from './SpatialBoundElement';
-import SpatialCylinderElement from './SpatialCylinderElement';
-import SpatialCapsuleElement from './SpatialCapsuleElement';
-import SpatialTorusElement from './SpatialTorusElement';
-import HTMLDivElementImpl from './HTMLDivElement';
-import HTMLSpanElementImpl from './HTMLSpanElement';
 
 type DocumentInitOptions = {
   screenWidth?: number;
