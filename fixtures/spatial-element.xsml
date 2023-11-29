@@ -53,6 +53,6 @@
     assert.equal(torus.asNativeType().getClassName(), 'Mesh');
     assert.equal(torus.tagName, 'TORUS');
     assert.equal(torus.diameter, 10);
-    assert.equal(torus.thickness, 2);
+    assert.equal(torus.thickness, 1);
   </script>
 </xsml>
