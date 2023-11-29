@@ -1,0 +1,20 @@
+<xsml>
+  <head>
+    <title>Loader Example</title>
+    <script type="module">
+      Promise.all([
+        import('./files/babeee.json'),
+        import('./files/babeee.bin'),
+        import('./files/babeee.wasm'),
+        import('./foo'),
+      ]).then(([json, bin, wasm, foo]) => {
+        console.log('json object', json);
+        console.log('bin(arraybuffer)', bin);
+        console.log('wasm(arraybuffer)', wasm);
+        console.log(foo);
+      });
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>

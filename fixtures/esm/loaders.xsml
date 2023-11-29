@@ -1,0 +1,16 @@
+<xsml>
+  <head>
+    <title>Loader Example</title>
+    <script type="module">
+      import json from './files/babeee.json';
+      import bin from './files/babeee.bin';
+      import wasm from './files/babeee.wasm';
+
+      console.log('json object', json);
+      console.log('bin(arraybuffer)', bin);
+      console.log('wasm(arraybuffer)', wasm);
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>
