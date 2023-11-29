@@ -21,15 +21,19 @@ import MessageEventImpl from '../events/MessageEvent';
 import PopStateEventImpl from '../events/PopStateEvent';
 import ProgressEventImpl from '../events/ProgressEvent';
 import TouchEventImpl from '../events/TouchEvent';
-import { HTMLElementImpl } from './HTMLElement';
-import HTMLHeadElementImpl from './HTMLHeadElement';
-import HTMLTitleElementImpl from './HTMLTitleElement';
-import HTMLMetaElementImpl from './HTMLMetaElement';
-import HTMLScriptElementImpl from './HTMLScriptElement';
 import { NodeListImpl } from './NodeList';
 import NodeIteratorImpl from '../traversal/NodeIterator';
 import { GlobalEventHandlersImpl } from './GlobalEventHandlers';
 import { AsyncResourceQueue, ResourceQueue } from '../../agent/resources/ResourceQueue';
+
+import { HTMLElementImpl } from './HTMLElement';
+import HTMLHeadElementImpl from './HTMLHeadElement';
+import HTMLTitleElementImpl from './HTMLTitleElement';
+import HTMLMetaElementImpl from './HTMLMetaElement';
+import HTMLStyleElementImpl from './HTMLStyleElement';
+import HTMLScriptElementImpl from './HTMLScriptElement';
+import HTMLDivElementImpl from './HTMLDivElement';
+import HTMLSpanElementImpl from './HTMLSpanElement';
 import { SpatialElement } from './SpatialElement';
 import { XSMLShadowRoot } from './ShadowRoot';
 import SpatialSpaceElement from './SpatialSpaceElement';
@@ -41,8 +45,6 @@ import SpatialBoundElement from './SpatialBoundElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
-import HTMLDivElementImpl from './HTMLDivElement';
-import HTMLSpanElementImpl from './HTMLSpanElement';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -672,6 +674,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   createElement(tagName: 'head'): HTMLTitleElement;
   createElement(tagName: 'title'): HTMLTitleElement;
   createElement(tagName: 'meta'): HTMLMetaElement;
+  createElement(tagName: 'style'): HTMLStyleElement;
   createElement(tagName: 'script'): HTMLScriptElement;
   // Spatial elements for spatial rendering
   createElement(tagName: 'space'): SpatialSpaceElement;
@@ -700,6 +703,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
         return new HTMLTitleElementImpl(this.#nativeDocument, []);
       case 'meta':
         return new HTMLMetaElementImpl(this.#nativeDocument, []);
+      case 'style':
+        return new HTMLStyleElementImpl(this.#nativeDocument, []);
       case 'script':
         return new HTMLScriptElementImpl(this.#nativeDocument, []);
 

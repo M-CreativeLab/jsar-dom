@@ -2,6 +2,7 @@ export default class StyleSheetListImpl extends Array<CSSStyleSheet> implements 
   constructor() {
     super();
   }
+
   item(index: number): CSSStyleSheet {
     const result = this[index];
     return result !== undefined ? result : null;

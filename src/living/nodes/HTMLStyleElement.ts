@@ -1,27 +1,34 @@
 import { NativeDocument } from '../../impl-interfaces';
+import DOMException from '../domexception';
 import { documentBaseURL } from '../helpers/document-base-url';
 import { asciiCaseInsensitiveMatch } from '../helpers/strings';
 import { createStylesheet, removeStylesheet } from '../helpers/stylesheets';
 import { childTextContent } from '../helpers/text';
 import { HTMLElementImpl } from './HTMLElement';
 
+const supportedTypes = ['text/scss', 'text/css'];
+
 export default class HTMLStyleElementImpl extends HTMLElementImpl implements HTMLStyleElement {
   disabled: boolean;
   media: string;
-  type: string;
-  sheet: CSSStyleSheet;
+  sheet: CSSStyleSheet = null;
   _isOnStackOfOpenElements = false;
 
   constructor(
     hostObject: NativeDocument,
     args: any[],
-    privateData: any
+    privateData: {} = null
   ) {
     super(hostObject, args, {
       localName: 'style',
     });
+  }
 
-    this.sheet = null;
+  get type(): string {
+    return this.getAttribute('type') || supportedTypes[0];
+  }
+  set type(value: string) {
+    this.setAttribute('type', value);
   }
 
   _attach() {
@@ -41,8 +48,16 @@ export default class HTMLStyleElementImpl extends HTMLElementImpl implements HTM
       return;
     }
 
-    const type = this.getAttributeNS(null, "type");
-    if (type !== null && type !== "" && !asciiCaseInsensitiveMatch(type, "text/css")) {
+    // If this is disabled, don't do anything.
+    if (this.disabled) {
+      return;
+    }
+
+    const type = this.type;
+    if (!asciiCaseInsensitiveMatch(type, 'text/css') && !asciiCaseInsensitiveMatch(type, 'text/scss')) {
+      /**
+       * Just returns if the type is not supported (SCSS or CSS).
+       */
       return;
     }
 

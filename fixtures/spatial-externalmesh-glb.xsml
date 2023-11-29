@@ -1,0 +1,12 @@
+<xsml>
+  <head>
+    <title>External Mesh Example(Glb)</title>
+    <link id="my" rel="mesh" href="model/rokid-jungle.glb" />
+  </head>
+  <space>
+    <mesh ref="my" />
+  </space>
+  <script type="module">
+    console.log('hello world', new URL('https://example.com'));
+  </script>
+</xsml>

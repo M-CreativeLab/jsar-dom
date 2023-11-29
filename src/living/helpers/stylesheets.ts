@@ -1,8 +1,9 @@
 import { parse as parseCss, type StyleRules } from 'css';
+import DOMException from '../domexception';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
 import { ElementImpl } from '../nodes/Element';
+import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import { invalidateStyleCache } from './style-rules';
-import DOMException from 'domexception';
 
 export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: ElementImpl) {
   const { styleSheets } = elementImpl._ownerDocument;
@@ -35,11 +36,12 @@ export function createStylesheet(sheetText: string, elementImpl: ElementImpl, ba
   try {
     sheet = parseCss(sheetText).stylesheet;
   } catch (e) {
-    throw new DOMException('Failed to parse CSS stylesheet', 'SyntaxError');
+    throw new DOMException('Failed to parse CSS stylesheet', 'SYNTAX_ERR');
   }
 
-  scanForImportRules(elementImpl, sheet.stylesheet.rules, baseURL);
-  addStylesheet(sheet.rules, elementImpl);
+  const stylesheet = CSSStyleSheetImpl.createSpatialStyleSheet();
+  // scanForImportRules(elementImpl, sheet.rules, baseURL);
+  addStylesheet(stylesheet, elementImpl);
 }
 
 function scanForImportRules(elementImpl: ElementImpl, cssRules: StyleRules['rules'], baseURL: URL) {
@@ -47,27 +49,27 @@ function scanForImportRules(elementImpl: ElementImpl, cssRules: StyleRules['rule
     return;
   }
 
-  for (let i = 0; i < cssRules.length; ++i) {
-    if (cssRules[i].cssRules) {
-      // @media rule: keep searching inside it.
-      scanForImportRules(elementImpl, cssRules[i].cssRules, baseURL);
-    } else if (cssRules[i].href) {
-      // @import rule: fetch the resource and evaluate it.
-      // See http://dev.w3.org/csswg/cssom/#css-import-rule
-      //     If loading of the style sheet fails its cssRules list is simply
-      //     empty. I.e. an @import rule always has an associated style sheet.
-      const parsed = whatwgURL.parseURL(cssRules[i].href, { baseURL });
-      if (parsed === null) {
-        const window = elementImpl._ownerDocument._defaultView;
-        if (window) {
-          const error = new Error(`Could not parse CSS @import URL ${cssRules[i].href} relative to base URL ` +
-            `"${whatwgURL.serializeURL(baseURL)}"`);
-          error.type = "css @import URL parsing";
-          window._virtualConsole.emit("jsdomError", error);
-        }
-      } else {
-        fetchStylesheetInternal(elementImpl, whatwgURL.serializeURL(parsed), parsed);
-      }
-    }
-  }
+  // for (let i = 0; i < cssRules.length; ++i) {
+  //   if (cssRules[i]) {
+  //     // @media rule: keep searching inside it.
+  //     scanForImportRules(elementImpl, cssRules[i], baseURL);
+  //   } else if (cssRules[i].href) {
+  //     // @import rule: fetch the resource and evaluate it.
+  //     // See http://dev.w3.org/csswg/cssom/#css-import-rule
+  //     //     If loading of the style sheet fails its cssRules list is simply
+  //     //     empty. I.e. an @import rule always has an associated style sheet.
+  //     const parsed = whatwgURL.parseURL(cssRules[i].href, { baseURL });
+  //     if (parsed === null) {
+  //       const window = elementImpl._ownerDocument._defaultView;
+  //       if (window) {
+  //         const error = new Error(`Could not parse CSS @import URL ${cssRules[i].href} relative to base URL ` +
+  //           `"${whatwgURL.serializeURL(baseURL)}"`);
+  //         error.type = "css @import URL parsing";
+  //         window._virtualConsole.emit("jsdomError", error);
+  //       }
+  //     } else {
+  //       fetchStylesheetInternal(elementImpl, whatwgURL.serializeURL(parsed), parsed);
+  //     }
+  //   }
+  // }
 }

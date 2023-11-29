@@ -1,0 +1,27 @@
+<xsml>
+  <head>
+    <title>Spatial CSS Example (Basic)</title>
+  </head>
+  <space>
+    <sphere />
+    <cube class="m_cube" />
+    <cube class="m_cube" />
+    <cube class="s_cube" />
+  </space>
+  <style type="text/scss">
+    @material litered {
+      diffuse-color: red;
+    }
+    @material liteblue {
+      diffuse-color: blue;
+    }
+    sphere {
+      rotation: 0 180 0;
+      material: "litered";
+    }
+    .m_cube {
+      position: 0 1 0;
+      material: "liteblue";
+    }
+  </style>
+</xsml>
