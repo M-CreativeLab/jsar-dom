@@ -22,5 +22,6 @@ jobs:
     - name: Run Integration Tests
       run: |
         npm run headless-bin -- ./fixtures/simple.xsml
+        npm run headless-bin -- ./fixtures/spatial-element.xsml
         npm run headless-bin -- ./fixtures/esm/script-with-src.xsml
         npm run headless-bin -- ./fixtures/esm/script-inline.xsml
