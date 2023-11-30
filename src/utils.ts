@@ -5,7 +5,7 @@ let memoizeQueryTypeCounter = 0;
 /**
  * Returns a version of a method that memoizes specific types of calls on the object
  *
- * - `fn` {Function} the method to be memozied
+ * - `fn` {Function} the method to be memoized
  */
 export function memoizeQuery(fn: Function) {
   if (fn.length > 2) {
