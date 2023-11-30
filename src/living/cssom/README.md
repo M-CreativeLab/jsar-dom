@@ -54,7 +54,7 @@ The `CSSMaterialRule` is a subclass of `CSSRule` which describes a material defi
   emissive-color: #000000;
 }
 .my-element {
-  material: my-material;
+  material: "my-material";
 }
 ```
 
