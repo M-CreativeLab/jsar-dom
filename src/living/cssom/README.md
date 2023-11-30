@@ -1,6 +1,6 @@
 # CSSOM
 
-The CSSOM is an implementation of the CSS Object Model with supports for Spatial CSS.
+This directory is an implementation of the [CSS Object Model][] with supports for Spatial CSS.
 
 > Thanks to the projects:
 > - [rrweb-io/CSSOM][]
@@ -57,3 +57,8 @@ The `CSSMaterialRule` is a subclass of `CSSRule` which describes a material defi
   material: my-material;
 }
 ```
+
+[CSS Object Model]: https://drafts.csswg.org/cssom/
+[TypeScript]: https://www.typescriptlang.org/
+[rrweb-io/CSSOM]: https://github.com/rrweb-io/CSSOM
+[jsdom/cssstyle]: https://github.com/jsdom/cssstyle
