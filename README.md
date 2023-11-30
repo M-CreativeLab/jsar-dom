@@ -1,8 +1,12 @@
 # JSAR-DOM
 
-This project JSAR-DOM is a JavaScript implementation of many Web standards, notably the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML, for use in Node.js and browser. This project is a part of the [JSAR][] project, which is a Web-compatible runtime for integrating XR applications (especially IDP Interactive Digtal Product) into native environments like Unity.
+This project JSAR-DOM is a JavaScript implementation of many Web standards, notably the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML, for use in Node.js and browser.
+
+This project is a part of the [JSAR][], which is a Web-compatible runtime for integrating XR applications (especially Interactive Digtal Product) into native environments like Unity.
 
 > JSAR-DOM is a fork of [jsdom/jsdom][] project and its children projects with a TypeScript rewrite and added the support for XSML and SCSS.
+
+> **Interactive Digital Product (IDP)** represents a virtual entity designed to digitally replicate and interactively showcase real-world products in metaverse. This representation emphasizes the digital nature of the item, allowing users to engage with it in an interactive manner. IDPs serve as dynamic and immersive digital counterparts to physical products, offering a novel and engaging user experience within a virtual environment.
 
 ## Installation
 
