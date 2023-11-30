@@ -7,7 +7,7 @@ const windowSymbol = Symbol('window');
 export class JSARDOM {
   [windowSymbol]: BaseWindowImpl;
 
-  constructor(markup = '', init: WindowOrDOMInit) {
+  constructor(markup: string, init: WindowOrDOMInit) {
     this[windowSymbol] = createWindow(init);
     parseIntoDocument(markup, this.document);
   }
