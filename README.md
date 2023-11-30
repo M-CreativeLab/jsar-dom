@@ -2,7 +2,7 @@
 
 This project JSAR-DOM is a JavaScript implementation of many Web standards, notably the WHATWG [DOM][], [WebXR][] and XSML, for use in Node.js and browser. This project is a part of the [JSAR][] project, which is a Web-compatible runtime for integrating XR applications into native environments like Unity.
 
-> JSAR-DOM is a fork of [jsdom/jsdom][] project with a TypeScript rewrite and added the support for XSML and SCSS.
+> JSAR-DOM is a fork of [jsdom/jsdom][] project and its children projects with a TypeScript rewrite and added the support for XSML and SCSS.
 
 ## Installation
 
@@ -40,7 +40,7 @@ const dom = new JSARDOM(`
 dom.window.document.querySelector('sphere').spatialStyle.scaling = [1.2, 1.2, 1.2];
 ```
 
-Because JSAR-DOM is not going to be a emulator of the traditional browser, it's an in-production implementation of the WHATWG [DOM][], [WebXR][] and XSML for XR applications, so an instance of implementing the `NativeDocument` interface must be pass to the constructor, which implemented the underlying stuffs like rendering and event handling.
+Because JSAR-DOM is not going to be a emulator of the traditional browser, it's an in-production implementation of the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML for XR applications, so an instance of implementing the `NativeDocument` interface must be pass to the constructor, which implemented the underlying stuffs like rendering and event handling.
 
 ### Using headless `NativeDocument` implementation
 
@@ -96,6 +96,7 @@ sphere {
 
 [jsdom/jsdom]: https://github.com/jsdom/jsdom
 [DOM]: https://dom.spec.whatwg.org/
+[CSSOM]: https://drafts.csswg.org/cssom/
 [WebXR]: https://www.w3.org/TR/webxr/
 [JSAR]: https://jsar.netlify.app/
 [X3D]: https://en.wikipedia.org/wiki/X3D
