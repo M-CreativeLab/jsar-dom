@@ -15,6 +15,14 @@
     @material liteblue {
       diffuse-color: blue;
     }
+    @keyframes rotate {
+      0% {
+        rotation: 0 0 0;
+      }
+      100% {
+        rotation: 0 360 0;
+      }
+    }
     sphere {
       rotation: 0 180 0;
       material: "litered";

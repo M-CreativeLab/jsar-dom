@@ -8,12 +8,18 @@ export default class StyleSheetListImpl extends Array<CSSStyleSheet> implements 
     return result !== undefined ? result : null;
   }
 
+  /**
+   * @internal
+   */
   _add(sheet: CSSStyleSheet) {
     if (!this.includes(sheet)) {
       this.push(sheet);
     }
   }
 
+  /**
+   * @internal
+   */
   _remove(sheet: CSSStyleSheet) {
     const index = this.indexOf(sheet);
     if (index >= 0) {

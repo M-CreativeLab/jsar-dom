@@ -1,11 +1,10 @@
-import { parse as parseCss, type StyleRules } from 'css';
 import DOMException from '../domexception';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
-import { ElementImpl } from '../nodes/Element';
+import HTMLStyleElementImpl from '../nodes/HTMLStyleElement';
 import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import { invalidateStyleCache } from './style-rules';
 
-export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: ElementImpl) {
+export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: HTMLStyleElementImpl) {
   const { styleSheets } = elementImpl._ownerDocument;
   (styleSheets as StyleSheetListImpl)._remove(sheet);
 
@@ -18,11 +17,11 @@ export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: ElementImpl)
 }
 
 // https://drafts.csswg.org/cssom/#add-a-css-style-sheet
-function addStylesheet(sheet: CSSStyleSheet, elementImpl: ElementImpl) {
+function addStylesheet(sheet: CSSStyleSheet, elementImpl: HTMLStyleElementImpl) {
   (elementImpl._ownerDocument.styleSheets as StyleSheetListImpl)._add(sheet);
 
   // Set the association explicitly; in the spec it's implicit.
-  (elementImpl as any).sheet = sheet;
+  elementImpl.sheet = sheet;
 
   invalidateStyleCache(elementImpl);
   // TODO: title and disabled stuff
@@ -31,20 +30,16 @@ function addStylesheet(sheet: CSSStyleSheet, elementImpl: ElementImpl) {
 // https://drafts.csswg.org/cssom/#create-a-css-style-sheet kinda:
 // - Parsing failures are not handled gracefully like they should be
 // - The import rules stuff seems out of place, and probably should affect the load event...
-export function createStylesheet(sheetText: string, elementImpl: ElementImpl, baseURL: URL) {
-  let sheet: StyleRules;
-  try {
-    sheet = parseCss(sheetText).stylesheet;
-  } catch (e) {
-    throw new DOMException('Failed to parse CSS stylesheet', 'SYNTAX_ERR');
-  }
-
-  const stylesheet = CSSStyleSheetImpl.createSpatialStyleSheet();
-  // scanForImportRules(elementImpl, sheet.rules, baseURL);
+export function createStylesheet(sheetText: string, elementImpl: HTMLStyleElementImpl, baseURL: URL) {
+  const stylesheet = CSSStyleSheetImpl.createForImpl(elementImpl._hostObject, [], {
+    isSpatial: elementImpl.type === 'text/scss',
+    cssText: sheetText,
+  });
+  scanForImportRules(elementImpl, stylesheet.cssRules, baseURL);
   addStylesheet(stylesheet, elementImpl);
 }
 
-function scanForImportRules(elementImpl: ElementImpl, cssRules: StyleRules['rules'], baseURL: URL) {
+function scanForImportRules(elementImpl: HTMLStyleElementImpl, cssRules: CSSRuleList, baseURL: URL) {
   if (!cssRules) {
     return;
   }

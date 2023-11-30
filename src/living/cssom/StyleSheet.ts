@@ -3,7 +3,7 @@ export default class StyleSheetImpl implements StyleSheet {
   href: string;
   media: MediaList;
   ownerNode: Element | ProcessingInstruction;
-  parentStyleSheet: CSSStyleSheet;
+  parentStyleSheet: CSSStyleSheet = null;
   title: string;
   type: string;
 }
