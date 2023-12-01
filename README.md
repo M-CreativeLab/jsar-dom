@@ -59,9 +59,9 @@ At JSAR-DOM project, we use the this implementation for tests purpose, you could
 
 ## Features
 
-- Web-standards APIs notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
-- ECMAScript Modules with [TypeScript][], [WebAssembly][] and non-script assets supports.
-- No build at all to get started for application developers.
+- **Web-standards APIs** notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
+- **ECMAScript Modules** with [TypeScript][], [WebAssembly][] and non-script assets supports.
+- **No build at all** to get started for application developers.
 
 ## Installation
 
