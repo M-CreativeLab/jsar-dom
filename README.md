@@ -1,5 +1,9 @@
 # JSAR-DOM
 
+[![npm version](https://badge.fury.io/js/@yodaos-jsar%2Fdom.svg)](https://badge.fury.io/js/@yodaos-jsar%2Fdom)
+[![Build Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml)
+[![Integration Test Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml)
+
 This project JSAR-DOM is a [TypeScript][] implementation of many Web standards, notably the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML, for use in Node.js and browser.
 
 This project is a part of the [JSAR][], which is a Web-compatible runtime for integrating XR applications (especially Interactive Digtal Product) into native environments like Unity.
@@ -7,12 +11,6 @@ This project is a part of the [JSAR][], which is a Web-compatible runtime for in
 > JSAR-DOM is a fork of [jsdom/jsdom][] project and its children projects with a [TypeScript][] rewrite and added the support for XSML and SCSS.
 
 > **Interactive Digital Product (IDP)** represents a virtual entity designed to digitally replicate and interactively showcase real-world products in metaverse. This representation emphasizes the digital nature of the item, allowing users to engage with it in an interactive manner. IDPs serve as dynamic and immersive digital counterparts to physical products, offering a novel and engaging user experience within a virtual environment.
-
-## Build Status
-
-[![npm version](https://badge.fury.io/js/@yodaos-jsar%2Fdom.svg)](https://badge.fury.io/js/@yodaos-jsar%2Fdom)
-[![Build Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml)
-[![Integration Test Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml)
 
 ## Getting Started
 
@@ -31,6 +29,9 @@ const dom = new JSARDOM(`
 <xsml>
   <head>
     <title>Hello JSAR</title>
+    <script>
+      document.querySelector('sphere').style.scaling = [1.2, 1.2, 1.2];
+    </script>
   </head>
   <space>
     <sphere />
@@ -41,7 +42,7 @@ const dom = new JSARDOM(`
   nativeDocument: yourNativeDocument,
 });
 
-dom.window.document.querySelector('sphere').spatialStyle.scaling = [1.2, 1.2, 1.2];
+await dom.load();
 ```
 
 Because JSAR-DOM is not going to be a emulator of the traditional browser, it's an in-production implementation of the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML for XR applications, so an instance of implementing the `NativeDocument` interface must be pass to the constructor, which implemented the underlying stuffs like rendering and event handling.
@@ -58,8 +59,8 @@ At JSAR-DOM project, we use the this implementation for tests purpose, you could
 
 ## Features
 
-- ECMAScript Modules with [TypeScript][], [WebAssembly][] and non-script assets supports.
 - Web-standards APIs notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
+- ECMAScript Modules with [TypeScript][], [WebAssembly][] and non-script assets supports.
 - No build at all to get started for application developers.
 
 ## Installation
