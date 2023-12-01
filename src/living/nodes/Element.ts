@@ -199,7 +199,7 @@ export class ElementImpl extends NodeImpl implements Element {
     this.scrollLeft = 0;
   }
 
-  get ownerDocument(): SpatialDocumentImpl {
+  get ownerDocument(): Document {
     return this._ownerDocument;
   }
 

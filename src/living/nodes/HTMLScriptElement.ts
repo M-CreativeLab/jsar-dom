@@ -503,7 +503,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
      * Load the script and then execute it.
      */
     if (await this._load()) {
-      this.ownerDocument._queue.push(null, async () => {
+      this._ownerDocument._queue.push(null, async () => {
         try {
           await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
             return this._evalInternal(this._compiledEntryCode, {
