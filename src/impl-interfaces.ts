@@ -184,7 +184,7 @@ export interface NativeDocument extends EventTarget {
    * 
    * When loading a XSML document, the implementation should preload the specific meshes.
    */
-  getPreloadedMeshes(): Map<string, BABYLON.AbstractMesh[]>;
+  getPreloadedMeshes(): Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>>;
   /**
    * It returns a map of preloaded animation groups.
    */

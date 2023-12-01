@@ -176,21 +176,56 @@ export default class HTMLLinkElementImpl extends HTMLElementImpl implements HTML
   }
 
   private async _loadStylesheet() {
-    // TODO
+    throw new DOMException('Not implemented yet.', 'NOT_SUPPORTED_ERR');
   }
 
   private async _loadSpatialModel() {
-    const nativeDocument = this._hostObject;
-    const url = new URL(this.href, this._ownerDocument._URL);
-    const resArrayBuffer = await nativeDocument.userAgent.resourceLoader.fetch(url.href, {}, 'arraybuffer');
-    const extname = path.extname(url.pathname);
-    const importedResult = await BABYLON.SceneLoader.ImportMeshAsync(
-      '',
-      '',
-      new Uint8Array(resArrayBuffer),
-      nativeDocument.getNativeScene(),
-      null,
-      extname
-    );
+    const id = this.getAttribute('id');
+    if (id == null) {
+      throw new DOMException('The id attribute is required for spatial-model.', 'INVALID_STATE_ERR');
+    }
+
+    try {
+      const nativeDocument = this._hostObject;
+      const url = new URL(this.href, this._ownerDocument._URL);
+      const resArrayBuffer = await nativeDocument.userAgent.resourceLoader.fetch(url.href, {}, 'arraybuffer');
+      const extname = path.extname(url.pathname);
+      const importedResult = await BABYLON.SceneLoader.ImportMeshAsync(
+        '',
+        '',
+        new Uint8Array(resArrayBuffer),
+        nativeDocument.getNativeScene(),
+        null,
+        extname
+      );
+
+      const transformNodesAndMeshes = importedResult.transformNodes.concat(importedResult.meshes);
+      for (const node of transformNodesAndMeshes) {
+        node.setEnabled(false);
+        /**
+         * If the extension is .glb or .gltf, we assume the nodes are in right-handed system.
+         * 
+         * Babylon.js doesn't convert the mesh to left-handed system even though the loader and scene are in left-handed system, it
+         * works with root node's rotation and scaling correction and the renderer, thus it doesn't work for our case, that requires
+         * the right data in the left-handed system for mesh itself.
+         * 
+         * Thus we add a tag to the node to indicate that the mesh is in right-handed system, and we will convert it to left-handed
+         * at serializer.
+         */
+        if (extname === '.glb' || extname === '.gltf') {
+          /**
+           * The tag will be copied when this node is cloned, so this is a exact match for our use case and don't need to handle the
+           * same tagging on the cloned nodes.
+           */
+          BABYLON.Tags.AddTagsTo(node, 'right-handed-system');
+        }
+      }
+      this._hostObject.getPreloadedMeshes().set(id, transformNodesAndMeshes);
+      if (importedResult.animationGroups?.length > 0) {
+        this._hostObject.getPreloadedAnimationGroups().set(id, importedResult.animationGroups);
+      }
+    } catch (err) {
+      throw new DOMException(`Failed to load spatial model(${this.href}): ${err.message}`, 'INVALID_STATE_ERR');
+    }
   }
 }

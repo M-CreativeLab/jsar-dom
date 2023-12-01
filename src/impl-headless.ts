@@ -117,6 +117,8 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   closed: boolean = false;
 
   private _scene: BABYLON.Scene;
+  private _preloadMeshes: Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> = new Map();
+  private _preloadAnimationGroups: Map<string, BABYLON.AnimationGroup[]> = new Map();
 
   constructor() {
     super();
@@ -136,11 +138,11 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   getContainerPose(): XRPose {
     throw new Error('Method not implemented.');
   }
-  getPreloadedMeshes(): Map<string, BABYLON.AbstractMesh[]> {
-    throw new Error('Method not implemented.');
+  getPreloadedMeshes(): Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> {
+    return this._preloadMeshes;
   }
   getPreloadedAnimationGroups(): Map<string, BABYLON.AnimationGroup[]> {
-    throw new Error('Method not implemented.');
+    return this._preloadAnimationGroups;
   }
   observeInputEvent(name?: string): void {
     throw new Error('Method not implemented.');
