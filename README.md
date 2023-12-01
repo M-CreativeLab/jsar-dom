@@ -12,6 +12,12 @@ This project is a part of the [JSAR][], which is a Web-compatible runtime for in
 
 > **Interactive Digital Product (IDP)** represents a virtual entity designed to digitally replicate and interactively showcase real-world products in metaverse. This representation emphasizes the digital nature of the item, allowing users to engage with it in an interactive manner. IDPs serve as dynamic and immersive digital counterparts to physical products, offering a novel and engaging user experience within a virtual environment.
 
+## Features
+
+- **Web-standards APIs** notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
+- **ECMAScript Modules** with [TypeScript][], [WebAssembly][] and non-script assets supports.
+- **No Build At All** to get started for application developers.
+
 ## Getting Started
 
 JSAR-DOM is designed to be a drop-in and easy-to-use replacement for the `jsdom` package. After installing it, you just need to change your `require` or `import` call from `jsdom` to `@yodaos-jsar/dom`:
@@ -56,12 +62,6 @@ $ ts-node src/impl-headless.ts ./fixtures/simple.xsml
 ```
 
 At JSAR-DOM project, we use the this implementation for tests purpose, you could also use it to see how to write a `NativeDocument` implementation, or just run a XSML application in a headless environment.
-
-## Features
-
-- **Web-standards APIs** notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
-- **ECMAScript Modules** with [TypeScript][], [WebAssembly][] and non-script assets supports.
-- **No build at all** to get started for application developers.
 
 ## Installation
 
