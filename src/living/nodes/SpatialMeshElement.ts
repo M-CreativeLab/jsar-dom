@@ -1,19 +1,19 @@
-import BABYLON from 'babylonjs';
 import { NativeDocument } from '../../impl-interfaces';
 import { SpatialElement } from './SpatialElement';
 
-export default class SpatialSpaceElement extends SpatialElement {
+export default class SpatialMeshElement extends SpatialElement {
   constructor(
     hostObject: NativeDocument,
     args,
     _privateData: {} = null,
   ) {
     super(hostObject, args, {
-      localName: 'space',
+      localName: 'mesh',
     });
   }
 
   _attach(): void {
-    super._attach(new BABYLON.TransformNode(this._getInternalNodeNameOrId(), this._scene));
+    super._attach();
+    // TODO
   }
 }

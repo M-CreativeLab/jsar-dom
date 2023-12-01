@@ -1,4 +1,4 @@
-import * as BABYLON from 'babylonjs';
+import BABYLON from 'babylonjs';
 import DOMException from '../domexception';
 import { NativeDocument } from '../../impl-interfaces';
 import { NodeImpl } from './Node';

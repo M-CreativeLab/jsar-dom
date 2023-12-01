@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2017",
-    "module": "CommonJS",
-    "jsx": "react-jsx",
+    "module": "ESNext",
     "outDir": "dist",
     "moduleResolution": "Node",
     "resolveJsonModule": true,
@@ -18,5 +17,12 @@
   },
   "include": [
     "src/**/*.ts"
-  ]
+  ],
+  "exclude": [
+    "node_modules"
+  ],
+  "ts-node": {
+    "esm": true,
+    "experimentalSpecifierResolution": "node"
+  }
 }

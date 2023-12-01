@@ -1,8 +1,9 @@
 import DOMException from '../domexception';
 import { applyMixins } from '../../mixin';
-import { NativeDocument } from '../../impl-interfaces';
 
-import { AttrImpl } from '../attributes/Attr';
+import type { NativeDocument } from '../../impl-interfaces';
+import type { SpatialDocumentImpl } from './SpatialDocument';
+import type { AttrImpl } from '../attributes/Attr';
 import { NodeImpl } from './Node';
 import DOMRectImpl from '../geometry/DOMRect';
 import ParentNodeImpl from './ParentNode';
@@ -10,7 +11,6 @@ import ChildNodeImpl from './ChildNode';
 import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
 import { CustomElementDefinition } from '../custom-elements/CustomElementRegistry';
 import DOMTokenListImpl from './DOMTokenList';
-import { SpatialDocumentImpl } from './SpatialDocument';
 
 import { HTML_NS } from '../helpers/namespaces';
 import { addNwsapi } from '../helpers/selectors';
@@ -180,7 +180,7 @@ export class ElementImpl extends NodeImpl implements Element {
       isValue?: boolean;
     }
   ) {
-    super(hostObject, args, null);
+    super(hostObject, args, privateData);
 
     this._namespaceURI = privateData.namespace || HTML_NS;
     this._prefix = privateData.prefix;

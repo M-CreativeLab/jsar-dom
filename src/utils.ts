@@ -1,5 +1,7 @@
-import { TreePosition } from 'symbol-tree';
+import symbolTree from 'symbol-tree';
 import { domSymbolTree } from './living/helpers/internal-constants';
+
+const { TreePosition } = symbolTree;
 
 let memoizeQueryTypeCounter = 0;
 /**

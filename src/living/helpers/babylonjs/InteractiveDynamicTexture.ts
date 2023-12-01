@@ -1,20 +1,5 @@
-import {
-  type Nullable,
-  type Observer,
-  type PointerInfo,
-  type Scene,
-  type StandardMaterial,
-  type AbstractMesh,
-  RandomGUID,
-  GetClass,
-  Observable,
-  Texture,
-  DynamicTexture,
-  Engine,
-  ClipboardInfo,
-  Vector2,
-  ClipboardEventTypes,
-} from 'babylonjs';
+import BABYLON from 'babylonjs';
+import { type Nullable, type Observer } from 'babylonjs';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';
 import HTMLDivElementImpl from '../../nodes/HTMLDivElement';
@@ -22,7 +7,7 @@ import HTMLDivElementImpl from '../../nodes/HTMLDivElement';
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
  */
-export class InteractiveDynamicTexture extends DynamicTexture {
+export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   /** Indicates if some optimizations can be performed in GUI GPU management (the downside is additional memory/GPU texture memory used) */
   public static AllowGPUOptimizations = true;
 
@@ -30,7 +15,7 @@ export class InteractiveDynamicTexture extends DynamicTexture {
   public snippetId: string;
 
   /** Observable that fires when the GUI is ready */
-  public onGuiReadyObservable = new Observable<InteractiveDynamicTexture>();
+  public onGuiReadyObservable = new BABYLON.Observable<InteractiveDynamicTexture>();
 
   /** if the texture is started */
   private _started = false;
@@ -39,12 +24,12 @@ export class InteractiveDynamicTexture extends DynamicTexture {
   /** if the texture is rendering */
   private _isRendering = false;
   private _ownerNativeDocument: NativeDocument;
-  private _pointerObserver: Nullable<Observer<PointerInfo>>;
-  private _renderObserver: Nullable<Observer<Scene>>;
+  private _pointerObserver: Nullable<Observer<BABYLON.PointerInfo>>;
+  private _renderObserver: Nullable<Observer<BABYLON.Scene>>;
   /**
    * This is updated at picking event and used in other hand events.
    */
-  private _lastPositionInPicking: Vector2 = new Vector2(-1, -1);
+  private _lastPositionInPicking = new BABYLON.Vector2(-1, -1);
 
   /** @internal */
   public _rootContainer: HTMLDivElementImpl;
@@ -65,11 +50,11 @@ export class InteractiveDynamicTexture extends DynamicTexture {
   /**
    * Observable event triggered each time an clipboard event is received from the rendering canvas
    */
-  public onClipboardObservable = new Observable<ClipboardInfo>();
+  public onClipboardObservable = new BABYLON.Observable<BABYLON.ClipboardInfo>();
   /**
    * Observable event triggered each time a pointer down is intercepted by a control
    */
-  public onControlPickedObservable = new Observable<HTMLElement>();
+  public onControlPickedObservable = new BABYLON.Observable<HTMLElement>();
   /**
    * Gets or sets a boolean indicating that the canvas must be reverted on Y when updating the texture
    */
@@ -157,12 +142,12 @@ export class InteractiveDynamicTexture extends DynamicTexture {
     ownerNativeDocument: NativeDocument,
     width = 0,
     height = 0,
-    scene?: Nullable<Scene>,
+    scene?: Nullable<BABYLON.Scene>,
     generateMipMaps = false,
-    samplingMode = Texture.NEAREST_SAMPLINGMODE,
+    samplingMode = BABYLON.Texture.NEAREST_SAMPLINGMODE,
     invertY = true
   ) {
-    super(name, { width: width, height: height }, scene, generateMipMaps, samplingMode, Engine.TEXTUREFORMAT_RGBA, invertY);
+    super(name, { width: width, height: height }, scene, generateMipMaps, samplingMode, BABYLON.Engine.TEXTUREFORMAT_RGBA, invertY);
 
     scene = this.getScene();
     if (!scene || !this._texture) {
@@ -348,7 +333,7 @@ export class InteractiveDynamicTexture extends DynamicTexture {
    */
   private _onClipboardCopy = (rawEvt: Event) => {
     const evt = rawEvt as ClipboardEvent;
-    const ev = new ClipboardInfo(ClipboardEventTypes.COPY, evt);
+    const ev = new BABYLON.ClipboardInfo(BABYLON.ClipboardEventTypes.COPY, evt);
     this.onClipboardObservable.notifyObservers(ev);
     evt.preventDefault();
   };
@@ -357,7 +342,7 @@ export class InteractiveDynamicTexture extends DynamicTexture {
    */
   private _onClipboardCut = (rawEvt: Event) => {
     const evt = rawEvt as ClipboardEvent;
-    const ev = new ClipboardInfo(ClipboardEventTypes.CUT, evt);
+    const ev = new BABYLON.ClipboardInfo(BABYLON.ClipboardEventTypes.CUT, evt);
     this.onClipboardObservable.notifyObservers(ev);
     evt.preventDefault();
   };
@@ -366,7 +351,7 @@ export class InteractiveDynamicTexture extends DynamicTexture {
    */
   private _onClipboardPaste = (rawEvt: Event) => {
     const evt = rawEvt as ClipboardEvent;
-    const ev = new ClipboardInfo(ClipboardEventTypes.PASTE, evt);
+    const ev = new BABYLON.ClipboardInfo(BABYLON.ClipboardEventTypes.PASTE, evt);
     this.onClipboardObservable.notifyObservers(ev);
     evt.preventDefault();
   };
@@ -374,17 +359,17 @@ export class InteractiveDynamicTexture extends DynamicTexture {
    * Register the clipboard Events onto the canvas
    */
   public registerClipboardEvents(): void {
-    self.addEventListener("copy", this._onClipboardCopy, false);
-    self.addEventListener("cut", this._onClipboardCut, false);
-    self.addEventListener("paste", this._onClipboardPaste, false);
+    self.addEventListener('copy', this._onClipboardCopy, false);
+    self.addEventListener('cut', this._onClipboardCut, false);
+    self.addEventListener('paste', this._onClipboardPaste, false);
   }
   /**
    * Unregister the clipboard Events from the canvas
    */
   public unRegisterClipboardEvents(): void {
-    self.removeEventListener("copy", this._onClipboardCopy);
-    self.removeEventListener("cut", this._onClipboardCut);
-    self.removeEventListener("paste", this._onClipboardPaste);
+    self.removeEventListener('copy', this._onClipboardCopy);
+    self.removeEventListener('cut', this._onClipboardCut);
+    self.removeEventListener('paste', this._onClipboardPaste);
   }
 
   /**
@@ -419,16 +404,16 @@ export class InteractiveDynamicTexture extends DynamicTexture {
    */
   public static CreateForMesh(
     ownerNativeDocument: NativeDocument,
-    mesh: AbstractMesh,
+    mesh: BABYLON.AbstractMesh,
     width = 1024,
     height = 1024,
     supportPointerMove = true,
     onlyAlphaTesting = true,
     invertY?: boolean,
-    materialSetupCallback: (mesh: AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean) => void = this._CreateMaterial
+    materialSetupCallback: (mesh: BABYLON.AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean) => void = this._CreateMaterial
   ): InteractiveDynamicTexture {
     // use a unique ID in name so serialization will work even if you create two ADTs for a single mesh
-    const uniqueId = RandomGUID();
+    const uniqueId = BABYLON.RandomGUID();
     const result = new InteractiveDynamicTexture(
       `InteractiveDynamicTexture for ${mesh.name} [${uniqueId}]`,
       ownerNativeDocument,
@@ -436,7 +421,7 @@ export class InteractiveDynamicTexture extends DynamicTexture {
       height,
       mesh.getScene(),
       true,
-      Texture.TRILINEAR_SAMPLINGMODE,
+      BABYLON.Texture.TRILINEAR_SAMPLINGMODE,
       invertY
     );
 
@@ -450,13 +435,13 @@ export class InteractiveDynamicTexture extends DynamicTexture {
     return result;
   }
 
-  private static _CreateMaterial(mesh: AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean): void {
-    const internalClassType = GetClass('BABYLON.StandardMaterial');
+  private static _CreateMaterial(mesh: BABYLON.AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean): void {
+    const internalClassType = BABYLON.GetClass('BABYLON.StandardMaterial');
     if (!internalClassType) {
       throw 'StandardMaterial needs to be imported before as it contains a side-effect required by your code.';
     }
 
-    const material: StandardMaterial = new internalClassType(`InteractiveDynamicTextureMaterial for ${mesh.name} [${uniqueId}]`, mesh.getScene());
+    const material: BABYLON.StandardMaterial = new internalClassType(`InteractiveDynamicTextureMaterial for ${mesh.name} [${uniqueId}]`, mesh.getScene());
     material.backFaceCulling = false;
     if (onlyAlphaTesting) {
       material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATESTANDBLEND;

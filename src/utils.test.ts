@@ -1,7 +1,7 @@
 import { describe, it, expect, jest, afterEach } from '@jest/globals';
 import { treeOrderSorter } from './utils';
 import { domSymbolTree } from './living/helpers/internal-constants';
-import { TreePosition } from 'symbol-tree';
+import symbolTree from 'symbol-tree';
 
 describe('treeOrderSorter', () => {
   let compareTreePosition: ReturnType<typeof jest.spyOn>;
@@ -14,7 +14,7 @@ describe('treeOrderSorter', () => {
     const a = {};
     const b = {};
     compareTreePosition = jest.spyOn(domSymbolTree, 'compareTreePosition')
-      .mockReturnValue(TreePosition.PRECEDING);
+      .mockReturnValue(symbolTree.TreePosition.PRECEDING);
 
     // Act
     const result = treeOrderSorter(a, b);
@@ -29,7 +29,7 @@ describe('treeOrderSorter', () => {
     const a = {};
     const b = {};
     compareTreePosition = jest.spyOn(domSymbolTree, 'compareTreePosition')
-      .mockReturnValue(TreePosition.FOLLOWING);
+      .mockReturnValue(symbolTree.TreePosition.FOLLOWING);
 
     // Act
     const result = treeOrderSorter(a, b);

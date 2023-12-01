@@ -1,4 +1,4 @@
-export default Object.freeze({
+const NodeTypes = Object.freeze({
   ELEMENT_NODE: 1,
   ATTRIBUTE_NODE: 2,
   TEXT_NODE: 3,
@@ -12,3 +12,21 @@ export default Object.freeze({
   DOCUMENT_FRAGMENT_NODE: 11,
   NOTATION_NODE: 12 // historical
 });
+
+export function isElementNode(node: Node): node is Element {
+  return node.nodeType === NodeTypes.ELEMENT_NODE;
+}
+
+export function isAttributeNode(node: Node): node is Attr {
+  return node.nodeType === NodeTypes.ATTRIBUTE_NODE;
+}
+
+export function isTextNode(node: Node): node is Text {
+  return node.nodeType === NodeTypes.TEXT_NODE;
+}
+
+export function isDocumentNode(node: Node): node is Document {
+  return node.nodeType === NodeTypes.DOCUMENT_NODE;
+}
+
+export default NodeTypes;

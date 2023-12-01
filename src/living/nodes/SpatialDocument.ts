@@ -28,6 +28,7 @@ import { AsyncResourceQueue, ResourceQueue } from '../../agent/resources/Resourc
 
 import { HTMLElementImpl } from './HTMLElement';
 import HTMLHeadElementImpl from './HTMLHeadElement';
+import HTMLLinkElementImpl from './HTMLLinkElement';
 import HTMLTitleElementImpl from './HTMLTitleElement';
 import HTMLMetaElementImpl from './HTMLMetaElement';
 import HTMLStyleElementImpl from './HTMLStyleElement';
@@ -306,7 +307,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       name: 'xsml',
       publicId: '-//W3C//DTD XSML 1.0//EN',
       systemId: 'https://jsar.netlify.app/spec/xsml-1.0.dtd',
-    }) as unknown as DocumentType;
+    });
     this.nodeType = NodeImpl.DOCUMENT_NODE;
     this.domain = '';
     this.contentType = privateData.options.contentType || 'application/xsml';
@@ -674,6 +675,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   createElement(tagName: 'head'): HTMLTitleElement;
   createElement(tagName: 'title'): HTMLTitleElement;
   createElement(tagName: 'meta'): HTMLMetaElement;
+  createElement(tagName: 'link'): HTMLLinkElement;
   createElement(tagName: 'style'): HTMLStyleElement;
   createElement(tagName: 'script'): HTMLScriptElement;
   // Spatial elements for spatial rendering
@@ -703,6 +705,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
         return new HTMLTitleElementImpl(this.#nativeDocument, []);
       case 'meta':
         return new HTMLMetaElementImpl(this.#nativeDocument, []);
+      case 'link':
+        return new HTMLLinkElementImpl(this.#nativeDocument, []);
       case 'style':
         return new HTMLStyleElementImpl(this.#nativeDocument, []);
       case 'script':

@@ -1,5 +1,5 @@
 import DOMException from 'domexception';
-import { NativeDocument } from '../../impl-interfaces';
+import type { NativeDocument } from '../../impl-interfaces';
 import { enqueueCEUpgradeReaction, isValidCustomElementName, tryUpgradeElement } from '../helpers/custom-elements';
 import { shadowIncludingInclusiveDescendantsIterator } from '../helpers/shadow-dom';
 import { NodeImpl } from '../nodes/Node';

@@ -1,12 +1,12 @@
 import DOMException from '../domexception';
+import NodeTypes, { isDocumentNode, isElementNode } from '../node-type';
+import type { NodeImpl } from './Node';
+import { NodeListImpl } from './NodeList';
+import HTMLCollectionImpl from './HTMLCollection';
+import type { SpatialDocumentImpl } from './SpatialDocument';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { addNwsapi } from '../helpers/selectors';
 import { convertNodesIntoNode } from '../node';
-import { NodeImpl } from './Node';
-import { NodeListImpl } from './NodeList';
-import { ElementImpl } from './Element';
-import HTMLCollectionImpl from './HTMLCollection';
-import { type SpatialDocumentImpl } from './SpatialDocument';
 
 function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
   // This is true during initialization.
@@ -23,7 +23,7 @@ function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
  * Here we don't use `instanceof` because it will cause circular dependency.
  */
 function isSpatialDocument(node: Node): node is SpatialDocumentImpl {
-  return node.nodeType === NodeImpl.DOCUMENT_NODE;
+  return node.nodeType === NodeTypes.DOCUMENT_NODE;
 }
 
 export default interface ParentNodeImpl extends NodeImpl { };
@@ -35,7 +35,7 @@ export default class ParentNodeImpl implements ParentNode {
       this._childrenList = new HTMLCollectionImpl(this._hostObject, [], {
         element: this,
         query: () => domSymbolTree.childrenToArray(this, {
-          filter: node => node.nodeType === NodeImpl.ELEMENT_NODE
+          filter: node => node.nodeType === NodeTypes.ELEMENT_NODE
         })
       });
     } else {
@@ -46,7 +46,7 @@ export default class ParentNodeImpl implements ParentNode {
 
   get firstElementChild(): Element | null {
     for (const child of domSymbolTree.childrenIterator(this)) {
-      if (child.nodeType === NodeImpl.ELEMENT_NODE) {
+      if (child.nodeType === NodeTypes.ELEMENT_NODE) {
         return child;
       }
     }
@@ -55,7 +55,7 @@ export default class ParentNodeImpl implements ParentNode {
 
   get lastElementChild(): Element | null {
     for (const child of domSymbolTree.childrenIterator(this, { reverse: true })) {
-      if (child.nodeType === NodeImpl.ELEMENT_NODE) {
+      if (child.nodeType === NodeTypes.ELEMENT_NODE) {
         return child;
       }
     }
@@ -67,9 +67,6 @@ export default class ParentNodeImpl implements ParentNode {
   }
 
   append(...nodes: (string | Node)[]): void {
-    if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
-    }
     this._append(convertNodesIntoNode(this._ownerDocument, nodes) as NodeImpl);
   }
 
@@ -83,12 +80,9 @@ export default class ParentNodeImpl implements ParentNode {
   querySelector<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): HTMLElementDeprecatedTagNameMap[K];
   querySelector<E extends Element = Element>(selectors: string): E;
   querySelector(selectors: unknown): Element | null {
-    if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
-    }
     if (
-      !(this instanceof ElementImpl) &&
-      !(isSpatialDocument(this))
+      !isElementNode(this) &&
+      !isSpatialDocument(this)
     ) {
       throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
     }
@@ -105,10 +99,7 @@ export default class ParentNodeImpl implements ParentNode {
   querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
   querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
   querySelectorAll(selectors: unknown): NodeListOf<Element> {
-    if (!(this instanceof NodeImpl)) {
-      throw new DOMException('ParentNode must be an instance of Node.', 'HIERARCHY_REQUEST_ERR');
-    }
-    if (!(this instanceof Element) && !(this instanceof Document)) {
+    if (!isElementNode(this) && !isDocumentNode(this)) {
       throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
     }
     if (shouldAlwaysSelectNothing(this)) {
@@ -117,7 +108,7 @@ export default class ParentNodeImpl implements ParentNode {
       });
     }
     const matcher = addNwsapi(this);
-    const list = matcher.select(selectors as string, this);
+    const list = matcher.select(selectors as string, this as Document);
     return new NodeListImpl(this._hostObject, [], {
       nodes: list,
     });

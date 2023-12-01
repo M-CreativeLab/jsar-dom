@@ -1,5 +1,7 @@
 import fsPromises from 'node:fs/promises';
-import * as BABYLON from 'babylonjs';
+import url from 'node:url';
+
+import BABYLON from 'babylonjs';
 import path from 'path';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import {
@@ -154,7 +156,7 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   }
 }
 
-if (require.main === module) {
+function main() {
   const entrypoint = process.argv[2];
   if (!entrypoint) {
     console.error('Usage: ts-node ./src/impl-headless.ts <entrypoint>');
@@ -173,5 +175,14 @@ if (require.main === module) {
       url: `file://${path.resolve(entrypoint)}`,
     });
     await dom.load();
+    console.log('Title:', dom.document.title);
   });
+}
+
+if (import.meta.url.startsWith('file:')) {
+  const modulePath = url.fileURLToPath(import.meta.url);
+  if (process.argv[1] === modulePath) {
+    // Run as a script.
+    main();
+  }
 }
