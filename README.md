@@ -1,10 +1,10 @@
 # JSAR-DOM
 
-This project JSAR-DOM is a JavaScript implementation of many Web standards, notably the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML, for use in Node.js and browser.
+This project JSAR-DOM is a [TypeScript][] implementation of many Web standards, notably the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML, for use in Node.js and browser.
 
 This project is a part of the [JSAR][], which is a Web-compatible runtime for integrating XR applications (especially Interactive Digtal Product) into native environments like Unity.
 
-> JSAR-DOM is a fork of [jsdom/jsdom][] project and its children projects with a TypeScript rewrite and added the support for XSML and SCSS.
+> JSAR-DOM is a fork of [jsdom/jsdom][] project and its children projects with a [TypeScript][] rewrite and added the support for XSML and SCSS.
 
 > **Interactive Digital Product (IDP)** represents a virtual entity designed to digitally replicate and interactively showcase real-world products in metaverse. This representation emphasizes the digital nature of the item, allowing users to engage with it in an interactive manner. IDPs serve as dynamic and immersive digital counterparts to physical products, offering a novel and engaging user experience within a virtual environment.
 
@@ -14,13 +14,7 @@ This project is a part of the [JSAR][], which is a Web-compatible runtime for in
 [![Build Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml)
 [![Integration Test Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml)
 
-## Installation
-
-```sh
-npm install @yodaos-jsar/dom
-```
-
-## Usage
+## Getting Started
 
 JSAR-DOM is designed to be a drop-in and easy-to-use replacement for the `jsdom` package. After installing it, you just need to change your `require` or `import` call from `jsdom` to `@yodaos-jsar/dom`:
 
@@ -61,6 +55,18 @@ $ ts-node src/impl-headless.ts ./fixtures/simple.xsml
 ```
 
 At JSAR-DOM project, we use the this implementation for tests purpose, you could also use it to see how to write a `NativeDocument` implementation, or just run a XSML application in a headless environment.
+
+## Features
+
+- ECMAScript Modules with [TypeScript][], [WebAssembly][] and non-script assets supports.
+- Web-standards APIs notably including WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML.
+- No build at all to get started for application developers.
+
+## Installation
+
+```sh
+npm install @yodaos-jsar/dom
+```
 
 ## What's XSML?
 
@@ -104,6 +110,10 @@ sphere {
 }
 ```
 
+## License
+
+See [Apache-2.0](./LICENSE).
+
 [jsdom/jsdom]: https://github.com/jsdom/jsdom
 [DOM]: https://dom.spec.whatwg.org/
 [CSSOM]: https://drafts.csswg.org/cssom/
@@ -111,3 +121,5 @@ sphere {
 [JSAR]: https://jsar.netlify.app/
 [X3D]: https://en.wikipedia.org/wiki/X3D
 [VRML]: https://en.wikipedia.org/wiki/VRML
+[TypeScript]: https://www.typescriptlang.org/
+[WebAssembly]: https://webassembly.org/
