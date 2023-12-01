@@ -1,7 +1,7 @@
 import path from 'path';
 import assert from 'assert';
 import vm from 'vm';
-import * as BABYLON from 'babylonjs';
+import BABYLON from 'babylonjs';
 import * as babel from '@babel/core';
 import typescriptTransformPlugin from '@babel/plugin-transform-typescript';
 import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';

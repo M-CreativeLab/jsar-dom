@@ -57,12 +57,12 @@ export async function loadImplementations() {
     { NodeListImpl },
     { ElementImpl },
     DocumentFragmentImpl,
-    DocumentTypeImpl,
-    SpatialDocumentImpl,
-    TextImpl,
+    { DocumentTypeImpl },
+    { SpatialDocumentImpl },
+    { TextImpl },
     HTMLCollectionImpl,
     DOMTokenListImpl,
-    HTMLElementImpl,
+    { HTMLElementImpl },
     HTMLHeadElementImpl,
     HTMLTitleElementImpl,
     HTMLMetaElementImpl,
@@ -72,8 +72,8 @@ export async function loadImplementations() {
     // CSSOM
     StyleSheetListImpl,
     // Events
-    CloseEventImpl,
-    CustomEventImpl,
+    { CloseEventImpl },
+    { CustomEventImpl },
     ErrorEventImpl,
     FocusEventImpl,
     HashChangeEventImpl,
@@ -83,15 +83,15 @@ export async function loadImplementations() {
     PopStateEventImpl,
     ProgressEventImpl,
     TouchEventImpl,
-    UIEventImpl,
+    { UIEventImpl },
     // Others
     DOMException,
-    CustomElementRegistryImpl,
-    PerformanceImpl,
-    AbstractRangeImpl,
-    RangeImpl,
-    MutationObserverImpl,
-    MutationRecordImpl,
+    { CustomElementRegistryImpl },
+    { PerformanceImpl },
+    { AbstractRangeImpl },
+    { RangeImpl },
+    { MutationObserverImpl },
+    { MutationRecordImpl },
     DOMRectReadOnlyImpl,
     DOMRectImpl,
   ]) => {
@@ -100,6 +100,41 @@ export async function loadImplementations() {
     implementedInterfaces.set('Node', NodeImpl);
     implementedInterfaces.set('NodeList', NodeListImpl);
     implementedInterfaces.set('Element', ElementImpl);
+    implementedInterfaces.set('DocumentFragment', DocumentFragmentImpl);
+    implementedInterfaces.set('DocumentType', DocumentTypeImpl);
+    implementedInterfaces.set('SpatialDocument', SpatialDocumentImpl);
+    implementedInterfaces.set('Text', TextImpl);
+    implementedInterfaces.set('HTMLCollection', HTMLCollectionImpl);
+    implementedInterfaces.set('DOMTokenList', DOMTokenListImpl);
+    implementedInterfaces.set('HTMLElement', HTMLElementImpl);
+    implementedInterfaces.set('HTMLHeadElement', HTMLHeadElementImpl);
+    implementedInterfaces.set('HTMLTitleElement', HTMLTitleElementImpl);
+    implementedInterfaces.set('HTMLMetaElement', HTMLMetaElementImpl);
+    implementedInterfaces.set('HTMLScriptElement', HTMLScriptElementImpl);
+    implementedInterfaces.set('HTMLDivElement', HTMLDivElementImpl);
+    implementedInterfaces.set('HTMLSpanElement', HTMLSpanElementImpl);
+    implementedInterfaces.set('StyleSheetList', StyleSheetListImpl);
+    implementedInterfaces.set('CloseEvent', CloseEventImpl);
+    implementedInterfaces.set('CustomEvent', CustomEventImpl);
+    implementedInterfaces.set('ErrorEvent', ErrorEventImpl);
+    implementedInterfaces.set('FocusEvent', FocusEventImpl);
+    implementedInterfaces.set('HashChangeEvent', HashChangeEventImpl);
+    implementedInterfaces.set('KeyboardEvent', KeyboardEventImpl);
+    implementedInterfaces.set('MessageEvent', MessageEventImpl);
+    implementedInterfaces.set('MouseEvent', MouseEventImpl);
+    implementedInterfaces.set('PopStateEvent', PopStateEventImpl);
+    implementedInterfaces.set('ProgressEvent', ProgressEventImpl);
+    implementedInterfaces.set('TouchEvent', TouchEventImpl);
+    implementedInterfaces.set('UIEvent', UIEventImpl);  
+    implementedInterfaces.set('DOMException', DOMException);
+    implementedInterfaces.set('CustomElementRegistry', CustomElementRegistryImpl);
+    implementedInterfaces.set('Performance', PerformanceImpl);
+    implementedInterfaces.set('AbstractRange', AbstractRangeImpl);
+    implementedInterfaces.set('Range', RangeImpl);
+    implementedInterfaces.set('MutationObserver', MutationObserverImpl);
+    implementedInterfaces.set('MutationRecord', MutationRecordImpl);
+    implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl);
+    implementedInterfaces.set('DOMRect', DOMRectImpl);
     implementationLoaded = true;
   });
 }
