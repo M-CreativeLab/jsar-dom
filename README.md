@@ -8,6 +8,12 @@ This project is a part of the [JSAR][], which is a Web-compatible runtime for in
 
 > **Interactive Digital Product (IDP)** represents a virtual entity designed to digitally replicate and interactively showcase real-world products in metaverse. This representation emphasizes the digital nature of the item, allowing users to engage with it in an interactive manner. IDPs serve as dynamic and immersive digital counterparts to physical products, offering a novel and engaging user experience within a virtual environment.
 
+## Build Status
+
+[![npm version](https://badge.fury.io/js/@yodaos-jsar%2Fdom.svg)](https://badge.fury.io/js/@yodaos-jsar%2Fdom)
+[![Build Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/build.yml)
+[![Integration Test Status](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml/badge.svg)](https://github.com/M-CreativeLab/jsar-dom/actions/workflows/integration-tests-build.yml)
+
 ## Installation
 
 ```sh
