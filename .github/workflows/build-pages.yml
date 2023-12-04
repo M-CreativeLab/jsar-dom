@@ -1,0 +1,31 @@
+name: Build and Deploy Pages
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-node@v4.0.0
+      with:
+        node-version: 18.16.0
+    - name: Install JSAR-DOM dependencies
+      run: npm ci && npx tsc --version
+    - name: Install pages dependencies
+      run: npm ci
+      working-directory: ./pages
+    - name: Build
+      run: npx webpack
+      working-directory: ./pages
+    - name: Deploy to gh-pages
+      uses: peaceiris/actions-gh-pages@v3
+      with:
+        github_token: ${{ secrets.GITHUB_TOKEN }}
+        publish_dir: ./pages

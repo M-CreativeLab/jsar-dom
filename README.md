@@ -73,7 +73,7 @@ To use it, you need the following instructions:
 $ cd pages
 $ npm install
 $ npx webpack
-open ./index.html
+$ open ./index.html
 ```
 
 ![](pages/screenshot.png)
