@@ -24,11 +24,11 @@
       }
     }
     sphere {
-      rotation: 0 180 0;
+      rotation: 0 180 0 !important;
       material: "litered";
     }
     .m_cube {
-      position: 0 1 0;
+      position: 1;
       material: "liteblue";
     }
   </style>

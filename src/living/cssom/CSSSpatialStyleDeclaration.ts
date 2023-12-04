@@ -1,20 +1,20 @@
 import { parseSpatialCss } from '../helpers/spatial-css-parser';
 import { type CSSSpatialStyleProperties, mixinWithSpatialStyleProperties } from './spatial-properties';
 
-export default interface CSSSpatialStyleDeclaration extends Array<string>, CSSSpatialStyleProperties { }
-export default class CSSSpatialStyleDeclaration extends Array<string> {
-  _values: Map<string, string> = new Map();
-  _importants: Map<string, string> = new Map();
+export default interface CSSSpatialStyleDeclaration extends CSSSpatialStyleProperties { }
+export default class CSSSpatialStyleDeclaration {
+  _length = 0;
+  _values: { [key: string]: string } = {};
+  _importants: { [key: string]: 'important' | null } = {};
   _onChange: (cssText?: string) => void;
 
-  constructor(onChange: (cssText?: string) => void) {
-    super();
-    this._onChange = onChange;
+  constructor(onChange?: (cssText?: string) => void) {
+    this._onChange = onChange || (() => { });
   }
 
   get cssText(): string {
     const properties: string[] = [];
-    for (let i = 0; i < this.length; i++) {
+    for (let i = 0; i < this._length; i++) {
       const name = this[i];
       const value = this.getPropertyValue(name);
       let priority = this.getPropertyPriority(name);
@@ -26,8 +26,8 @@ export default class CSSSpatialStyleDeclaration extends Array<string> {
     return properties.join(' ');
   }
   set cssText(value: string) {
-    this._values.clear();
-    this._importants.clear();
+    this._values = {};
+    this._importants = {};
     Array.prototype.splice.call(this, 0, this.length);
 
     let dummyRule;
@@ -51,6 +51,16 @@ export default class CSSSpatialStyleDeclaration extends Array<string> {
     // this._onChange(this.cssText);
   }
 
+  get length(): number {
+    return this._length;
+  }
+  set length(value: number) {
+    for (let i = value; i < this._length; i++) {
+      delete this[i];
+    }
+    this._length = value;
+  }
+
   get parentRule(): CSSRule {
     return null;
   }
@@ -62,7 +72,7 @@ export default class CSSSpatialStyleDeclaration extends Array<string> {
     return this._values[name].toString();
   }
 
-  setProperty(name: string, value: string, priority?: string) {
+  setProperty(name: string, value: string, priority?: 'important' | null) {
     if (value === undefined) {
       return;
     }
@@ -85,7 +95,7 @@ export default class CSSSpatialStyleDeclaration extends Array<string> {
     this._importants[lowercaseName] = priority;
   }
 
-  _setProperty(name: string, value: string, priority?: string) {
+  _setProperty(name: string, value: string, priority?: 'important' | null) {
     if (value === undefined) {
       return;
     }
@@ -97,13 +107,13 @@ export default class CSSSpatialStyleDeclaration extends Array<string> {
       // Property already exist. Overwrite it.
       var index = Array.prototype.indexOf.call(this, name);
       if (index < 0) {
-        this[this.length] = name;
-        this.length++;
+        this[this._length] = name;
+        this._length++;
       }
     } else {
       // New property.
-      this[this.length] = name;
-      this.length++;
+      this[this._length] = name;
+      this._length++;
     }
     this._values[name] = value;
     this._importants[name] = priority;

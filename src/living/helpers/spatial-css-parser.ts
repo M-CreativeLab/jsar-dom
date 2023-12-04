@@ -38,6 +38,10 @@ export function isAtTexture(node: CSSNode): node is AtTexture {
   return node.type === 'texture';
 }
 
+export function isComment(node: CSSNode): node is css.Comment {
+  return node.type === 'comment';
+}
+
 export function noParsingErrors(stylesheet: StyleRules): boolean {
   return !stylesheet.parsingErrors || stylesheet.parsingErrors.length === 0;
 }

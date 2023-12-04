@@ -9,6 +9,7 @@ export interface CSSSpatialStyleProperties {
   position: string;
   rotation: string;
   // scale: string;
+  'diffuse-color': string;
   diffuseColor: string;
 }
 
@@ -17,5 +18,6 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     position,
     rotation,
     diffuseColor,
+    'diffuse-color': diffuseColor,
   });
 }
