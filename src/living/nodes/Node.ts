@@ -214,7 +214,7 @@ export class NodeImpl extends EventTarget implements Node {
     return documentBaseURLSerialized(this._ownerDocument);
   }
 
-  get parentNode(): ParentNodeImpl {
+  get parentNode(): ParentNode {
     return domSymbolTree.parent(this);
   }
 
@@ -275,15 +275,15 @@ export class NodeImpl extends EventTarget implements Node {
     return this.nodeType === this.DOCUMENT_NODE ? null : this._ownerDocument as Document;
   }
 
-  get nextSibling() {
+  get nextSibling(): ChildNode | null {
     return domSymbolTree.nextSibling(this);
   }
 
-  get previousSibling() {
+  get previousSibling(): ChildNode | null {
     return domSymbolTree.previousSibling(this);
   }
 
-  get parentElement() {
+  get parentElement(): HTMLElement | null {
     const parentNode = domSymbolTree.parent(this);
     return parentNode !== null && parentNode.nodeType === NodeImpl.ELEMENT_NODE ? parentNode : null;
   }
@@ -509,8 +509,9 @@ export class NodeImpl extends EventTarget implements Node {
   removeChild<T extends Node>(child: T): T {
     return this._preRemove(child as unknown as NodeImpl) as unknown as T;
   }
-  replaceChild<T1 extends Node, T2 extends Node>(node: T1, child: T1): T2 {
-    return this._replace(node as unknown as NodeImpl, child as unknown as NodeImpl) as unknown as T2;
+  
+  replaceChild<T extends Node>(node: Node, child: T): T {
+    return this._replace(node as unknown as NodeImpl, child as unknown as NodeImpl) as unknown as T;
   }
 
   // https://dom.spec.whatwg.org/#concept-node-ensure-pre-insertion-validity
