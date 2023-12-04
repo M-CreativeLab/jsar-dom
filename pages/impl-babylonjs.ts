@@ -175,6 +175,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   load(`
 <xsml>
   <head>
+    <style>
+      cube {
+        rotation: 0 45 0;
+      }
+    </style>
   </head>
   <space>
     <cube />

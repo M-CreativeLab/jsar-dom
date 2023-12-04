@@ -3,9 +3,22 @@ name: Build and Deploy Pages
 on:
   push:
     branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
   build:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
@@ -18,14 +31,18 @@ jobs:
         node-version: 18.16.0
     - name: Install JSAR-DOM dependencies
       run: npm ci && npx tsc --version
+    - name: Setup Pages
+        uses: actions/configure-pages@v3
     - name: Install pages dependencies
       run: npm ci
       working-directory: ./pages
     - name: Build
       run: npx webpack
       working-directory: ./pages
-    - name: Deploy to gh-pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./pages
+    - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: './pages'
+    - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
