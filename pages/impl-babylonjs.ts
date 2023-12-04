@@ -1,22 +1,22 @@
-import fsPromises from 'node:fs/promises';
-import url from 'node:url';
+/// <reference path="node_modules/@types/wicg-file-system-access/index.d.ts" />
 
-import 'babylonjs';
-import path from 'path';
-import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import {
+  SpatialDocumentImpl,
   DOMParser,
   NativeDocument,
   NativeEngine,
   RequestManager,
   ResourceLoader,
   UserAgent,
-  UserAgentInit
-} from './impl-interfaces';
-import { canParseURL } from './living/helpers/url';
+  UserAgentInit,
+  JSARDOM,
+} from '../src';
+import 'babylonjs';
 
-interface HeadlessEngine extends BABYLON.NullEngine, EventTarget { }
-class HeadlessEngine extends BABYLON.NullEngine implements NativeEngine {
+import { canParseURL } from '../src/living/helpers/url';
+
+interface EngineOnBabylonjs extends BABYLON.Engine, EventTarget { }
+class EngineOnBabylonjs extends BABYLON.Engine implements NativeEngine {
   // TODO
 }
 
@@ -25,42 +25,13 @@ class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'json'): Promise<object>;
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'arraybuffer'): Promise<ArrayBuffer>;
   fetch<T = string | object | ArrayBuffer>(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<T>;
-  fetch(url: string, options: unknown, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object> | Promise<ArrayBuffer> | Promise<string> {
+  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object> | Promise<ArrayBuffer> | Promise<string> {
     if (!canParseURL(url)) {
       throw new TypeError('Invalid URL');
     }
     const urlObj = new URL(url);
     if (urlObj.protocol === 'file:') {
-      /** Check if the data should be string or json? */
-      const isStringOrJson = (data: string | Buffer): data is string => {
-        return returnsAs === 'string' || returnsAs === 'json';
-      };
-
-      let readOptions: Parameters<typeof fsPromises.readFile>[1] = {};
-      if (returnsAs === 'string' || returnsAs === 'json') {
-        readOptions.encoding = 'utf8';
-      }
-
-      let { pathname } = urlObj;
-      if (process.platform === 'win32' && pathname[0] === '/') {
-        /**
-         * The Node.js URL parses the Windows path to append a leading "/" on the `pathname`.
-         * This manually removes the leading "/" to avoid related issues.
-         */
-        pathname = pathname.slice(1);
-      }
-      return fsPromises.readFile(pathname, readOptions)
-        .then((data) => {
-          if (isStringOrJson(data)) {
-            if (returnsAs === 'string') {
-              return data;
-            } else if (returnsAs === 'json') {
-              return JSON.parse(data);
-            }
-          } else {
-            return data.buffer;
-          }
-        });
+      throw new TypeError('file: protocol is not supported');
     } else {
       return fetch(url, options)
         .then((resp) => {
@@ -76,7 +47,7 @@ class HeadlessResourceLoader implements ResourceLoader {
   }
 }
 
-class HeadlessUserAgent implements UserAgent {
+class UserAgentOnBabylonjs implements UserAgent {
   versionString: string = '1.0';
   vendor: string = '';
   vendorSub: string = '';
@@ -95,7 +66,7 @@ class HeadlessUserAgent implements UserAgent {
     this.defaultStylesheet = init.defaultStylesheet;
     this.devicePixelRatio = init.devicePixelRatio;
     this.resourceLoader = new HeadlessResourceLoader();
-    this.requestManager = null;
+    // this.requestManager = null;
   }
   alert(message?: string): void {
     throw new Error('Method not implemented.');
@@ -108,7 +79,7 @@ class HeadlessUserAgent implements UserAgent {
   }
 }
 
-export class HeadlessNativeDocument extends EventTarget implements NativeDocument {
+class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   engine: NativeEngine;
   userAgent: UserAgent;
   baseURI: string;
@@ -120,16 +91,48 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   private _preloadMeshes: Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> = new Map();
   private _preloadAnimationGroups: Map<string, BABYLON.AnimationGroup[]> = new Map();
 
-  constructor() {
+  constructor(canvas: HTMLCanvasElement) {
     super();
 
-    this.engine = new HeadlessEngine();
-    this.userAgent = new HeadlessUserAgent({
+    this.engine = new EngineOnBabylonjs(canvas, true);
+    this.userAgent = new UserAgentOnBabylonjs({
       defaultStylesheet: '',
       devicePixelRatio: 1,
     });
     this.console = globalThis.console;
     this._scene = new BABYLON.Scene(this.engine);
+    this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
+    this._scene.debugLayer.show({
+      showInspector: false,
+      globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
+    });
+
+    const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
+      'https://assets.babylonjs.com/environments/environmentSpecular.env', this._scene);
+    this._scene.environmentTexture = hdrTexture;
+
+    // create camera and targets
+    const camera = new BABYLON.ArcRotateCamera(
+      'camera',
+      Math.PI / 2,
+      Math.PI / 2,
+      5,
+      BABYLON.Vector3.Zero(),
+      this._scene
+    );
+    camera.setPosition(new BABYLON.Vector3(0, 0, -10));
+    camera.setTarget(BABYLON.Vector3.Zero());
+    camera.attachControl(canvas, true);
+
+    const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), this._scene);
+    light.intensity = 0.7;
+
+    this.engine.runRenderLoop(() => {
+      this._scene.render();
+    });
+    window.addEventListener('resize', () => {
+      this.engine.resize();
+    });
   }
 
   getNativeScene(): BABYLON.Scene {
@@ -154,37 +157,42 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
     // TODO
   }
   close(): void {
-    // TODO
+    this.engine.stopRenderLoop();
+    this.engine.dispose();
+    this._scene.dispose();
   }
 }
 
-function main() {
-  const entrypoint = process.argv[2];
-  if (!entrypoint) {
-    console.error('Usage: ts-node ./src/impl-headless.ts <entrypoint>');
-    process.exit(1);
-  }
-
-  // Error.stackTraceLimit = Infinity;
-  Promise.all([
-    import('./index'),
-    import('node:fs/promises'),
-  ]).then(async ([{ JSARDOM }, fsPromises]) => {
-    const textContent = await fsPromises.readFile(entrypoint, 'utf8');
-    const nativeDocument = new HeadlessNativeDocument();
-    const dom = new JSARDOM(textContent, {
-      nativeDocument,
-      url: `file://${path.resolve(entrypoint)}`,
-    });
-    await dom.load();
-    console.log('Title:', dom.document.title);
+let currentDom: JSARDOM;
+document.addEventListener('DOMContentLoaded', async () => {
+  const canvas = document.getElementById('renderCanvas');
+  const urlInput = document.getElementById('url-input') as HTMLInputElement;
+  const selectBtn = document.getElementById('run-btn');
+  selectBtn?.addEventListener('click', async () => {
+    const entryXsmlCode = await (await fetch(urlInput?.value)).text();
+    await load(entryXsmlCode, urlInput?.value);
   });
-}
+  load(`
+<xsml>
+  <head>
+  </head>
+  <space>
+    <cube />
+  </space>
+</xsml>
+  `);
 
-if (import.meta.url.startsWith('file:')) {
-  const modulePath = url.fileURLToPath(import.meta.url);
-  if (process.argv[1] === modulePath) {
-    // Run as a script.
-    main();
+  async function load(code: string, urlBase: string = 'https://example.com/') {
+    if (currentDom) {
+      await currentDom.unload();
+    }
+    const nativeDocument = new NativeDocumentOnBabylonjs(canvas as HTMLCanvasElement);
+    currentDom = new JSARDOM(code, {
+      url: urlBase,
+      nativeDocument,
+    });
+    await currentDom.load();
+    console.log(currentDom);
   }
-}
+
+});

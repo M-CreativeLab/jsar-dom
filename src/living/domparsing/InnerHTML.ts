@@ -24,13 +24,13 @@ export default class InnerHTMLImpl implements InnerHTML {
       throw new TypeError('innerHTML is only implemented on Element');
     }
 
-    const contextElement = isShadowRoot(this) ? this.host : this;
-    const fragment = parseFragment(markup, contextElement);
+    const contextElement = isShadowRoot(this) ? this._host : this;
+    // const fragment = parseFragment(markup, contextElement);
 
-    let contextObject = this;
-    if (this.nodeType === NodeImpl.ELEMENT_NODE && this.localName === 'template' && this.namespaceURI === HTML_NS) {
-      contextObject = this._templateContents;
-    }
-    contextObject._replaceAll(fragment);
+    // let contextObject = this;
+    // if (this.nodeType === NodeImpl.ELEMENT_NODE && this.localName === 'template' && this.namespaceURI === HTML_NS) {
+    //   contextObject = this._templateContents;
+    // }
+    // contextObject._replaceAll(fragment);
   }
 }

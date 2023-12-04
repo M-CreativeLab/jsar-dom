@@ -1,4 +1,3 @@
-import BABYLON from 'babylonjs';
 import { NativeDocument } from '../../impl-interfaces';
 import DOMExceptionImpl from '../domexception';
 import { SpatialElement } from './SpatialElement';
@@ -47,16 +46,24 @@ export default class SpatialMeshElement extends SpatialElement {
     this.setAttribute('selector', value);
   }
 
-  _attach(): void {
+  async _attach() {
+    const { ref } = this;
+    if (!ref) {
+      throw new DOMExceptionImpl('ref is required in <mesh>', 'INVALID_STATE_ERR');
+    }
+
+    // Wait for the mesh to be preloaded if it is in the preloading queue.
+    const queue = this._ownerDocument._preloadingSpatialModelObservers;
+    if (queue.has(ref)) {
+      if (!await queue.get(ref)) {
+        throw new DOMExceptionImpl(`Failed to preload the mesh with ref(${ref})`, 'INVALID_STATE_ERR');
+      }
+    }
     super._attach(this._instantiate());
   }
 
   _instantiate(): BABYLON.Node {
     const { ref, selector } = this;
-
-    if (!ref) {
-      throw new DOMExceptionImpl('ref is required in <mesh>', 'INVALID_STATE_ERR');
-    }
     if (!this._hostObject.getPreloadedMeshes().has(ref)) {
       throw new DOMExceptionImpl(`No mesh with ref(${ref}) is preloaded`, 'INVALID_STATE_ERR');
     }
@@ -76,6 +83,7 @@ export default class SpatialMeshElement extends SpatialElement {
     const clonedMesh = cloneWithOriginalRefs(targetMesh, rootName, null, (origin, cloned) => {
       originUidToClonedMap[origin.uniqueId] = cloned;
     });
+    console.log('cloned a mesh', rootName, clonedMesh);
 
     /** Set the cloned skeleton, it set the new bone's linking transforms to new. */
     clonedMesh.getChildMeshes().forEach((childMesh) => {

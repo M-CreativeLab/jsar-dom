@@ -1,0 +1,26 @@
+{
+  "name": "jsar-dom-pages",
+  "version": "1.0.0",
+  "description": "The pages for JSAR-DOM",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/wicg-file-system-access": "^2023.10.4",
+    "assert-browserify": "^2.0.0",
+    "buffer": "^5.7.1",
+    "compression-webpack-plugin": "^10.0.0",
+    "path-browserify": "^1.0.1",
+    "process": "^0.11.10",
+    "terser-webpack-plugin": "^5.3.9",
+    "ts-loader": "^9.5.1",
+    "url": "^0.11.3",
+    "util": "^0.12.5",
+    "webpack": "^5.89.0",
+    "webpack-cli": "^5.1.4"
+  }
+}

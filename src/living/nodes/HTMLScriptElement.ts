@@ -534,7 +534,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // FIXME(Yorkie): add other module properties? such as: `module.id`.
     };
     const windowBase = this._ownerDocument._defaultView;
-    const context = vm.createContext({
+    const context = {
       // Babylon.js
       BABYLON,
 
@@ -569,10 +569,10 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       exports: cjsModule.exports,
       require: this._createRequireFunction(options),
       __dynamicImport__: this._createDynamicImporter(options),
-    });
+    };
 
     if (vm && typeof vm.runInNewContext === 'function') {
-      vm.runInNewContext(code, context, {
+      vm.runInNewContext(code, vm.createContext(context), {
         importModuleDynamically: (_specifier) => {
           // Because we have removed the dynamic import()s in code compilation, this is impossible to be called here.
           // TODO: implement the dynamic import() here?

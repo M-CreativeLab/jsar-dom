@@ -1,4 +1,3 @@
-import BABYLON from 'babylonjs';
 import nwsapi from 'nwsapi';
 
 import { NativeDocument } from '../../impl-interfaces';
@@ -38,6 +37,7 @@ import HTMLSpanElementImpl from './HTMLSpanElement';
 import { SpatialElement } from './SpatialElement';
 import { XSMLShadowRoot } from './ShadowRoot';
 import SpatialSpaceElement from './SpatialSpaceElement';
+import SpatialMeshElement from './SpatialMeshElement';
 import SpatialRefElement from './SpatialRefElement';
 import SpatialCubeElement from './SpatialCubeElement';
 import SpatialPlaneElement from './SpatialPlaneElement';
@@ -268,6 +268,11 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _asyncQueue = new AsyncResourceQueue();
   _queue = new ResourceQueue({ paused: false, asyncQueue: this._asyncQueue });
   _deferQueue = new ResourceQueue({ paused: true });
+  /**
+   * This is used to store the preloading spatial models which contains the mesh, transform nodes,
+   * and animation groups.
+   */
+  _preloadingSpatialModelObservers: Map<string, Promise<boolean>> = new Map();
 
   _lastModified: string;
   _styleCache: any;
@@ -680,7 +685,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   createElement(tagName: 'script'): HTMLScriptElement;
   // Spatial elements for spatial rendering
   createElement(tagName: 'space'): SpatialSpaceElement;
-  createElement(tagName: 'mesh'): SpatialElement;
+  createElement(tagName: 'mesh'): SpatialMeshElement;
   createElement(tagName: 'bound'): SpatialBoundElement;
   createElement(tagName: 'cube'): SpatialCubeElement;
   createElement(tagName: 'plane'): SpatialPlaneElement;
@@ -715,6 +720,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       // Spatial elements for spatial rendering
       case 'space':
         return new SpatialSpaceElement(this.#nativeDocument, []);
+      case 'mesh':
+        return new SpatialMeshElement(this.#nativeDocument, []);
       case 'bound':
         return new SpatialBoundElement(this.#nativeDocument, []);
       case 'cube':
@@ -1031,6 +1038,10 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
         }
       });
     }, null, true);
+  }
+
+  _stop() {
+    // TODO
   }
 
   // https://dom.spec.whatwg.org/#concept-node-adopt

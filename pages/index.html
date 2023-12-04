@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <title>JSAR-DOM on Babylon.js</title>
+  <style>
+    html,
+    body {
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    #babylonjs-root {
+      width: 100vw;
+      height: calc(100vh - 58px - 10px);
+      flex: 1;
+    }
+
+    #renderCanvas {
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+
+    #controls {
+      left: 0;
+      right: 0;
+      bottom: 0;
+      height: 58px;
+      width: 100vw;
+      padding: 10px;
+
+      display: flex;
+      flex-direction: row;
+      gap: 10px;
+      z-index: 100;
+    }
+
+    #controls>input {
+      width: auto;
+      flex: 1;
+    }
+  </style>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+  <script src="./dist/entry.bundle.js"></script>
+</head>
+
+<body>
+  <div id="babylonjs-root">
+    <canvas id="renderCanvas"></canvas>
+  </div>
+  <div id="controls">
+    <input type="url" id="url-input" class="form-control" placeholder="Type a XSML URL">
+    <button type="button" id="run-btn" class="btn btn-primary">Run XSML</button>
+  </div>
+</body>
+
+</html>

@@ -1,7 +1,7 @@
 // Apply patches for BabylonJS.
 import './living/helpers/babylonjs/patches';
 
-import BABYLON from 'babylonjs';
+import 'babylonjs';
 import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
@@ -36,13 +36,18 @@ export class JSARDOM {
     });
   }
 
+  async unload() {
+    this.document._stop();
+    this.window.close();
+  }
+
   private async _beforeLoad() {
     // load dom interface implementations.
     await loadDOMInterfaceImplementations();
 
     // load babylonjs loaders.
-    await import('@babylonjs/loaders');
-    const { GLTFFileLoader } = await import('@babylonjs/loaders/glTF/glTFFileLoader.js');
+    // await import('@babylonjs/loaders');
+    const { GLTFFileLoader } = await import('@babylonjs/loaders/glTF/index');
     /**
      * Register the gltf loader to support the script to load gltf/glb files.
      */
@@ -50,4 +55,9 @@ export class JSARDOM {
       BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader() as any);
     }
   }
+}
+
+export * from './impl-interfaces';
+export {
+  SpatialDocumentImpl
 }

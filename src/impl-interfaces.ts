@@ -1,4 +1,3 @@
-import type BABYLON from 'babylonjs';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 
 export interface DOMParser {

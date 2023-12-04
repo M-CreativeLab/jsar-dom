@@ -396,6 +396,7 @@ $jscomp.polyfill("Int32Array.prototype.copyWithin", $jscomp.typedArrayCopyWithin
 $jscomp.polyfill("Uint32Array.prototype.copyWithin", $jscomp.typedArrayCopyWithin, "es6", "es5");
 $jscomp.polyfill("Float32Array.prototype.copyWithin", $jscomp.typedArrayCopyWithin, "es6", "es5");
 $jscomp.polyfill("Float64Array.prototype.copyWithin", $jscomp.typedArrayCopyWithin, "es6", "es5");
+
 var DracoDecoderModule = function () {
   var h = "undefined" !== typeof document && document.currentScript ? document.currentScript.src : void 0;
   "undefined" !== typeof __filename && (h = h || __filename);
@@ -443,8 +444,10 @@ var DracoDecoderModule = function () {
     }
 
     function y(e) {
-      if (a.onAbort) a.onAbort(e);
-      e = "Aborted(" + e + ")";
+      if (a.onAbort) {
+        a.onAbort(e);
+      }
+      e = `Aborted(${e})`;
       da(e);
       sa = !0;
       e = new WebAssembly.RuntimeError(e + ". Build with -sASSERTIONS for more info.");
@@ -462,25 +465,7 @@ var DracoDecoderModule = function () {
     //   }
     // }
 
-    function q() {
-      // if (!ea && (ta || fa)) {
-      //   if ("function" == typeof fetch && !P.startsWith("file://")) return fetch(P, {
-      //     credentials: "same-origin"
-      //   }).then(function (e) {
-      //     if (!e.ok) throw "failed to load wasm binary file at '" + P + "'";
-      //     return e.arrayBuffer()
-      //   }).catch(function () {
-      //     return f(P)
-      //   });
-      //   if (na) return new Promise(function (e, b) {
-      //     na(P, function (c) {
-      //       e(new Uint8Array(c))
-      //     }, b)
-      //   })
-      // }
-      // return Promise.resolve().then(function () {
-      //   return f(P)
-      // })
+    function getWasmBinary() {
       return Promise.resolve(wasmBinary);
     }
 
@@ -895,7 +880,7 @@ var DracoDecoderModule = function () {
       }
 
       function c(g) {
-        return q().then(function (t) {
+        return getWasmBinary().then(function (t) {
           return WebAssembly.instantiate(t, d)
         }).then(function (t) {
           return t
@@ -2089,6 +2074,5 @@ var DracoDecoderModule = function () {
     return n.ready
   }
 }();
-"object" === typeof exports && "object" === typeof module ? module.exports = DracoDecoderModule : "function" === typeof define && define.amd ? define([], function () {
-  return DracoDecoderModule
-}) : "object" === typeof exports && (exports.DracoDecoderModule = DracoDecoderModule);
+
+module.exports = DracoDecoderModule;

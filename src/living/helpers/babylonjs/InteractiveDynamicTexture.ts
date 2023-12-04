@@ -1,4 +1,3 @@
-import BABYLON from 'babylonjs';
 import { type Nullable, type Observer } from 'babylonjs';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';

@@ -1,4 +1,3 @@
-import BABYLON from 'babylonjs';
 import { NativeDocument } from '../../impl-interfaces';
 import { SpatialElement } from './SpatialElement';
 

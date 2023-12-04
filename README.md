@@ -63,6 +63,25 @@ $ ts-node src/impl-headless.ts ./fixtures/simple.xsml
 
 At JSAR-DOM project, we use the this implementation for tests purpose, you could also use it to see how to write a `NativeDocument` implementation, or just run a XSML application in a headless environment.
 
+### Using Babylon.js `NativeDocument` implementation
+
+Inside the JSAR-DOM project, we also provide a Babylon.js implementation of the `NativeDocument` interface, which is an implementation of the `NativeDocument` interface based on the [Babylon.js](https://www.babylonjs.com/) engine on classic Web browsers.
+
+To use it, you need the following instructions:
+
+```sh
+$ cd pages
+$ npm install
+$ npx webpack
+open ./index.html
+```
+
+![](pages/screenshot.png)
+
+Then you could type a HTTP or HTTPS URL of a XSML to view in the browser.
+
+> Babylon.js Implementation is a good example of how to integrate JSAR-DOM applications into a classic Web ecosystem, see [./pages/impl-babylonjs.ts](./pages/impl-babylonjs.ts) for the full source code.
+
 ## Installation
 
 ```sh
