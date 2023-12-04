@@ -67,7 +67,7 @@ At JSAR-DOM project, we use the this implementation for tests purpose, you could
 
 Inside the JSAR-DOM project, we also provide a Babylon.js implementation of the `NativeDocument` interface, which is an implementation of the `NativeDocument` interface based on the [Babylon.js](https://www.babylonjs.com/) engine on classic Web browsers.
 
-To use it, you need the following instructions:
+To use it, open the GitHub hosted [m-creativelab.github.io/jsar-dom](https://m-creativelab.github.io/jsar-dom/) or build locally by following instructions:
 
 ```sh
 $ cd pages
