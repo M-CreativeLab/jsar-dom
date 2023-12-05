@@ -15,7 +15,8 @@
       specular-power: 10.3;
     }
     @material liteblue {
-      diffuse-color: blue;
+      material-type: physical-based;
+      albedo-color: blue;
     }
     @keyframes rotate {
       0% {

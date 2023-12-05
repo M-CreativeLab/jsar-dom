@@ -60,34 +60,74 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
     }
   }
 
+  private _getMaterialType() {
+    const type = this.style._getPropertyValue('material-type');
+    return type ? type.str : 'standard';
+  }
+
   private _createMaterial(): void {
     if (!this._scene) {
       return;
     }
-    const mat = this._material = new BABYLON.StandardMaterial(this.name, this._scene);
-    BABYLON.Tags.AddTagsTo(mat, MATERIAL_BY_SCSS);
+    const type = this._getMaterialType();
+    if (type === 'physical-based') {
+      const mat = new BABYLON.PBRMaterial(this.name, this._scene);
+      if (this.style.physicalMetallic) {
+        const metallicValue = this.style._getPropertyValue('physical-metallic').toNumber();
+        if (metallicValue >= 0 && metallicValue <= 1) {
+          mat.metallic = metallicValue;
+        }
+      } else {
+        mat.metallic = 1;
+      }
+      if (this.style.physicalRoughness) {
+        const roughnessValue = this.style._getPropertyValue('physical-roughness').toNumber();
+        if (roughnessValue >= 0 && roughnessValue <= 1) {
+          mat.roughness = roughnessValue;
+        }
+      }
+      if (this.style.albedoColor) {
+        this._setMaterialColor('albedo-color', color => mat.albedoColor = color);
+      }
+      if (this.style.emissiveColor) {
+        this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
+      }
+      this._material = mat;
+    } else {
+      const mat = new BABYLON.StandardMaterial(this.name, this._scene);
+      if (this.style.diffuseColor) {
+        this._setMaterialColor('diffuse-color', color => mat.diffuseColor = color);
+      }
+      if (this.style.ambientColor) {
+        this._setMaterialColor('ambient-color', color => mat.ambientColor = color);
+      }
+      if (this.style.emissiveColor) {
+        this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
+      }
+      if (this.style.specularColor) {
+        this._setMaterialColor('specular-color', color => mat.specularColor = color);
+      }
+      if (this.style.specularPower) {
+        const powerValue = this.style._getPropertyValue('specular-power').toNumber();
+        if (powerValue >= 0 && powerValue <= 128) {
+          mat.specularPower = powerValue;
+        }
+      }
+      this._material = mat;
+    }
 
-    if (this.style.diffuseColor) {
-      this._setMaterialColor('diffuse-color', color => mat.diffuseColor = color);
-    }
-    if (this.style.ambientColor) {
-      this._setMaterialColor('ambient-color', color => mat.ambientColor = color);
-    }
-    if (this.style.emissiveColor) {
-      this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
-    }
-    if (this.style.specularColor) {
-      this._setMaterialColor('specular-color', color => mat.specularColor = color);
-    }
-    if (this.style.specularPower) {
-      const powerValue = this.style._getPropertyValue('specular-power').toNumber();
-      if (powerValue >= 0 && powerValue <= 128) {
-        mat.specularPower = powerValue;
+    if (this.style.materialOrientation) {
+      const materialOrientation = this.style._getPropertyValue('material-orientation').value;
+      if (materialOrientation === 'clockwise') {
+        this._material.sideOrientation = BABYLON.Material.ClockWiseSideOrientation;
+      } else if (materialOrientation === 'counter-clockwise') {
+        this._material.sideOrientation = BABYLON.Material.CounterClockWiseSideOrientation;
       }
     }
     if (this.style.wireframe) {
       const wireframe = this.style._getPropertyValue('wireframe').value;
-      mat.wireframe = wireframe === 'yes';
+      this._material.wireframe = wireframe === 'yes';
     }
+    BABYLON.Tags.AddTagsTo(this._material, MATERIAL_BY_SCSS);
   }
 }

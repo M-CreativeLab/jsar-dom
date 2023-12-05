@@ -5,18 +5,27 @@ import position from './position';
 import rotation from './rotation';
 import scaling from './scaling';
 import material from './material';
+import materialType from './material-type';
+import materialOrientation from './material-orientation';
 import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
 import ambientColor from './ambient-color';
 import emissiveColor from './emissive-color';
 import specularColor from './specular-color';
 import specularPower from './specular-power';
+import albedoColor from './albedo-color';
+import physicalMetallic from './physical-metallic';
+import physicalRoughness from './physical-roughness';
 
 export interface CSSSpatialStyleProperties {
   position: string;
   rotation: string;
   scaling: string;
   material: string;
+  'material-type': string;
+  materialType: string;
+  'material-orientation': string;
+  materialOrientation: string;
   wireframe: string;
 
   // Standard material
@@ -30,6 +39,14 @@ export interface CSSSpatialStyleProperties {
   specularColor: string;
   'specular-power': string;
   specularPower: string;
+
+  // PBR material
+  'physical-metallic': string;
+  physicalMetallic: string;
+  'physical-roughness': string;
+  physicalRoughness: string;
+  'albedo-color': string;
+  albedoColor: string;
 }
 
 export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpatialStyleDeclaration) {
@@ -38,17 +55,28 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     rotation,
     scaling,
     material,
+    'material-type': materialType,
+    materialType,
+    'material-orientation': materialOrientation,
+    materialOrientation,
     wireframe,
 
-    diffuseColor,
     'diffuse-color': diffuseColor,
-    ambientColor,
+    diffuseColor,
     'ambient-color': ambientColor,
-    emissiveColor,
+    ambientColor,
     'emissive-color': emissiveColor,
-    specularColor,
+    emissiveColor,
     'specular-color': specularColor,
-    specularPower,
+    specularColor,
     'specular-power': specularPower,
+    specularPower,
+
+    'physical-metallic': physicalMetallic,
+    physicalMetallic,
+    'physical-roughness': physicalRoughness,
+    physicalRoughness,
+    'albedo-color': albedoColor,
+    albedoColor,
   });
 }
