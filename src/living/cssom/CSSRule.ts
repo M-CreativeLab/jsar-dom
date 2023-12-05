@@ -16,6 +16,7 @@ export default class CSSRuleImpl implements CSSRule {
   KEYFRAMES_RULE: 7;
   KEYFRAME_RULE: 8;
   SUPPORTS_RULE: 12;
+  MATERIAL_RULE: 20;
 
   protected _hostObject: NativeDocument;
   protected _cssText: string;
@@ -48,6 +49,9 @@ export default class CSSRuleImpl implements CSSRule {
         break;
       case 'supports':
         this.type = this.SUPPORTS_RULE;
+        break;
+      case 'material':
+        this.type = this.MATERIAL_RULE;
         break;
       default:
         throw new Error(`Unexpected type ${privateData.type}`);

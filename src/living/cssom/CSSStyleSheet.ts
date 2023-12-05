@@ -1,10 +1,11 @@
-import { css, isRule, noParsingErrors, parseCss } from '../helpers/spatial-css-parser';
+import { AtMaterial, css, isAtMaterial, isRule, noParsingErrors, parseCss } from '../helpers/spatial-css-parser';
 import { NativeDocument } from '../../impl-interfaces';
 import DOMExceptionImpl from '../domexception';
 import CSSRuleListImpl from './CSSRuleList';
 import StyleSheetImpl from './StyleSheet';
 import CSSStyleRuleImpl from './CSSStyleRule';
 import CSSSpatialStyleRule from './CSSSpatialStyleRule';
+import CSSSpatialMaterialRule from './CSSSpatialMaterialRule';
 
 export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyleSheet {
   cssRules: CSSRuleList;
@@ -59,8 +60,9 @@ export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyl
       for (let astRule of astResult.stylesheet.rules) {
         if (isRule(astRule)) {
           this._addStyleRule(astRule, astResult);
+        } else if (isAtMaterial(astRule)) {
+          this._addMaterialRule(astRule, astResult);
         } else {
-          // console.log('astRule', astRule);
         }
       }
     }
@@ -71,6 +73,12 @@ export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyl
     const ruleImpl = this._isSpatial ?
       new CSSSpatialStyleRule(this._hostObject, [], { ...src, ast }) :
       new CSSStyleRuleImpl(this._hostObject, [], { ...src, ast });
+    rulesImpl._add(ruleImpl);
+  }
+
+  private _addMaterialRule(src: AtMaterial, ast: ReturnType<typeof parseCss>) {
+    const rulesImpl = this.cssRules as CSSRuleListImpl;
+    const ruleImpl = new CSSSpatialMaterialRule(this._hostObject, [], { node: src, ast });
     rulesImpl._add(ruleImpl);
   }
 

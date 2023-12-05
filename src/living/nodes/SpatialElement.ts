@@ -5,6 +5,7 @@ import { ElementImpl } from './Element';
 import { XSMLShadowRoot } from './ShadowRoot';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
+import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
 
 export class SpatialElement extends ElementImpl {
   protected _scene: BABYLON.Scene;
@@ -145,6 +146,17 @@ export class SpatialElement extends ElementImpl {
             style._getPropertyValue('rotation-z').toAngle('rad')
           );
           break;
+        case 'material':
+          if (node instanceof BABYLON.AbstractMesh) {
+            const name = style._getPropertyValue('material').value as string;
+            if (typeof name === 'string') {
+              const materials = this._scene
+                .getMaterialByTags(MATERIAL_BY_SCSS, (mat) => mat.name === name);
+              if (materials?.length >= 1) {
+                node.material = materials[0];
+              }
+            }
+          }
         default:
           break;
       }

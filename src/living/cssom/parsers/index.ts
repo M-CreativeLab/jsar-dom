@@ -28,7 +28,8 @@ export enum CSSValueType {
   KEYWORD = 9,
   NULL_OR_EMPTY_STR = 10,
   CALC = 11,
-  UNKNOWN = 12,
+  SET = 12,
+  UNKNOWN = 13,
 }
 
 const SupportedLengthUnitsArray = ['px', 'em', 'rem'] as const;
@@ -66,7 +67,7 @@ export class PropertyValue<T = any> {
   }
 
   static createString(str: string): PropertyStringValue {
-    return new PropertyValue(CSSValueType.STRING, str, str);
+    return new PropertyValue(CSSValueType.STRING, str, str.slice(1, -1));
   }
 
   static createColor(r: number, g: number, b: number, a?: number): PropertyColorValue {
@@ -85,6 +86,11 @@ export class PropertyValue<T = any> {
 
   static createKeyword(str: string): PropertyKeywordValue {
     return new PropertyValue(CSSValueType.KEYWORD, str, str);
+  }
+
+  static createSet(values: PropertyValue[]): PropertyValue {
+    const setStr = values.map(v => v.str).join(' ');
+    return new PropertyValue(CSSValueType.SET, setStr, null);
   }
 
   constructor(type: CSSValueType, str: string, value: T) {
@@ -113,6 +119,14 @@ export class PropertyValue<T = any> {
         default:
           return undefined;
       }
+    } else {
+      return undefined;
+    }
+  }
+
+  toColor(): PropertyColorValue['value'] | undefined {
+    if (this.type === CSSValueType.COLOR) {
+      return (this as PropertyColorValue).value;
     } else {
       return undefined;
     }
@@ -689,7 +703,7 @@ export function implicitSetter(
     let values = parts.map(toPropertyValue);
     this._setProperty(
       before + after,
-      PropertyValue.createString(values.map(v => v.str).join(' ')),
+      PropertyValue.createSet(values),
       null
     );
     /** (x, y) */

@@ -4,8 +4,8 @@
   </head>
   <space>
     <sphere />
-    <cube class="m_cube" />
-    <cube class="m_cube" />
+    <cube id="cube1" class="m_cube" />
+    <cube id="cube2" class="m_cube" />
     <cube class="s_cube" />
   </space>
   <style type="text/scss">
@@ -14,6 +14,7 @@
     }
     @material liteblue {
       diffuse-color: blue;
+      wireframe: yes;
     }
     @keyframes rotate {
       0% {
@@ -24,17 +25,18 @@
       }
     }
     sphere {
-      position: 1 0 0;
-      rotation: 0 180 0 !important;
+      position: 0 0 3;
       material: "litered";
     }
-    .m_cube {
-      position: 1;
+    .s_cube {
+      position: 0 0 0;
       material: "liteblue";
     }
+    #cube1 {
+      position: 2 0 0;
+    }
+    #cube2 {
+      position: 4 0 0;
+    }
   </style>
-  <script>
-    const sphere = document.querySelector('sphere');
-    console.log(getComputedSpatialStyle(sphere));
-  </script>
 </xsml>

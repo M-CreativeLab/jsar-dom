@@ -85,7 +85,7 @@ class NamedAtRule<T extends NamedAtRule<T>> implements NamedAtRule<T> {
   }
 }
 
-class AtTexture extends NamedAtRule<AtTexture> {
+export class AtTexture extends NamedAtRule<AtTexture> {
   private static _type = 'material';
   static canParse(node: css.Rule) {
     return NamedAtRule._canParse(node, AtTexture._type);
@@ -98,7 +98,7 @@ class AtTexture extends NamedAtRule<AtTexture> {
   }
 }
 
-class AtMaterial extends NamedAtRule<AtMaterial> {
+export class AtMaterial extends NamedAtRule<AtMaterial> {
   private static _type = 'material';
   static canParse(node: css.Rule) {
     return NamedAtRule._canParse(node, AtMaterial._type);
