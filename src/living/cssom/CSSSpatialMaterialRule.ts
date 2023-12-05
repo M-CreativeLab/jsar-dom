@@ -49,6 +49,17 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
     }
   }
 
+  private _setMaterialColor(name: string, setter: (color: BABYLON.Color3) => void) {
+    const color = this.style._getPropertyValue(name)?.toColor();
+    if (color) {
+      setter(new BABYLON.Color3(
+        color.r / 255.0,
+        color.g / 255.0,
+        color.b / 255.0
+      ));
+    }
+  }
+
   private _createMaterial(): void {
     if (!this._scene) {
       return;
@@ -57,9 +68,21 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
     BABYLON.Tags.AddTagsTo(mat, MATERIAL_BY_SCSS);
 
     if (this.style.diffuseColor) {
-      const color = this.style._getPropertyValue('diffuse-color').toColor();
-      if (color) {
-        mat.diffuseColor = new BABYLON.Color3(color.r / 255.0, color.g / 255.0, color.b / 255.0);
+      this._setMaterialColor('diffuse-color', color => mat.diffuseColor = color);
+    }
+    if (this.style.ambientColor) {
+      this._setMaterialColor('ambient-color', color => mat.ambientColor = color);
+    }
+    if (this.style.emissiveColor) {
+      this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
+    }
+    if (this.style.specularColor) {
+      this._setMaterialColor('specular-color', color => mat.specularColor = color);
+    }
+    if (this.style.specularPower) {
+      const powerValue = this.style._getPropertyValue('specular-power').toNumber();
+      if (powerValue >= 0 && powerValue <= 128) {
+        mat.specularPower = powerValue;
       }
     }
     if (this.style.wireframe) {

@@ -11,10 +11,11 @@
   <style type="text/scss">
     @material litered {
       diffuse-color: red;
+      specular-color: blue;
+      specular-power: 10.3;
     }
     @material liteblue {
       diffuse-color: blue;
-      wireframe: yes;
     }
     @keyframes rotate {
       0% {
