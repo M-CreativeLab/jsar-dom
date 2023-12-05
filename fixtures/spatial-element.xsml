@@ -26,6 +26,7 @@
     const sphere1 = spatialDocument.querySelector('#sphere1');
     assert.equal(sphere1.asNativeType().getClassName(), 'Mesh');
     assert.equal(sphere1.tagName, 'SPHERE');
+    assert.equal(sphere1.id, 'sphere1');
     assert.equal(sphere1.diameter, 10);
     // assert that sphere1 is a child of bound
     assert.equal(sphere1.asNativeType().parent.uniqueId, bound.asNativeType().uniqueId);

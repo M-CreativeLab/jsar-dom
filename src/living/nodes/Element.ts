@@ -90,12 +90,10 @@ export class ElementImpl extends NodeImpl implements Element {
   clientLeft: number;
   clientTop: number;
   clientWidth: number;
-  id: string;
   onfullscreenchange: (this: Element, ev: Event) => any;
   onfullscreenerror: (this: Element, ev: Event) => any;
   outerHTML: string;
   part: DOMTokenList;
-  prefix: string;
   scrollHeight: number;
   scrollLeft: number;
   scrollTop: number;
@@ -201,12 +199,20 @@ export class ElementImpl extends NodeImpl implements Element {
     return this._ownerDocument;
   }
 
+  get prefix() {
+    return this._prefix;
+  }
+
   get localName(): string {
     return this._localName;
   }
 
   get namespaceURI(): string | null {
     return this._namespaceURI;
+  }
+
+  get id(): string {
+    return this.getAttribute('id');
   }
 
   get className(): string {
