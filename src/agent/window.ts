@@ -1,5 +1,8 @@
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
+import type { SpatialElement } from '../living/nodes/SpatialElement';
+import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
 import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
+import { getDeclarationForElement } from '../living/helpers/style-rules';
 import { PerformanceImpl } from '../living/hr-time/Performance';
 import { GlobalEventHandlersImpl } from '../living/nodes/GlobalEventHandlers';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
@@ -261,9 +264,30 @@ export class BaseWindowImpl extends EventTarget implements Window {
   focus(): void {
     throw new Error('`window.focus()` is not supported.');
   }
+
+  /**
+   * Returns the computed style of an element.
+   * @param elt - The element to get the computed style for.
+   * @param pseudoElt - Optional. A string specifying the pseudo-element to get the computed style for.
+   * @returns The computed style of the element.
+   * @throws Error if `window.getComputedStyle()` is not supported.
+   */
   getComputedStyle(elt: Element, pseudoElt?: string): CSSStyleDeclaration {
-    throw new Error('`window.getComputedStyle()` is not supported.');
+    if (pseudoElt !== undefined && pseudoElt !== null && pseudoElt !== '') {
+      throw new Error('`window.getComputedStyle()` is not supported for pseudo element.');
+    }
+
+    // TODO: support classic style declaration
+    return null;
   }
+
+  getComputedSpatialStyle(elt: SpatialElement, pseudoElt?: string): CSSSpatialStyleDeclaration {
+    if (pseudoElt !== undefined && pseudoElt !== null && pseudoElt !== '') {
+      throw new Error('`window.getComputedStyle()` is not supported for pseudo element.');
+    }
+    return getDeclarationForElement(elt);
+  }
+
   getSelection(): Selection {
     throw new Error('`window.getSelection()` is not supported.');
   }

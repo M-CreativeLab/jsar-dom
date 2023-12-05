@@ -9,7 +9,7 @@ import DOMRectImpl from '../geometry/DOMRect';
 import ParentNodeImpl from './ParentNode';
 import ChildNodeImpl from './ChildNode';
 import NonDocumentTypeChildNodeImpl from './NonDocumentTypeChildNode';
-import { CustomElementDefinition } from '../custom-elements/CustomElementRegistry';
+import type { CustomElementDefinition } from '../custom-elements/CustomElementRegistry';
 import DOMTokenListImpl from './DOMTokenList';
 
 import { HTML_NS } from '../helpers/namespaces';
@@ -91,8 +91,6 @@ export class ElementImpl extends NodeImpl implements Element {
   clientTop: number;
   clientWidth: number;
   id: string;
-  localName: string;
-  namespaceURI: string;
   onfullscreenchange: (this: Element, ev: Event) => any;
   onfullscreenerror: (this: Element, ev: Event) => any;
   outerHTML: string;
@@ -201,6 +199,14 @@ export class ElementImpl extends NodeImpl implements Element {
 
   get ownerDocument(): Document {
     return this._ownerDocument;
+  }
+
+  get localName(): string {
+    return this._localName;
+  }
+
+  get namespaceURI(): string | null {
+    return this._namespaceURI;
   }
 
   get className(): string {

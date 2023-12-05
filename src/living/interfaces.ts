@@ -1,12 +1,33 @@
+import type NamedNodeMapImpl from './attributes/NamedNodeMap';
+import type { NodeImpl } from './nodes/Node';
+import type { ElementImpl } from './nodes/Element';
+import type { HTMLElementImpl } from './nodes/HTMLElement';
+import type { SpatialElement } from './nodes/SpatialElement';
+
 let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
 
+/**
+ * To load all the implementations of the interfaces.
+ * 
+ * __Why?__
+ * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
+ * attention to the order of dependencies and sometimes necessitating the splitting of modules 
+ * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
+ * resolves dependencies based on file order, leading to compromises in project directory design.
+ *
+ * To address this issue, we introduce the following method: leveraging dynamic `imports()` for 
+ * asynchronous loading of type instances. Subsequently, we use a synchronous function, 
+ * `getInterfaceWrapper`, to ensure the smooth functioning of the type system. This approach 
+ * ensures that, during both build time and runtime, the necessary precautions are taken to 
+ * guarantee correct invocation of the function when utilizing related interfaces.
+ */
 export async function loadImplementations() {
   return Promise.all([
     // Attributes
     import('./attributes/NamedNodeMap'),
     import('./attributes/Attr'),
-    // Nodes
+    // Classic Nodes
     import('./nodes/Node'),
     import('./nodes/NodeList'),
     import('./nodes/Element'),
@@ -23,6 +44,8 @@ export async function loadImplementations() {
     import('./nodes/HTMLScriptElement'),
     import('./nodes/HTMLDivElement'),
     import('./nodes/HTMLSpanElement'),
+    // Spatial Nodes
+    import('./nodes/SpatialElement'),
     // CSSOM
     import('./cssom/StyleSheetList'),
     // Events
@@ -69,6 +92,8 @@ export async function loadImplementations() {
     HTMLScriptElementImpl,
     HTMLDivElementImpl,
     HTMLSpanElementImpl,
+    // Spatial Nodes
+    { SpatialElement },
     // CSSOM
     StyleSheetListImpl,
     // Events
@@ -113,6 +138,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('HTMLScriptElement', HTMLScriptElementImpl);
     implementedInterfaces.set('HTMLDivElement', HTMLDivElementImpl);
     implementedInterfaces.set('HTMLSpanElement', HTMLSpanElementImpl);
+    implementedInterfaces.set('SpatialElement', SpatialElement);
     implementedInterfaces.set('StyleSheetList', StyleSheetListImpl);
     implementedInterfaces.set('CloseEvent', CloseEventImpl);
     implementedInterfaces.set('CustomEvent', CustomEventImpl);
@@ -139,6 +165,13 @@ export async function loadImplementations() {
   });
 }
 
+// TODO: help me to fullfill the other interfaces
+export function getInterfaceWrapper(name: 'NamedNodeMap'): typeof NamedNodeMapImpl;
+export function getInterfaceWrapper(name: 'Node'): typeof NodeImpl;
+export function getInterfaceWrapper(name: 'Element'): typeof ElementImpl;
+export function getInterfaceWrapper(name: 'HTMLElement'): typeof HTMLElementImpl;
+export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
+export function getInterfaceWrapper(name: string): any;
 export function getInterfaceWrapper(name: string) {
   if (!implementationLoaded) {
     throw new Error('DOM Implementation not loaded');

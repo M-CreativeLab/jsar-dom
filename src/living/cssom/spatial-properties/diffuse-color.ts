@@ -8,6 +8,6 @@ export default defineSpatialProperty({
     return this.getPropertyValue('diffuse-color');
   },
   set(value: string) {
-    this._setProperty('diffuse-color', toColorStr(value));
+    this._setProperty('diffuse-color', toColorStr(value), null);
   },
 });

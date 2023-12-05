@@ -178,7 +178,6 @@ function main() {
     });
     await dom.load();
     console.log('Title:', dom.document.title);
-    console.log(dom.document.styleSheets);
   });
 }
 

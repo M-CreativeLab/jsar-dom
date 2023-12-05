@@ -16,10 +16,9 @@ export function matchesDontThrow(elImpl: ElementImpl, selector: string) {
   if (!document._nwsapiDontThrow) {
     document._nwsapiDontThrow = initNwsapi(elImpl);
     document._nwsapiDontThrow.configure({
+      LOGERRORS: false,
       IDS_DUPES: false,
       MIXEDCASE: true,
-      LOGERRORS: false,
-      VERBOSITY: false,
     });
   }
   return document._nwsapiDontThrow.match(selector, elImpl);

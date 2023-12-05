@@ -24,6 +24,7 @@
       }
     }
     sphere {
+      position: 1 0 0;
       rotation: 0 180 0 !important;
       material: "litered";
     }
@@ -32,4 +33,8 @@
       material: "liteblue";
     }
   </style>
+  <script>
+    const sphere = document.querySelector('sphere');
+    console.log(getComputedSpatialStyle(sphere));
+  </script>
 </xsml>

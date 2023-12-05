@@ -7,7 +7,8 @@ import typescriptTransformPlugin from '@babel/plugin-transform-typescript';
 import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';
 import DOMException from '../domexception';
 
-import { NativeDocument, ResourceLoader } from '../../impl-interfaces';
+import type { BaseWindowImpl } from '../../agent/window';
+import type { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
@@ -533,7 +534,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       exports: {},
       // FIXME(Yorkie): add other module properties? such as: `module.id`.
     };
-    const windowBase = this._ownerDocument._defaultView;
+    const windowBase = this._ownerDocument._defaultView as unknown as BaseWindowImpl;
     const context = {
       // Babylon.js
       BABYLON,
@@ -545,6 +546,8 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // Web APIs
       URL: windowBase.URL,
       Blob: windowBase.Blob,
+      getComputedStyle: windowBase.getComputedStyle,
+      getComputedSpatialStyle: windowBase.getComputedSpatialStyle,
       get console() {
         return windowBase.console;
       },

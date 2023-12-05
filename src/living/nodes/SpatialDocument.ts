@@ -46,6 +46,7 @@ import SpatialBoundElement from './SpatialBoundElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
+import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -275,7 +276,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _preloadingSpatialModelObservers: Map<string, Promise<boolean>> = new Map();
 
   _lastModified: string;
-  _styleCache: any;
+  _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
   _lastFocusedElement: Element | null;
 
   // CSS selectors

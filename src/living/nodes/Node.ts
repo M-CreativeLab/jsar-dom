@@ -3,18 +3,18 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { clone, isInclusiveAncestor, nodeRoot } from '../helpers/node';
 import { setAnExistingAttributeValue } from '../attributes';
 import { assignSlot, assignSlotable, assignSlotableForTree, isShadowRoot, isSlot, shadowIncludingRoot, signalSlotChange } from '../helpers/shadow-dom';
-import { AttrImpl } from '../attributes/Attr';
-import { ElementImpl } from './Element';
+import type { AttrImpl } from '../attributes/Attr';
+import type { ElementImpl } from './Element';
 import { simultaneousIterators } from '../../utils';
 import { NodeListImpl } from './NodeList';
 import { XSMLShadowRoot } from './ShadowRoot';
-import { RangeImpl } from '../range/Range';
+import type { RangeImpl } from '../range/Range';
+import type CharacterDataImpl from './CharacterData';
+import type { NativeDocument } from '../../impl-interfaces';
+import type { SpatialDocumentImpl } from './SpatialDocument';
+import type ParentNodeImpl from './ParentNode';
 import { queueTreeMutationRecord } from '../helpers/mutation-observers';
 import { invalidateStyleCache } from '../helpers/style-rules';
-import CharacterDataImpl from './CharacterData';
-import { NativeDocument } from '../../impl-interfaces';
-import { SpatialDocumentImpl } from './SpatialDocument';
-import ParentNodeImpl from './ParentNode';
 import { documentBaseURLSerialized } from '../helpers/document-base-url';
 
 function nodeEquals(a: Node, b: Node) {

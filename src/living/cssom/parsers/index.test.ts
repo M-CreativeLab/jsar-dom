@@ -1,5 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import * as parsers from './';
+import CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 
 describe('valueType', () => {
   it('returns color for red', () => {
@@ -236,6 +237,12 @@ describe('toAngleStr', () => {
     const output = parsers.toAngleStr(input);
     expect(output).toEqual('360deg');
   });
+
+  it('converts integer numbers to degree', () => {
+    expect(parsers.toAngleStr('0')).toEqual('0deg');
+    expect(parsers.toAngleStr('180')).toEqual('180deg');
+    expect(parsers.toAngleStr('720')).toEqual('360deg');
+  });
 });
 
 describe('camelToDashed', () => {
@@ -272,5 +279,23 @@ describe('camelToDashed', () => {
     const input = 'aBC';
     const output = parsers.camelToDashed(input);
     expect(output).toEqual('a-b-c');
+  });
+});
+
+describe('implicitSetter', () => {
+  const decl = new CSSSpatialStyleDeclaration();
+  const partNames = ['x', 'y', 'z'];
+  const validator = (v: string) => v !== '';
+  const toStr = (v: any) => v.toString();
+
+  it('should return a function', () => {
+    const setter = parsers.implicitSetter('position', '', partNames, validator, toStr);
+    expect(typeof setter).toEqual('function');
+  });
+
+  it('should set the value of the property', () => {
+    const setter = parsers.implicitSetter('position', '', partNames, validator, toStr);
+    setter.call(decl, '1 1 1');
+    expect(decl.position).toBe('1 1 1');
   });
 });

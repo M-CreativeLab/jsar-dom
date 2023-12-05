@@ -4,15 +4,24 @@ import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
 import { XSMLShadowRoot } from './ShadowRoot';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
+import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 
 export class SpatialElement extends ElementImpl {
   protected _scene: BABYLON.Scene;
   protected _internalObject: BABYLON.Node;
+  protected _style: CSSSpatialStyleDeclaration;
   protected _id: string;
   [SPATIAL_OBJECT_GUID_SYMBOL]: string;
 
+  /**
+   * @deprecated use `NodeTypes.isSpatialElement()` instaed.
+   */
   static isSpatialElement(node: Node): node is SpatialElement {
     return node.nodeType === NodeImpl.ELEMENT_NODE && node instanceof SpatialElement;
+  }
+
+  get style(): CSSSpatialStyleDeclaration {
+    return this._style;
   }
 
   constructor(
@@ -23,6 +32,7 @@ export class SpatialElement extends ElementImpl {
     super(hostObject, [], privateData);
 
     this._scene = hostObject.getNativeScene();
+    this._style = new CSSSpatialStyleDeclaration();
     this.nodeType = NodeImpl.ELEMENT_NODE;
 
     // Set vgoGuid

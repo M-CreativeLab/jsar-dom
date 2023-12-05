@@ -1,11 +1,16 @@
 import { parseSpatialCss } from '../helpers/spatial-css-parser';
-import { type CSSSpatialStyleProperties, mixinWithSpatialStyleProperties } from './spatial-properties';
+import {
+  type CSSSpatialStyleProperties,
+  mixinWithSpatialStyleProperties
+} from './spatial-properties';
+
+type PropertyPriority = 'important' | null;
 
 export default interface CSSSpatialStyleDeclaration extends CSSSpatialStyleProperties { }
 export default class CSSSpatialStyleDeclaration {
   _length = 0;
   _values: { [key: string]: string } = {};
-  _importants: { [key: string]: 'important' | null } = {};
+  _importants: { [key: string]: PropertyPriority } = {};
   _onChange: (cssText?: string) => void;
 
   constructor(onChange?: (cssText?: string) => void) {
@@ -18,7 +23,7 @@ export default class CSSSpatialStyleDeclaration {
       const name = this[i];
       const value = this.getPropertyValue(name);
       let priority = this.getPropertyPriority(name);
-      if (priority !== '') {
+      if (priority != null && priority !== undefined && priority !== '') {
         priority = ` !${priority}`;
       }
       properties.push([name, ': ', value, priority, ';'].join(''));
@@ -72,7 +77,7 @@ export default class CSSSpatialStyleDeclaration {
     return this._values[name].toString();
   }
 
-  setProperty(name: string, value: string, priority?: 'important' | null) {
+  setProperty(name: string, value: string, priority?: string) {
     if (value === undefined) {
       return;
     }
@@ -82,7 +87,7 @@ export default class CSSSpatialStyleDeclaration {
     }
     const isCustomProperty = name.indexOf('--') === 0;
     if (isCustomProperty) {
-      this._setProperty(name, value, priority);
+      this._setProperty(name, value, priority === 'important' ? 'important' : null);
       return;
     }
     const lowercaseName = name.toLowerCase();
@@ -92,10 +97,10 @@ export default class CSSSpatialStyleDeclaration {
     // }
 
     this[lowercaseName] = value;
-    this._importants[lowercaseName] = priority;
+    this._importants[lowercaseName] = priority === 'important' ? 'important' : null;
   }
 
-  _setProperty(name: string, value: string, priority?: 'important' | null) {
+  _setProperty(name: string, value: string, priority: PropertyPriority) {
     if (value === undefined) {
       return;
     }
@@ -145,7 +150,7 @@ export default class CSSSpatialStyleDeclaration {
   }
 
   getPropertyPriority(name: string): string {
-    return this._importants[name] || '';
+    return this._importants[name] === 'important' ? 'important' : '';
   }
 
   getPropertyCSSValue() {

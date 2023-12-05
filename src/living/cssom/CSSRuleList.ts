@@ -1,5 +1,5 @@
 export default class CSSRuleListImpl implements CSSRuleList {
-  private _rules: CSSRule[] = [];
+  _rules: CSSRule[] = [];
 
   [index: number]: CSSRule;
   get length(): number {

@@ -1,3 +1,6 @@
+import type { SpatialElement } from './nodes/SpatialElement';
+import { getInterfaceWrapper } from './interfaces';
+
 const NodeTypes = Object.freeze({
   ELEMENT_NODE: 1,
   ATTRIBUTE_NODE: 2,
@@ -27,6 +30,14 @@ export function isTextNode(node: Node): node is Text {
 
 export function isDocumentNode(node: Node): node is Document {
   return node.nodeType === NodeTypes.DOCUMENT_NODE;
+}
+
+export function isHTMLElement(node: Node): node is HTMLElement {
+  return isElementNode(node) && node instanceof getInterfaceWrapper('HTMLElement');
+}
+
+export function isSpatialElement(node: Node): node is SpatialElement {
+  return isElementNode(node) && node instanceof getInterfaceWrapper('SpatialElement');
 }
 
 export default NodeTypes;

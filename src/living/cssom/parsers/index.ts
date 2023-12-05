@@ -1,3 +1,4 @@
+import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 import { hslToRgb } from '../utils/color-space';
 import namedColors from './named-colors';
 
@@ -395,7 +396,9 @@ export function toAngleStr(val): string {
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
     return val;
   }
-  if (type !== CSSValueType.ANGLE) {
+  if (type === CSSValueType.INTEGER) {
+    val = `${val}deg`;
+  } else if (type !== CSSValueType.ANGLE) {
     return undefined;
   }
   const res = angleRegEx.exec(val);
@@ -427,4 +430,121 @@ export function camelToDashed(input: string): string {
     dashed = `-${dashed}`;
   }
   return dashed;
+}
+
+const reIsSpace = /\s/;
+const openingDeliminators = ['"', "'", '('];
+const closingDeliminators = ['"', "'", ')'];
+
+function getParts(v: string): string[] {
+  const deliminatorStack = [] as number[];
+  const parts = [] as string[];
+  let currentPart = '';
+  let openingIndex: number;
+  let closingIndex: number;
+
+  for (let i = 0; i < v.length; i++) {
+    openingIndex = openingDeliminators.indexOf(v[i]);
+    closingIndex = closingDeliminators.indexOf(v[i]);
+    if (reIsSpace.test(v[i])) {
+      if (deliminatorStack.length === 0) {
+        if (currentPart !== '') {
+          parts.push(currentPart);
+        }
+        currentPart = '';
+      } else {
+        currentPart += v[i];
+      }
+    } else {
+      if (v[i] === '\\') {
+        i++;
+        currentPart += v[i];
+      } else {
+        currentPart += v[i];
+        if (
+          closingIndex !== -1 &&
+          closingIndex === deliminatorStack[deliminatorStack.length - 1]
+        ) {
+          deliminatorStack.pop();
+        } else if (openingIndex !== -1) {
+          deliminatorStack.push(openingIndex);
+        }
+      }
+    }
+  }
+  if (currentPart !== '') {
+    parts.push(currentPart);
+  }
+  return parts;
+}
+
+/**
+ * isValid(){1,4} | inherit
+ * if one, it applies to all
+ * if two, the first applies to the top and bottom, and the second to left and right
+ * if three, the first applies to the top, the second to left and right, the third bottom
+ * if four, top, right, bottom, left
+ * 
+ * @param before 
+ * @param after 
+ * @param validator 
+ * @param parser 
+ */
+export function implicitSetter(
+  before: string,
+  after: string,
+  partNames: string[],
+  validator: (v: string) => boolean,
+  toStr: (v: any) => string
+) {
+  after = after || '';
+  if (after !== '') {
+    after = `-${after}`;
+  }
+  return function (this: CSSSpatialStyleDeclaration, v: any) {
+    if (typeof v === 'number') {
+      v = v.toString();
+    }
+    if (typeof v !== 'string') {
+      return;
+    }
+
+    let parts: string[];
+    if (v.toLowerCase() === 'inherit' || v === '') {
+      parts = [v];
+    } else {
+      parts = getParts(v);
+    }
+
+    if (parts.length < 1 || parts.length > 4) {
+      return undefined;
+    }
+    if (!parts.every(validator)) {
+      return undefined;
+    }
+
+    parts = parts.map(toStr);
+    this._setProperty(before + after, parts.join(' '), null);
+    /** (x, y) */
+    if (parts.length === 1 && partNames.length >= 2) {
+      parts[1] = parts[0];
+    }
+    /** (x, y, z) */
+    if (parts.length === 2 && partNames.length >= 3) {
+      parts[2] = parts[0];
+    }
+    /** (x, y, z, w) */
+    if (parts.length === 3 && partNames.length >= 4) {
+      parts[3] = parts[1];
+    }
+
+    for (let i = 0; i < partNames.length; i++) {
+      const propertyName = `${before}-${partNames[i]}${after}`;
+      this.removeProperty(propertyName);
+      if (parts[i] !== '') {
+        this._values[propertyName] = parts[i];
+      }
+    }
+    return v;
+  }
 }
