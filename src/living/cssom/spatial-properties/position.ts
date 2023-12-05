@@ -2,8 +2,11 @@ import { defineSpatialProperty } from './helper';
 import {
   CSSValueType,
   valueType,
+  PropertyValue,
   implicitSetter,
   toNumberStr,
+  toLengthStr,
+  toStringStr,
 } from '../parsers';
 
 function positionValidator(v): boolean {
@@ -19,9 +22,14 @@ function positionValidator(v): boolean {
 function toPositionStr(v: string) {
   v = v.toLowerCase();
   if (v === 'auto') {
-    return v;
+    return PropertyValue.createString(v);
   }
-  return toNumberStr(v);
+  const type = valueType(v);
+  if (type === CSSValueType.INTEGER) {
+    return toNumberStr(v);
+  } else if (type === CSSValueType.LENGTH) {
+    return toLengthStr(v);
+  }
 }
 
 const valueSetter = implicitSetter(
@@ -36,7 +44,7 @@ const globalSetter = implicitSetter(
   '',
   ['x', 'y', 'z'],
   () => true,
-  (v) => v
+  (v) => toStringStr(v),
 );
 
 export default defineSpatialProperty({

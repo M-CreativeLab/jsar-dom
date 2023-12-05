@@ -103,7 +103,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
     this._scene.debugLayer.show({
-      showInspector: false,
+      showInspector: true,
       globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
     });
 
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   <head>
     <style>
       cube {
-        rotation: 0 45 0;
+        rotation: 0 45 30;
       }
     </style>
   </head>

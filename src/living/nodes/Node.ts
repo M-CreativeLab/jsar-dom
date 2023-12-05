@@ -620,7 +620,6 @@ export class NodeImpl extends EventTarget implements Node {
               domSymbolTree.nextSibling(childImpl).nodeType === NodeImpl.DOCUMENT_TYPE_NODE
             )
           ) {
-            console.log(parentChildren, nodeChildren);
             throw new DOMException(
               `Invalid insertion of ${nodeName} node in ${parentName} node.`,
               'HierarchyRequestError'

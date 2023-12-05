@@ -1,6 +1,6 @@
 import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 import { hslToRgb } from '../utils/color-space';
-import namedColors from './named-colors';
+import { colorNames, namedColors } from './named-colors';
 
 const integerRegEx = /^[-+]?[0-9]+$/;
 const numberRegEx = /^[-+]?[0-9]*\.?[0-9]+$/;
@@ -28,7 +28,113 @@ export enum CSSValueType {
   KEYWORD = 9,
   NULL_OR_EMPTY_STR = 10,
   CALC = 11,
+  UNKNOWN = 12,
 }
+
+const SupportedLengthUnitsArray = ['px', 'em', 'rem'] as const;
+export type SupportedLengthUnit = typeof SupportedLengthUnitsArray[number];
+
+export class PropertyValue<T = any> {
+  str: string;
+  type: CSSValueType;
+  value: T;
+
+  static NULL_OR_EMPTY_STR = new PropertyValue(CSSValueType.NULL_OR_EMPTY_STR, '', null);
+  static createInteger(str: string, radix: number = 10): PropertyIntegerValue {
+    const value = parseInt(str, radix);
+    return new PropertyValue(CSSValueType.INTEGER, String(value), value);
+  }
+
+  static createNumber(str: string): PropertyNumberValue {
+    const value = parseFloat(str);
+    return new PropertyValue(CSSValueType.NUMBER, String(value), value);
+  }
+
+  static createLength(number: number, unit: SupportedLengthUnit): PropertyLengthValue {
+    return new PropertyValue(
+      CSSValueType.LENGTH,
+      `${number}${unit || ''}`,
+      { number, unit });
+  }
+
+  static createPercentage(value: number): PropertyPercentageValue {
+    return new PropertyValue(CSSValueType.PERCENT, `${value}%`, value);
+  }
+
+  static createUrl(str: string, urlSource: string): PropertyUrlValue {
+    return new PropertyValue(CSSValueType.URL, `url(${str})`, urlSource);
+  }
+
+  static createString(str: string): PropertyStringValue {
+    return new PropertyValue(CSSValueType.STRING, str, str);
+  }
+
+  static createColor(r: number, g: number, b: number, a?: number): PropertyColorValue {
+    let colorStr: string;
+    if (typeof a === 'number') {
+      colorStr = `rgba(${r}, ${g}, ${b}, ${a})`;
+    } else {
+      colorStr = `rgb(${r}, ${g}, ${b})`;
+    }
+    return new PropertyValue(CSSValueType.COLOR, colorStr, { r, g, b, a });
+  }
+
+  static createAngle(degree: number): PropertyAngleValue {
+    return new PropertyValue(CSSValueType.ANGLE, `${degree}deg`, degree);
+  }
+
+  static createKeyword(str: string): PropertyKeywordValue {
+    return new PropertyValue(CSSValueType.KEYWORD, str, str);
+  }
+
+  constructor(type: CSSValueType, str: string, value: T) {
+    this.type = type;
+    this.str = str;
+    this.value = value;
+  }
+
+  toNumber() {
+    if (this.type === CSSValueType.NUMBER || this.type === CSSValueType.INTEGER) {
+      return (this as PropertyNumberValue).value;
+    } else {
+      return undefined;
+    }
+  }
+
+  toAngle(as: 'deg' | 'rad' | 'grad' = 'deg') {
+    if (this.type === CSSValueType.ANGLE) {
+      switch (as) {
+        case 'deg':
+          return (this as PropertyAngleValue).value;
+        case 'rad':
+          return (this as PropertyAngleValue).value * Math.PI / 180;
+        case 'grad':
+          return (this as PropertyAngleValue).value * 400 / 360;
+        default:
+          return undefined;
+      }
+    } else {
+      return undefined;
+    }
+  }
+};
+export type PropertyIntegerValue = PropertyValue<number>;
+export type PropertyNumberValue = PropertyValue<number>;
+export type PropertyLengthValue = PropertyValue<{
+  number: number;
+  unit: SupportedLengthUnit;
+}>;
+export type PropertyPercentageValue = PropertyValue<number>;
+export type PropertyUrlValue = PropertyValue<string>;
+export type PropertyStringValue = PropertyValue<string>;
+export type PropertyColorValue = PropertyValue<{
+  r: number;
+  g: number;
+  b: number;
+  a: number;
+}>;
+export type PropertyAngleValue = PropertyValue<number>;
+export type PropertyKeywordValue = PropertyValue<string>;
 
 export function valueType(val: any): CSSValueType | undefined {
   if (val === '' || val === null) {
@@ -108,7 +214,7 @@ export function valueType(val: any): CSSValueType | undefined {
   // could still be a color, one of the standard keyword colors
   val = val.toLowerCase();
 
-  if (namedColors.includes(val)) {
+  if (colorNames.includes(val)) {
     return CSSValueType.COLOR;
   }
 
@@ -143,65 +249,81 @@ export function valueType(val: any): CSSValueType | undefined {
     case 'windowframe':
     case 'windowtext':
       return CSSValueType.COLOR;
-    default:
+    // https://developer.mozilla.org/en-US/docs/Web/CSS/color_value#currentcolor_keyword
+    case 'currentcolor':
+    case 'initial':
+    case 'inherit':
+    case 'unset':
       return CSSValueType.KEYWORD;
+    default:
+      return CSSValueType.UNKNOWN;
   }
 }
 
-export function toIntegerStr(val): string {
+export function toIntegerStr(val): PropertyIntegerValue {
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
   if (type !== CSSValueType.INTEGER) {
     return undefined;
   }
-  return String(parseInt(val, 10));
+  return PropertyValue.createInteger(val, 10);
 }
 
-export function toNumberStr(val): string {
+export function toNumberStr(val): PropertyValue<number> {
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
   if (type !== CSSValueType.NUMBER && type !== CSSValueType.INTEGER) {
     return undefined;
   }
-  return String(parseFloat(val));
+  return PropertyValue.createNumber(val);
 }
 
-export function toLengthStr(val): string {
+export function toLengthStr(val): PropertyLengthValue {
   if (val === 0 || val === '0') {
-    return '0px';
+    return PropertyValue.createLength(0, 'px');
   }
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
-  if (type !== CSSValueType.LENGTH) {
+  if (type !== CSSValueType.LENGTH || typeof val !== 'string') {
     return undefined;
   }
-  return val;
-}
 
-export function toPercentStr(val): string {
-  if (val === 0 || val === '0') {
-    return '0%';
-  }
-  const type = valueType(val);
-  if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
-  }
-  if (type !== CSSValueType.PERCENT) {
+  const m = val.match(lengthRegEx);
+  if (m == null) {
     return undefined;
   }
-  return val;
+  const number = parseFloat(m[1]);
+  if (!SupportedLengthUnitsArray.includes(m[2] as any)) {
+    return undefined;
+  } else {
+    return PropertyValue.createLength(number, m[2] as SupportedLengthUnit);
+  }
 }
 
-export function toUrlStr(val): string {
+export function toPercentStr(val): PropertyPercentageValue {
+  if (val === 0 || val === '0') {
+    return PropertyValue.createPercentage(0);
+  }
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
+  }
+  if (type !== CSSValueType.PERCENT || typeof val !== 'string') {
+    return undefined;
+  }
+  return PropertyValue.createPercentage(parseFloat(val));
+}
+
+export function toUrlStr(val): PropertyUrlValue {
+  const type = valueType(val);
+  if (type === CSSValueType.NULL_OR_EMPTY_STR) {
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
   const res = urlRegEx.exec(val);
   // does it match the regex?
@@ -216,7 +338,7 @@ export function toUrlStr(val): string {
   if (str[0] === '\'') {
     str = str.replace(/'/g, '"');
   } else if (str[0] !== '"') {
-    str = '"' + str + '"';
+    str = `"${str}"`;
   }
 
   for (let i = 0; i < str.length; i++) {
@@ -234,13 +356,13 @@ export function toUrlStr(val): string {
         break;
     }
   }
-  return `url(${str})`;
+  return PropertyValue.createUrl(str, str.slice(1, -1));
 }
 
-export function toStringStr(val): string {
+export function toStringStr(val): PropertyValue<string> {
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
   if (type !== CSSValueType.STRING) {
     return undefined;
@@ -262,14 +384,17 @@ export function toStringStr(val): string {
   if (i >= val.length) {
     return undefined;
   }
-  return val;
+  return PropertyValue.createString(val);
 }
 
-export function toColorStr(val): string {
+export function toColorStr(val): PropertyKeywordValue | PropertyColorValue {
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
+  } else if (type === CSSValueType.KEYWORD) {
+    return PropertyValue.createKeyword(val);
   }
+
   let red: number,
     green: number,
     blue: number,
@@ -296,9 +421,10 @@ export function toColorStr(val): string {
     if (hex.length === 8) {
       const hexAlpha = hex.substr(6, 2);
       const hexAlphaToRgbaAlpha = Number((parseInt(hexAlpha, 16) / 255).toFixed(3));
-      return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + hexAlphaToRgbaAlpha + ')';
+      return PropertyValue.createColor(red, green, blue, hexAlphaToRgbaAlpha);
+    } else {
+      return PropertyValue.createColor(red, green, blue);
     }
-    return 'rgb(' + red + ', ' + green + ', ' + blue + ')';
   }
 
   // is it rbg()?
@@ -324,7 +450,7 @@ export function toColorStr(val): string {
     red = Math.min(255, Math.max(0, red));
     green = Math.min(255, Math.max(0, green));
     blue = Math.min(255, Math.max(0, blue));
-    return 'rgb(' + red + ', ' + green + ', ' + blue + ')';
+    return PropertyValue.createColor(red, green, blue);
   }
 
   // is it rgba()?
@@ -355,9 +481,10 @@ export function toColorStr(val): string {
     blue = Math.min(255, Math.max(0, blue));
     alpha = Math.min(1, Math.max(0, alpha));
     if (alpha === 1) {
-      return 'rgb(' + red + ', ' + green + ', ' + blue + ')';
+      return PropertyValue.createColor(red, green, blue);
+    } else {
+      return PropertyValue.createColor(red, green, blue, alpha);
     }
-    return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + alpha + ')';
   }
 
   // is it hsl() or hsla()?
@@ -380,21 +507,27 @@ export function toColorStr(val): string {
 
     const [r, g, b] = hslToRgb(hue, saturation, lightness);
     if (!_alphaString || alpha === 1) {
-      return 'rgb(' + r + ', ' + g + ', ' + b + ')';
+      return PropertyValue.createColor(r, g, b);
+    } else {
+      return PropertyValue.createColor(r, g, b, alpha);
     }
-    return 'rgba(' + r + ', ' + g + ', ' + b + ', ' + alpha + ')';
   }
 
   if (type === CSSValueType.COLOR) {
-    return val;
+    const color = namedColors[val];
+    if (color?.length === 3) {
+      return PropertyValue.createColor(color[0], color[1], color[2]);
+    } else if (color?.length === 4) {
+      return PropertyValue.createColor(color[0], color[1], color[2], color[3]);
+    }
   }
   return undefined;
 }
 
-export function toAngleStr(val): string {
+export function toAngleStr(val): PropertyAngleValue {
   const type = valueType(val);
   if (type === CSSValueType.NULL_OR_EMPTY_STR) {
-    return val;
+    return PropertyValue.NULL_OR_EMPTY_STR;
   }
   if (type === CSSValueType.INTEGER) {
     val = `${val}deg`;
@@ -415,7 +548,37 @@ export function toAngleStr(val): string {
   while (flt > 360) {
     flt -= 360;
   }
-  return flt + 'deg';
+  return PropertyValue.createAngle(flt);
+}
+
+export function autoCreatePropertyValue(val): PropertyValue {
+  let type = valueType(val);
+  if (type === CSSValueType.NULL_OR_EMPTY_STR) {
+    return PropertyValue.NULL_OR_EMPTY_STR;
+  }
+  if (type === CSSValueType.KEYWORD) {
+    type = CSSValueType.STRING;
+  }
+  switch (type) {
+    case CSSValueType.INTEGER:
+      return toIntegerStr(val);
+    case CSSValueType.NUMBER:
+      return toNumberStr(val);
+    case CSSValueType.LENGTH:
+      return toLengthStr(val);
+    case CSSValueType.PERCENT:
+      return toPercentStr(val);
+    case CSSValueType.URL:
+      return toUrlStr(val);
+    case CSSValueType.STRING:
+      return toStringStr(val);
+    case CSSValueType.COLOR:
+      return toColorStr(val);
+    case CSSValueType.ANGLE:
+      return toAngleStr(val);
+    default:
+      return undefined;
+  }
 }
 
 const reCamelToDashed = /[A-Z]/g;
@@ -495,7 +658,7 @@ export function implicitSetter(
   after: string,
   partNames: string[],
   validator: (v: string) => boolean,
-  toStr: (v: any) => string
+  toPropertyValue: (v: any) => PropertyValue
 ) {
   after = after || '';
   if (after !== '') {
@@ -523,26 +686,30 @@ export function implicitSetter(
       return undefined;
     }
 
-    parts = parts.map(toStr);
-    this._setProperty(before + after, parts.join(' '), null);
+    let values = parts.map(toPropertyValue);
+    this._setProperty(
+      before + after,
+      PropertyValue.createString(values.map(v => v.str).join(' ')),
+      null
+    );
     /** (x, y) */
-    if (parts.length === 1 && partNames.length >= 2) {
-      parts[1] = parts[0];
+    if (values.length === 1 && partNames.length >= 2) {
+      values[1] = values[0];
     }
     /** (x, y, z) */
-    if (parts.length === 2 && partNames.length >= 3) {
-      parts[2] = parts[0];
+    if (values.length === 2 && partNames.length >= 3) {
+      values[2] = values[0];
     }
     /** (x, y, z, w) */
-    if (parts.length === 3 && partNames.length >= 4) {
-      parts[3] = parts[1];
+    if (values.length === 3 && partNames.length >= 4) {
+      values[3] = values[1];
     }
 
     for (let i = 0; i < partNames.length; i++) {
       const propertyName = `${before}-${partNames[i]}${after}`;
       this.removeProperty(propertyName);
-      if (parts[i] !== '') {
-        this._values[propertyName] = parts[i];
+      if (values[i] !== PropertyValue.NULL_OR_EMPTY_STR) {
+        this._values[propertyName] = values[i];
       }
     }
     return v;

@@ -534,7 +534,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       exports: {},
       // FIXME(Yorkie): add other module properties? such as: `module.id`.
     };
-    const windowBase = this._ownerDocument._defaultView as unknown as BaseWindowImpl;
+    const windowBase = this._ownerDocument._defaultView;
     const context = {
       // Babylon.js
       BABYLON,

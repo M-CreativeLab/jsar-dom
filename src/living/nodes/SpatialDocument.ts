@@ -1,6 +1,7 @@
 import nwsapi from 'nwsapi';
 
 import { NativeDocument } from '../../impl-interfaces';
+import { isElementNode, isHTMLElement, isSpatialElement } from '../node-type';
 import { DocumentTypeImpl } from './DocumentType';
 import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
@@ -47,6 +48,7 @@ import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
+import { BaseWindowImpl } from '../../agent/window';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -264,7 +266,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;
-  _defaultView: Window & typeof globalThis;
+  _defaultView: BaseWindowImpl;
   _workingNodeIterators: IterableWeakSet<NodeIteratorImpl>;
   _asyncQueue = new AsyncResourceQueue();
   _queue = new ResourceQueue({ paused: false, asyncQueue: this._asyncQueue });
@@ -982,10 +984,39 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     return this.scene.getMaterialById(id);
   }
 
+  private _onPreRenderLoop() {
+    const defaultView = this._defaultView;
+    if (!defaultView) {
+      return;
+    }
+
+    this.#nativeDocument.getNativeScene()
+      .onBeforeRenderObservable.add(() => {
+        // TODO: add a dirty check for the tree iterating.
+        domSymbolTree.treeToArray(this, {
+          filter: node => isElementNode(node)
+        })
+          .forEach((node: ElementImpl) => {
+            if (isSpatialElement(node)) {
+              const style = defaultView.getComputedSpatialStyle(node);
+              node._adoptStyle(style);
+            } else if (isHTMLElement(node)) {
+              // TODO: support for native style.
+            }
+          });
+      });
+  }
+
   /**
+   * @internal
    * Start the document, it executes the scripts.
    */
   _start(noQueue = false) {
+    // Execute render loop
+    if (!noQueue) {
+      this._onPreRenderLoop();
+    }
+
     // In no queue mode, the document will not execute the scripts.
     if (noQueue) {
       this.readyState = 'complete';

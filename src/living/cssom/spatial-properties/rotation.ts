@@ -4,6 +4,7 @@ import {
   valueType,
   implicitSetter,
   toAngleStr,
+  PropertyValue,
 } from '../parsers';
 
 function rotationValidator(v): boolean {
@@ -20,7 +21,7 @@ function rotationValidator(v): boolean {
 function toRotationStr(v: string) {
   v = v.toLowerCase();
   if (v === 'auto') {
-    return v;
+    return PropertyValue.createString(v);
   }
   return toAngleStr(v);
 }

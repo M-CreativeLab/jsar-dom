@@ -1,5 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import CSSSpatialStyleDeclaration from './CSSSpatialStyleDeclaration';
+import { CSSValueType } from './parsers';
 
 describe('CSSSpatialStyleDeclaration', () => {
   it.todo('has only valid properties implemented');
@@ -30,14 +31,14 @@ describe('CSSSpatialStyleDeclaration', () => {
     style.diffuseColor = 'blue';
     expect(style.length).toEqual(1);
     expect(style[0]).toEqual('diffuse-color');
-    expect(style.cssText).toEqual('diffuse-color: blue;');
+    expect(style.cssText).toEqual('diffuse-color: rgb(0, 0, 255);');
     expect(style.item(0)).toEqual('diffuse-color');
-    expect(style.diffuseColor).toEqual('blue');
+    expect(style.diffuseColor).toEqual('rgb(0, 0, 255)');
     style.position = '1';
     expect(style.length).toEqual(2);
     expect(style[0]).toEqual('diffuse-color');
     expect(style[1]).toEqual('position');
-    expect(style.cssText).toEqual('diffuse-color: blue; position: 1;');
+    expect(style.cssText).toEqual('diffuse-color: rgb(0, 0, 255); position: 1;');
     expect(style.position).toEqual('1');
     style.removeProperty('diffuse-color');
     expect(style[0]).toEqual('position');
@@ -62,9 +63,9 @@ describe('CSSSpatialStyleDeclaration', () => {
     style.diffuseColor = 'hsl(0, 1%, 2%)';
     expect(style.diffuseColor).toEqual('rgb(5, 5, 5)');
     style.diffuseColor = 'rebeccapurple';
-    expect(style.diffuseColor).toEqual('rebeccapurple');
+    expect(style.diffuseColor).toEqual('rgb(102, 51, 153)');
     style.diffuseColor = 'transparent';
-    expect(style.diffuseColor).toEqual('transparent');
+    expect(style.diffuseColor).toEqual('rgba(0, 0, 0, 0)');
     style.diffuseColor = 'currentcolor';
     expect(style.diffuseColor).toEqual('currentcolor');
     style.diffuseColor = '#ffffffff';
@@ -80,11 +81,11 @@ describe('CSSSpatialStyleDeclaration', () => {
 
   it('onchange callback should be called when the csstext changes', () => {
     const style = new CSSSpatialStyleDeclaration(function (cssText) {
-      expect(cssText).toEqual('diffuse-color: red;');
+      expect(cssText).toEqual('diffuse-color: rgb(255, 0, 0);');
     });
     style.setProperty('diffuse-color', 'red');
     expect(style.length).toEqual(1);
-    expect(style.diffuseColor).toEqual('red');
+    expect(style.diffuseColor).toEqual('rgb(255, 0, 0)');
   });
 
   it.todo('setting improper css to csstext should not throw');
@@ -100,8 +101,8 @@ describe('CSSSpatialStyleDeclaration', () => {
   it('casing is ignored in `.setproperty()`', () => {
     var style = new CSSSpatialStyleDeclaration();
     style.setProperty('DiFfUsE-CoLoR', 'red');
-    expect(style.diffuseColor).toEqual('red');
-    expect(style.getPropertyValue('diffuse-color')).toEqual('red');
+    expect(style.diffuseColor).toEqual('rgb(255, 0, 0)');
+    expect(style.getPropertyValue('diffuse-color')).toEqual('rgb(255, 0, 0)');
   });
 
   it.skip('getPropertyValue for custom properties in cssText', () => {
@@ -112,8 +113,10 @@ describe('CSSSpatialStyleDeclaration', () => {
 
   it('getPropertyValue for custom properties with setProperty', () => {
     const style = new CSSSpatialStyleDeclaration();
-    style.setProperty('--bar', 'blue');
-    expect(style.getPropertyValue('--bar')).toEqual('blue');
+    style.setProperty('--bar', '"blue"');
+    expect(style.getPropertyValue('--bar')).toEqual('"blue"');
+    expect(style._values['--bar'].str).toEqual('"blue"');
+    expect(style._values['--bar'].type).toEqual(CSSValueType.STRING);
   });
 
   it('getPropertyValue for custom properties with object setter', () => {

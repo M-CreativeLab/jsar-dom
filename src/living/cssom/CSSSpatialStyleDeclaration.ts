@@ -1,4 +1,5 @@
 import { parseSpatialCss } from '../helpers/spatial-css-parser';
+import { autoCreatePropertyValue, type PropertyValue } from './parsers';
 import {
   type CSSSpatialStyleProperties,
   mixinWithSpatialStyleProperties
@@ -9,12 +10,18 @@ type PropertyPriority = 'important' | null;
 export default interface CSSSpatialStyleDeclaration extends CSSSpatialStyleProperties { }
 export default class CSSSpatialStyleDeclaration {
   _length = 0;
-  _values: { [key: string]: string } = {};
+  _dirty = true;
+  _values: { [key: string]: PropertyValue } = {};
   _importants: { [key: string]: PropertyPriority } = {};
   _onChange: (cssText?: string) => void;
 
   constructor(onChange?: (cssText?: string) => void) {
-    this._onChange = onChange || (() => { });
+    this._onChange = (cssText: string) => {
+      if (typeof onChange === 'function') {
+        onChange(cssText);
+      }
+      this._dirty = true;
+    };
   }
 
   get cssText(): string {
@@ -71,10 +78,19 @@ export default class CSSSpatialStyleDeclaration {
   }
 
   getPropertyValue(name: string): string {
-    if (!this._values.hasOwnProperty(name)) {
+    const v = this._getPropertyValue(name);
+    if (v === null) {
       return '';
+    } else {
+      return v.str;
     }
-    return this._values[name].toString();
+  }
+
+  _getPropertyValue(name: string): PropertyValue {
+    if (!this._values.hasOwnProperty(name)) {
+      return null;
+    }
+    return this._values[name];
   }
 
   setProperty(name: string, value: string, priority?: string) {
@@ -87,7 +103,10 @@ export default class CSSSpatialStyleDeclaration {
     }
     const isCustomProperty = name.indexOf('--') === 0;
     if (isCustomProperty) {
-      this._setProperty(name, value, priority === 'important' ? 'important' : null);
+      this._setProperty(
+        name,
+        autoCreatePropertyValue(value),
+        priority === 'important' ? 'important' : null);
       return;
     }
     const lowercaseName = name.toLowerCase();
@@ -100,11 +119,11 @@ export default class CSSSpatialStyleDeclaration {
     this._importants[lowercaseName] = priority === 'important' ? 'important' : null;
   }
 
-  _setProperty(name: string, value: string, priority: PropertyPriority) {
+  _setProperty(name: string, value: PropertyValue, priority: PropertyPriority) {
     if (value === undefined) {
       return;
     }
-    if (value === null || value === '') {
+    if (value === null || value.str === '') {
       this.removeProperty(name);
       return;
     }
@@ -136,7 +155,7 @@ export default class CSSSpatialStyleDeclaration {
 
     const index = Array.prototype.indexOf.call(this, name);
     if (index < 0) {
-      return prevValue;
+      return prevValue.str;
     }
 
     // That's what WebKit and Opera do
@@ -146,7 +165,7 @@ export default class CSSSpatialStyleDeclaration {
     //this[index] = ""
 
     this._onChange(this.cssText);
-    return prevValue;
+    return prevValue.str;
   }
 
   getPropertyPriority(name: string): string {

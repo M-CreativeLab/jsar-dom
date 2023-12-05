@@ -20,6 +20,10 @@ export class SpatialElement extends ElementImpl {
     return node.nodeType === NodeImpl.ELEMENT_NODE && node instanceof SpatialElement;
   }
 
+  /**
+   * The read-only `style` property of the `SpatialElement` returns the inline style of this element
+   * in the form of a live `CSSSpatialStyleDeclaration` object that contains a list of all styles.
+   */
   get style(): CSSSpatialStyleDeclaration {
     return this._style;
   }
@@ -110,6 +114,42 @@ export class SpatialElement extends ElementImpl {
    */
   isMeshNode() {
     return this._internalObject instanceof BABYLON.AbstractMesh;
+  }
+
+  /** @internal */
+  _adoptStyle(style: CSSSpatialStyleDeclaration) {
+    if (!style._dirty) {
+      return;
+    }
+    const node = this._internalObject;
+    if (
+      !(node instanceof BABYLON.TransformNode) &&
+      !(node instanceof BABYLON.AbstractMesh)
+    ) {
+      return;
+    }
+
+    Array.prototype.forEach.call(style, (property: string) => {
+      switch (property) {
+        case 'position':
+          node.position = new BABYLON.Vector3(
+            style._getPropertyValue('position-x').toNumber(),
+            style._getPropertyValue('position-y').toNumber(),
+            style._getPropertyValue('position-z').toNumber()
+          );
+          break;
+        case 'rotation':
+          node.rotation = new BABYLON.Vector3(
+            style._getPropertyValue('rotation-x').toAngle('rad'),
+            style._getPropertyValue('rotation-y').toAngle('rad'),
+            style._getPropertyValue('rotation-z').toAngle('rad')
+          );
+          break;
+        default:
+          break;
+      }
+    });
+    style._dirty = false;
   }
 
   /** @internal */

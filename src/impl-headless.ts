@@ -120,7 +120,7 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   private _preloadMeshes: Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> = new Map();
   private _preloadAnimationGroups: Map<string, BABYLON.AnimationGroup[]> = new Map();
 
-  constructor() {
+  constructor(private _startLoop: boolean = false) {
     super();
 
     this.engine = new HeadlessEngine();
@@ -130,6 +130,21 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
     });
     this.console = globalThis.console;
     this._scene = new BABYLON.Scene(this.engine);
+
+    new BABYLON.ArcRotateCamera(
+      'camera',
+      Math.PI / 2,
+      Math.PI / 2,
+      5,
+      BABYLON.Vector3.Zero(),
+      this._scene
+    );
+
+    if (this._startLoop) {
+      this.engine.runRenderLoop(() => {
+        this._scene.render();
+      });
+    }
   }
 
   getNativeScene(): BABYLON.Scene {
@@ -170,8 +185,13 @@ function main() {
     import('./index'),
     import('node:fs/promises'),
   ]).then(async ([{ JSARDOM }, fsPromises]) => {
+    let startLoop: boolean = false;
+    const extraParameter = process.argv[3];
+    if (extraParameter === '--keep-alive') {
+      startLoop = true;
+    }
     const textContent = await fsPromises.readFile(entrypoint, 'utf8');
-    const nativeDocument = new HeadlessNativeDocument();
+    const nativeDocument = new HeadlessNativeDocument(startLoop);
     const dom = new JSARDOM(textContent, {
       nativeDocument,
       url: `file://${path.resolve(entrypoint)}`,
