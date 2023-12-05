@@ -60,6 +60,15 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
     }
   }
 
+  private _setMaterialTexture(name: string, setter: (texture: BABYLON.Texture) => void) {
+    const textureUrl = this.style._getPropertyValue(name)?.toUrlString();
+    console.log(textureUrl);
+    if (textureUrl) {
+      const tex = new BABYLON.Texture(textureUrl, this._scene);
+      setter(tex);
+    }
+  }
+
   private _getMaterialType() {
     const type = this.style._getPropertyValue('material-type');
     return type ? type.str : 'standard';
@@ -89,6 +98,9 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.albedoColor) {
         this._setMaterialColor('albedo-color', color => mat.albedoColor = color);
       }
+      if (this.style.albedoTexture) {
+        this._setMaterialTexture('albedo-texture', texture => mat.albedoTexture = texture);
+      }
       if (this.style.emissiveColor) {
         this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
       }
@@ -97,6 +109,9 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       const mat = new BABYLON.StandardMaterial(this.name, this._scene);
       if (this.style.diffuseColor) {
         this._setMaterialColor('diffuse-color', color => mat.diffuseColor = color);
+      }
+      if (this.style.diffuseTexture) {
+        this._setMaterialTexture('diffuse-texture', texture => mat.diffuseTexture = texture);
       }
       if (this.style.ambientColor) {
         this._setMaterialColor('ambient-color', color => mat.ambientColor = color);

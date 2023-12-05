@@ -9,11 +9,13 @@ import materialType from './material-type';
 import materialOrientation from './material-orientation';
 import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
+import diffuseTexture from './diffuse-texture';
 import ambientColor from './ambient-color';
 import emissiveColor from './emissive-color';
 import specularColor from './specular-color';
 import specularPower from './specular-power';
 import albedoColor from './albedo-color';
+import albedoTexture from './albedo-texture';
 import physicalMetallic from './physical-metallic';
 import physicalRoughness from './physical-roughness';
 
@@ -31,6 +33,8 @@ export interface CSSSpatialStyleProperties {
   // Standard material
   'diffuse-color': string;
   diffuseColor: string;
+  'diffuse-texture': string;
+  diffuseTexture: string;
   'ambient-color': string;
   ambientColor: string;
   'emissive-color': string;
@@ -47,6 +51,8 @@ export interface CSSSpatialStyleProperties {
   physicalRoughness: string;
   'albedo-color': string;
   albedoColor: string;
+  'albedo-texture': string;
+  albedoTexture: string;
 }
 
 export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpatialStyleDeclaration) {
@@ -63,6 +69,8 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
 
     'diffuse-color': diffuseColor,
     diffuseColor,
+    'diffuse-texture': diffuseTexture,
+    diffuseTexture,
     'ambient-color': ambientColor,
     ambientColor,
     'emissive-color': emissiveColor,
@@ -78,5 +86,7 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     physicalRoughness,
     'albedo-color': albedoColor,
     albedoColor,
+    'albedo-texture': albedoTexture,
+    albedoTexture,
   });
 }

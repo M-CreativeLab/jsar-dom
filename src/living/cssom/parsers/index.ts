@@ -131,6 +131,14 @@ export class PropertyValue<T = any> {
       return undefined;
     }
   }
+
+  toUrlString(): string | undefined {
+    if (this.type === CSSValueType.URL) {
+      return (this as PropertyUrlValue).value;
+    } else {
+      return undefined;
+    }
+  }
 };
 export type PropertyIntegerValue = PropertyValue<number>;
 export type PropertyNumberValue = PropertyValue<number>;
