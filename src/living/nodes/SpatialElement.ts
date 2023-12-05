@@ -146,6 +146,13 @@ export class SpatialElement extends ElementImpl {
             style._getPropertyValue('rotation-z').toAngle('rad')
           );
           break;
+        case 'scaling':
+          node.scaling = new BABYLON.Vector3(
+            style._getPropertyValue('scaling-x').toNumber(),
+            style._getPropertyValue('scaling-y').toNumber(),
+            style._getPropertyValue('scaling-z').toNumber()
+          );
+          break;
         case 'material':
           if (node instanceof BABYLON.AbstractMesh) {
             const name = style._getPropertyValue('material').value as string;

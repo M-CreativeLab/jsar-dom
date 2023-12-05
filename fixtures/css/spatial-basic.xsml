@@ -38,6 +38,7 @@
     }
     #cube2 {
       position: 4 0 0;
+      scaling: 0.7 0.7 0.7;
     }
   </style>
 </xsml>

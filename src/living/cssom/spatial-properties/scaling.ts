@@ -5,49 +5,37 @@ import {
   PropertyValue,
   implicitSetter,
   toNumberStr,
-  toLengthStr,
   toIntegerStr,
 } from '../parsers';
 
-function positionValidator(v): boolean {
-  if (v.toLowerCase() === 'auto') {
-    return true;
+function scalingValidator(v): boolean {
+  switch (valueType(v)) {
+    case CSSValueType.NUMBER:
+    case CSSValueType.INTEGER:
+      return true;
+    default:
+      return false;
   }
-  const type = valueType(v);
-  return (
-    type === CSSValueType.LENGTH ||
-    type === CSSValueType.INTEGER ||
-    type === CSSValueType.NUMBER
-  );
 }
 
-function toPositionStr(v: string) {
-  v = v.toLowerCase();
-  if (v === 'auto') {
-    return PropertyValue.createString(v);
-  }
+function toScalingStr(v: string) {
   const type = valueType(v);
-  switch (type) {
-    case CSSValueType.NUMBER:
-      return toNumberStr(v);
-    case CSSValueType.INTEGER:
-      return toIntegerStr(v);
-    case CSSValueType.LENGTH:
-      return toLengthStr(v);
-    default:
-      break;
+  if (type === CSSValueType.NUMBER) {
+    return toNumberStr(v);
+  } else if (type === CSSValueType.INTEGER) {
+    return toIntegerStr(v);
   }
 }
 
 const valueSetter = implicitSetter(
-  'position',
+  'scaling',
   '',
   ['x', 'y', 'z'],
-  positionValidator,
-  toPositionStr
+  scalingValidator,
+  toScalingStr
 );
 const globalSetter = implicitSetter(
-  'position',
+  'scaling',
   '',
   ['x', 'y', 'z'],
   () => true,
@@ -58,7 +46,7 @@ export default defineSpatialProperty({
   enumerable: true,
   configurable: true,
   get(): string {
-    return this.getPropertyValue('position');
+    return this.getPropertyValue('scaling');
   },
   set(value: string) {
     if (typeof value === 'number') {

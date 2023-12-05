@@ -3,6 +3,7 @@ import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 // load spatial props
 import position from './position';
 import rotation from './rotation';
+import scaling from './scaling';
 import material from './material';
 import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
@@ -14,7 +15,7 @@ import specularPower from './specular-power';
 export interface CSSSpatialStyleProperties {
   position: string;
   rotation: string;
-  // scale: string;
+  scaling: string;
   material: string;
   wireframe: string;
 
@@ -35,6 +36,7 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
   Object.defineProperties(spatialStyleDeclaration, {
     position,
     rotation,
+    scaling,
     material,
     wireframe,
 

@@ -137,4 +137,51 @@ describe('CSSSpatialStyleDeclaration', () => {
     style.setProperty('width', 'calc(100% - 100px)');
     expect(style.getPropertyValue('width')).toEqual('calc(100% - 100px)');
   });
+
+  it('supports position', () => {
+    const style = new CSSSpatialStyleDeclaration();
+    style.position = '1 2 3';
+    expect(style._getPropertyValue('position').str).toEqual('1 2 3');
+    expect(style._getPropertyValue('position-x').value).toEqual(1);
+    expect(style._getPropertyValue('position-y').value).toEqual(2);
+    expect(style._getPropertyValue('position-z').value).toEqual(3);
+    style.position = '0.1 0.2 0.3';
+    expect(style._getPropertyValue('position').str).toEqual('0.1 0.2 0.3');
+    expect(style._getPropertyValue('position-x').value).toEqual(.1);
+    expect(style._getPropertyValue('position-y').value).toEqual(.2);
+    expect(style._getPropertyValue('position-z').value).toEqual(.3);
+  });
+
+  it('supports rotation', () => {
+    const style = new CSSSpatialStyleDeclaration();
+    style.rotation = '180 0 0';
+    expect(style._getPropertyValue('rotation').str).toEqual('180deg 0deg 0deg');
+    expect(style._getPropertyValue('rotation-x').value).toEqual(180);
+    expect(style._getPropertyValue('rotation-y').value).toEqual(0);
+    expect(style._getPropertyValue('rotation-z').value).toEqual(0);
+    style.rotation = '320deg 45deg 10';
+    expect(style._getPropertyValue('rotation').str).toEqual('320deg 45deg 10deg');
+    expect(style._getPropertyValue('rotation-x').value).toEqual(320);
+    expect(style._getPropertyValue('rotation-y').value).toEqual(45);
+    expect(style._getPropertyValue('rotation-z').value).toEqual(10);
+    style.rotation = '1rad 1rad 100deg';
+    expect(style._getPropertyValue('rotation').str).toEqual('57.29577951308232deg 57.29577951308232deg 100deg');
+    expect(style._getPropertyValue('rotation-x').value).toEqual(57.29577951308232);
+    expect(style._getPropertyValue('rotation-y').value).toEqual(57.29577951308232);
+    expect(style._getPropertyValue('rotation-z').value).toEqual(100);
+  });
+
+  it('supports scaling', () => {
+    const style = new CSSSpatialStyleDeclaration();
+    style.scaling = '1 2 3';
+    expect(style._getPropertyValue('scaling').str).toEqual('1 2 3');
+    expect(style._getPropertyValue('scaling-x').value).toEqual(1);
+    expect(style._getPropertyValue('scaling-y').value).toEqual(2);
+    expect(style._getPropertyValue('scaling-z').value).toEqual(3);
+    style.scaling = '0.1 0.2 0.3';
+    expect(style._getPropertyValue('scaling').str).toEqual('0.1 0.2 0.3');
+    expect(style._getPropertyValue('scaling-x').value).toEqual(.1);
+    expect(style._getPropertyValue('scaling-y').value).toEqual(.2);
+    expect(style._getPropertyValue('scaling-z').value).toEqual(.3);
+  });
 });
