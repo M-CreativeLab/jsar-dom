@@ -104,6 +104,9 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.emissiveColor) {
         this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
       }
+      if (this.style.emissiveTexture) {
+        this._setMaterialTexture('emissive-texture', texture => mat.emissiveTexture = texture);
+      }
       this._material = mat;
     } else {
       const mat = new BABYLON.StandardMaterial(this.name, this._scene);
@@ -116,8 +119,14 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.ambientColor) {
         this._setMaterialColor('ambient-color', color => mat.ambientColor = color);
       }
+      if (this.style.ambientTexture) {
+        this._setMaterialTexture('ambient-texture', texture => mat.ambientTexture = texture);
+      }
       if (this.style.emissiveColor) {
         this._setMaterialColor('emissive-color', color => mat.emissiveColor = color);
+      }
+      if (this.style.emissiveTexture) {
+        this._setMaterialTexture('emissive-texture', texture => mat.emissiveTexture = texture);
       }
       if (this.style.specularColor) {
         this._setMaterialColor('specular-color', color => mat.specularColor = color);

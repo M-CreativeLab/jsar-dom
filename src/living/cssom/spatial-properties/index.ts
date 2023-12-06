@@ -11,8 +11,11 @@ import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
 import diffuseTexture from './diffuse-texture';
 import ambientColor from './ambient-color';
+import ambientTexture from './ambient-texture';
 import emissiveColor from './emissive-color';
+import emissiveTexture from './emissive-texture';
 import specularColor from './specular-color';
+import specularTexture from './specular-texture';
 import specularPower from './specular-power';
 import albedoColor from './albedo-color';
 import albedoTexture from './albedo-texture';
@@ -37,10 +40,16 @@ export interface CSSSpatialStyleProperties {
   diffuseTexture: string;
   'ambient-color': string;
   ambientColor: string;
+  'ambient-texture': string;
+  ambientTexture: string;
   'emissive-color': string;
   emissiveColor: string;
+  'emissive-texture': string;
+  emissiveTexture: string;
   'specular-color': string;
   specularColor: string;
+  'specular-texture': string;
+  specularTexture: string;
   'specular-power': string;
   specularPower: string;
 
@@ -73,10 +82,16 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     diffuseTexture,
     'ambient-color': ambientColor,
     ambientColor,
+    'ambient-texture': ambientTexture,
+    ambientTexture,
     'emissive-color': emissiveColor,
     emissiveColor,
+    'emissive-texture': emissiveTexture,
+    emissiveTexture,
     'specular-color': specularColor,
     specularColor,
+    'specular-texture': specularTexture,
+    specularTexture,
     'specular-power': specularPower,
     specularPower,
 
