@@ -5,6 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
+    "build-bindings": "wasm-pack build bindings/taffy --target web",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "ts-node ./src/impl-headless.ts"
