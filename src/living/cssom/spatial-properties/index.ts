@@ -6,6 +6,7 @@ import rotation from './rotation';
 import scaling from './scaling';
 import material from './material';
 import materialType from './material-type';
+import materialAlphaMode from './material-alpha-mode';
 import materialOrientation from './material-orientation';
 import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
@@ -17,6 +18,7 @@ import emissiveTexture from './emissive-texture';
 import specularColor from './specular-color';
 import specularTexture from './specular-texture';
 import specularPower from './specular-power';
+import bumpTexture from './bump-texture';
 import albedoColor from './albedo-color';
 import albedoTexture from './albedo-texture';
 import physicalMetallic from './physical-metallic';
@@ -29,6 +31,8 @@ export interface CSSSpatialStyleProperties {
   material: string;
   'material-type': string;
   materialType: string;
+  'material-alpha-mode': string;
+  materialAlphaMode: string;
   'material-orientation': string;
   materialOrientation: string;
   wireframe: string;
@@ -52,6 +56,8 @@ export interface CSSSpatialStyleProperties {
   specularTexture: string;
   'specular-power': string;
   specularPower: string;
+  'bump-texture': string;
+  bumpTexture: string;
 
   // PBR material
   'physical-metallic': string;
@@ -72,6 +78,8 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     material,
     'material-type': materialType,
     materialType,
+    'material-alpha-mode': materialAlphaMode,
+    materialAlphaMode,
     'material-orientation': materialOrientation,
     materialOrientation,
     wireframe,
@@ -94,6 +102,8 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     specularTexture,
     'specular-power': specularPower,
     specularPower,
+    'bump-texture': bumpTexture,
+    bumpTexture,
 
     'physical-metallic': physicalMetallic,
     physicalMetallic,

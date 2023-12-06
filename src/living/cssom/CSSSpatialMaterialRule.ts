@@ -107,6 +107,9 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.emissiveTexture) {
         this._setMaterialTexture('emissive-texture', texture => mat.emissiveTexture = texture);
       }
+      if (this.style.bumpTexture) {
+        this._setMaterialTexture('bump-texture', texture => mat.bumpTexture = texture);
+      }
       this._material = mat;
     } else {
       const mat = new BABYLON.StandardMaterial(this.name, this._scene);
@@ -131,15 +134,56 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.specularColor) {
         this._setMaterialColor('specular-color', color => mat.specularColor = color);
       }
+      if (this.style.specularTexture) {
+        this._setMaterialTexture('specular-texture', texture => mat.specularTexture = texture);
+      }
       if (this.style.specularPower) {
         const powerValue = this.style._getPropertyValue('specular-power').toNumber();
         if (powerValue >= 0 && powerValue <= 128) {
           mat.specularPower = powerValue;
         }
       }
+      if (this.style.bumpTexture) {
+        this._setMaterialTexture('bump-texture', texture => mat.bumpTexture = texture);
+      }
       this._material = mat;
     }
 
+    if (this.style.materialAlphaMode) {
+      const alphaMode = this.style._getPropertyValue('material-alpha-mode').value;
+      switch (alphaMode) {
+        case 'none':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_DISABLE;
+          break;
+        case 'additive':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_ADD;
+          break;
+        case 'combine':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_COMBINE;
+          break;
+        case 'subtractive':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_SUBTRACT;
+          break;
+        case 'multiply':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_MULTIPLY;
+          break;
+        case 'maximized':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_MAXIMIZED;
+          break;
+        case 'one-one':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_ONEONE;
+          break;
+        case 'premultiplied':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_PREMULTIPLIED;
+          break;
+        case 'premultiplied-porter':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_PREMULTIPLIED_PORTERDUFF;
+          break;
+        case 'interpolate':
+          this._material.alphaMode = BABYLON.Engine.ALPHA_INTERPOLATE;
+          break;
+      }
+    }
     if (this.style.materialOrientation) {
       const materialOrientation = this.style._getPropertyValue('material-orientation').value;
       if (materialOrientation === 'clockwise') {

@@ -1,0 +1,19 @@
+<xsml>
+  <head>
+    <title>Spatial CSS Example (Bump Map)</title>
+  </head>
+  <space>
+    <sphere />
+  </space>
+  <style type="text/scss">
+    @material litered {
+      diffuse-color: red;
+      specular-color: blue;
+      specular-power: 10.3;
+      bump-texture: url(https://i.imgur.com/wGyk6os.png);
+    }
+    sphere {
+      material: "litered";
+    }
+  </style>
+</xsml>
