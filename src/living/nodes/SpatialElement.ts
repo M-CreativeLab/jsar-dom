@@ -209,17 +209,33 @@ export class SpatialElement extends ElementImpl {
     return this._shadowRoot;
   }
 
-  attachCanvasTexture(width = 1024, height = 1024) {
+  /**
+   * Attaches a canvas texture to the spatial element.
+   * 
+   * TODO: return a custom type instead of `BABYLON.DynamicTexture`?
+   * 
+   * @param width - The width of the canvas texture. Default is 1024.
+   * @param height - The height of the canvas texture. Default is 1024.
+   * @returns The created dynamic texture.
+   * @throws {DOMException} If the spatial element is not a mesh node, or if the mesh node already has a material.
+   */
+  attachCanvasTexture(width = 1024, height = 1024): BABYLON.DynamicTexture {
     if (!this.isMeshNode()) {
       throw new DOMException('Could not attach canvas texture to non-mesh node.', 'INVALID_STATE_ERR');
     }
+    if (!(this._internalObject instanceof BABYLON.AbstractMesh)) {
+      throw new DOMException('Could not attach canvas texture to non-mesh node.', 'INVALID_STATE_ERR');
+    }
 
-    const meshObject = this._internalObject as BABYLON.AbstractMesh;
-    const dynamicTexture = new BABYLON.DynamicTexture('dynamicTexture', {
-      width,
-      height,
-    }, this._scene, true);
-    const material = new BABYLON.StandardMaterial('material', this._scene);
+    const meshObject = this._internalObject;
+    if (meshObject.material) {
+      throw new DOMException('Could not attach canvas texture to mesh node with material.', 'INVALID_STATE_ERR');
+    }
+
+    const dynamicTexture = new BABYLON.DynamicTexture(
+      `${meshObject.name}#DynamicTexture`, { width, height }, this._scene, true);
+    const material = new BABYLON.StandardMaterial(
+      `${meshObject.name}#CanvasMaterial`, this._scene);
     material.diffuseTexture = dynamicTexture;
     meshObject.material = material;
     return dynamicTexture;
