@@ -13,7 +13,10 @@
       "ESNext.WeakRef",
       "ESNext",
       "DOM"
-    ]
+    ],
+    "paths": {
+      "@bindings/taffy": ["./bindings/taffy"]
+    }
   },
   "include": [
     "src/**/*.ts"

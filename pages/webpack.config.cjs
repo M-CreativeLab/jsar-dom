@@ -24,6 +24,7 @@ module.exports = {
       path: require.resolve('path-browserify'),
       assert: require.resolve('assert-browserify'),
       'process/browser': require.resolve('process/browser'),
+      '@bindings/taffy': require.resolve('../bindings/taffy'),
     },
   },
   module: {

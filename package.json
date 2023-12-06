@@ -6,9 +6,10 @@
   "type": "module",
   "scripts": {
     "build-bindings": "wasm-pack build bindings/taffy --target web",
+    "postbuild-bindings": "node ./bindings/tools/generate-wasm-js.cjs",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
-    "headless-bin": "ts-node ./src/impl-headless.ts"
+    "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts"
   },
   "repository": {
     "type": "git",
@@ -52,10 +53,12 @@
     "@types/symbol-tree": "^3.2.4",
     "@types/xml-name-validator": "^4.0.3",
     "cross-env": "^7.0.3",
+    "glob": "^10.3.10",
     "jest": "^29.7.0",
     "ts-jest": "^29.1.1",
     "ts-loader": "^9.4.4",
     "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.2",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"

@@ -14,4 +14,7 @@ module.exports = {
     'text-summary',
     'cobertura',
   ],
+  moduleNameMapper: {
+    '@bindings/taffy': '<rootDir>/bindings/taffy',
+  },
 };
