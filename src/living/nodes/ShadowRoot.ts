@@ -1,29 +1,26 @@
-import DOMException from 'domexception';
-
 import { NativeDocument } from '../../impl-interfaces';
 import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 
 import { SpatialElement } from './SpatialElement';
-import { NodeImpl } from './Node';
 import DocumentFragmentImpl from './DocumentFragment';
-import { HTMLElementImpl } from './HTMLElement';
+import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
+import InnerHTMLImpl from '../domparsing/InnerHTML';
+import { Content2D } from './HTMLContentElement';
 import { applyMixins } from '../../mixin';
 
-export interface XSMLShadowRoot extends NodeImpl, DocumentFragmentImpl { };
-export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
-  delegatesFocus: boolean;
+export interface ShadowRootImpl extends DocumentFragmentImpl, DocumentOrShadowRootImpl, Content2D, InnerHTMLImpl { };
+export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
+  get mode(): ShadowRootMode {
+    return this._mode;
+  }
+  get delegatesFocus(): boolean {
+    return this._delegatesFocus;
+  }
+  get slotAssignment(): SlotAssignmentMode {
+    return this._slotAssignment;
+  }
   host: Element;
-  mode: ShadowRootMode;
   onslotchange: (this: ShadowRoot, ev: Event) => any;
-  slotAssignment: SlotAssignmentMode;
-
-  adoptedStyleSheets: CSSStyleSheet[];
-  activeElement: Element;
-  fullscreenElement: Element;
-  pictureInPictureElement: Element;
-  pointerLockElement: Element;
-  styleSheets: StyleSheetList;
-  innerHTML: string;
 
   /** @internal */
   _lastFocusedElement: Element;
@@ -32,10 +29,9 @@ export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
   /** @internal */
   _interactiveDynamicTexture: InteractiveDynamicTexture;
 
-  /**
-   * Store all children of this shadow root.
-   */
-  private _allChildren: Element[] = [];
+  private _mode: ShadowRootMode = 'open';
+  private _delegatesFocus: boolean = false;
+  private _slotAssignment: SlotAssignmentMode = 'manual';
 
   constructor(
     hostObject: NativeDocument,
@@ -46,60 +42,34 @@ export class XSMLShadowRoot extends NodeImpl implements ShadowRoot {
   ) {
     super(hostObject, [], null);
 
-    this.nodeType = NodeImpl.prototype.DOCUMENT_NODE;
-
+    if (args[0]) {
+      const init = args[0];
+      this._mode = init.mode;
+      this._delegatesFocus = init.delegatesFocus;
+      this._slotAssignment = init.slotAssignment;
+    }
     this._targetSpatialElement = privateData.target;
-    this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(
-      this._hostObject,
-      this._targetSpatialElement.asNativeType<BABYLON.AbstractMesh>());
   }
 
-  getNativeTexture(): InteractiveDynamicTexture {
-    return this._interactiveDynamicTexture;
-  }
-
-  getAnimations(): Animation[] {
-    throw new Error('Method not implemented.');
-  }
-
-  // append(...nodes: (string | Node)[]): void {
-  //   super.append(...nodes);
-  // }
-
-  // prepend(...nodes: (string | Node)[]): void {
-  //   super.append(...nodes);
-  // }
-
-  appendChild<T extends Node>(node: T): T {
-    if (!(node instanceof HTMLElementImpl)) {
-      throw new DOMException('Could not append non-control node to shadow root.', 'InvalidStateError');
-    }
-    this._interactiveDynamicTexture.rootContainer.appendChild(node);
+  _attach() {
+    const targetMesh = this._targetSpatialElement.asNativeType<BABYLON.AbstractMesh>();
+    this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(this, targetMesh);
     this._interactiveDynamicTexture.start();
-    this._allChildren.push(node);
-    return node;
+    super._attach();
   }
 
-  removeChild<T extends Node>(child: T): T {
-    if (!(child instanceof HTMLElementImpl)) {
-      throw new DOMException('Could not remove non-control node to shadow root.', 'InvalidStateError');
-    }
-    this._interactiveDynamicTexture.rootContainer.removeChild(child);
-    this._allChildren.splice(this._allChildren.indexOf(child), 1);
-    return child;
+  _detach(): void {
+    super._detach();
+    this._interactiveDynamicTexture.dispose();
   }
 
-  elementFromPoint(x: number, y: number): Element {
-    throw new Error('Method not implemented.');
-  }
-
-  elementsFromPoint(x: number, y: number): Element[] {
-    throw new Error('Method not implemented.');
-  }
-
-  _adoptNode(node: Node): Node {
-    throw new Error('Method not implemented.');
+  /**
+   * @internal
+   * @returns the native texture of this shadow root.
+   */
+  _getNativeTexture(): InteractiveDynamicTexture {
+    return this._interactiveDynamicTexture;
   }
 }
 
-applyMixins(XSMLShadowRoot, [DocumentFragmentImpl]);
+applyMixins(ShadowRootImpl, [DocumentOrShadowRootImpl, Content2D, InnerHTMLImpl]);

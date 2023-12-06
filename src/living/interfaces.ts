@@ -2,6 +2,7 @@ import type NamedNodeMapImpl from './attributes/NamedNodeMap';
 import type { NodeImpl } from './nodes/Node';
 import type { ElementImpl } from './nodes/Element';
 import type { HTMLElementImpl } from './nodes/HTMLElement';
+import type { HTMLContentElement } from './nodes/HTMLContentElement';
 import type { SpatialElement } from './nodes/SpatialElement';
 
 let implementationLoaded = false;
@@ -38,6 +39,7 @@ export async function loadImplementations() {
     import('./nodes/HTMLCollection'),
     import('./nodes/DOMTokenList'),
     import('./nodes/HTMLElement'),
+    import('./nodes/HTMLContentElement'),
     import('./nodes/HTMLHeadElement'),
     import('./nodes/HTMLTitleElement'),
     import('./nodes/HTMLMetaElement'),
@@ -86,6 +88,7 @@ export async function loadImplementations() {
     HTMLCollectionImpl,
     DOMTokenListImpl,
     { HTMLElementImpl },
+    { HTMLContentElement: HTMLContentElementImpl },
     HTMLHeadElementImpl,
     HTMLTitleElementImpl,
     HTMLMetaElementImpl,
@@ -132,6 +135,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('HTMLCollection', HTMLCollectionImpl);
     implementedInterfaces.set('DOMTokenList', DOMTokenListImpl);
     implementedInterfaces.set('HTMLElement', HTMLElementImpl);
+    implementedInterfaces.set('HTMLContentElement', HTMLContentElementImpl);
     implementedInterfaces.set('HTMLHeadElement', HTMLHeadElementImpl);
     implementedInterfaces.set('HTMLTitleElement', HTMLTitleElementImpl);
     implementedInterfaces.set('HTMLMetaElement', HTMLMetaElementImpl);
@@ -170,6 +174,7 @@ export function getInterfaceWrapper(name: 'NamedNodeMap'): typeof NamedNodeMapIm
 export function getInterfaceWrapper(name: 'Node'): typeof NodeImpl;
 export function getInterfaceWrapper(name: 'Element'): typeof ElementImpl;
 export function getInterfaceWrapper(name: 'HTMLElement'): typeof HTMLElementImpl;
+export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLContentElement;
 export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
 export function getInterfaceWrapper(name: string): any;
 export function getInterfaceWrapper(name: string) {

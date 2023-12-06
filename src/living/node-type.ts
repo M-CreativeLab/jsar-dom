@@ -1,4 +1,5 @@
 import type { SpatialElement } from './nodes/SpatialElement';
+import type { HTMLContentElement } from './nodes/HTMLContentElement';
 import { getInterfaceWrapper } from './interfaces';
 
 const NodeTypes = Object.freeze({
@@ -34,6 +35,10 @@ export function isDocumentNode(node: Node): node is Document {
 
 export function isHTMLElement(node: Node): node is HTMLElement {
   return isElementNode(node) && node instanceof getInterfaceWrapper('HTMLElement');
+}
+
+export function isHTMLContentElement(node: Node): node is HTMLContentElement {
+  return isElementNode(node) && node instanceof getInterfaceWrapper('HTMLContentElement');
 }
 
 export function isSpatialElement(node: Node): node is SpatialElement {

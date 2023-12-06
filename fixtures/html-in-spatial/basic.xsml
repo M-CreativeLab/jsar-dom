@@ -1,0 +1,22 @@
+<xsml>
+  <head>
+    <title>HTML in Spatial Example (Basic)</title>
+    <style>
+      @material litered {
+        diffuse-color: #ff0000;
+      }
+      #inner {
+        position: 0 1 0;
+        material: "litered";
+      }
+    </style>
+  </head>
+  <space>
+    <cube size="1">
+      <div>
+        <div>foobar</div>
+      </div>
+      <cube id="inner" height="0.7" size="1.2" />
+    </cube>
+  </space>
+</xsml>

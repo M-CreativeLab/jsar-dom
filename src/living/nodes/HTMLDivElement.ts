@@ -1,7 +1,7 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { HTMLElementImpl } from './HTMLElement';
+import { HTMLContentElement } from './HTMLContentElement';
 
-export default class HTMLDivElementImpl extends HTMLElementImpl implements HTMLDivElement {
+export default class HTMLDivElementImpl extends HTMLContentElement implements HTMLDivElement {
   align: string;
 
   constructor(
@@ -12,5 +12,9 @@ export default class HTMLDivElementImpl extends HTMLElementImpl implements HTMLD
     super(nativeDocument, args, {
       localName: 'div',
     });
+  }
+
+  _attach(): void {
+    super._attach();
   }
 }

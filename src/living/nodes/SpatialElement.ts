@@ -2,7 +2,7 @@ import DOMException from '../domexception';
 import { NativeDocument } from '../../impl-interfaces';
 import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
-import { XSMLShadowRoot } from './ShadowRoot';
+import { ShadowRootImpl } from './ShadowRoot';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
@@ -72,6 +72,14 @@ export class SpatialElement extends ElementImpl {
       /** Append the native node(Babylon) into parent if it's a spatial element. */
       if (this.parentNode && SpatialElement.isSpatialElement(this.parentNode)) {
         this._internalObject.parent = this.parentNode.asNativeType();
+      }
+
+      // handle ShadowRoot attaching
+      if (this._shadowRoot?._attached === false) {
+        /**
+         * Do attaching shadow if the shadow root is created and not attached.
+         */
+        this.attachShadow();
       }
     }
     super._attach();
@@ -177,21 +185,34 @@ export class SpatialElement extends ElementImpl {
   }
 
   /** @internal */
-  _getAttachedShadow(): XSMLShadowRoot {
+  _getAttachedShadow(): ShadowRootImpl {
     return this._shadowRoot;
   }
 
   /** @internal */
   _dispatchPointerEvent(type: number) {
     if (this._shadowRoot) {
-      this._shadowRoot.getNativeTexture()._processPointerEvent(type);
+      this._shadowRoot._getNativeTexture()._processPointerEvent(type);
     }
   }
 
   /**
    * Returns the `ShadowRoot` of this `SpatialObject` instance, it's used to get the GUI elements from script.
    */
-  get shadowRoot(): XSMLShadowRoot {
+  get shadowRoot(): ShadowRoot {
+    return this._shadowRoot;
+  }
+
+  /**
+   * @internal
+   * @returns the created `ShadowRoot` that is to be attached to this `SpatialObject` instance.
+   */
+  _createShadowRoot(init?: ShadowRootInit): ShadowRoot {
+    if (this._shadowRoot == null || !this._shadowRoot) {
+      this._shadowRoot = new ShadowRootImpl(this._hostObject, [init], {
+        target: this,
+      });
+    }
     return this._shadowRoot;
   }
 
@@ -199,13 +220,17 @@ export class SpatialElement extends ElementImpl {
    * The `SpatialObject.attachShadow()` method attaches a shadow DOM tree to the specified element and returns 
    * a reference to its ShadowRoot.
    */
-  attachShadow(options?: ShadowRootInit): XSMLShadowRoot {
+  attachShadow(init?: ShadowRootInit): ShadowRoot {
     if (!this.isMeshNode()) {
       throw new DOMException('Could not attach shadow to non-mesh node.', 'INVALID_STATE_ERR');
     }
-    this._shadowRoot = new XSMLShadowRoot(this._hostObject, [options], {
-      target: this,
-    });
+    if (!this._shadowRoot || this._shadowRoot == null) {
+      /**
+       * Create a shadow root if it doesn't exist.
+       */
+      this._createShadowRoot(init);
+    }
+    this._shadowRoot._attach();
     return this._shadowRoot;
   }
 

@@ -1,5 +1,3 @@
-import { LayoutNode } from '../../impl-interfaces';
-import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 import { ElementImpl } from './Element';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
@@ -148,63 +146,6 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   }
   focus(options?: FocusOptions): void {
     throw new Error('Method not implemented.');
-  }
-
-  /**
-   * The layout node to be used for the HTML layout.
-   * 
-   * @internal
-   */
-  _layoutNode: LayoutNode;
-
-  /**
-   * Update the target texture of this HTML element.
-   * 
-   * @internal
-   * @param targetTexture 
-   */
-  _updateTargetTexture(targetTexture: InteractiveDynamicTexture) {
-    // TODO
-  }
-
-  /**
-   * Render the controller itself.
-   * 
-   * @internal
-   * @param rect 
-   * @param base 
-   */
-  _renderControlSelf(rect: DOMRect, base: DOMRectReadOnly): void {
-    const x = rect.x + base.x;
-    const y = rect.y + base.y;
-    const width = rect.width;
-    const height = rect.height;
-  }
-
-  /**
-   * Process the element picking.
-   * 
-   * @internal
-   * @param x 
-   * @param y 
-   * @param _type 
-   */
-  _processPicking(x: number, y: number, _type?: number) {
-    // TODO
-  }
-
-  /**
-   * Process the pointer events.
-   * 
-   * @internal
-   * @param x 
-   * @param y 
-   * @param type 
-   * @returns 
-   */
-  _processPointerEvent(x: number, y: number, type: number): boolean {
-    // TODO
-    return true;
   }
 
   /**

@@ -7,7 +7,7 @@ import type { AttrImpl } from '../attributes/Attr';
 import type { ElementImpl } from './Element';
 import { simultaneousIterators } from '../../utils';
 import { NodeListImpl } from './NodeList';
-import { XSMLShadowRoot } from './ShadowRoot';
+import { ShadowRootImpl } from './ShadowRoot';
 import type { RangeImpl } from '../range/Range';
 import type CharacterDataImpl from './CharacterData';
 import type { NativeDocument } from '../../impl-interfaces';
@@ -177,7 +177,7 @@ export class NodeImpl extends EventTarget implements Node {
   _hostObject: NativeDocument;
   _host: NodeImpl;
   _ownerDocument: SpatialDocumentImpl;
-  _shadowRoot: XSMLShadowRoot | null;
+  _shadowRoot: ShadowRootImpl | null;
   _assignedSlot: HTMLSlotElement | null;
   _assignedNodes: Array<NodeImpl> = [];
   _referencedRanges = new Set<Range>();

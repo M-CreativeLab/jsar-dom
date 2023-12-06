@@ -1,7 +1,11 @@
 import { type Nullable, type Observer } from 'babylonjs';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';
-import HTMLDivElementImpl from '../../nodes/HTMLDivElement';
+import { ShadowRootImpl } from '../../nodes/ShadowRoot';
+import { Content2D, HTMLContentElement } from '../../nodes/HTMLContentElement';
+import { isHTMLContentElement } from '../../node-type';
+
+type Control2D = ShadowRootImpl | HTMLContentElement;
 
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
@@ -31,7 +35,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   private _lastPositionInPicking = new BABYLON.Vector2(-1, -1);
 
   /** @internal */
-  public _rootContainer: HTMLDivElementImpl;
+  public _rootContainer: Control2D;
   /** @internal */
   public _lastPickedControl: HTMLElementImpl;
   /** @internal */
@@ -77,7 +81,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   /**
    * Gets the root container control
    */
-  public get rootContainer(): HTMLDivElement {
+  public get rootContainer(): Content2D {
     return this._rootContainer;
   }
 
@@ -86,8 +90,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * This is mostly used to let the Inspector introspects the ADT
    * @returns an array containing the rootContainer
    */
-  public getChildren(): Array<HTMLElement> {
-    return [this._rootContainer];
+  public getChildren() {
+    return [];
   }
 
   /**
@@ -138,9 +142,9 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    */
   constructor(
     name: string,
-    ownerNativeDocument: NativeDocument,
     width = 0,
     height = 0,
+    shadowRoot: ShadowRootImpl,
     scene?: Nullable<BABYLON.Scene>,
     generateMipMaps = false,
     samplingMode = BABYLON.Texture.NEAREST_SAMPLINGMODE,
@@ -153,12 +157,11 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       return;
     }
     this.applyYInversionOnUpdate = invertY;
-    this._ownerNativeDocument = ownerNativeDocument;
+    this._ownerNativeDocument = shadowRoot._hostObject;
 
-    const rootContainer = this._ownerNativeDocument.attachedDocument.createElement('div');
-    rootContainer.style.height = `${height}px`;
-    rootContainer.style.width = `${width}px`;
-    this._rootContainer = rootContainer as HTMLDivElementImpl;
+    this._rootContainer = shadowRoot;
+    // rootContainer.style.height = `${height}px`;
+    // rootContainer.style.width = `${width}px`;
 
     this.hasAlpha = true;
     if (!width || !height) {
@@ -197,7 +200,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     this.onClipboardObservable.clear();
     this.onControlPickedObservable.clear();
     this.onGuiReadyObservable.clear();
-    this._rootContainer._dispose();
     super.dispose();
   }
 
@@ -266,11 +268,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     this._isRendering = false;
   }
 
-  private _iterateLayoutResult(layout, base = { x: 0, y: 0 }, currentControl: HTMLElementImpl = this._rootContainer) {
-    currentControl._renderControlSelf.call(currentControl, layout, base);
+  private _iterateLayoutResult(layout, base = { x: 0, y: 0 }, currentControl: Control2D = this._rootContainer) {
+    currentControl._renderSelf.call(currentControl, layout, base);
     for (let i = 0; i < layout.childCount; i++) {
       const childLayout = layout.child(i);
-      const childControl = currentControl.childNodes.item(i) as HTMLElementImpl;
+      const childControl = currentControl.childNodes.item(i) as HTMLContentElement;
+      // TODO: Check if this control is a HTMLContentElement?
       this._iterateLayoutResult(childLayout, {
         x: base.x + layout.x,
         y: base.y + layout.y,
@@ -282,14 +285,14 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * This iterate the controls from the given node, and it receives a callback that returns a boolean value. If the boolean is
    * false it stops the iteration of the remaining controls.
    */
-  private _iterateControls(node: HTMLElementImpl, callback: (control: HTMLElementImpl) => boolean) {
+  private _iterateControls(node: Control2D, callback: (control: Control2D) => boolean) {
     const shouldCountine = callback(node);
     if (!shouldCountine) {
       return;
     }
     for (let i = 0; i < node.childNodes.length; i++) {
       const childControl = node.childNodes.item(i);
-      if (childControl instanceof HTMLElementImpl) {
+      if (isHTMLContentElement(childControl)) {
         this._iterateControls(childControl, callback);
       }
     }
@@ -402,7 +405,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * @returns a new InteractiveDynamicTexture
    */
   public static CreateForMesh(
-    ownerNativeDocument: NativeDocument,
+    shadowRoot: ShadowRootImpl,
     mesh: BABYLON.AbstractMesh,
     width = 1024,
     height = 1024,
@@ -415,9 +418,9 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const uniqueId = BABYLON.RandomGUID();
     const result = new InteractiveDynamicTexture(
       `InteractiveDynamicTexture for ${mesh.name} [${uniqueId}]`,
-      ownerNativeDocument,
       width,
       height,
+      shadowRoot,
       mesh.getScene(),
       true,
       BABYLON.Texture.TRILINEAR_SAMPLINGMODE,

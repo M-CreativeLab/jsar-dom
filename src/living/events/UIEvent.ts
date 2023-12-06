@@ -1,14 +1,13 @@
 import DOMException from 'domexception';
-import { XSMLShadowRoot } from '../nodes/ShadowRoot';
 
 export class UIEventImpl extends Event implements UIEvent {
   detail: number;
   view: Window;
   which: number;
   inputIndex: number;
-  shdaowRoot: XSMLShadowRoot | null;
+  shdaowRoot: ShadowRoot | null;
 
-  constructor(typeArg: string, eventInitDict?: UIEventInit & { shadowRoot?: XSMLShadowRoot }) {
+  constructor(typeArg: string, eventInitDict?: UIEventInit & { shadowRoot?: ShadowRoot }) {
     super(typeArg, eventInitDict);
     this.detail = eventInitDict?.detail || 0;
     this.shdaowRoot = eventInitDict?.shadowRoot || null;

@@ -36,7 +36,7 @@ import HTMLScriptElementImpl from './HTMLScriptElement';
 import HTMLDivElementImpl from './HTMLDivElement';
 import HTMLSpanElementImpl from './HTMLSpanElement';
 import { SpatialElement } from './SpatialElement';
-import { XSMLShadowRoot } from './ShadowRoot';
+import { ShadowRootImpl } from './ShadowRoot';
 import SpatialSpaceElement from './SpatialSpaceElement';
 import SpatialMeshElement from './SpatialMeshElement';
 import SpatialRefElement from './SpatialRefElement';
@@ -347,7 +347,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
         'Cannot adopt a document node',
         'NotSupportedError'
       );
-    } else if (node instanceof XSMLShadowRoot) {
+    } else if (node instanceof ShadowRootImpl) {
       throw new DOMException(
         'Cannot adopt a shadow root',
         'HierarchyRequestError'
@@ -671,7 +671,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     return this.#nativeDocument.getContainerPose();
   }
 
-  attachShadow(target: SpatialElement, options?: ShadowRootInit): XSMLShadowRoot {
+  attachShadow(target: SpatialElement, options?: ShadowRootInit): ShadowRoot {
     return target.attachShadow(options);
   }
 

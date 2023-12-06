@@ -4,6 +4,7 @@ import { toNode } from './xml-utils';
 import { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
 import { TextImpl } from '../../living/nodes/Text';
 import { HTMLElementImpl } from '../../living/nodes/HTMLElement';
+import { isHTMLContentElement, isSpatialElement } from '../../living/node-type';
 
 class XSMLParser {
   xmlParser: XMLParser;
@@ -65,7 +66,7 @@ class XSMLParser {
     return element;
   }
 
-  #traverse(node: ReturnType<typeof toNode>, parent: Document | Element, ownerDocument: Document) {
+  #traverse(node: ReturnType<typeof toNode>, parent: Document | DocumentFragment | Element, ownerDocument: Document) {
     if (!Array.isArray(node.children)) {
       return;
     }
@@ -76,8 +77,35 @@ class XSMLParser {
         parent.appendChild(childElement);
         continue;
       } else {
-        this.#traverse(childNode, childElement, ownerDocument);
-        parent.appendChild(childElement);
+        /**
+         * Skip Case 1: Disallow a spatial element to be a child of a HTML content element.
+         */
+        if (isSpatialElement(childElement) && isHTMLContentElement(parent)) {
+          continue;
+        }
+        /**
+         * FIXME: More skip cases?
+         */
+
+        /**
+         * If the child element is a HTML content element and the parent is a spatial element,
+         * we need to create a shadow root and append the child element to it instead of root.
+         */
+        if (isHTMLContentElement(childElement) && isSpatialElement(parent)) {
+          /**
+           * This create the shadow root on the parent spatial element only, then the shadow
+           * root will be attached when the spatial element is attached.
+           */
+          const shadowRoot = parent._createShadowRoot();
+          if (shadowRoot) {
+            this.#traverse(childNode, childElement, ownerDocument);
+            shadowRoot.appendChild(childElement);
+          }
+          continue;
+        } else {
+          this.#traverse(childNode, childElement, ownerDocument);
+          parent.appendChild(childElement);
+        }
       }
     }
   }

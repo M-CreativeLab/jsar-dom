@@ -27,7 +27,7 @@
       }
     }
     sphere {
-      position: 0 0 3;
+      position: 0 0 1.5;
       material: "litered";
     }
     .s_cube {
