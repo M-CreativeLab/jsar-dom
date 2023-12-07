@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'ts-jest/presets/js-with-ts-esm',
   testEnvironment: 'node',
+  extensionsToTreatAsEsm: ['.ts'],
   collectCoverageFrom: [
     'src/**/*.ts',
     '!node_modules/**',
