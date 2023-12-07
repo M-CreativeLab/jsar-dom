@@ -5,8 +5,8 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "build-bindings": "wasm-pack build bindings/taffy --target web",
-    "postbuild-bindings": "node ./bindings/tools/generate-wasm-js.cjs",
+    "bindings": "wasm-pack build bindings/taffy --target web",
+    "postbindings": "node ./bindings/tools/generate-wasm-js.cjs",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts"

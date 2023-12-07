@@ -15,10 +15,22 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
     - uses: actions/setup-node@v4.0.0
       with:
         node-version: 18.16.0
-    - name: Install dependencies
+    - name: Install wasm-pack
+      run: |
+        curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
+        export PATH=$HOME/.cargo/bin:$HOME/.wasm-pack/bin:$PATH
+    - name: Build bindings
+      run: |
+        wasm-pack build bindings/taffy --target web
+        node ./bindings/tools/generate-wasm-js.cjs
+    - name: Install Node.js dependencies
       run: npm ci && npx tsc --version 
     - name: Run Tests
       run: npm test
