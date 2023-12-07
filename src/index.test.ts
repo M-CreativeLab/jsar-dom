@@ -27,6 +27,7 @@ describe('JSARDOM', () => {
     await dom.load();
     expect(dom.document.title).toBe('Example');
     expect(dom.window.document.title).toBe('Example');
+    dom.unload();
   });
 
   it('should be able to execute script', async () => {
@@ -46,5 +47,6 @@ describe('JSARDOM', () => {
       nativeDocument: sharedNativeDocument,
     });
     await dom.load();
+    dom.unload();
   });
 });
