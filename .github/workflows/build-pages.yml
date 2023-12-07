@@ -34,10 +34,6 @@ jobs:
     - uses: actions/setup-node@v4.0.0
       with:
         node-version: 18.16.0
-    - name: Install wasm-pack
-      run: |
-        curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-        export PATH=$HOME/.cargo/bin:$HOME/.wasm-pack/bin:$PATH
     - name: Install Node.js dependencies
       run: npm ci && npx tsc --version
     - name: Setup Pages
@@ -47,8 +43,7 @@ jobs:
       run: npm ci
     - name: Build bindings
       run: |
-        wasm-pack build bindings/taffy --target web
-        node ./bindings/tools/generate-wasm-js.cjs
+        npm run buildings
     - name: Build Pages
       working-directory: ./pages
       run: npx webpack

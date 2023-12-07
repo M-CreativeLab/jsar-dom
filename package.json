@@ -60,6 +60,7 @@
     "ts-node": "^10.9.1",
     "tsconfig-paths": "^4.2.0",
     "typescript": "^5.3.2",
+    "wasm-pack": "^0.12.1",
     "webpack": "^5.88.1",
     "webpack-cli": "^5.1.4"
   },
