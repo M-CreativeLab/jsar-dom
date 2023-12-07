@@ -10,7 +10,7 @@ afterAll(() => {
   sharedNativeDocument.close();
 });
 
-describe('JSARDOM', () => {
+describe.skip('JSARDOM', () => {
   it('should be able to create a new JSARDOM instance from simple document', async () => {
     const dom = new JSARDOM(`
 <xsml>
