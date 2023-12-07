@@ -27,13 +27,13 @@ jobs:
       run: |
         curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
         export PATH=$HOME/.cargo/bin:$HOME/.wasm-pack/bin:$PATH
+    - name: Install Node.js dependencies
+      run: |
+        npm ci && npx tsc --version
     - name: Build bindings
       run: |
         wasm-pack build bindings/taffy --target web
         node ./bindings/tools/generate-wasm-js.cjs
-    - name: Install Node.js dependencies
-      run: |
-        npm ci && npx tsc --version
     - name: Run Integration Tests
       run: |
         npm run headless-bin -- ./fixtures/simple.xsml
