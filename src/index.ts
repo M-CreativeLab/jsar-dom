@@ -2,7 +2,7 @@
 import './living/helpers/babylonjs/patches';
 
 import 'babylonjs';
-import initTaffy from '@bindings/taffy';
+import { loadTaffy } from '@bindings/taffy';
 
 import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
@@ -58,7 +58,7 @@ export class JSARDOM {
     }
 
     // load native bindings
-    await initTaffy();
+    await loadTaffy();
 
     // prepare the window
     this[windowSymbol]._prepare();

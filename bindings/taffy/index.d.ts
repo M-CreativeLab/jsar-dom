@@ -1,2 +1,3 @@
-export default function load(): Promise<void>;
+export function loadTaffy();
+
 export * from './pkg/taffy_binding';
