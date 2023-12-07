@@ -43,7 +43,7 @@ jobs:
       run: npm ci
     - name: Build bindings
       run: |
-        npm run buildings
+        npm run bindings
     - name: Build Pages
       working-directory: ./pages
       run: npx webpack
