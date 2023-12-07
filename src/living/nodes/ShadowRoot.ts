@@ -49,6 +49,7 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
       this._slotAssignment = init.slotAssignment;
     }
     this._targetSpatialElement = privateData.target;
+    this._initiateContent(this._ownerDocument);
   }
 
   _attach() {

@@ -1,7 +1,7 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { HTMLElementImpl } from './HTMLElement';
+import { HTMLContentElement } from './HTMLContentElement';
 
-export default class HTMLSpanElementImpl extends HTMLElementImpl implements HTMLSpanElement {
+export default class HTMLSpanElementImpl extends HTMLContentElement implements HTMLSpanElement {
   constructor(
     nativeDocument: NativeDocument,
     args,

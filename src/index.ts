@@ -2,6 +2,8 @@
 import './living/helpers/babylonjs/patches';
 
 import 'babylonjs';
+import initTaffy from '@bindings/taffy';
+
 import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
@@ -54,6 +56,12 @@ export class JSARDOM {
     if (BABYLON.SceneLoader) {
       BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader() as any);
     }
+
+    // load native bindings
+    await initTaffy();
+
+    // prepare the window
+    this[windowSymbol]._prepare();
   }
 }
 

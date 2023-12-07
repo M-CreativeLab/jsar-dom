@@ -261,7 +261,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
     this._iterateLayoutResult(layoutResult);
-    layoutResult.unref(); // free the layout result.
+    // layoutResult.unref(); // free the layout result.
     this.update();
 
     this._isDirty = false;

@@ -13,8 +13,4 @@ export default class HTMLDivElementImpl extends HTMLContentElement implements HT
       localName: 'div',
     });
   }
-
-  _attach(): void {
-    super._attach();
-  }
 }

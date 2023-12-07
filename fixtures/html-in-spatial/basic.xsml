@@ -14,7 +14,9 @@
   <space>
     <cube size="1">
       <div>
-        <div>foobar</div>
+        <span>1</span>
+        <span>2</span>
+        <span>3</span>
       </div>
       <cube id="inner" height="0.7" size="1.2" />
     </cube>

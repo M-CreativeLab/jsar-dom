@@ -1,3 +1,4 @@
+import { Allocator as TaffyAllocator } from '@bindings/taffy';
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
@@ -102,14 +103,31 @@ export class BaseWindowImpl extends EventTarget implements Window {
 
   /**
    * @internal
+   * 
+   * Prepare some fields internally.
+   */
+  _prepare() {
+    this._taffyAllocator = new TaffyAllocator();
+  }
+
+  /**
+   * @internal
    */
   _customElementRegistry: CustomElementRegistryImpl;
+
   /**
    * @internal
    */
   get _nativeDocument(): NativeDocument {
     return this.#nativeDocument;
   }
+
+  /**
+   * @internal
+   * 
+   * The Layout library shared allocator.
+   */
+  _taffyAllocator: TaffyAllocator;
 
   [index: number]: Window;
   get length(): number {
@@ -257,6 +275,10 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
   close(): void {
     this.#nativeDocument.close();
+
+    // Dispose self after the native document is closed.
+    this._taffyAllocator.free();
+    this._taffyAllocator = null;
   }
   confirm(message?: string): boolean {
     return this.#nativeDocument.userAgent.confirm(message);
