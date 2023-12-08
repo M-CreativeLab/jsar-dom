@@ -11,7 +11,8 @@ module.exports = {
   devtool: isDevelopment ? 'inline-source-map' : false,
   output: {
     filename: 'entry.bundle.js',
-    path: path.resolve(__dirname, 'dist')
+    path: path.resolve(__dirname, 'dist'),
+    publicPath: '/dist',
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -62,16 +63,24 @@ module.exports = {
   //   minimizer: [new TerserPlugin()],
   // },
   devServer: {
-    hot: true,
+    hot: false,
+    liveReload: false,
     headers: {
       'Access-Control-Allow-Origin': '*',
       'Access-Control-Allow-Methods': 'GET',
       'Access-Control-Allow-Headers': 'Content-Type, Authorization',
       'Access-Control-Allow-Credentials': true,
     },
-    static: {
-      directory: path.join('../fixtures'),
-    },
+    static: [
+      {
+        directory: path.join(__dirname, './'),
+        publicPath: '/',
+      },
+      {
+        directory: path.join(__dirname, '../fixtures'),
+        publicPath: '/',
+      }
+    ],
     compress: true,
     port: 3000,
     open: false,

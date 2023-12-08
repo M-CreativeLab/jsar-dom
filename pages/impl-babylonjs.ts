@@ -121,6 +121,9 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       BABYLON.Vector3.Zero(),
       this._scene
     );
+    camera.upperRadiusLimit = 10;
+    camera.lowerRadiusLimit = 2;
+    camera.wheelDeltaPercentage = 0.01;
     camera.setPosition(new BABYLON.Vector3(0, 0, -10));
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);

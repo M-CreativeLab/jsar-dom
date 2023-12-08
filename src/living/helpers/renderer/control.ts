@@ -1,7 +1,11 @@
 import * as taffy from '@bindings/taffy';
 import { CSSStyleDeclaration } from 'cssstyle';
+import { CanvasTextConfig, drawText } from 'canvas-txt';
+
+import NodeTypes from '../../node-type';
 import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
-import { HTMLContentElement } from 'src/living/nodes/HTMLContentElement';
+import { HTMLContentElement } from '../../nodes/HTMLContentElement';
+import { TextImpl } from '../../nodes/Text';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -117,6 +121,25 @@ const CSSValueToLayoutStyleMappings = {
   },
 };
 const CSSValueToLayoutStyleProperties = Object.keys(CSSValueToLayoutStyleMappings);
+
+function getLineHeightValue(baseHeight: number, lineHeightStr: string): number {
+  if (!lineHeightStr || lineHeightStr === 'normal') {
+    return baseHeight;
+  }
+
+  if (lineHeightStr.endsWith('px')) {
+    // 32px
+    return parseFloat(lineHeightStr);
+  } else if (lineHeightStr.endsWith('%')) {
+    // 150%
+    const ratio = parseFloat(lineHeightStr) / 100;
+    return baseHeight * ratio;
+  } else {
+    // 2.5 or 2.5em
+    const ratio = parseFloat(lineHeightStr);
+    return baseHeight * ratio;
+  }
+}
 
 export class Control2D {
   /**
@@ -298,9 +321,9 @@ export class Control2D {
       /**
        * Render the inner text.
        */
-      // if (this.ownInnerText) {
-      //   this._renderInnerText(canvasContext, boxRect);
-      // }
+      if (this._isElementOwnsInnerText()) {
+        this._renderInnerText(canvasContext, boxRect);
+      }
     }
     this._lastRect = boxRect;
   }
@@ -319,6 +342,103 @@ export class Control2D {
       color: style[`${prefix}-color`],
       style: style[`${prefix}-style`],
     }
+  }
+
+  private get _fontSize() {
+    let value = 16;
+    if (this._style.fontSize) {
+      value = parseInt(this._style.fontSize);
+    }
+    return value;
+  }
+
+
+  private _getTextConfig(rect: DOMRectReadOnlyImpl): CanvasTextConfig {
+    let isTextJustify: boolean;
+    switch (this._style.textJustify) {
+      case 'inter-word':
+      case 'inter-character':
+        isTextJustify = true;
+        break;
+      case 'auto':
+      default:
+        isTextJustify = false;
+        break;
+    }
+
+    return {
+      debug: false,
+      x: rect.x,
+      y: rect.y,
+      height: rect.height,
+      width: rect.width,
+      font: this._style.fontFamily || 'sans-serif',
+      fontSize: this._fontSize,
+      fontWeight: this._style.fontWeight as any,
+      fontStyle: this._style.fontStyle as any,
+      align: this._style.textAlign as any,
+      vAlign: this._style.verticalAlign as any,
+      justify: isTextJustify,
+    };
+  }
+
+  /**
+   * This measures a given text in single-line mode and returns the width and height of the text block.
+   */
+  private _measureText(context: CanvasRenderingContext2D, text: string) {
+    const style = `${this._fontSize}px ${this._style.fontFamily}`;
+    const previousTextBaseline = context.textBaseline;
+    const previousFont = context.font;
+
+    context.textBaseline = 'bottom';
+    context.font = style;
+    const { actualBoundingBoxAscent, width } = context.measureText(text);
+
+    // Reset baseline
+    context.textBaseline = previousTextBaseline;
+    context.font = previousFont;
+
+    return {
+      height: Math.abs(actualBoundingBoxAscent),
+      width,
+    };
+  }
+
+  /**
+   * If this node owns an inner text.
+   */
+  private _isElementOwnsInnerText() {
+    const element = this._element;
+    if (!element) {
+      return false;
+    }
+    return element.childNodes.length === 1 && element.firstChild.nodeType === NodeTypes.TEXT_NODE;
+  }
+
+
+  /**
+   * Render the inner text in this control.
+   */
+  _renderInnerText(context: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl) {
+    const textNode = this._element.firstChild as TextImpl;
+    const text = `${textNode.data}`;
+
+    /**
+     * When the control's style height or width to be set to zero, we just skip render the text.
+     */
+    if (parseFloat(this._style.width) === 0 || parseFloat(this._style.height) === 0) {
+      return;
+    }
+
+    const textConfig = this._getTextConfig(rect);
+    const { height: textHeight } = this._measureText(context, text);
+
+    context.fillStyle = this._style.color || 'black';
+    drawText(context, text, {
+      lineHeight: getLineHeightValue(textHeight, this._style.lineHeight),
+      height: rect.height,
+      ...textConfig,
+    });
   }
 
   /**
