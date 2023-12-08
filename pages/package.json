@@ -5,7 +5,7 @@
   "main": "index.js",
   "type": "module",
   "scripts": {
-    "start": "cross-env NODE_ENV=dev webpack watch"
+    "start": "cross-env NODE_ENV=dev webpack serve"
   },
   "author": "",
   "license": "ISC",

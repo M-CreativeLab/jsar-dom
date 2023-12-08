@@ -103,7 +103,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
     this._scene.debugLayer.show({
-      showInspector: true,
+      showExplorer: true,
+      showInspector: false,
       globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
     });
 

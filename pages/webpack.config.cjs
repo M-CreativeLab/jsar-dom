@@ -61,4 +61,19 @@ module.exports = {
   // optimization: {
   //   minimizer: [new TerserPlugin()],
   // },
+  devServer: {
+    hot: true,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+      'Access-Control-Allow-Credentials': true,
+    },
+    static: {
+      directory: path.join('../fixtures'),
+    },
+    compress: true,
+    port: 3000,
+    open: false,
+  },
 };
