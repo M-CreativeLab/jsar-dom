@@ -1,44 +1,73 @@
-import * as taffy from '@bindings/taffy';
-import { applyMixins } from '../../mixin';
+import cssstyle from 'cssstyle';
 import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 import { HTMLElementImpl } from './HTMLElement';
-import { SpatialDocumentImpl } from './SpatialDocument';
 import { NativeDocument } from '../../impl-interfaces';
 import { isHTMLContentElement } from '../node-type';
+import { ShadowRootImpl } from './ShadowRoot';
+import DOMExceptionImpl from '../domexception';
+import { Control2D } from '../helpers/renderer/control';
 
-export class Content2D {
-  protected _targetTexture: InteractiveDynamicTexture;
+export class HTMLContentElement extends HTMLElementImpl {
+  private _targetTexture: InteractiveDynamicTexture;
+  private _control: Control2D;
 
-  /**
-   * The layout node to be used for the HTML layout.
-   * 
-   * @internal
-   */
-  _layoutNode: taffy.Node;
+  constructor(
+    hostObject: NativeDocument,
+    args: any[],
+    privateData: ConstructorParameters<typeof HTMLElementImpl>[2]
+  ) {
+    super(hostObject, args, privateData);
 
-  /**
-   * Initiate
-   */
-  _initiateContent(ownerDocument: SpatialDocumentImpl) {
-    this._layoutNode = new taffy.Node(ownerDocument._defaultView._taffyAllocator, {
-      display: taffy.Display.None,
+    this._style = new cssstyle.CSSStyleDeclaration(() => {
+      if (this._control.updateLayoutStyle()) {
+        this._tryUpdate();
+      }
     });
-    console.log(this._layoutNode, this);
+    const ownerDocument = this._ownerDocument;
+    this._control = new Control2D(ownerDocument._defaultView._taffyAllocator, this);
   }
 
-  /**
-   * @internal
-   */
-  _addChildToLayoutTree(node: Content2D) {
-    this._layoutNode.addChild(node._layoutNode);
-    // TODO: handle text?
+  _attach(): void {
+    this._control.init();
+
+    let textureToUpdate: InteractiveDynamicTexture;
+    const parent = this.parentNode;
+    if (isHTMLContentElement(parent)) {
+      parent._control.addChild(this._control);
+    } else if (parent instanceof ShadowRootImpl) {
+      textureToUpdate = parent._interactiveDynamicTexture;
+      textureToUpdate._rootLayoutContainer.addChild(this._control);
+    }
+
+    if (textureToUpdate) {
+      this._targetTexture = textureToUpdate;
+    } else {
+      const root = this.getRootNode();
+      if (root instanceof ShadowRootImpl) {
+        this._targetTexture = root._interactiveDynamicTexture;
+      } else {
+        throw new DOMExceptionImpl('The root node of this HTML content element is not a shadow root.', 'INVALID_STATE_ERR');
+      }
+    }
+
+    this._control.setRenderingContext(this._targetTexture.getContext() as CanvasRenderingContext2D);
+    super._attach();
   }
 
-  /**
-   * @internal
-   */
-  _removeChildFromLayoutTree(node: Content2D) {
-    this._layoutNode.removeChild(node._layoutNode);
+  _detach(): void {
+    /**
+     * Remove the node from parent firstly.
+     */
+    const parent = this.parentNode;
+    if (isHTMLContentElement(parent)) {
+      parent._control.removeChild(this._control);
+    }
+
+    /**
+     * Dispose the layout node.
+     */
+    this._control.dispose();
+    super._detach();
   }
 
   /**
@@ -49,8 +78,13 @@ export class Content2D {
    */
   _updateTargetTexture(targetTexture: InteractiveDynamicTexture) {
     this._targetTexture = targetTexture;
-
     // TODO
+  }
+
+  _tryUpdate() {
+    if (this._targetTexture) {
+      this._targetTexture.markAsDirty();
+    }
   }
 
   /**
@@ -61,10 +95,7 @@ export class Content2D {
    * @param base 
    */
   _renderSelf(rect: DOMRect, base: DOMRectReadOnly): void {
-    const x = rect.x + base.x;
-    const y = rect.y + base.y;
-    const width = rect.width;
-    const height = rect.height;
+    return this._control.render(rect, base);
   }
 
   /**
@@ -93,37 +124,3 @@ export class Content2D {
     return true;
   }
 }
-
-export interface HTMLContentElement extends Content2D { };
-export class HTMLContentElement extends HTMLElementImpl {
-  // Nothing
-  constructor(
-    hostObject: NativeDocument,
-    args: any[],
-    privateData: ConstructorParameters<typeof HTMLElementImpl>[2]
-  ) {
-    super(hostObject, args, privateData);
-
-    this._initiateContent(this._ownerDocument);
-  }
-
-  _attach(): void {
-    super._attach();
-
-    const parent = this.parentNode;
-    if (isHTMLContentElement(parent)) {
-      parent._addChildToLayoutTree(this);
-    }
-  }
-
-  _detach(): void {
-    super._detach();
-
-    const parent = this.parentNode;
-    if (isHTMLContentElement(parent)) {
-      parent._removeChildFromLayoutTree(this);
-    }
-  }
-}
-
-applyMixins(HTMLContentElement, [Content2D]);

@@ -1,11 +1,10 @@
-import { type Nullable, type Observer } from 'babylonjs';
+import * as taffy from '@bindings/taffy';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
-import { Content2D, HTMLContentElement } from '../../nodes/HTMLContentElement';
+import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { isHTMLContentElement } from '../../node-type';
-
-type Control2D = ShadowRootImpl | HTMLContentElement;
+import { Control2D } from '../renderer/control';
 
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
@@ -27,17 +26,21 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   /** if the texture is rendering */
   private _isRendering = false;
   private _ownerNativeDocument: NativeDocument;
-  private _pointerObserver: Nullable<Observer<BABYLON.PointerInfo>>;
-  private _renderObserver: Nullable<Observer<BABYLON.Scene>>;
+  private _pointerObserver: BABYLON.Nullable<BABYLON.Observer<BABYLON.PointerInfo>>;
+  private _renderObserver: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>>;
   /**
    * This is updated at picking event and used in other hand events.
    */
   private _lastPositionInPicking = new BABYLON.Vector2(-1, -1);
 
   /** @internal */
-  public _rootContainer: Control2D;
+  // _rootContainer: HTMLContentElement;
   /** @internal */
-  public _lastPickedControl: HTMLElementImpl;
+  _rootLayoutContainer: Control2D;
+  /** @internal */
+  _shadowRoot: ShadowRootImpl;
+  /** @internal */
+  _lastPickedControl: HTMLElementImpl;
   /** @internal */
   /** @internal */
   private _idealWidth = 0;
@@ -78,12 +81,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     this._onResize();
   }
 
-  /**
-   * Gets the root container control
-   */
-  public get rootContainer(): Content2D {
-    return this._rootContainer;
-  }
+  // /**
+  //  * Gets the root container control
+  //  */
+  // public get rootContainer(): HTMLContentElement {
+  //   return this._rootContainer;
+  // }
 
   /**
    * Returns an array containing the root container.
@@ -145,7 +148,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     width = 0,
     height = 0,
     shadowRoot: ShadowRootImpl,
-    scene?: Nullable<BABYLON.Scene>,
+    scene?: BABYLON.Nullable<BABYLON.Scene>,
     generateMipMaps = false,
     samplingMode = BABYLON.Texture.NEAREST_SAMPLINGMODE,
     invertY = true
@@ -158,10 +161,15 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     }
     this.applyYInversionOnUpdate = invertY;
     this._ownerNativeDocument = shadowRoot._hostObject;
+    this._shadowRoot = shadowRoot;
 
-    this._rootContainer = shadowRoot;
-    // rootContainer.style.height = `${height}px`;
-    // rootContainer.style.width = `${width}px`;
+    const ownerDocument = shadowRoot._ownerDocument;
+    this._rootLayoutContainer = new Control2D(ownerDocument._defaultView._taffyAllocator, null);
+    this._rootLayoutContainer.init({
+      height,
+      width,
+    });
+    this._rootLayoutContainer.setRenderingContext(this.getContext() as CanvasRenderingContext2D);
 
     this.hasAlpha = true;
     if (!width || !height) {
@@ -247,12 +255,10 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     if (this._isRendering || this._isDirty !== true) {
       return;
     }
-
     this._isRendering = true;
-    this._rootContainer._updateTargetTexture(this);
 
     const textureSize = this.getSize();
-    const layoutResult = this._rootContainer._layoutNode.computeLayout({
+    const layoutResult = this._rootLayoutContainer.layoutNode.computeLayout({
       height: textureSize.height,
       width: textureSize.width,
     });
@@ -261,18 +267,31 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
     this._iterateLayoutResult(layoutResult);
-    // layoutResult.unref(); // free the layout result.
+    layoutResult.free();
     this.update();
 
     this._isDirty = false;
     this._isRendering = false;
   }
 
-  private _iterateLayoutResult(layout, base = { x: 0, y: 0 }, currentControl: Control2D = this._rootContainer) {
-    currentControl._renderSelf.call(currentControl, layout, base);
+  private _iterateLayoutResult(
+    layout: taffy.Layout,
+    base = { x: 0, y: 0 },
+    currentElementOrControl: HTMLContentElement | null = null
+  ) {
+    let elementOrShadowRoot: HTMLContentElement | ShadowRootImpl;
+    if (currentElementOrControl === null) {
+      const control = this._rootLayoutContainer;
+      control.render.call(control, layout, base);
+      elementOrShadowRoot = this._shadowRoot;
+    } else {
+      currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
+      elementOrShadowRoot = currentElementOrControl;
+    }
+
     for (let i = 0; i < layout.childCount; i++) {
       const childLayout = layout.child(i);
-      const childControl = currentControl.childNodes.item(i) as HTMLContentElement;
+      const childControl = elementOrShadowRoot.childNodes.item(i) as HTMLContentElement;
       // TODO: Check if this control is a HTMLContentElement?
       this._iterateLayoutResult(childLayout, {
         x: base.x + layout.x,
@@ -285,7 +304,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * This iterate the controls from the given node, and it receives a callback that returns a boolean value. If the boolean is
    * false it stops the iteration of the remaining controls.
    */
-  private _iterateControls(node: Control2D, callback: (control: Control2D) => boolean) {
+  private _iterateControls(node: HTMLContentElement, callback: (control: HTMLContentElement) => boolean) {
     const shouldCountine = callback(node);
     if (!shouldCountine) {
       return;
@@ -312,10 +331,11 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       yInScreen = textureSize.height - yInScreen;
     }
 
-    this._iterateControls(this._rootContainer, (control) => {
-      control._processPicking(xInScreen, yInScreen, type);
-      return true;
-    });
+    // TODO
+    // this._iterateControls(this._rootContainer, (control) => {
+    //   control._processPicking(xInScreen, yInScreen, type);
+    //   return true;
+    // });
     this._lastPositionInPicking.x = xInScreen;
     this._lastPositionInPicking.y = yInScreen;
   }
@@ -325,9 +345,9 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    */
   public _processPointerEvent(type: number) {
     const { x: xInScreen, y: yInScreen } = this._lastPositionInPicking;
-    this._iterateControls(this._rootContainer, (control) => {
-      return control._processPointerEvent(xInScreen, yInScreen, type);
-    });
+    // this._iterateControls(this._rootContainer, (control) => {
+    //   return control._processPointerEvent(xInScreen, yInScreen, type);
+    // });
   }
 
   /**
@@ -443,11 +463,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       throw 'StandardMaterial needs to be imported before as it contains a side-effect required by your code.';
     }
 
-    const material: BABYLON.StandardMaterial = new internalClassType(`InteractiveDynamicTextureMaterial for ${mesh.name} [${uniqueId}]`, mesh.getScene());
+    const material: BABYLON.StandardMaterial = new internalClassType(
+      `InteractiveDynamicTextureMaterial for ${mesh.name} [${uniqueId}]`, mesh.getScene());
     material.backFaceCulling = false;
-    if (onlyAlphaTesting) {
-      material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATESTANDBLEND;
-    }
+    material.alphaMode = BABYLON.Engine.ALPHA_ADD;
+    material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+    material.useAlphaFromDiffuseTexture = true;
     material.diffuseTexture = texture;
     mesh.material = material;
   }

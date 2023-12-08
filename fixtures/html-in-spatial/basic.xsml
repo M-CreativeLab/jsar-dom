@@ -13,10 +13,10 @@
   </head>
   <space>
     <cube size="1">
-      <div>
-        <span>1</span>
-        <span>2</span>
-        <span>3</span>
+      <div style="background: red; height: 80%; width: 100%; row-gap: 50px; flex-direction: row; padding: 50px;">
+        <span style="background: yellow; height: 300px; width: 300px;">1</span>
+        <span style="background: yellow; height: 200px; width: 200px;">2</span>
+        <span style="background: yellow; height: 200px; width: 200px;">3</span>
       </div>
       <cube id="inner" height="0.7" size="1.2" />
     </cube>

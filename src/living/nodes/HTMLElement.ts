@@ -1,10 +1,29 @@
+import cssstyle from 'cssstyle';
 import { ElementImpl } from './Element';
+import { NativeDocument } from 'src/impl-interfaces';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
+  private _settingCssText: boolean = false;
+  _style: cssstyle.CSSStyleDeclaration;
+
   accessKey: string;
   accessKeyLabel: string;
   autocapitalize: string;
-  dir: string;
+
+  get dir(): string {
+    let dirValue = this.getAttributeNS(null, 'dir');
+    if (dirValue !== null) {
+      dirValue = dirValue.toLowerCase();
+      if (['ltr', 'rtl', 'auto'].includes(dirValue)) {
+        return dirValue;
+      }
+    }
+    return '';
+  }
+  set dir(value: string) {
+    this.setAttributeNS(null, 'dir', value);
+  }
+
   draggable: boolean;
   hidden: boolean;
   inert: boolean;
@@ -20,6 +39,7 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   spellcheck: boolean;
   title: string;
   translate: boolean;
+
   attachInternals(): ElementInternals {
     throw new Error('Method not implemented.');
   }
@@ -35,8 +55,11 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   togglePopover(force?: boolean): void {
     throw new Error('Method not implemented.');
   }
+
   attributeStyleMap: StylePropertyMap;
-  style: CSSStyleDeclaration;
+  get style(): CSSStyleDeclaration {
+    return this._style as unknown as CSSStyleDeclaration;
+  }
   contentEditable: string;
   enterKeyHint: string;
   inputMode: string;
@@ -141,6 +164,23 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   dataset: DOMStringMap;
   nonce?: string;
   tabIndex: number;
+
+  constructor(
+    hostObject: NativeDocument,
+    args: any[],
+    privateData: ConstructorParameters<typeof ElementImpl>[2]
+  ) {
+    super(hostObject, args, privateData);
+
+    this._style = new cssstyle.CSSStyleDeclaration((newCssText) => {
+      if (!this._settingCssText) {
+        this._settingCssText = true;
+        this.setAttributeNS(null, 'style', newCssText);
+        this._settingCssText = false;
+      }
+    });
+  }
+
   blur(): void {
     throw new Error('Method not implemented.');
   }
@@ -152,6 +192,15 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
    * @internal
    */
   _dispose() {
+    // TODO
+  }
 
+  _attrModified(name: string, value: string, oldValue: string): void {
+    if (name === 'style' && value !== oldValue && !this._settingCssText) {
+      this._settingCssText = true;
+      this._style.cssText = value;
+      this._settingCssText = false;
+    }
+    super._attrModified(name, value, oldValue);
   }
 }

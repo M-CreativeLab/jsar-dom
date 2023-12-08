@@ -470,7 +470,7 @@ export class NodeImpl extends EventTarget implements Node {
     return isInclusiveAncestor(this, other);
   }
   getRootNode(options?: GetRootNodeOptions): Node {
-    return options.composed ? shadowIncludingRoot(this) : nodeRoot(this);
+    return options?.composed ? shadowIncludingRoot(this) : nodeRoot(this);
   }
   hasChildNodes(): boolean {
     return domSymbolTree.hasChildren(this);

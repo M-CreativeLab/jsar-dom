@@ -5,10 +5,9 @@ import { SpatialElement } from './SpatialElement';
 import DocumentFragmentImpl from './DocumentFragment';
 import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
 import InnerHTMLImpl from '../domparsing/InnerHTML';
-import { Content2D } from './HTMLContentElement';
 import { applyMixins } from '../../mixin';
 
-export interface ShadowRootImpl extends DocumentFragmentImpl, DocumentOrShadowRootImpl, Content2D, InnerHTMLImpl { };
+export interface ShadowRootImpl extends DocumentFragmentImpl, DocumentOrShadowRootImpl, InnerHTMLImpl { };
 export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
   get mode(): ShadowRootMode {
     return this._mode;
@@ -19,7 +18,9 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
   get slotAssignment(): SlotAssignmentMode {
     return this._slotAssignment;
   }
-  host: Element;
+  get host(): Element {
+    return this._targetSpatialElement;
+  }
   onslotchange: (this: ShadowRoot, ev: Event) => any;
 
   /** @internal */
@@ -49,7 +50,6 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
       this._slotAssignment = init.slotAssignment;
     }
     this._targetSpatialElement = privateData.target;
-    this._initiateContent(this._ownerDocument);
   }
 
   _attach() {
@@ -73,4 +73,4 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
   }
 }
 
-applyMixins(ShadowRootImpl, [DocumentOrShadowRootImpl, Content2D, InnerHTMLImpl]);
+applyMixins(ShadowRootImpl, [DocumentOrShadowRootImpl, InnerHTMLImpl]);
