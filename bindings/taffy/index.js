@@ -1,12 +1,13 @@
-import initTaffyModule from './pkg/taffy_binding';
-import wasmBinary from './pkg/taffy_binding_bg_wasm';
+import * as taffy from './pkg/taffy_binding';
+const { initSync } = taffy;
 
 let loaded = false;
 export async function loadTaffy() {
   if (loaded) {
     return;
   } else {
-    await initTaffyModule(Promise.resolve(wasmBinary));
+    const wasmBinary = await import('./pkg/taffy_binding_bg_wasm');
+    await initSync(wasmBinary.default);
     loaded = true;
   }
 }

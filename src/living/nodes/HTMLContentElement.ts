@@ -1,13 +1,4 @@
-import {
-  Node as LayoutNode,
-  Display as CSSDisplay,
-  Position as CSSPosition,
-  FlexDirection as CSSFlexDirection,
-  FlexWrap as CSSFlexWrap,
-  JustifyContent as CSSJustifyContent,
-  AlignItems as CSSAlignItems,
-  AlignContent as CSSAlignContent,
-} from '@bindings/taffy';
+import * as taffy from '@bindings/taffy';
 import { applyMixins } from '../../mixin';
 import { InteractiveDynamicTexture } from '../helpers/babylonjs/InteractiveDynamicTexture';
 import { HTMLElementImpl } from './HTMLElement';
@@ -23,14 +14,14 @@ export class Content2D {
    * 
    * @internal
    */
-  _layoutNode: LayoutNode;
+  _layoutNode: taffy.Node;
 
   /**
    * Initiate
    */
   _initiateContent(ownerDocument: SpatialDocumentImpl) {
-    this._layoutNode = new LayoutNode(ownerDocument._defaultView._taffyAllocator, {
-      display: CSSDisplay.None,
+    this._layoutNode = new taffy.Node(ownerDocument._defaultView._taffyAllocator, {
+      display: taffy.Display.None,
     });
     console.log(this._layoutNode, this);
   }

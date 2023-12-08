@@ -1,4 +1,4 @@
-import { Allocator as TaffyAllocator } from '@bindings/taffy';
+import * as taffy from '@bindings/taffy';
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
@@ -107,7 +107,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
    * Prepare some fields internally.
    */
   _prepare() {
-    this._taffyAllocator = new TaffyAllocator();
+    this._taffyAllocator = new taffy.Allocator();
   }
 
   /**
@@ -127,7 +127,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
    * 
    * The Layout library shared allocator.
    */
-  _taffyAllocator: TaffyAllocator;
+  _taffyAllocator: taffy.Allocator;
 
   [index: number]: Window;
   get length(): number {

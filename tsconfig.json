@@ -15,6 +15,7 @@
       "ESNext",
       "DOM"
     ],
+    "baseUrl": "./",
     "paths": {
       "@bindings/taffy": ["./bindings/taffy"]
     }
@@ -27,6 +28,12 @@
   ],
   "ts-node": {
     "esm": true,
+    "moduleTypes": {
+      "**/*.ts": "esm",
+      "**/*.js": "esm",
+      "**/*.mjs": "esm",
+      "**/*.cjs": "cjs"
+    },
     "experimentalSpecifierResolution": "node"
   }
 }

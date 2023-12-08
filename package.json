@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "bindings": "wasm-pack build bindings/taffy --target web",
-    "postbindings": "node ./bindings/tools/generate-wasm-js.cjs",
+    "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts"
