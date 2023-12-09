@@ -41,6 +41,10 @@ export function isHTMLContentElement(node: Node): node is HTMLContentElement {
   return isElementNode(node) && node instanceof getInterfaceWrapper('HTMLContentElement');
 }
 
+export function isHTMLStyleElement(node: Node): node is HTMLStyleElement {
+  return isElementNode(node) && node instanceof getInterfaceWrapper('HTMLStyleElement');
+}
+
 export function isSpatialElement(node: Node): node is SpatialElement {
   return isElementNode(node) && node instanceof getInterfaceWrapper('SpatialElement');
 }

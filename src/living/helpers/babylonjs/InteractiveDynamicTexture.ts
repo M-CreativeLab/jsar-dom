@@ -5,6 +5,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { isHTMLContentElement } from '../../node-type';
 import { Control2D } from '../renderer/control';
+import { domSymbolTree } from '../internal-constants';
 
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
@@ -257,8 +258,19 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     }
     this._isRendering = true;
 
+    // Update styles for GUI nodes
+    const defaultView = this._shadowRoot._ownerDocument._defaultView;
+    domSymbolTree.treeToArray(this._shadowRoot, {
+      filter: node => isHTMLContentElement(node)
+    })
+      .forEach((node: HTMLContentElement) => {
+        const style = defaultView.getComputedStyle(node);
+        node._adoptStyle(style);
+      });
+
+    // Compute layouts
     const textureSize = this.getSize();
-    const layoutResult = this._rootLayoutContainer.layoutNode.computeLayout({
+    this._rootLayoutContainer.layoutNode.computeLayout({
       height: textureSize.height,
       width: textureSize.width,
     });
@@ -266,37 +278,41 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     // Start rendering
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
-    this._iterateLayoutResult(layoutResult);
-    layoutResult.free();
+    this._iterateLayoutResult();
     this.update();
 
+    // Post steps
     this._isDirty = false;
     this._isRendering = false;
   }
 
   private _iterateLayoutResult(
-    layout: taffy.Layout,
     base = { x: 0, y: 0 },
     currentElementOrControl: HTMLContentElement | null = null
   ) {
+    let layout: taffy.LayoutSimple;
     let elementOrShadowRoot: HTMLContentElement | ShadowRootImpl;
     if (currentElementOrControl === null) {
       const control = this._rootLayoutContainer;
+      layout = control.layoutNode.getLayout();
       control.render.call(control, layout, base);
       elementOrShadowRoot = this._shadowRoot;
     } else {
+      layout = currentElementOrControl._control.layoutNode.getLayout();
       currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
       elementOrShadowRoot = currentElementOrControl;
     }
 
-    for (let i = 0; i < layout.childCount; i++) {
-      const childLayout = layout.child(i);
-      const childControl = elementOrShadowRoot.childNodes.item(i) as HTMLContentElement;
-      // TODO: Check if this control is a HTMLContentElement?
-      this._iterateLayoutResult(childLayout, {
+    for (let i = 0; i < elementOrShadowRoot.children.length; i++) {
+      const childItem = elementOrShadowRoot.children.item(i);
+      /** check if the child item is a HTMLContentElement instance, such as a <style type="text/css">. */
+      if (!isHTMLContentElement(childItem)) {
+        continue;
+      }
+      this._iterateLayoutResult({
         x: base.x + layout.x,
         y: base.y + layout.y,
-      }, childControl);
+      }, childItem);
     }
   }
 

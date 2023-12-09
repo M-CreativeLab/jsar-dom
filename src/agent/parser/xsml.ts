@@ -4,7 +4,7 @@ import { toNode } from './xml-utils';
 import { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
 import { TextImpl } from '../../living/nodes/Text';
 import { HTMLElementImpl } from '../../living/nodes/HTMLElement';
-import { isHTMLContentElement, isSpatialElement } from '../../living/node-type';
+import { isHTMLContentElement, isHTMLStyleElement, isSpatialElement } from '../../living/node-type';
 
 class XSMLParser {
   xmlParser: XMLParser;
@@ -88,24 +88,36 @@ class XSMLParser {
          */
 
         /**
-         * If the child element is a HTML content element and the parent is a spatial element,
+         * If the child element is a HTML content element or a style element with a text/css in a spatial element,
          * we need to create a shadow root and append the child element to it instead of root.
          */
-        if (isHTMLContentElement(childElement) && isSpatialElement(parent)) {
-          /**
-           * This create the shadow root on the parent spatial element only, then the shadow
-           * root will be attached when the spatial element is attached.
-           */
-          const shadowRoot = parent._createShadowRoot();
-          if (shadowRoot) {
-            this.#traverse(childNode, childElement, ownerDocument);
-            shadowRoot.appendChild(childElement);
+        if (isSpatialElement(parent)) {
+          const isCSSStyleElement = isHTMLStyleElement(childElement) && childElement.type === 'text/css';
+          if (isHTMLContentElement(childElement) || isCSSStyleElement) {
+            /**
+             * This create the shadow root on the parent spatial element only, then the shadow
+             * root will be attached when the spatial element is attached.
+             * 
+             * We check if the parent's shadowRoot is created, if not created, we need to create one, otherwise just
+             * use the created shadow root instance.
+             */
+            if (!parent.shadowRoot || parent.shadowRoot == null) {
+              parent._createShadowRoot();
+            }
+            const shadowRoot = parent.shadowRoot;
+            if (shadowRoot) {
+              this.#traverse(childNode, childElement, ownerDocument);
+              shadowRoot.appendChild(childElement);
+            }
+            continue;
           }
-          continue;
-        } else {
-          this.#traverse(childNode, childElement, ownerDocument);
-          parent.appendChild(childElement);
         }
+
+        /**
+         * Otherwise, just traverse and append the child to parent.
+         */
+        this.#traverse(childNode, childElement, ownerDocument);
+        parent.appendChild(childElement);
       }
     }
   }

@@ -7,9 +7,14 @@ import { ShadowRootImpl } from './ShadowRoot';
 import DOMExceptionImpl from '../domexception';
 import { Control2D } from '../helpers/renderer/control';
 
+const { forEach } = Array.prototype;
+
 export class HTMLContentElement extends HTMLElementImpl {
   private _targetTexture: InteractiveDynamicTexture;
-  private _control: Control2D;
+  /** @internal */
+  _control: Control2D;
+  /** @internal */
+  _adoptedStyle: cssstyle.CSSStyleDeclaration;
 
   constructor(
     hostObject: NativeDocument,
@@ -18,10 +23,22 @@ export class HTMLContentElement extends HTMLElementImpl {
   ) {
     super(hostObject, args, privateData);
 
-    this._style = new cssstyle.CSSStyleDeclaration(() => {
-      if (this._control.updateLayoutStyle()) {
-        this._tryUpdate();
-      }
+    this._adoptedStyle = new cssstyle.CSSStyleDeclaration(() => {
+      /**
+       * Due to the nature of the `cssstyle` module, properties with sub-properties such as `padding` and `margin` do not 
+       * trigger callbacks when their sub-properties are updated, see https://github.com/jsdom/cssstyle/blob/master/lib/parsers.js#L619.
+       * 
+       * This is because the callbacks are invoked when updating the main property, and there is no notification for sub-property
+       * updates. To address this issue, a setTimeout is used to ensure that the callback is executed in the next tick after the update,
+       * allowing us to use the updated sub-properties.
+       * 
+       * TODO: we will fix this after we moving cssstyle into this project.
+       */
+      setTimeout(() => {
+        if (this._control.updateLayoutStyle()) {
+          this._tryUpdate();
+        }
+      });
     });
     const ownerDocument = this._ownerDocument;
     this._control = new Control2D(ownerDocument._defaultView._taffyAllocator, this);
@@ -68,6 +85,22 @@ export class HTMLContentElement extends HTMLElementImpl {
      */
     this._control.dispose();
     super._detach();
+  }
+
+  _adoptStyle(style: CSSStyleDeclaration) {
+    const decl = this._adoptedStyle;
+    forEach.call(style, (property: string) => {
+      const value = style.getPropertyValue(property);
+      if (value === 'unset') {
+        decl.removeProperty(property);
+      } else {
+        decl.setProperty(
+          property,
+          value,
+          style.getPropertyPriority(property)
+        );
+      }
+    });
   }
 
   /**

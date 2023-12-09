@@ -470,6 +470,37 @@ impl Layout {
 }
 
 #[wasm_bindgen]
+#[derive(Clone, Debug)]
+pub struct LayoutSimple {
+    #[wasm_bindgen(readonly)]
+    pub width: f32,
+
+    #[wasm_bindgen(readonly)]
+    pub height: f32,
+
+    #[wasm_bindgen(readonly)]
+    pub x: f32,
+
+    #[wasm_bindgen(readonly)]
+    pub y: f32,
+}
+
+#[wasm_bindgen]
+impl LayoutSimple {
+    fn new(allocator: &Allocator, node: taffy::node::Node) -> LayoutSimple {
+        let taffy = allocator.taffy.borrow();
+        let layout = taffy.layout(node).unwrap();
+
+        LayoutSimple {
+            width: layout.size.width,
+            height: layout.size.height,
+            x: layout.location.x,
+            y: layout.location.y,
+        }
+    }
+}
+
+#[wasm_bindgen]
 #[derive(Clone)]
 pub struct Allocator {
     taffy: Rc<RefCell<taffy::Taffy>>,
@@ -490,6 +521,7 @@ pub struct Node {
     allocator: Allocator,
     node: taffy::node::Node,
     style: JsValue,
+    bindObject: JsValue,
 
     #[wasm_bindgen(readonly)]
     pub childCount: usize,
@@ -498,7 +530,7 @@ pub struct Node {
 #[wasm_bindgen]
 impl Node {
     #[wasm_bindgen(constructor)]
-    pub fn new(allocator: &Allocator, style: &JsValue) -> Self {
+    pub fn new(allocator: &Allocator, bindObject: &JsValue, style: &JsValue) -> Self {
         Self {
             allocator: allocator.clone(),
             node: allocator
@@ -507,8 +539,14 @@ impl Node {
                 .new_leaf(parse_style(&style))
                 .unwrap(),
             style: style.clone(),
+            bindObject: bindObject.clone(),
             childCount: 0,
         }
+    }
+
+    #[wasm_bindgen(getter)]
+    pub fn bindObject(&self) -> JsValue {
+        self.bindObject.clone()
     }
 
     #[wasm_bindgen(js_name = setMeasure)]
@@ -634,7 +672,7 @@ impl Node {
     }
 
     #[wasm_bindgen(js_name = computeLayout)]
-    pub fn compute_layout(&mut self, size: &JsValue) -> Layout {
+    pub fn compute_layout(&mut self, size: &JsValue) -> bool {
         self.allocator
             .taffy
             .borrow_mut()
@@ -646,7 +684,13 @@ impl Node {
                 },
             )
             .unwrap();
-        Layout::new(&self.allocator, self.node)
+        // Layout::new(&self.allocator, self.node)
+        true
+    }
+
+    #[wasm_bindgen(js_name = getLayout)]
+    pub fn get_layout(&mut self) -> LayoutSimple {
+        LayoutSimple::new(&self.allocator, self.node)
     }
 }
 

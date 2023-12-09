@@ -210,7 +210,7 @@ export class SpatialElement extends ElementImpl {
   _createShadowRoot(init?: ShadowRootInit): ShadowRoot {
     if (this._shadowRoot == null || !this._shadowRoot) {
       this._shadowRoot = new ShadowRootImpl(this._hostObject, [init], {
-        target: this,
+        host: this,
       });
     }
     return this._shadowRoot;

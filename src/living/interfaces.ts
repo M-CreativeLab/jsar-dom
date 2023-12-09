@@ -3,6 +3,8 @@ import type { NodeImpl } from './nodes/Node';
 import type { ElementImpl } from './nodes/Element';
 import type { HTMLElementImpl } from './nodes/HTMLElement';
 import type { HTMLContentElement } from './nodes/HTMLContentElement';
+import type HTMLStyleElementImpl from './nodes/HTMLStyleElement';
+import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
 import type { SpatialElement } from './nodes/SpatialElement';
 
 let implementationLoaded = false;
@@ -43,6 +45,7 @@ export async function loadImplementations() {
     import('./nodes/HTMLHeadElement'),
     import('./nodes/HTMLTitleElement'),
     import('./nodes/HTMLMetaElement'),
+    import('./nodes/HTMLStyleElement'),
     import('./nodes/HTMLScriptElement'),
     import('./nodes/HTMLDivElement'),
     import('./nodes/HTMLSpanElement'),
@@ -92,6 +95,7 @@ export async function loadImplementations() {
     HTMLHeadElementImpl,
     HTMLTitleElementImpl,
     HTMLMetaElementImpl,
+    HTMLStyleElementImpl,
     HTMLScriptElementImpl,
     HTMLDivElementImpl,
     HTMLSpanElementImpl,
@@ -139,11 +143,12 @@ export async function loadImplementations() {
     implementedInterfaces.set('HTMLHeadElement', HTMLHeadElementImpl);
     implementedInterfaces.set('HTMLTitleElement', HTMLTitleElementImpl);
     implementedInterfaces.set('HTMLMetaElement', HTMLMetaElementImpl);
-    implementedInterfaces.set('HTMLScriptElement', HTMLScriptElementImpl);
-    implementedInterfaces.set('HTMLDivElement', HTMLDivElementImpl);
-    implementedInterfaces.set('HTMLSpanElement', HTMLSpanElementImpl);
+    implementedInterfaces.set('HTMLStyleElement', HTMLStyleElementImpl.default);
+    implementedInterfaces.set('HTMLScriptElement', HTMLScriptElementImpl.default);
+    implementedInterfaces.set('HTMLDivElement', HTMLDivElementImpl.default);
+    implementedInterfaces.set('HTMLSpanElement', HTMLSpanElementImpl.default);
     implementedInterfaces.set('SpatialElement', SpatialElement);
-    implementedInterfaces.set('StyleSheetList', StyleSheetListImpl);
+    implementedInterfaces.set('StyleSheetList', StyleSheetListImpl.default);
     implementedInterfaces.set('CloseEvent', CloseEventImpl);
     implementedInterfaces.set('CustomEvent', CustomEventImpl);
     implementedInterfaces.set('ErrorEvent', ErrorEventImpl);
@@ -163,8 +168,8 @@ export async function loadImplementations() {
     implementedInterfaces.set('Range', RangeImpl);
     implementedInterfaces.set('MutationObserver', MutationObserverImpl);
     implementedInterfaces.set('MutationRecord', MutationRecordImpl);
-    implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl);
-    implementedInterfaces.set('DOMRect', DOMRectImpl);
+    implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl.default);
+    implementedInterfaces.set('DOMRect', DOMRectImpl.default);
     implementationLoaded = true;
   });
 }
@@ -175,6 +180,8 @@ export function getInterfaceWrapper(name: 'Node'): typeof NodeImpl;
 export function getInterfaceWrapper(name: 'Element'): typeof ElementImpl;
 export function getInterfaceWrapper(name: 'HTMLElement'): typeof HTMLElementImpl;
 export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLContentElement;
+export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleElementImpl;
+export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
 export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
 export function getInterfaceWrapper(name: string): any;
 export function getInterfaceWrapper(name: string) {

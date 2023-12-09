@@ -1,14 +1,16 @@
+import cssstyle from 'cssstyle';
 import type { NodeImpl } from '../nodes/Node';
 import type { ElementImpl } from '../nodes/Element';
 import type { SpatialElement } from '../nodes/SpatialElement';
 import type { HTMLElementImpl } from '../nodes/HTMLElement';
-import { isHTMLElement, isSpatialElement } from '../node-type';
+import { isDocumentNode, isHTMLElement, isSpatialElement } from '../node-type';
 
 import CSSRuleListImpl from '../cssom/CSSRuleList';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import CSSSpatialStyleRule from '../cssom/CSSSpatialStyleRule';
 import CSSStyleRuleImpl from '../cssom/CSSStyleRule';
 import { matchesDontThrow } from './selectors';
+import { isShadowRoot } from './shadow-dom';
 
 type CSSAndSpatialStyleRule = CSSStyleRule | CSSSpatialStyleRule;
 type StyleRuleHander = (rule: CSSAndSpatialStyleRule) => void;
@@ -73,13 +75,22 @@ function forEachMatchingSheetRuleOfElement(elementImpl: ElementImpl, handleStyle
       }
     });
   };
-  forEach.call(elementImpl._ownerDocument.styleSheets, handleSheet);
+
+  const rootOfElement = elementImpl.getRootNode() as NodeImpl;
+  if (isShadowRoot(rootOfElement) || isDocumentNode(rootOfElement)) {
+    forEach.call(rootOfElement.styleSheets, handleSheet);
+  } else {
+    // FIXME: do we need throw an error for this case? This might be unreachable.
+  }
 }
 
 export function getDeclarationForElement(elementImpl: SpatialElement): CSSSpatialStyleDeclaration;
 export function getDeclarationForElement(elementImpl: HTMLElementImpl): CSSStyleDeclaration;
 export function getDeclarationForElement(elementImpl: ElementImpl): CSSStyleDeclaration;
 export function getDeclarationForElement(elementImpl: ElementImpl) {
+  /**
+   * FIXME: should we move the style cache to DocumentOrShadowRoot even though the _ownerDocument works?
+   */
   let styleCache = elementImpl._ownerDocument._styleCache;
   if (!styleCache) {
     styleCache = elementImpl._ownerDocument._styleCache = new WeakMap();
@@ -91,7 +102,13 @@ export function getDeclarationForElement(elementImpl: ElementImpl) {
   }
 
   // TODO: support classic style declaration
-  const declaration = new CSSSpatialStyleDeclaration();
+  let declaration: CSSSpatialStyleDeclaration | CSSStyleDeclaration;
+  if (isSpatialElement(elementImpl)) {
+    declaration = new CSSSpatialStyleDeclaration();
+  } else {
+    declaration = new cssstyle.CSSStyleDeclaration() as unknown as CSSStyleDeclaration;
+  }
+
   function handleProperty(style: CSSAndSpatialStyleRule['style'], property: string) {
     const value = style.getPropertyValue(property);
     if (value === 'unset') {

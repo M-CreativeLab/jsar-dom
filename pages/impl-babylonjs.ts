@@ -100,11 +100,11 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       devicePixelRatio: 1,
     });
     this.console = globalThis.console;
-    this._scene = new BABYLON.Scene(this.engine);
+    const scene = this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
     this._scene.debugLayer.show({
       showExplorer: true,
-      showInspector: false,
+      showInspector: true,
       globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
     });
 

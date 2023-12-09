@@ -1,5 +1,4 @@
 import { NativeDocument } from '../../impl-interfaces';
-import DOMException from '../domexception';
 import { documentBaseURL } from '../helpers/document-base-url';
 import { asciiCaseInsensitiveMatch } from '../helpers/strings';
 import { createStylesheet, removeStylesheet } from '../helpers/stylesheets';

@@ -12,7 +12,7 @@ import type { RangeImpl } from '../range/Range';
 import type CharacterDataImpl from './CharacterData';
 import type { NativeDocument } from '../../impl-interfaces';
 import type { SpatialDocumentImpl } from './SpatialDocument';
-import type ParentNodeImpl from './ParentNode';
+import NodeTypes from '../node-type';
 import { queueTreeMutationRecord } from '../helpers/mutation-observers';
 import { invalidateStyleCache } from '../helpers/style-rules';
 import { documentBaseURLSerialized } from '../helpers/document-base-url';
@@ -266,13 +266,13 @@ export class NodeImpl extends EventTarget implements Node {
 
   // https://dom.spec.whatwg.org/#connected
   // https://dom.spec.whatwg.org/#dom-node-isconnected
-  get isConnected() {
+  get isConnected(): boolean {
     const root = shadowIncludingRoot(this);
-    return root && root.nodeType === this.DOCUMENT_NODE;
+    return root && root.nodeType === NodeTypes.DOCUMENT_NODE;
   }
 
   get ownerDocument(): Document {
-    return this.nodeType === this.DOCUMENT_NODE ? null : this._ownerDocument as Document;
+    return this.nodeType === NodeTypes.DOCUMENT_NODE ? null : this._ownerDocument;
   }
 
   get nextSibling(): ChildNode | null {

@@ -13,10 +13,30 @@
   </head>
   <space>
     <cube size="1">
-      <div style="background: red; height: 80%; width: 100%; row-gap: 50px; flex-direction: row; padding: 50px;">
-        <span style="background: yellow; height: 300px; width: 300px; font-size: 50px; color: red;">1</span>
-        <span style="background: yellow; height: 200px; width: 200px; font-size: 50px;">2</span>
-        <span style="background: yellow; height: 200px; width: 200px; font-size: 50px;">3</span>
+      <style type="text/css">
+        div {
+          background-color: red;
+          height: 80%;
+          width: 100%;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        span {
+          height: 200px;
+          width: 300px;
+          font-size: 50px;
+          font-weight: bold;
+          color: yellow;
+          border: 5px solid yellowgreen;
+          border-radius: 5%;
+        }
+      </style>
+      <div>
+        <span>Do</span>
+        <span>Ri</span>
+        <span style="height: 400px;">Mi</span>
+        <span>Fa</span>
       </div>
       <cube id="inner" height="0.7" size="1.2" />
     </cube>

@@ -166,7 +166,7 @@ export class Control2D {
     } else {
       this.layoutStyle = this._initializeLayoutStyle();
     }
-    this.layoutNode = new taffy.Node(this._allocator, this.layoutStyle);
+    this.layoutNode = new taffy.Node(this._allocator, this, this.layoutStyle);
   }
 
   setRenderingContext(renderingContext: CanvasRenderingContext2D) {
@@ -189,7 +189,7 @@ export class Control2D {
   }
 
   get _style(): CSSStyleDeclaration {
-    return this._element?._style || {} as unknown as CSSStyleDeclaration;
+    return this._element?._adoptedStyle || {} as unknown as CSSStyleDeclaration;
   }
 
   private _parseLengthStr(input: string): LengthPercentageDimension | 'auto' {
@@ -204,8 +204,8 @@ export class Control2D {
       display: taffy.Display.Flex,
     };
     const element = this._element;
-    if (element && element._style) {
-      const inputStyle = element._style;
+    if (element && element._adoptedStyle) {
+      const inputStyle = element._adoptedStyle;
       if (inputStyle.height) {
         layoutStyle.height = this._parseLengthStr(inputStyle.height);
       }
@@ -268,7 +268,7 @@ export class Control2D {
       }
 
       for (const property of CSSValueToLayoutStyleProperties) {
-        const value = inputStyle.getPropertyValue(property);
+        const value = inputStyle[property];
         if (value) {
           layoutStyle[property] = CSSValueToLayoutStyleMappings[property][value];
         }
@@ -336,7 +336,7 @@ export class Control2D {
     if (name) {
       prefix = `border-${name}`;
     }
-    const style = this._element.style;
+    const style = this._style;
     return {
       width: parseFloat(style[`${prefix}-width`]),
       color: style[`${prefix}-color`],

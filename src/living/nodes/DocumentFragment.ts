@@ -11,10 +11,13 @@ export default class DocumentFragmentImpl extends NodeImpl implements DocumentFr
   constructor(
     hostObject: NativeDocument,
     args,
-    privateData: {} = null
+    privateData: {
+      host: NodeImpl,
+    }
   ) {
     super(hostObject, args, privateData);
     this.nodeType = NodeImpl.DOCUMENT_FRAGMENT_NODE;
+    this._host = privateData.host;
   }
 
   getElementById(id: string): HTMLElement {

@@ -1,3 +1,4 @@
+import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
 import DOMExceptionImpl from '../domexception';
 import { nodeRoot } from '../helpers/node';
@@ -5,20 +6,32 @@ import { NodeImpl } from './Node';
 
 export default class DocumentOrShadowRootImpl implements DocumentOrShadowRoot {
   _styleSheets: StyleSheetListImpl;
+  _adoptedStyleSheets: CSSStyleSheetImpl[];
 
-  adoptedStyleSheets: CSSStyleSheet[];
-  get fullscreenElement(): Element {
-    throw new DOMExceptionImpl('fullscreenElement is not supported.', 'NOT_SUPPORTED_ERR');
-  }
-  pictureInPictureElement: Element;
-  pointerLockElement: Element;
-
+  /**
+   * It returns the inline stylesheets of this document or shadow root.
+   * 
+   * @readonly
+   */
   get styleSheets(): StyleSheetList {
     if (!this._styleSheets) {
       this._styleSheets = new StyleSheetListImpl();
     }
     return this._styleSheets;
   }
+
+  get adoptedStyleSheets(): CSSStyleSheet[] {
+    return this._adoptedStyleSheets;
+  }
+  set adoptedStyleSheets(sheets: CSSStyleSheet[]) {
+    this._adoptedStyleSheets = sheets as CSSStyleSheetImpl[];
+  }
+
+  get fullscreenElement(): Element {
+    throw new DOMExceptionImpl('fullscreenElement is not supported.', 'NOT_SUPPORTED_ERR');
+  }
+  pictureInPictureElement: Element;
+  pointerLockElement: Element;
 
   elementFromPoint(x: number, y: number): Element {
     throw new Error('Method not implemented.');

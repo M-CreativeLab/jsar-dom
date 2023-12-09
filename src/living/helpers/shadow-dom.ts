@@ -4,8 +4,10 @@ import { nodeRoot } from './node';
 import { HTML_NS } from './namespaces';
 import { domSymbolTree } from './internal-constants';
 import { NodeImpl } from '../nodes/Node';
+import NodeTypes from '../node-type';
 import { signalSlotList, queueMutationObserverMicrotask } from './mutation-observers';
 import { ElementImpl } from '../nodes/Element';
+import { ShadowRootImpl } from '../nodes/ShadowRoot';
 
 // Valid host element for ShadowRoot.
 // Defined in: https://dom.spec.whatwg.org/#dom-element-attachshadow
@@ -42,20 +44,20 @@ export function isNode(nodeImpl: NodeImpl) {
 
 // Use an approximation by checking the value of nodeType and presence of nodeType host instead of instead
 // of using the isImpl from '../generated/ShadowRoot' to avoid introduction of circular dependencies.
-export function isShadowRoot(nodeImpl: NodeImpl) {
-  return Boolean(nodeImpl && nodeImpl.nodeType === NodeImpl.prototype.DOCUMENT_FRAGMENT_NODE && 'host' in nodeImpl);
+export function isShadowRoot(nodeImpl: NodeImpl): nodeImpl is ShadowRootImpl {
+  return Boolean(nodeImpl && nodeImpl.nodeType === NodeTypes.DOCUMENT_FRAGMENT_NODE && 'host' in nodeImpl);
 }
 
 // https://dom.spec.whatwg.org/#concept-slotable
 export function isSlotable(nodeImpl: NodeImpl) {
-  return nodeImpl && (nodeImpl.nodeType === NodeImpl.prototype.ELEMENT_NODE || nodeImpl.nodeType === NodeImpl.prototype.TEXT_NODE);
+  return nodeImpl && (nodeImpl.nodeType === NodeTypes.ELEMENT_NODE || nodeImpl.nodeType === NodeTypes.TEXT_NODE);
 }
 
 export function isSlot(nodeImpl: NodeImpl) {
   if (!nodeImpl) {
     return false;
   }
-  if (nodeImpl.nodeType !== NodeImpl.prototype.ELEMENT_NODE) {
+  if (nodeImpl.nodeType !== NodeTypes.ELEMENT_NODE) {
     return false;
   }
   const nodeAsElementImpl = nodeImpl as ElementImpl;
@@ -107,7 +109,7 @@ export function getEventTargetParent(eventTarget, event) {
 }
 
 // https://dom.spec.whatwg.org/#concept-shadow-including-root
-export function shadowIncludingRoot(node: NodeImpl) {
+export function shadowIncludingRoot(node: NodeImpl): NodeImpl {
   const root = nodeRoot(node) as NodeImpl;
   return isShadowRoot(root) ? shadowIncludingRoot(root._host) : root;
 }

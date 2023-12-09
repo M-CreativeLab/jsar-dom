@@ -1001,7 +1001,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
               const style = defaultView.getComputedSpatialStyle(node);
               node._adoptStyle(style);
             } else if (isHTMLElement(node)) {
-              // TODO: support for native style.
+              // TODO: support for classic style.
             }
           });
       });

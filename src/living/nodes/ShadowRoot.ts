@@ -6,6 +6,7 @@ import DocumentFragmentImpl from './DocumentFragment';
 import DocumentOrShadowRootImpl from './DocumentOrShadowRoot';
 import InnerHTMLImpl from '../domparsing/InnerHTML';
 import { applyMixins } from '../../mixin';
+import { isElementNode } from '../node-type';
 
 export interface ShadowRootImpl extends DocumentFragmentImpl, DocumentOrShadowRootImpl, InnerHTMLImpl { };
 export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
@@ -19,14 +20,17 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
     return this._slotAssignment;
   }
   get host(): Element {
-    return this._targetSpatialElement;
+    if (isElementNode(this._host)) {
+      return this._host;
+    } else {
+      return null;
+    }
   }
   onslotchange: (this: ShadowRoot, ev: Event) => any;
 
   /** @internal */
   _lastFocusedElement: Element;
-  /** @internal */
-  _targetSpatialElement: SpatialElement;
+  _hostAsSpatialElement: SpatialElement;
   /** @internal */
   _interactiveDynamicTexture: InteractiveDynamicTexture;
 
@@ -38,10 +42,10 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
     hostObject: NativeDocument,
     args: [ShadowRootInit?],
     privateData: {
-      target: SpatialElement;
+      host: SpatialElement;
     }
   ) {
-    super(hostObject, [], null);
+    super(hostObject, [], privateData);
 
     if (args[0]) {
       const init = args[0];
@@ -49,11 +53,11 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
       this._delegatesFocus = init.delegatesFocus;
       this._slotAssignment = init.slotAssignment;
     }
-    this._targetSpatialElement = privateData.target;
+    this._hostAsSpatialElement = privateData.host;
   }
 
   _attach() {
-    const targetMesh = this._targetSpatialElement.asNativeType<BABYLON.AbstractMesh>();
+    const targetMesh = this._hostAsSpatialElement.asNativeType<BABYLON.AbstractMesh>();
     this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(this, targetMesh);
     this._interactiveDynamicTexture.start();
     super._attach();

@@ -1,8 +1,10 @@
-import DOMException from '../domexception';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
 import HTMLStyleElementImpl from '../nodes/HTMLStyleElement';
 import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import { invalidateStyleCache } from './style-rules';
+import { isShadowRoot } from './shadow-dom';
+import { isDocumentNode } from '../node-type';
+import type { NodeImpl } from '../nodes/Node';
 
 export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: HTMLStyleElementImpl) {
   const { styleSheets } = elementImpl._ownerDocument;
@@ -18,7 +20,10 @@ export function removeStylesheet(sheet: CSSStyleSheet, elementImpl: HTMLStyleEle
 
 // https://drafts.csswg.org/cssom/#add-a-css-style-sheet
 function addStylesheet(sheet: CSSStyleSheet, elementImpl: HTMLStyleElementImpl) {
-  (elementImpl._ownerDocument.styleSheets as StyleSheetListImpl)._add(sheet);
+  const documentOrShadowRoot = elementImpl.getRootNode() as NodeImpl;
+  if (isShadowRoot(documentOrShadowRoot) || isDocumentNode(documentOrShadowRoot)) {
+    (documentOrShadowRoot.styleSheets as StyleSheetListImpl)?._add(sheet);
+  }
 
   // Set the association explicitly; in the spec it's implicit.
   elementImpl.sheet = sheet;

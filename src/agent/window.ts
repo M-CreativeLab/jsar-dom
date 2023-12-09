@@ -1,5 +1,6 @@
 import * as taffy from '@bindings/taffy';
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
+import type { ElementImpl } from 'src/living/nodes/Element';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
 import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
@@ -298,9 +299,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
     if (pseudoElt !== undefined && pseudoElt !== null && pseudoElt !== '') {
       throw new Error('`window.getComputedStyle()` is not supported for pseudo element.');
     }
-
-    // TODO: support classic style declaration
-    return null;
+    return getDeclarationForElement(elt as ElementImpl);
   }
 
   getComputedSpatialStyle(elt: SpatialElement, pseudoElt?: string): CSSSpatialStyleDeclaration {
