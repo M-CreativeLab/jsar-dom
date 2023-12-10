@@ -126,22 +126,6 @@ export interface UserAgent {
 
 export interface NativeEngine extends BABYLON.Engine { }
 
-type LayoutResult = {
-  childCount: number;
-  child(i: number): LayoutResult;
-  unref(): void;
-} & DOMRect;
-
-export interface LayoutNode {
-  new(style: CSSStyleSheet): LayoutNode;
-
-  setStyle(newStyle: CSSStyleSheet): void;
-  appendChild(child: LayoutNode): void;
-  removeChild(child: LayoutNode): void;
-  computeLayout(targetDescriptor: { height: number; width: number }): LayoutResult;
-  dispose(): void;
-}
-
 /**
  * The entry point that implementation must provide to the native engine.
  */
@@ -173,6 +157,7 @@ export interface NativeDocument extends EventTarget {
    * It returns the underlying native scene instance, currently it's a Babylon.js scene object.
    */
   getNativeScene(): BABYLON.Scene;
+
   /**
    * It returns a `XRPose` which represents the pose of the container of the document in space.
    */
@@ -184,6 +169,7 @@ export interface NativeDocument extends EventTarget {
    * When loading a XSML document, the implementation should preload the specific meshes.
    */
   getPreloadedMeshes(): Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>>;
+
   /**
    * It returns a map of preloaded animation groups.
    */
@@ -196,16 +182,19 @@ export interface NativeDocument extends EventTarget {
    * @param name The name of the input event to observe.
    */
   observeInputEvent(name?: string): void;
+
   /**
    * It creates a TransformNode as a bouding box of the given mesh.
    * 
    * @param nameOrId the name or id of this bouding box.
    */
   createBoundTransformNode(nameOrId: string): BABYLON.TransformNode;
+
   /**
    * This stops further resource loading in the current context.
    */
   stop(): void;
+
   /**
    * This closes this document, the implementor should release all resources and
    * mark the document's `closed` flag to `true`.

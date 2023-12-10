@@ -8,9 +8,13 @@ import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
+import type { JSARInputEvent } from './input-event';
 
 const windowSymbol = Symbol('window');
 
+/**
+ * It represents a JSAR DOM instance.
+ */
 export class JSARDOM {
   [windowSymbol]: BaseWindowImpl;
 
@@ -26,21 +30,35 @@ export class JSARDOM {
     return this[windowSymbol].document as unknown as SpatialDocumentImpl;
   }
 
+  /**
+   * It starts parsing the markup string and creating the document.
+   */
   async load() {
     await this._beforeLoad();
 
     parseIntoDocument(this._markup, this.document);
     this.document._start();
     return new Promise<void>(resolve => {
-      this.document.addEventListener('load', (event) => {
+      this.document.addEventListener('load', (_event) => {
         resolve();
       });
     });
   }
 
+  /**
+   * Dispose the loaded document and close the window.
+   */
   async unload() {
     this.document._stop();
     this.window.close();
+  }
+
+  /**
+   * Dispatch the input events to document.
+   * @param event 
+   */
+  dispatchInputEvent(event: JSARInputEvent): boolean {
+    return this.document.dispatchEvent(event);
   }
 
   private async _beforeLoad() {
