@@ -146,8 +146,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    */
   constructor(
     name: string,
-    width = 0,
-    height = 0,
+    width = 1024,
+    height = 1024,
     shadowRoot: ShadowRootImpl,
     scene?: BABYLON.Nullable<BABYLON.Scene>,
     generateMipMaps = false,
@@ -320,15 +320,27 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * This iterate the controls from the given node, and it receives a callback that returns a boolean value. If the boolean is
    * false it stops the iteration of the remaining controls.
    */
-  private _iterateControls(node: HTMLContentElement, callback: (control: HTMLContentElement) => boolean) {
-    const shouldCountine = callback(node);
+  private _iterateControls(callback: (control: Control2D) => boolean, node: HTMLContentElement | null = null) {
+    let elementOrShadowRoot: HTMLContentElement | ShadowRootImpl;
+    let control: Control2D;
+
+    if (node === null) {
+      elementOrShadowRoot = this._shadowRoot;
+      control = this._rootLayoutContainer;
+    } else {
+      elementOrShadowRoot = node;
+      control = node._control;
+    }
+
+    const shouldCountine = callback(control);
     if (!shouldCountine) {
       return;
     }
-    for (let i = 0; i < node.childNodes.length; i++) {
-      const childControl = node.childNodes.item(i);
+
+    for (let i = 0; i < elementOrShadowRoot.childNodes.length; i++) {
+      const childControl = elementOrShadowRoot.childNodes.item(i);
       if (isHTMLContentElement(childControl)) {
-        this._iterateControls(childControl, callback);
+        this._iterateControls(callback, childControl);
       }
     }
   }
@@ -346,13 +358,11 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     if (this.invertY) {
       yInScreen = textureSize.height - yInScreen;
     }
-    console.log('process picking =>', x, y);
 
-    // TODO
-    // this._iterateControls(this._rootContainer, (control) => {
-    //   control._processPicking(xInScreen, yInScreen, type);
-    //   return true;
-    // });
+    this._iterateControls((control) => {
+      control.processPicking(xInScreen, yInScreen, type);
+      return true;
+    });
     this._lastPositionInPicking.x = xInScreen;
     this._lastPositionInPicking.y = yInScreen;
   }

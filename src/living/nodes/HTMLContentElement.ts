@@ -130,30 +130,4 @@ export class HTMLContentElement extends HTMLElementImpl {
   _renderSelf(rect: DOMRect, base: DOMRectReadOnly): void {
     return this._control.render(rect, base);
   }
-
-  /**
-   * Process the element picking.
-   * 
-   * @internal
-   * @param x 
-   * @param y 
-   * @param _type 
-   */
-  _processPicking(x: number, y: number, _type?: number) {
-    // TODO
-  }
-
-  /**
-   * Process the pointer events.
-   * 
-   * @internal
-   * @param x 
-   * @param y 
-   * @param type 
-   * @returns 
-   */
-  _processPointerEvent(x: number, y: number, type: number): boolean {
-    // TODO
-    return true;
-  }
 }

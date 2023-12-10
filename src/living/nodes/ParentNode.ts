@@ -7,6 +7,7 @@ import type { SpatialDocumentImpl } from './SpatialDocument';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { addNwsapi } from '../helpers/selectors';
 import { convertNodesIntoNode } from '../node';
+import { isShadowRoot } from '../helpers/shadow-dom';
 
 function shouldAlwaysSelectNothing(elImpl: NodeImpl) {
   // This is true during initialization.
@@ -82,9 +83,10 @@ export default class ParentNodeImpl implements ParentNode {
   querySelector(selectors: unknown): Element | null {
     if (
       !isElementNode(this) &&
+      !isShadowRoot(this) &&
       !isSpatialDocument(this)
     ) {
-      throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
+      throw new DOMException('ParentNode must be an Element, ShadowRoot or Document.', 'HIERARCHY_REQUEST_ERR');
     }
     if (shouldAlwaysSelectNothing(this)) {
       return null;
@@ -99,8 +101,12 @@ export default class ParentNodeImpl implements ParentNode {
   querySelectorAll<K extends keyof HTMLElementDeprecatedTagNameMap>(selectors: K): NodeListOf<HTMLElementDeprecatedTagNameMap[K]>;
   querySelectorAll<E extends Element = Element>(selectors: string): NodeListOf<E>;
   querySelectorAll(selectors: unknown): NodeListOf<Element> {
-    if (!isElementNode(this) && !isDocumentNode(this)) {
-      throw new DOMException('ParentNode must be an Element or a Document.', 'HIERARCHY_REQUEST_ERR');
+    if (
+      !isElementNode(this) &&
+      !isShadowRoot(this) &&
+      !isSpatialDocument(this)
+    ) {
+      throw new DOMException('ParentNode must be an Element, ShadowRoot or Document.', 'HIERARCHY_REQUEST_ERR');
     }
     if (shouldAlwaysSelectNothing(this)) {
       return new NodeListImpl(this._hostObject, [], {

@@ -198,6 +198,10 @@ export class SpatialElement extends ElementImpl {
     }
   }
 
+  get textureSizeRatio(): number {
+    return 1;
+  }
+
   /**
    * Returns the `ShadowRoot` of this `SpatialObject` instance, it's used to get the GUI elements from script.
    */

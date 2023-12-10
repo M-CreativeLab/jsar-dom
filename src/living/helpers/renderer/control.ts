@@ -6,6 +6,7 @@ import NodeTypes from '../../node-type';
 import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
+import { MouseEventImpl } from '../../events/MouseEvent';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -156,6 +157,8 @@ export class Control2D {
    * The rectangle descriptor of the last rendering.
    */
   private _lastRect: DOMRectReadOnlyImpl;
+  private _lastCursor: BABYLON.Vector2;
+  private _isCursorInside = false;
   private _renderingContext: CanvasRenderingContext2D;
 
   constructor(private _allocator: taffy.Allocator, private _element: HTMLContentElement | null) { }
@@ -578,6 +581,23 @@ export class Control2D {
     renderingContext.strokeStyle = border.color || '#000000';
   }
 
+  containsPoint(x: number, y: number): boolean {
+    const rect = this._lastRect;
+    if (!rect) {
+      return false;
+    }
+    if (
+      x < rect.x ||
+      x > rect.x + rect.width ||
+      y < rect.y ||
+      y > rect.y + rect.height
+    ) {
+      return false;
+    } else {
+      return true;
+    }
+  }
+
   /**
    * Process the element picking.
    * 
@@ -586,8 +606,33 @@ export class Control2D {
    * @param y 
    * @param _type 
    */
-  private _processPicking(x: number, y: number, _type?: number) {
-    // TODO
+  processPicking(x: number, y: number, _type?: number) {
+    if (this.containsPoint(x, y)) {
+      if (!this._isCursorInside) {
+        this._isCursorInside = true;
+        if (this._element) {
+          this._element.dispatchEvent(new MouseEventImpl('mouseenter'));
+        }
+      }
+      if (!this._lastCursor || this._lastCursor.x !== x || this._lastCursor.y !== y) {
+        // trigger move event if the cursor is changed.
+        const moveEvent = new MouseEventImpl('mousemove', {
+          clientX: x,
+          clientY: y,
+        });
+        if (this._element) {
+          this._element.dispatchEvent(moveEvent);
+        }
+      }
+    } else {
+      if (this._isCursorInside) {
+        this._isCursorInside = false;
+        if (this._element) {
+          this._element.dispatchEvent(new MouseEventImpl('mouseleave'));
+        }
+      }
+    }
+    this._lastCursor = new BABYLON.Vector2(x, y);
   }
 
   /**
@@ -599,8 +644,27 @@ export class Control2D {
    * @param type 
    * @returns 
    */
-  private _processPointerEvent(x: number, y: number, type: number): boolean {
-    // TODO
+  processPointerEvent(x: number, y: number, type: number): boolean {
+    // if (this.containsPoint(x, y)) {
+    //   let eventType: string;
+    //   switch (type) {
+    //     case BABYLON.PointerEventTypes.POINTERDOWN:
+    //       eventType = 'mousedown';
+    //       break;
+    //     case BABYLON.PointerEventTypes.POINTERUP:
+    //       eventType = 'mouseup';
+    //       break;
+    //     default:
+    //       eventType = null;
+    //       break;
+    //   }
+    //   return this._element.dispatchEvent(new MouseEventImpl(eventType, {
+    //     clientX: x,
+    //     clientY: y,
+    //   }));
+    // } else {
+    //   return true;
+    // }
     return true;
   }
 }

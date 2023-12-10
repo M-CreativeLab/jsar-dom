@@ -32,7 +32,7 @@ export function changeAttribute(element: ElementImpl, attr: AttrImpl, value: str
     ]);
   }
 
-  attr.value = value;
+  attr._setValue(value);
   element._attrModified(attr._qualifiedName, value, oldValue);
 }
 

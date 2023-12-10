@@ -20,17 +20,21 @@ export default class SpatialPlaneElement extends SpatialElement {
   }
 
   get width(): number {
-    return parseFloat(this.getAttribute('width'));
+    return parseFloat(this.getAttribute('width')) || 1;
   }
   set width(value: number) {
     this._setSpatialAttribute('width', value);
   }
 
   get height(): number {
-    return parseFloat(this.getAttribute('height'));
+    return parseFloat(this.getAttribute('height')) || 1;
   }
   set height(value: number) {
     this._setSpatialAttribute('height', value);
+  }
+
+  override get textureSizeRatio(): number {
+    return this.height / this.width;
   }
 
   _attach(): void {

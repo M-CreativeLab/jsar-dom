@@ -126,11 +126,11 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     camera.upperRadiusLimit = 10;
     camera.lowerRadiusLimit = 2;
     camera.wheelDeltaPercentage = 0.01;
-    camera.setPosition(new BABYLON.Vector3(0, 0, -10));
+    camera.setPosition(new BABYLON.Vector3(0, 0, -5));
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, true);
 
-    const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 1, 0), this._scene);
+    const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 2, -5), this._scene);
     light.intensity = 0.7;
 
     this.engine.runRenderLoop(() => {
@@ -201,29 +201,59 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   }
 }
 
-let currentDom: JSARDOM;
-document.addEventListener('DOMContentLoaded', async () => {
-  const canvas = document.getElementById('renderCanvas');
-  const urlInput = document.getElementById('url-input') as HTMLInputElement;
-  const selectBtn = document.getElementById('run-btn');
-  selectBtn?.addEventListener('click', async () => {
-    const entryXsmlCode = await (await fetch(urlInput?.value)).text();
-    await load(entryXsmlCode, urlInput?.value);
-  });
-  load(`
+const defaultCode: string = `
 <xsml>
   <head>
     <style>
       cube {
         rotation: 0 45 30;
       }
+      plane {
+        position: 0.25 0.5 -1;
+      }
     </style>
   </head>
   <space>
     <cube />
+    <plane height="0.5" width="1.5">
+      <div>
+        <span>Hello JSAR!</span>
+        <span style="font-size: 50px;">Type your XSML in the below input</span>
+      </div>
+      <style type="text/css">
+        div {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+          gap: 20px;
+        }
+        span {
+          flex: 1;
+          color: red;
+          font-size: 150px;
+          line-height: 1.5;
+        }
+      </style>
+    </plane>
   </space>
 </xsml>
-  `);
+`;
+
+let currentDom: JSARDOM;
+document.addEventListener('DOMContentLoaded', async () => {
+  const canvas = document.getElementById('renderCanvas');
+  const urlInput = document.getElementById('url-input') as HTMLInputElement;
+  const selectBtn = document.getElementById('run-btn');
+  selectBtn?.addEventListener('click', async () => {
+    if (!urlInput?.value) {
+      await load(defaultCode);
+    } else {
+      const entryXsmlCode = await (await fetch(urlInput?.value)).text();
+      await load(entryXsmlCode, urlInput?.value);
+    }
+  });
+  load(defaultCode);
 
   async function load(code: string, urlBase: string = 'https://example.com/') {
     if (currentDom) {
