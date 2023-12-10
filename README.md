@@ -34,22 +34,48 @@ Then you can use it exactly as you would use `jsdom`:
 const dom = new JSARDOM(`
 <xsml>
   <head>
-    <title>Hello JSAR</title>
-    <script>
-      document.querySelector('sphere').style.scaling = [1.2, 1.2, 1.2];
-    </script>
+    <style>
+      cube {
+        rotation: 0 45 30;
+      }
+      plane {
+        position: 0.25 0.5 -1;
+      }
+    </style>
   </head>
   <space>
-    <sphere />
+    <cube />
+    <plane height="0.5" width="1.5">
+      <div>
+        <span>Hello JSAR!</span>
+        <span style="font-size: 50px;">Type your XSML in the below input</span>
+      </div>
+      <style type="text/css">
+        div {
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          width: 100%;
+          gap: 20px;
+        }
+        span {
+          flex: 1;
+          color: red;
+          font-size: 150px;
+          line-height: 1.5;
+        }
+      </style>
+    </plane>
   </space>
 </xsml>
 `, {
-  url: 'https://example.com',
+  url: 'https://m-creativelab.github.io/jsar-dom/',
   nativeDocument: yourNativeDocument,
 });
 
 await dom.load();
 ```
+> The above code is available at https://m-creativelab.github.io/jsar-dom/.
 
 Because JSAR-DOM is not going to be a emulator of the traditional browser, it's an in-production implementation of the WHATWG [DOM][], [CSSOM][], [WebXR][] and XSML for XR applications, so an instance of implementing the `NativeDocument` interface must be pass to the constructor, which implemented the underlying stuffs like rendering and event handling.
 
