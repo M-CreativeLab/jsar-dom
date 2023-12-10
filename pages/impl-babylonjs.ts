@@ -14,6 +14,8 @@ import {
 import 'babylonjs';
 
 import { canParseURL } from '../src/living/helpers/url';
+import { JSARInputEvent } from '../src/input-event';
+import { SPATIAL_OBJECT_GUID_SYMBOL } from '../src/symbols';
 
 interface EngineOnBabylonjs extends BABYLON.Engine, EventTarget { }
 class EngineOnBabylonjs extends BABYLON.Engine implements NativeEngine {
@@ -136,6 +138,38 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     });
     window.addEventListener('resize', () => {
       this.engine.resize();
+    });
+    canvas.addEventListener('mousemove', () => {
+      const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
+      if (currentDom && pickingInfo.pickedMesh) {
+        const raycastEvent = new JSARInputEvent('raycast', {
+          sourceId: 'scene_default_ray',
+          sourceType: 'mouse',
+          targetSpatialElementInternalGuid: pickingInfo.pickedMesh[SPATIAL_OBJECT_GUID_SYMBOL],
+          uvCoord: pickingInfo.getTextureCoordinates(),
+        });
+        currentDom.dispatchInputEvent(raycastEvent);
+      }
+    });
+    canvas.addEventListener('mouseup', () => {
+      if (currentDom) {
+        currentDom.dispatchInputEvent(
+          new JSARInputEvent('raycast_action', {
+            sourceId: 'scene_default_ray',
+            type: 'up',
+          })
+        );
+      }
+    });
+    canvas.addEventListener('mousedown', () => {
+      if (currentDom) {
+        currentDom.dispatchInputEvent(
+          new JSARInputEvent('raycast_action', {
+            sourceId: 'scene_default_ray',
+            type: 'down',
+          })
+        );
+      }
     });
   }
 

@@ -346,6 +346,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     if (this.invertY) {
       yInScreen = textureSize.height - yInScreen;
     }
+    console.log('process picking =>', x, y);
 
     // TODO
     // this._iterateControls(this._rootContainer, (control) => {

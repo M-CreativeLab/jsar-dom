@@ -64,6 +64,12 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
+import {
+  type HandtrackingInputDetail,
+  type RaycastActionInputDetail,
+  type RaycastInputDetail,
+  type JSARInputEvent
+} from '../../input-event';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -287,7 +293,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 
   /** Used for spatial objects */
   _idsOfSpatialObjects: { [key: string]: SpatialElement } = {};
-  private _guidSOfSpatialObjects: { [key: string]: SpatialElement } = {};
+  _guidSOfSpatialObjects: Map<string, SpatialElement> = new Map();
 
   constructor(
     nativeDocument: NativeDocument,
@@ -334,6 +340,9 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 
     // Cache of computed element styles
     this._styleCache = null;
+
+    // Add the input event hander
+    this.addEventListener('input', this._handleInputEvent);
 
     // Bypass the GOMContentLoaded event from the XSML document.
     nativeDocument.addEventListener('DOMContentLoaded', (event) => {
@@ -810,7 +819,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * @internal
    */
   _getSpatialObjectByGuid(guid: string): SpatialElement {
-    return this._guidSOfSpatialObjects[guid];
+    return this._guidSOfSpatialObjects.get(guid);
   }
 
   /**
@@ -984,6 +993,67 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
     return this.scene.getMaterialById(id);
   }
 
+  private _handleHandTrackingEventDetail(detail: HandtrackingInputDetail): boolean {
+    // TODO
+    return true;
+  }
+
+  private _latestRaycastTimestamp: number;
+  private _lastPickedSpatialObject: SpatialElement;
+
+  private _handleRaycastEventDetail(detail: RaycastInputDetail): boolean {
+    this._latestRaycastTimestamp = Date.now();
+
+    const guid = detail.targetSpatialElementInternalGuid;
+    let targetNativeNode: BABYLON.Node;
+    const targetSpatialObject = this._getSpatialObjectByGuid(guid);
+    if (targetSpatialObject) {
+      /**
+       * Update the `lastPickedSpatialObject` when find a spatial object in "raycast" event.
+       */
+      this._lastPickedSpatialObject = targetSpatialObject;
+
+      /**
+       * Handle with GUI reactions if this target spatial object has an attached `XSMLShadowRoot`.
+       */
+      if (targetSpatialObject._hasAttachedShadow() && detail.uvCoord) {
+        const interactiveDynamicTexture = targetSpatialObject._shadowRoot._getNativeTexture();
+        interactiveDynamicTexture._processPicking(
+          detail.uvCoord.x,
+          detail.uvCoord.y,
+          BABYLON.PointerEventTypes.POINTERMOVE,
+        );
+      }
+      /**
+       * Update the `targetNativeNode` for the deprecated global event `RaycastHitEvent`.
+       */
+      targetNativeNode = targetSpatialObject.asNativeType<BABYLON.Node>();
+    } else {
+      // try to find it from the native(BABYLON) nodes.
+      targetNativeNode = this.scene.getNodes().find((node: any) => node.__vgoGuid === guid);
+    }
+
+    // TODO: dispatch event to native nodes?
+    return true;
+  }
+
+  private _handleRaycastActionEventDetail(detail: RaycastActionInputDetail): boolean {
+    // TODO
+    return true;
+  }
+
+  private _handleInputEvent = (event: JSARInputEvent): boolean => {
+    if (event.subType === 'handtracking') {
+      return this._handleHandTrackingEventDetail(event.detail as HandtrackingInputDetail);
+    } else if (event.subType === 'raycast') {
+      return this._handleRaycastEventDetail(event.detail as RaycastInputDetail);
+    } else if (event.subType === 'raycast_action') {
+      return this._handleRaycastActionEventDetail(event.detail as RaycastActionInputDetail);
+    } else {
+      return true;
+    }
+  }
+
   private _onPreRenderLoop() {
     const defaultView = this._defaultView;
     if (!defaultView) {
@@ -1073,7 +1143,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   _stop() {
-    // TODO
+    this.removeEventListener('input', this._handleInputEvent);
   }
 
   // https://dom.spec.whatwg.org/#concept-node-adopt

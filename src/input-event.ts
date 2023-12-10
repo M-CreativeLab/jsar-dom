@@ -3,19 +3,24 @@ export type HandtrackingInputDetail = {
 };
 
 export type RaycastInputDetail = {
+  sourceId: string;
+  sourceType?: 'hand' | 'head' | 'gamepad' | 'mouse' | 'custom';
   targetSpatialElementInternalGuid: string;
-  uvCoord: BABYLON.Vector2;
+  uvCoord: BABYLON.Nullable<BABYLON.Vector2>;
 };
 
 export type RaycastActionInputDetail = {
   type: 'up' | 'down' | 'click';
+  sourceId: RaycastInputDetail['sourceId'];
 };
 
 export type JSARInputDetail = HandtrackingInputDetail | RaycastInputDetail | RaycastActionInputDetail;
 
 export class JSARInputEvent extends Event {
-  constructor(name: 'handtracking', detail: HandtrackingInputDetail);
-  constructor(public name: 'handtracking' | 'raycast' | 'raycast_action', public detail: JSARInputDetail) {
-    super(name);
+  constructor(subType: 'handtracking', detail: HandtrackingInputDetail);
+  constructor(subType: 'raycast', detail: RaycastInputDetail);
+  constructor(subType: 'raycast_action', detail: RaycastActionInputDetail);
+  constructor(public subType: 'handtracking' | 'raycast' | 'raycast_action', public detail: JSARInputDetail) {
+    super('input');
   }
 }
