@@ -1,11 +1,14 @@
 import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 import { hslToRgb } from '../utils/color-space';
 import { colorNames, namedColors } from './named-colors';
+import { defineSpatialProperty } from '../spatial-properties/helper';
+import * as animationShorthandParser from './animation-shorthand/index';
 
 const integerRegEx = /^[-+]?[0-9]+$/;
 const numberRegEx = /^[-+]?[0-9]*\.?[0-9]+$/;
 const lengthRegEx = /^(0|[-+]?[0-9]*\.?[0-9]+(in|cm|em|mm|pt|pc|px|ex|rem|vh|vw|ch))$/;
 const percentRegEx = /^[-+]?[0-9]*\.?[0-9]+%$/;
+const timespanRegEx = /^[-+]?[0-9]*\.?[0-9]+(ms|s)$/;
 const urlRegEx = /^url\(\s*([^)]*)\s*\)$/;
 const stringRegEx = /^("[^"]*"|'[^']*')$/;
 const colorRegEx1 = /^#([0-9a-fA-F]{3,4}){1,2}$/;
@@ -18,18 +21,19 @@ const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
 
 export enum CSSValueType {
   INTEGER = 1,
-  NUMBER = 2,
-  LENGTH = 3,
-  PERCENT = 4,
-  URL = 5,
-  COLOR = 6,
-  STRING = 7,
-  ANGLE = 8,
-  KEYWORD = 9,
-  NULL_OR_EMPTY_STR = 10,
-  CALC = 11,
-  SET = 12,
-  UNKNOWN = 13,
+  NUMBER,
+  LENGTH,
+  PERCENT,
+  TIMESPAN,
+  URL,
+  COLOR,
+  STRING,
+  ANGLE,
+  KEYWORD,
+  NULL_OR_EMPTY_STR,
+  CALC,
+  SET,
+  UNKNOWN = 999,
 }
 
 const SupportedLengthUnitsArray = ['px', 'em', 'rem'] as const;
@@ -62,6 +66,10 @@ export class PropertyValue<T = any> {
     return new PropertyValue(CSSValueType.PERCENT, `${value}%`, value);
   }
 
+  static createTimespan(value: number): PropertyTimespanValue {
+    return new PropertyValue(CSSValueType.TIMESPAN, `${value / 1000}s`, value);
+  }
+
   static createUrl(str: string, urlSource: string): PropertyUrlValue {
     return new PropertyValue(CSSValueType.URL, `url(${str})`, urlSource);
   }
@@ -88,15 +96,59 @@ export class PropertyValue<T = any> {
     return new PropertyValue(CSSValueType.KEYWORD, str, str);
   }
 
-  static createSet(values: PropertyValue[]): PropertyValue {
+  static createSet(values: PropertyValue[]): PropertySetValue {
     const setStr = values.map(v => v.str).join(' ');
-    return new PropertyValue(CSSValueType.SET, setStr, null);
+    return new PropertyValue(CSSValueType.SET, setStr, values);
   }
 
   constructor(type: CSSValueType, str: string, value: T) {
     this.type = type;
     this.str = str;
     this.value = value;
+  }
+
+  isNumberValue(): this is PropertyNumberValue {
+    return this.type === CSSValueType.NUMBER;
+  }
+
+  isIntegerValue(): this is PropertyIntegerValue {
+    return this.type === CSSValueType.INTEGER;
+  }
+
+  isLengthValue(): this is PropertyLengthValue {
+    return this.type === CSSValueType.LENGTH;
+  }
+
+  isPercentageValue(): this is PropertyPercentageValue {
+    return this.type === CSSValueType.PERCENT;
+  }
+
+  isTimespanValue(): this is PropertyTimespanValue {
+    return this.type === CSSValueType.TIMESPAN;
+  }
+
+  isUrlValue(): this is PropertyUrlValue {
+    return this.type === CSSValueType.URL;
+  }
+
+  isStringValue(): this is PropertyStringValue {
+    return this.type === CSSValueType.STRING;
+  }
+
+  isColorValue(): this is PropertyColorValue {
+    return this.type === CSSValueType.COLOR;
+  }
+
+  isAngleValue(): this is PropertyAngleValue {
+    return this.type === CSSValueType.ANGLE;
+  }
+
+  isKeywordValue(): this is PropertyKeywordValue {
+    return this.type === CSSValueType.KEYWORD;
+  }
+
+  isSetValue(): this is PropertyValue<PropertyValue[]> {
+    return this.type === CSSValueType.SET;
   }
 
   toNumber() {
@@ -147,6 +199,7 @@ export type PropertyLengthValue = PropertyValue<{
   unit: SupportedLengthUnit;
 }>;
 export type PropertyPercentageValue = PropertyValue<number>;
+export type PropertyTimespanValue = PropertyValue<number>;
 export type PropertyUrlValue = PropertyValue<string>;
 export type PropertyStringValue = PropertyValue<string>;
 export type PropertyColorValue = PropertyValue<{
@@ -157,6 +210,7 @@ export type PropertyColorValue = PropertyValue<{
 }>;
 export type PropertyAngleValue = PropertyValue<number>;
 export type PropertyKeywordValue = PropertyValue<string>;
+export type PropertySetValue = PropertyValue<PropertyValue[]>;
 
 export function valueType(val: any): CSSValueType | undefined {
   if (val === '' || val === null) {
@@ -180,6 +234,9 @@ export function valueType(val: any): CSSValueType | undefined {
   }
   if (percentRegEx.test(val)) {
     return CSSValueType.PERCENT;
+  }
+  if (timespanRegEx.test(val)) {
+    return CSSValueType.TIMESPAN;
   }
   if (urlRegEx.test(val)) {
     return CSSValueType.URL;
@@ -340,6 +397,27 @@ export function toPercentStr(val): PropertyPercentageValue {
     return undefined;
   }
   return PropertyValue.createPercentage(parseFloat(val));
+}
+
+export function toTimespanStr(val): PropertyTimespanValue {
+  if (typeof val === 'number') {
+    return PropertyValue.createTimespan(val);
+  }
+  const type = valueType(val);
+  if (type === CSSValueType.NULL_OR_EMPTY_STR) {
+    return PropertyValue.NULL_OR_EMPTY_STR;
+  }
+  if (type !== CSSValueType.TIMESPAN || typeof val !== 'string') {
+    return undefined;
+  }
+
+  let ms: number;
+  if (!val.endsWith('ms')) {
+    ms = parseFloat(val) * 1000;
+  } else {
+    ms = parseFloat(val);
+  }
+  return PropertyValue.createTimespan(ms);
 }
 
 export function toUrlStr(val): PropertyUrlValue {
@@ -617,6 +695,20 @@ export function camelToDashed(input: string): string {
   return dashed;
 }
 
+export function dashedToCamel(input: string): string {
+  let camel = '';
+  let nextCap = false;
+  for (let i = 0; i < input.length; i++) {
+    if (input[i] !== '-') {
+      camel += nextCap ? input[i].toUpperCase() : input[i];
+      nextCap = false;
+    } else {
+      nextCap = true;
+    }
+  }
+  return camel;
+}
+
 const reIsSpace = /\s/;
 const openingDeliminators = ['"', "'", '('];
 const closingDeliminators = ['"', "'", ')'];
@@ -736,4 +828,112 @@ export function implicitSetter(
     }
     return v;
   }
+}
+
+export type ShorthandFor = { [key: string]: ReturnType<typeof defineSpatialProperty> };
+
+export function parseShorthand(v: any, shorthandFor: ShorthandFor): { [key: string]: string } {
+  const shorthandDescriptor = {} as { [key: string]: string };
+  const type = valueType(v);
+  if (type === CSSValueType.NULL_OR_EMPTY_STR) {
+    Object.keys(shorthandFor).forEach(function (property) {
+      shorthandDescriptor[property] = '';
+    });
+    return shorthandDescriptor;
+  }
+
+  if (typeof v === 'number') {
+    v = v.toString();
+  }
+  if (typeof v !== 'string') {
+    return undefined;
+  }
+
+  if (v.toLowerCase() === 'inherit') {
+    return {};
+  }
+
+  const parts = getParts(v);
+  let valid = true;
+  parts.forEach(function (part, i) {
+    let isPartValid = false;
+    Object.keys(shorthandFor).forEach(function (property) {
+      if (shorthandFor[property].isValid(part, i)) {
+        isPartValid = true;
+        shorthandDescriptor[property] = part;
+      }
+    });
+    valid = valid && isPartValid;
+  });
+  if (!valid) {
+    return undefined;
+  }
+  return shorthandDescriptor;
+}
+
+export function shorthandGetter(property: string, shorthandFor: ShorthandFor) {
+  return function (this: CSSSpatialStyleDeclaration) {
+    if (this._values[property] !== undefined) {
+      return this.getPropertyValue(property);
+    }
+    return Object.keys(shorthandFor)
+      .map(function (subprop) {
+        return this.getPropertyValue(subprop);
+      }, this)
+      .filter(function (value) {
+        return value !== '';
+      })
+      .join(' ');
+  };
+}
+
+export function shorthandSetter(
+  property: string,
+  shorthandFor: { [key: string]: ReturnType<typeof defineSpatialProperty> }
+) {
+  return function (this: CSSSpatialStyleDeclaration, v: any) {
+    let obj: { [key: string]: string | number };
+    if (property === 'animation') {
+      const parsed = animationShorthandParser.parseSingle(v);
+      obj = {
+        'animation-name': parsed.value.name,
+        'animation-duration': parsed.value.duration,  // a number in ms.
+        'animation-iteration-count': parsed.value.iterationCount,
+      };
+    } else {
+      obj = parseShorthand(v, shorthandFor);
+    }
+
+    // Just ignore invalid values
+    if (obj === undefined) {
+      return;
+    }
+
+    Object.keys(obj).forEach((subprop) => {
+      // in case subprop is an implicit property, this will clear
+      // *its* subpropertiesX
+      const camel = dashedToCamel(subprop);
+      this[camel] = obj[subprop];
+      // in case it gets translated into something else (0 -> 0px)
+      obj[subprop] = this[camel];
+    });
+
+    Object.keys(shorthandFor).forEach(function (subprop) {
+      if (!obj.hasOwnProperty(subprop)) {
+        this.removeProperty(subprop);
+        delete this._values[subprop];
+      }
+    }, this);
+
+    // in case the value is something like 'none' that removes all values,
+    // check that the generated one is not empty, first remove the property
+    // if it already exists, then call the shorthandGetter, if it's an empty
+    // string, don't set the property
+    this.removeProperty(property);
+    const calculated = shorthandGetter(property, shorthandFor).call(this);
+    console.log(obj, this._values, calculated);
+    if (calculated !== '') {
+      this._setProperty(property, calculated);
+    }
+  };
 }

@@ -4,6 +4,10 @@ import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 import position from './position';
 import rotation from './rotation';
 import scaling from './scaling';
+import animation from './animation';
+import animationName from './animation-name';
+import animationDuration from './animation-duration';
+import animationIterationCount from './animation-iteration-count';
 import material from './material';
 import materialType from './material-type';
 import materialAlphaMode from './material-alpha-mode';
@@ -28,6 +32,13 @@ export interface CSSSpatialStyleProperties {
   position: string;
   rotation: string;
   scaling: string;
+  animation: string;
+  'animation-name': string;
+  animationName: string;
+  'animation-duration': string;
+  animationDuration: string;
+  'animation-iteration-count': string;
+  animationIterationCount: string;
   material: string;
   'material-type': string;
   materialType: string;
@@ -75,6 +86,13 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     position,
     rotation,
     scaling,
+    animation,
+    'animation-name': animationName,
+    animationName,
+    'animation-duration': animationDuration,
+    animationDuration,
+    'animation-iteration-count': animationIterationCount,
+    animationIterationCount,
     material,
     'material-type': materialType,
     materialType,

@@ -5,6 +5,20 @@ type SpatialPropertyDescriptor = Omit<PropertyDescriptor, 'get' | 'set'> & {
   set?(this: CSSSpatialStyleDeclaration, value: string): void;
 };
 
-export function defineSpatialProperty(descriptor: SpatialPropertyDescriptor) {
-  return descriptor;
+type Extras = {
+  isValid: (v: any, ...extra: any[]) => boolean;
+};
+
+export function defineSpatialProperty(
+  descriptor: SpatialPropertyDescriptor,
+  extra?: Partial<Extras>
+): SpatialPropertyDescriptor & Extras {
+  const combinedDescriptor: SpatialPropertyDescriptor & Extras = {
+    ...descriptor,
+    isValid: () => true,
+  };
+  if (typeof extra?.isValid === 'function') {
+    combinedDescriptor.isValid = extra.isValid;
+  }
+  return combinedDescriptor;
 }

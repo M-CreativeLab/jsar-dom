@@ -48,6 +48,7 @@ import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
+import CSSSpatialKeyframesRule from '../cssom/CSSSpatialKeyframesRule';
 import { BaseWindowImpl } from '../../agent/window';
 
 import { applyMixins } from '../../mixin';
@@ -282,10 +283,10 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * and animation groups.
    */
   _preloadingSpatialModelObservers: Map<string, Promise<boolean>> = new Map();
-
   _lastModified: string;
   _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
   _lastFocusedElement: Element | null;
+  _spatialKeyframesMap: Map<string, CSSSpatialKeyframesRule> = new Map();
 
   // CSS selectors
   _nwsapi: nwsapi.NWSAPI;

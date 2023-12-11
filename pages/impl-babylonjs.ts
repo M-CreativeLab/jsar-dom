@@ -205,8 +205,17 @@ const defaultCode: string = `
 <xsml>
   <head>
     <style>
+      @keyframes rotate {
+        from {
+          rotation: 0 0 30;
+        }
+        to {
+          rotation: 0 360 30;
+        }
+      }
+
       cube {
-        rotation: 0 45 30;
+        animation: rotate 5s linear infinite;
       }
       plane {
         position: 0.25 0.5 -1;

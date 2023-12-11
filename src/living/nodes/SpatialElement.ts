@@ -5,6 +5,7 @@ import { ElementImpl } from './Element';
 import { ShadowRootImpl } from './ShadowRoot';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
+import { createSpatialAnimation } from '../helpers/spatial-animations';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
 
 export class SpatialElement extends ElementImpl {
@@ -174,6 +175,19 @@ export class SpatialElement extends ElementImpl {
               }
             }
           }
+        case 'animation-name':
+          const name = style._getPropertyValue('animation-name').value as string;
+          createSpatialAnimation(
+            this._getInternalNodeNameOrId(),
+            this._ownerDocument._spatialKeyframesMap.get(name),
+            this,
+            {
+              duration: style._getPropertyValue('animation-duration').value as number,
+              iterationCount: style._getPropertyValue('animation-iteration-count').value,
+              // TODO: supports animation-timing-function?
+            }
+          );
+          break;
         default:
           break;
       }

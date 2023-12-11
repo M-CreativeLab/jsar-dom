@@ -1,4 +1,4 @@
-import { AtMaterial, css, isAtMaterial, isRule, noParsingErrors, parseCss } from '../helpers/spatial-css-parser';
+import { AtMaterial, css, isAtKeyframes, isAtMaterial, isRule, noParsingErrors, parseCss } from '../helpers/spatial-css-parser';
 import { NativeDocument } from '../../impl-interfaces';
 import DOMExceptionImpl from '../domexception';
 import CSSRuleListImpl from './CSSRuleList';
@@ -6,6 +6,7 @@ import StyleSheetImpl from './StyleSheet';
 import CSSStyleRuleImpl from './CSSStyleRule';
 import CSSSpatialStyleRule from './CSSSpatialStyleRule';
 import CSSSpatialMaterialRule from './CSSSpatialMaterialRule';
+import CSSSpatialKeyframesRule from './CSSSpatialKeyframesRule';
 
 export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyleSheet {
   cssRules: CSSRuleList;
@@ -62,6 +63,8 @@ export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyl
           this._addStyleRule(astRule, astResult);
         } else if (isAtMaterial(astRule)) {
           this._addMaterialRule(astRule, astResult);
+        } else if (isAtKeyframes(astRule)) {
+          this._addKeyframesRule(astRule, astResult);
         } else {
           // TODO: other rules?
         }
@@ -81,6 +84,21 @@ export default class CSSStyleSheetImpl extends StyleSheetImpl implements CSSStyl
     const rulesImpl = this.cssRules as CSSRuleListImpl;
     const ruleImpl = new CSSSpatialMaterialRule(this._hostObject, [], { node: src, ast });
     rulesImpl._add(ruleImpl);
+  }
+
+  private _addKeyframesRule(src: css.KeyFrames, ast: ReturnType<typeof parseCss>) {
+    const rulesImpl = this.cssRules as CSSRuleListImpl;
+    const ruleImpl = new CSSSpatialKeyframesRule(this._hostObject, [], { node: src, ast });
+    rulesImpl._add(ruleImpl);
+
+    /**
+     * Add the created keyframes rule into the ownerDocument's spatial keyframes map, which could
+     * be used to find the keyframes rule by name.
+     */
+    const ownerDocument = this._hostObject.attachedDocument;
+    if (ownerDocument) {
+      ownerDocument._spatialKeyframesMap.set(ruleImpl.name, ruleImpl);
+    }
   }
 
   addRule(selector?: string, style?: string, index?: number): number {

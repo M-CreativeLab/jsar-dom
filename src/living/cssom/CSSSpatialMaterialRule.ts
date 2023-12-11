@@ -1,4 +1,4 @@
-import { NativeDocument } from '../../impl-interfaces';
+import type { NativeDocument } from '../../impl-interfaces';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
 import { AtMaterial, parseCss, css, isComment } from '../helpers/spatial-css-parser';
 import CSSRuleImpl from './CSSRule';

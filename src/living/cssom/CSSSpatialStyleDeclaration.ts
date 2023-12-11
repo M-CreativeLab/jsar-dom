@@ -119,7 +119,7 @@ export default class CSSSpatialStyleDeclaration {
     this._importants[lowercaseName] = priority === 'important' ? 'important' : null;
   }
 
-  _setProperty(name: string, value: PropertyValue, priority: PropertyPriority) {
+  _setProperty(name: string, value: PropertyValue, priority?: PropertyPriority) {
     if (value === undefined) {
       return;
     }
@@ -129,7 +129,7 @@ export default class CSSSpatialStyleDeclaration {
     }
     if (this._values[name]) {
       // Property already exist. Overwrite it.
-      var index = Array.prototype.indexOf.call(this, name);
+      const index = Array.prototype.indexOf.call(this, name);
       if (index < 0) {
         this[this._length] = name;
         this._length++;

@@ -20,8 +20,8 @@ export default class CSSRuleImpl implements CSSRule {
 
   protected _hostObject: NativeDocument;
   protected _cssText: string;
-  private _ast: ReturnType<typeof parseCss>;
-  private _node: css.Node;
+  protected _ast: ReturnType<typeof parseCss>;
+  protected _node: css.Node;
 
   constructor(
     hostObject: NativeDocument,
