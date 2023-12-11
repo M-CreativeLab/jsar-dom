@@ -47,6 +47,7 @@ import SpatialBoundElement from './SpatialBoundElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
+import SpatialPolyhedraElement from './SpatialPolyhedraElement';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import CSSSpatialKeyframesRule from '../cssom/CSSSpatialKeyframesRule';
 import { BaseWindowImpl } from '../../agent/window';
@@ -706,6 +707,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   createElement(tagName: 'cylinder'): SpatialCylinderElement;
   createElement(tagName: 'capsule'): SpatialCapsuleElement;
   createElement(tagName: 'torus'): SpatialTorusElement;
+  createElement(tagName: 'polyhedra'): SpatialPolyhedraElement;
   createElement(tagName: 'ref'): SpatialRefElement;
   // HTML elements for texture rendering
   createElement(tagName: 'div'): HTMLDivElement;
@@ -749,6 +751,8 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
         return new SpatialCapsuleElement(this.#nativeDocument, []);
       case 'torus':
         return new SpatialTorusElement(this.#nativeDocument, []);
+      case 'polyhedra':
+        return new SpatialPolyhedraElement(this.#nativeDocument, []);
       case 'ref':
         return new SpatialRefElement(this.#nativeDocument, []);
 

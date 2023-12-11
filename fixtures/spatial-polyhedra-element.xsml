@@ -1,0 +1,47 @@
+<xsml>
+  <head>
+    <title>Polyhedra Example</title>
+    <style>
+      @material litered {
+        diffuse-color: red;
+      }
+      @material liteblue {
+        diffuse-color: blue;
+      }
+      @keyframes rotate {
+        from {
+          rotation: 0 0 0;
+        }
+        to {
+          rotation: 360 360 360;
+        }
+      }
+      polyhedra[type="octahedron"] {
+        position: 0 1 0;
+        material: "litered";
+      }
+      polyhedra[type="dodecahedron"] {
+        position: 0 -1 0;
+        material: "liteblue";
+      }
+      polyhedra[type="icosahedron"] {
+        position: 1 0 0;
+        material: "litered";
+      }
+      polyhedra[type="rhombicuboctahedron"] {
+        position: -1 0 0;
+        material: "liteblue";
+      }
+      polyhedra {
+        animation: rotate 2s infinite;
+      }
+    </style>
+  </head>
+  <space>
+    <polyhedra size="0.2" type="elongated-pentagonal-dipyramid" />
+    <polyhedra size="0.2" type="octahedron" />
+    <polyhedra size="0.2" type="dodecahedron" />
+    <polyhedra size="0.2" type="icosahedron" />
+    <polyhedra size="0.2" type="rhombicuboctahedron" />
+  </space>
+</xsml>
