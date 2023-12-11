@@ -278,7 +278,21 @@ document.addEventListener('DOMContentLoaded', async () => {
       await load(entryXsmlCode, urlInput?.value);
     }
   });
-  load(defaultCode);
+  if (!(await loadFromUrl())) {
+    await load(defaultCode);
+  }
+
+  async function loadFromUrl(): Promise<boolean> {
+    if (location.search && location.href) {
+      const url = new URL(location.href).searchParams.get('url');
+      if (url) {
+        const code = await (await fetch(url)).text();
+        load(code, url);
+        return true;
+      }
+    }
+    return false;
+  }
 
   async function load(code: string, urlBase: string = 'https://example.com/') {
     if (currentDom) {
