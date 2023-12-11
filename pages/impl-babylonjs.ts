@@ -261,6 +261,19 @@ const defaultCode: string = `
         }
       </style>
     </plane>
+    <script>
+      const cube = document.querySelector('cube');
+      if (cube) {
+        cube.addEventListener('rayenter', () => {
+          cube.asNativeType<BABYLON.AbstractMesh>().renderOutline = true;
+          cube.asNativeType<BABYLON.AbstractMesh>().outlineColor = new BABYLON.Color3(0, 1, 1);
+        });
+        cube.addEventListener('rayleave', () => {
+          cube.asNativeType<BABYLON.AbstractMesh>().renderOutline = false;
+        });
+      }
+
+    </script>
   </space>
 </xsml>
 `;

@@ -1,13 +1,11 @@
 import path from 'path';
 import assert from 'assert';
 import vm from 'vm';
-import BABYLON from 'babylonjs';
 import * as babel from '@babel/core';
 import typescriptTransformPlugin from '@babel/plugin-transform-typescript';
 import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';
 import DOMException from '../domexception';
 
-import type { BaseWindowImpl } from '../../agent/window';
 import type { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
