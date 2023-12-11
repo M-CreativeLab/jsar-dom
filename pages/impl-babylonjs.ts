@@ -151,10 +151,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
       lastCameraState = [camera.alpha, camera.beta, camera.radius];
     });
-
-    scene.onPointerMove = () => {
+    scene.onBeforeRenderObservable.add(() => {
       if (isCameraMoving === true) {
-        console.log('skip because the camera is moving');
         return;
       }
       const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
@@ -167,7 +165,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
         });
         currentDom.dispatchInputEvent(raycastEvent);
       }
-    };
+    });
+
     scene.onPointerUp = () => {
       if (!isCameraMoving && currentDom) {
         currentDom.dispatchInputEvent(

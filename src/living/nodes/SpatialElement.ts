@@ -7,12 +7,20 @@ import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import { createSpatialAnimation } from '../helpers/spatial-animations';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
+import { RaycastInputDetail } from '../../input-event';
 
 export class SpatialElement extends ElementImpl {
   protected _scene: BABYLON.Scene;
   protected _internalObject: BABYLON.Node;
   protected _style: CSSSpatialStyleDeclaration;
   protected _id: string;
+  
+  private _isRayOn = false;
+  private _lastRaycastTextCoord: BABYLON.Vector2;
+
+  /**
+   * The GUID.
+   */
   [SPATIAL_OBJECT_GUID_SYMBOL]: string;
 
   /**
@@ -207,9 +215,55 @@ export class SpatialElement extends ElementImpl {
   }
 
   /** @internal */
+  _processPicking(detail: RaycastInputDetail) {
+    /**
+     * Handle with GUI reactions if this target spatial object has an attached `XSMLShadowRoot`.
+     */
+    if (this._shadowRoot && detail.uvCoord) {
+      const interactiveDynamicTexture = this._shadowRoot._getNativeTexture();
+      interactiveDynamicTexture._processPicking(
+        detail.uvCoord.x,
+        detail.uvCoord.y,
+        BABYLON.PointerEventTypes.POINTERMOVE,
+      );
+    }
+
+    /**
+     * Dispatch the `rayenter` event if the `rayOn` state is false.
+     */
+    if (this._isRayOn === false) {
+      const rayEnterEvent = new Event('rayenter');
+      this.dispatchEvent(rayEnterEvent);
+      this._isRayOn = true;
+    }
+    /**
+     * Dispatch the `raymove` event if the raycast text coord is changed or last record is null.
+     */
+    if (!this._lastRaycastTextCoord || !this._lastRaycastTextCoord.equals(detail.uvCoord)) {
+      const rayMoveEvent = new Event('raymove');
+      this.dispatchEvent(rayMoveEvent);
+      this._lastRaycastTextCoord = detail.uvCoord;
+    }
+  }
+
+  /** @internal */
+  _processUnpicking() {
+    const rayLeaveEvent = new Event('rayleave');
+    this.dispatchEvent(rayLeaveEvent);
+    this._isRayOn = false;
+  }
+
+  /** @internal */
   _dispatchPointerEvent(type: number) {
     if (this._shadowRoot) {
       this._shadowRoot._getNativeTexture()._processPointerEvent(type);
+    }
+    if (type === BABYLON.PointerEventTypes.POINTERDOWN) {
+      const rayDownEvent = new Event('raydown');
+      this.dispatchEvent(rayDownEvent);
+    } else if (type === BABYLON.PointerEventTypes.POINTERUP) {
+      const rayUpEvent = new Event('rayup');
+      this.dispatchEvent(rayUpEvent);
     }
   }
 

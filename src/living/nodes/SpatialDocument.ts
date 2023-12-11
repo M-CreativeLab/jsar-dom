@@ -1001,9 +1001,11 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
 
   private _latestRaycastTimestamp: number;
   private _lastPickedSpatialObject: SpatialElement;
+  private _lastPickingTimeout: NodeJS.Timeout;
 
   private _handleRaycastEventDetail(detail: RaycastInputDetail): boolean {
     this._latestRaycastTimestamp = Date.now();
+    clearTimeout(this._lastPickingTimeout);
 
     const guid = detail.targetSpatialElementInternalGuid;
     let targetNativeNode: BABYLON.Node;
@@ -1012,19 +1014,17 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
       /**
        * Update the `lastPickedSpatialObject` when find a spatial object in "raycast" event.
        */
+      if (this._lastPickedSpatialObject && this._lastPickedSpatialObject !== targetSpatialObject) {
+        this._lastPickedSpatialObject._processUnpicking();
+      }
       this._lastPickedSpatialObject = targetSpatialObject;
 
       /**
-       * Handle with GUI reactions if this target spatial object has an attached `XSMLShadowRoot`.
+       * Do the picking process.
        */
-      if (targetSpatialObject._hasAttachedShadow() && detail.uvCoord) {
-        const interactiveDynamicTexture = targetSpatialObject._shadowRoot._getNativeTexture();
-        interactiveDynamicTexture._processPicking(
-          detail.uvCoord.x,
-          detail.uvCoord.y,
-          BABYLON.PointerEventTypes.POINTERMOVE,
-        );
-      }
+      targetSpatialObject._processPicking(detail);
+      this._lastPickingTimeout = setTimeout(() => targetSpatialObject._processUnpicking(), 100);
+
       /**
        * Update the `targetNativeNode` for the deprecated global event `RaycastHitEvent`.
        */
