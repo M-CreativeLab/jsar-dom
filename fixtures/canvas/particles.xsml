@@ -1,0 +1,56 @@
+<xsml>
+    <head>
+      <title>Canvas API Example (Particles)</title>
+      <style>
+        @material spheremat {
+          diffuse-color: blueviolet;
+          specular-color: red;
+        }
+        #text {
+          position: 0 0 -0.1;
+        }
+        sphere {
+          position: -0.25 0 0;
+          material: "spheremat";
+        }
+      </style>
+    </head>
+    <space>
+      <plane />
+      <plane id="text" width="1" height="0.2">
+        <span>Particles Example</span>
+        <style type="text/css">
+          span {
+            font-size: 50px;
+            color: blueviolet;
+          }
+        </style>
+        <sphere diameter="0.05" />
+      </plane>
+    </space>
+    <script type="module">
+      import { init, step } from './particles';
+
+      const plane = document.querySelector('plane');
+      const texture = plane.attachCanvasTexture(512, 512, true);
+      const ctx = texture.getContext();
+      
+      init(ctx, 512, 512);
+      setInterval(() => {
+        step(ctx);
+        texture.update();
+      }, 16);
+
+      const sphere = document.querySelector('sphere');
+      const textPlane = document.querySelector('#text');
+      textPlane.addEventListener('rayenter', () => {
+        sphere.asNativeType().renderOutline = true;
+        sphere.asNativeType().outlineColor = new BABYLON.Color3(1, 0.25, 0);
+        sphere.asNativeType().outlineWidth = 0.01;
+      });
+      textPlane.addEventListener('rayleave', () => {
+        sphere.asNativeType().renderOutline = false;
+      });
+    </script>
+  </xsml>
+  

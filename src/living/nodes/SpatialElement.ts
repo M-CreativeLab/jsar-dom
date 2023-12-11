@@ -14,7 +14,7 @@ export class SpatialElement extends ElementImpl {
   protected _internalObject: BABYLON.Node;
   protected _style: CSSSpatialStyleDeclaration;
   protected _id: string;
-  
+
   private _isRayOn = false;
   private _lastRaycastTextCoord: BABYLON.Vector2;
 
@@ -319,7 +319,7 @@ export class SpatialElement extends ElementImpl {
    * @returns The created dynamic texture.
    * @throws {DOMException} If the spatial element is not a mesh node, or if the mesh node already has a material.
    */
-  attachCanvasTexture(width = 1024, height = 1024): BABYLON.DynamicTexture {
+  attachCanvasTexture(width: number, height: number, useAlpha: boolean = false): BABYLON.DynamicTexture {
     if (!this.isMeshNode()) {
       throw new DOMException('Could not attach canvas texture to non-mesh node.', 'INVALID_STATE_ERR');
     }
@@ -334,9 +334,11 @@ export class SpatialElement extends ElementImpl {
 
     const dynamicTexture = new BABYLON.DynamicTexture(
       `${meshObject.name}#DynamicTexture`, { width, height }, this._scene, true);
+    dynamicTexture.hasAlpha = useAlpha;
     const material = new BABYLON.StandardMaterial(
       `${meshObject.name}#CanvasMaterial`, this._scene);
     material.diffuseTexture = dynamicTexture;
+    material.useAlphaFromDiffuseTexture = useAlpha;
     meshObject.material = material;
     return dynamicTexture;
   }
