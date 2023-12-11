@@ -10,5 +10,7 @@ export default class HTMLSpanElementImpl extends HTMLContentElement implements H
     super(nativeDocument, args, {
       localName: 'span',
     });
+
+    this._style.flexDirection = 'row';
   }
 }

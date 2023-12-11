@@ -123,7 +123,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       BABYLON.Vector3.Zero(),
       this._scene
     );
-    camera.upperRadiusLimit = 10;
+    // camera.upperRadiusLimit = 10;
     camera.lowerRadiusLimit = 2;
     camera.wheelDeltaPercentage = 0.01;
 
@@ -202,7 +202,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     return this._preloadAnimationGroups;
   }
   observeInputEvent(name?: string): void {
-    throw new Error('Method not implemented.');
+    // TODO
   }
   createBoundTransformNode(nameOrId: string): BABYLON.TransformNode {
     throw new Error('Method not implemented.');

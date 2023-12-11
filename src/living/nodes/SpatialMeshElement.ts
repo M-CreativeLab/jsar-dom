@@ -84,6 +84,11 @@ export default class SpatialMeshElement extends SpatialElement {
       originUidToClonedMap[origin.uniqueId] = cloned;
     });
 
+    if (this.id) {
+      clonedMesh.id = this.id;
+      clonedMesh.name = this.id;
+    }
+
     /** Set the cloned skeleton, it set the new bone's linking transforms to new. */
     clonedMesh.getChildMeshes().forEach((childMesh) => {
       if (childMesh.skeleton) {

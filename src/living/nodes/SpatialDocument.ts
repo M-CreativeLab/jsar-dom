@@ -812,7 +812,12 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * Since element IDs are required to be unique if specified, they're a useful way to get access to a specific element quickly.
    */
   getSpatialObjectById(id: string): SpatialElement {
-    return this._idsOfSpatialObjects[id];
+    const element = this.getElementById(id);
+    if (isSpatialElement(element)) {
+      return element;
+    } else {
+      return undefined;
+    }
   }
 
   /**
@@ -983,7 +988,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
    * @deprecated
    */
   getNodeById(id: string): BABYLON.Node {
-    this.#nativeDocument.console.warn(`The method "getNodeById()" is deprecated, please use "getSpatialObjectById()" instead.`);
+    this.#nativeDocument.console.warn(`The method "getNodeById()" is deprecated, please use "getElementById()" instead.`);
     return this.scene.getNodeById(id);
   }
 

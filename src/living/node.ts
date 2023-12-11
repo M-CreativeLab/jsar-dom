@@ -1,11 +1,15 @@
+import DOMExceptionImpl from './domexception';
 import { domSymbolTree } from './helpers/internal-constants';
 import { HTML_NS } from './helpers/namespaces';
 import OrderedSet from './helpers/ordered-set';
-import { asciiCaseInsensitiveMatch, asciiLowercase } from './helpers/strings';
-import DocumentFragmentImpl from './nodes/DocumentFragment';
+import { asciiLowercase } from './helpers/strings';
+import NodeTypes, { isElementNode } from './node-type';
+import type DOMTokenListImpl from './nodes/DOMTokenList';
+import type { NodeImpl } from './nodes/Node';
+import type DocumentFragmentImpl from './nodes/DocumentFragment';
 import HTMLCollectionImpl from './nodes/HTMLCollection';
-import { NodeImpl } from './nodes/Node';
-import { SpatialDocumentImpl } from './nodes/SpatialDocument';
+import type { ElementImpl } from './nodes/Element';
+import type { SpatialDocumentImpl } from './nodes/SpatialDocument';
 
 // https://dom.spec.whatwg.org/#concept-getElementsByClassName
 export function listOfElementsWithClassNames(classNames: string, root: NodeImpl) {
@@ -18,23 +22,19 @@ export function listOfElementsWithClassNames(classNames: string, root: NodeImpl)
     element: root,
     query: () => {
       const isQuirksMode = root._ownerDocument.compatMode === 'BackCompat';
+      if (isQuirksMode) {
+        throw new DOMExceptionImpl('Quirks mode is not supported', 'NOT_SUPPORTED_ERR');
+      }
       return domSymbolTree.treeToArray(root, {
-        filter(node) {
-          if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+        filter(node: NodeImpl) {
+          if (!isElementNode(node) || node === root) {
             return false;
           }
-          const { classList } = node;
-          if (isQuirksMode) {
-            for (const className of classes) {
-              if (!classList.tokenSet.some(cur => asciiCaseInsensitiveMatch(cur, className))) {
-                return false;
-              }
-            }
-          } else {
-            for (const className of classes) {
-              if (!classList.tokenSet.contains(className)) {
-                return false;
-              }
+          const elementImpl = node as ElementImpl;
+          const classList = elementImpl.classList as DOMTokenListImpl;
+          for (const className of classes) {
+            if (!classList._tokenSet.contains(className)) {
+              return false;
             }
           }
           return true;
@@ -50,7 +50,7 @@ export function listOfElementsWithQualifiedName(qualifiedName: string, root: Nod
     return new HTMLCollectionImpl(root._hostObject, [], {
       element: root,
       query: () => domSymbolTree.treeToArray(root, {
-        filter: node => node.nodeType === NodeImpl.ELEMENT_NODE && node !== root
+        filter: node => node.nodeType === NodeTypes.ELEMENT_NODE && node !== root
       })
     });
   }
@@ -61,7 +61,7 @@ export function listOfElementsWithQualifiedName(qualifiedName: string, root: Nod
       element: root,
       query: () => domSymbolTree.treeToArray(root, {
         filter(node) {
-          if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+          if (node.nodeType !== NodeTypes.ELEMENT_NODE || node === root) {
             return false;
           }
           if (node._namespaceURI === HTML_NS) {
@@ -77,7 +77,7 @@ export function listOfElementsWithQualifiedName(qualifiedName: string, root: Nod
     element: root,
     query: () => domSymbolTree.treeToArray(root, {
       filter(node) {
-        if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+        if (node.nodeType !== NodeTypes.ELEMENT_NODE || node === root) {
           return false;
         }
         return node._qualifiedName === qualifiedName;
@@ -99,7 +99,7 @@ export function listOfElementsWithNamespaceAndLocalName(
     return new HTMLCollectionImpl(root._hostObject, [], {
       element: root,
       query: () => domSymbolTree.treeToArray(root, {
-        filter: node => node.nodeType === NodeImpl.ELEMENT_NODE && node !== root
+        filter: node => node.nodeType === NodeTypes.ELEMENT_NODE && node !== root
       })
     });
   }
@@ -109,7 +109,7 @@ export function listOfElementsWithNamespaceAndLocalName(
       element: root,
       query: () => domSymbolTree.treeToArray(root, {
         filter(node) {
-          if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+          if (node.nodeType !== NodeTypes.ELEMENT_NODE || node === root) {
             return false;
           }
           return node._localName === localName;
@@ -123,7 +123,7 @@ export function listOfElementsWithNamespaceAndLocalName(
       element: root,
       query: () => domSymbolTree.treeToArray(root, {
         filter(node) {
-          if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+          if (node.nodeType !== NodeTypes.ELEMENT_NODE || node === root) {
             return false;
           }
           return node._namespaceURI === namespace;
@@ -136,7 +136,7 @@ export function listOfElementsWithNamespaceAndLocalName(
     element: root,
     query: () => domSymbolTree.treeToArray(root, {
       filter(node) {
-        if (node.nodeType !== NodeImpl.ELEMENT_NODE || node === root) {
+        if (node.nodeType !== NodeTypes.ELEMENT_NODE || node === root) {
           return false;
         }
         return node._localName === localName && node._namespaceURI === namespace;

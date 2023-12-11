@@ -216,11 +216,11 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   get className(): string {
-    throw new DOMException('className is not supported', 'NOT_SUPPORTED_ERR');
+    return this.getAttribute('class') || '';
   }
 
   set className(value: string) {
-    throw new DOMException('className is not supported', 'NOT_SUPPORTED_ERR');
+    this.setAttribute('class', value);
   }
 
   get classList() {

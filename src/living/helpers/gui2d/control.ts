@@ -218,6 +218,9 @@ export class Control2D {
   private _initializeLayoutStyle() {
     const layoutStyle: LayoutStyle = {
       display: taffy.Display.Flex,
+      flexDirection: taffy.FlexDirection.Column,
+      height: '100%',
+      width: '100%',
     };
     if (this._style) {
       const inputStyle = this._style;
@@ -428,7 +431,6 @@ export class Control2D {
     return element.childNodes.length === 1 && element.firstChild.nodeType === NodeTypes.TEXT_NODE;
   }
 
-
   /**
    * Render the inner text in this control.
    */
@@ -447,8 +449,9 @@ export class Control2D {
     const { height: textHeight } = this._measureText(context, text);
 
     context.fillStyle = this._style.color || 'black';
+    const lineHeight = getLineHeightValue(textHeight, this._style.lineHeight);
     drawText(context, text, {
-      lineHeight: getLineHeightValue(textHeight, this._style.lineHeight),
+      lineHeight,
       height: rect.height,
       ...textConfig,
     });

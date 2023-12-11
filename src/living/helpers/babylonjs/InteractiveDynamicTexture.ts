@@ -167,8 +167,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const ownerDocument = shadowRoot._ownerDocument;
     this._rootLayoutContainer = new Control2D(ownerDocument._defaultView._taffyAllocator, this._shadowRoot);
     this._rootLayoutContainer.init({
-      height,
-      width,
+      height: '100%',
+      width: '100%',
     });
     this._rootLayoutContainer.setRenderingContext(this.getContext() as CanvasRenderingContext2D);
 
