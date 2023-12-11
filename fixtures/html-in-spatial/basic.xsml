@@ -2,12 +2,12 @@
   <head>
     <title>HTML in Spatial Example (Basic)</title>
     <style>
-      @material litered {
-        diffuse-color: #ff0000;
+      @material liteblue {
+        diffuse-color: blue;
       }
       #inner {
         position: 0 -1 0;
-        material: "litered";
+        material: "liteblue";
       }
     </style>
   </head>

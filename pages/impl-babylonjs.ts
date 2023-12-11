@@ -126,9 +126,10 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     camera.upperRadiusLimit = 10;
     camera.lowerRadiusLimit = 2;
     camera.wheelDeltaPercentage = 0.01;
+
     camera.setPosition(new BABYLON.Vector3(0, 0, -5));
     camera.setTarget(BABYLON.Vector3.Zero());
-    camera.attachControl(canvas, true);
+    camera.attachControl(canvas, false, true);
 
     const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 2, -5), this._scene);
     light.intensity = 0.7;
@@ -139,8 +140,23 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     window.addEventListener('resize', () => {
       this.engine.resize();
     });
-    
+
+    let lastCameraState = [camera.alpha, camera.beta, camera.radius];
+    let isCameraMoving = false;
+    scene.onAfterCameraRenderObservable.add(() => {
+      if (lastCameraState[0] !== camera.alpha || lastCameraState[1] !== camera.beta || lastCameraState[2] !== camera.radius) {
+        isCameraMoving = true;
+      } else {
+        isCameraMoving = false;
+      }
+      lastCameraState = [camera.alpha, camera.beta, camera.radius];
+    });
+
     scene.onPointerMove = () => {
+      if (isCameraMoving === true) {
+        console.log('skip because the camera is moving');
+        return;
+      }
       const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
       if (currentDom && pickingInfo.pickedMesh) {
         const raycastEvent = new JSARInputEvent('raycast', {
@@ -153,7 +169,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
     };
     scene.onPointerUp = () => {
-      if (currentDom) {
+      if (!isCameraMoving && currentDom) {
         currentDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
             sourceId: 'scene_default_ray',
@@ -163,7 +179,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
     };
     scene.onPointerDown = () => {
-      if (currentDom) {
+      if (!isCameraMoving && currentDom) {
         currentDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
             sourceId: 'scene_default_ray',
