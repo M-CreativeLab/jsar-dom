@@ -81,6 +81,8 @@ class UserAgentOnBabylonjs implements UserAgent {
   }
 }
 
+const MIN_WIDTH_SHOW_DEBUGGER = 1024;
+
 class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   engine: NativeEngine;
   userAgent: UserAgent;
@@ -96,6 +98,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   constructor(canvas: HTMLCanvasElement) {
     super();
 
+    const screenWidth = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.engine = new EngineOnBabylonjs(canvas, true);
     this.userAgent = new UserAgentOnBabylonjs({
       defaultStylesheet: '',
@@ -105,8 +108,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     const scene = this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
     this._scene.debugLayer.show({
-      showExplorer: true,
-      showInspector: true,
+      showExplorer: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
+      showInspector: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
       globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
     });
 
@@ -138,6 +141,12 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       this._scene.render();
     });
     window.addEventListener('resize', () => {
+      const screenWidth = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth;
+      this._scene.debugLayer.hide();
+      this._scene.debugLayer.show({
+        showExplorer: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
+        showInspector: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
+      });
       this.engine.resize();
     });
 
