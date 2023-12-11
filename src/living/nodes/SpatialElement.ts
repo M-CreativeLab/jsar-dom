@@ -175,6 +175,7 @@ export class SpatialElement extends ElementImpl {
               }
             }
           }
+          break;
         case 'animation-name':
           const name = style._getPropertyValue('animation-name').value as string;
           createSpatialAnimation(

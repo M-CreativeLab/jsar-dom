@@ -139,7 +139,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     window.addEventListener('resize', () => {
       this.engine.resize();
     });
-    canvas.addEventListener('mousemove', () => {
+    
+    scene.onPointerMove = () => {
       const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
       if (currentDom && pickingInfo.pickedMesh) {
         const raycastEvent = new JSARInputEvent('raycast', {
@@ -150,8 +151,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
         });
         currentDom.dispatchInputEvent(raycastEvent);
       }
-    });
-    canvas.addEventListener('mouseup', () => {
+    };
+    scene.onPointerUp = () => {
       if (currentDom) {
         currentDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
@@ -160,8 +161,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
           })
         );
       }
-    });
-    canvas.addEventListener('mousedown', () => {
+    };
+    scene.onPointerDown = () => {
       if (currentDom) {
         currentDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
@@ -170,7 +171,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
           })
         );
       }
-    });
+    };
   }
 
   getNativeScene(): BABYLON.Scene {

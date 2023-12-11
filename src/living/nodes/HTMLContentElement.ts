@@ -5,7 +5,7 @@ import { NativeDocument } from '../../impl-interfaces';
 import { isHTMLContentElement } from '../node-type';
 import { ShadowRootImpl } from './ShadowRoot';
 import DOMExceptionImpl from '../domexception';
-import { Control2D } from '../helpers/renderer/control';
+import { Control2D } from '../helpers/gui2d/control';
 
 const { forEach } = Array.prototype;
 

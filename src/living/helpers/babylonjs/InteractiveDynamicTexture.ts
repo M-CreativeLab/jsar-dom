@@ -4,7 +4,7 @@ import { HTMLElementImpl } from '../../nodes/HTMLElement';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { isHTMLContentElement } from '../../node-type';
-import { Control2D } from '../renderer/control';
+import { Control2D } from '../gui2d/control';
 import { domSymbolTree } from '../internal-constants';
 
 /**
@@ -165,7 +165,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     this._shadowRoot = shadowRoot;
 
     const ownerDocument = shadowRoot._ownerDocument;
-    this._rootLayoutContainer = new Control2D(ownerDocument._defaultView._taffyAllocator, null);
+    this._rootLayoutContainer = new Control2D(ownerDocument._defaultView._taffyAllocator, this._shadowRoot);
     this._rootLayoutContainer.init({
       height,
       width,
@@ -370,11 +370,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   /**
    * @internal
    */
-  public _processPointerEvent(type: number) {
+  public _processPointerEvent(type: number): boolean {
     const { x: xInScreen, y: yInScreen } = this._lastPositionInPicking;
-    // this._iterateControls(this._rootContainer, (control) => {
-    //   return control._processPointerEvent(xInScreen, yInScreen, type);
-    // });
+    this._iterateControls((control) => {
+      return control.processPointerEvent(xInScreen, yInScreen, type);
+    });
+    return true;
   }
 
   /**

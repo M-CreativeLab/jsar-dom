@@ -1039,7 +1039,17 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   }
 
   private _handleRaycastActionEventDetail(detail: RaycastActionInputDetail): boolean {
-    // TODO
+    if (!this._lastPickedSpatialObject || this._lastPickedSpatialObject == null) {
+      /**
+       * If the `lastPickedSpatialObject` is null, we should ignore the action event.
+       */
+      return;
+    }
+
+    this._lastPickedSpatialObject._dispatchPointerEvent({
+      'up': BABYLON.PointerEventTypes.POINTERUP,
+      'down': BABYLON.PointerEventTypes.POINTERDOWN,
+    }[detail.type]);
     return true;
   }
 

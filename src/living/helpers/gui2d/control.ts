@@ -2,11 +2,13 @@ import * as taffy from '@bindings/taffy';
 import { CSSStyleDeclaration } from 'cssstyle';
 import { CanvasTextConfig, drawText } from 'canvas-txt';
 
-import NodeTypes from '../../node-type';
+import DOMExceptionImpl from '../../domexception';
+import NodeTypes, { isHTMLContentElement } from '../../node-type';
 import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
 import { MouseEventImpl } from '../../events/MouseEvent';
+import { ShadowRootImpl } from 'src/living/nodes/ShadowRoot';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -161,7 +163,14 @@ export class Control2D {
   private _isCursorInside = false;
   private _renderingContext: CanvasRenderingContext2D;
 
-  constructor(private _allocator: taffy.Allocator, private _element: HTMLContentElement | null) { }
+  constructor(
+    private _allocator: taffy.Allocator,
+    private _element: HTMLContentElement | ShadowRootImpl
+  ) {
+    if (this._element == null || !this._element) {
+      throw new DOMExceptionImpl('element must not be null', 'INVALID_STATE_ERR');
+    }
+  }
 
   init(defaultStyle?: LayoutStyle) {
     if (defaultStyle) {
@@ -191,8 +200,12 @@ export class Control2D {
     }
   }
 
-  get _style(): CSSStyleDeclaration {
-    return this._element?._adoptedStyle || {} as unknown as CSSStyleDeclaration;
+  get _style(): CSSStyleDeclaration | null {
+    if (isHTMLContentElement(this._element)) {
+      return this._element?._adoptedStyle;
+    } else {
+      return null;
+    }
   }
 
   private _parseLengthStr(input: string): LengthPercentageDimension | 'auto' {
@@ -206,9 +219,8 @@ export class Control2D {
     const layoutStyle: LayoutStyle = {
       display: taffy.Display.Flex,
     };
-    const element = this._element;
-    if (element && element._adoptedStyle) {
-      const inputStyle = element._adoptedStyle;
+    if (this._style) {
+      const inputStyle = this._style;
       if (inputStyle.height) {
         layoutStyle.height = this._parseLengthStr(inputStyle.height);
       }
@@ -313,26 +325,24 @@ export class Control2D {
     const canvasContext = this._renderingContext;
     const boxRect = new DOMRectReadOnlyImpl(x, y, width, height);
 
-    if (this._element) {
-      /**
-       * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
-       */
-      if (!this._renderBorders(canvasContext, boxRect)) {
-        this._renderRect(canvasContext, boxRect);
-      }
+    /**
+     * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
+     */
+    if (!this._renderBorders(canvasContext, boxRect)) {
+      this._renderRect(canvasContext, boxRect);
+    }
 
-      /**
-       * Render the inner text.
-       */
-      if (this._isElementOwnsInnerText()) {
-        this._renderInnerText(canvasContext, boxRect);
-      }
+    /**
+     * Render the inner text.
+     */
+    if (this._isElementOwnsInnerText()) {
+      this._renderInnerText(canvasContext, boxRect);
     }
     this._lastRect = boxRect;
   }
 
   private _getBorderRenderingContext(name?: 'top' | 'right' | 'bottom' | 'left'): BorderRenderingContext {
-    if (this._element == null) {
+    if (!isHTMLContentElement(this._element)) {
       return;
     }
     let prefix = 'border';
@@ -448,12 +458,15 @@ export class Control2D {
    * Render the rectangle with background color in this control.
    */
   private _renderRect(renderingContext: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl) {
-    renderingContext.fillStyle = this._style.backgroundColor || 'transparent';
+    renderingContext.fillStyle = this._style?.backgroundColor || 'transparent';
     renderingContext.lineJoin = 'round';
     renderingContext.fillRect(rect.x, rect.y, rect.width, rect.height);
   }
 
   private _renderBorders(renderingContext: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl): boolean {
+    if (!isHTMLContentElement(this._element)) {
+      return false;
+    }
     const { x, y, width, height } = rect;
 
     // Get border radius
@@ -645,26 +658,25 @@ export class Control2D {
    * @returns 
    */
   processPointerEvent(x: number, y: number, type: number): boolean {
-    // if (this.containsPoint(x, y)) {
-    //   let eventType: string;
-    //   switch (type) {
-    //     case BABYLON.PointerEventTypes.POINTERDOWN:
-    //       eventType = 'mousedown';
-    //       break;
-    //     case BABYLON.PointerEventTypes.POINTERUP:
-    //       eventType = 'mouseup';
-    //       break;
-    //     default:
-    //       eventType = null;
-    //       break;
-    //   }
-    //   return this._element.dispatchEvent(new MouseEventImpl(eventType, {
-    //     clientX: x,
-    //     clientY: y,
-    //   }));
-    // } else {
-    //   return true;
-    // }
-    return true;
+    if (this.containsPoint(x, y)) {
+      let eventType: string;
+      switch (type) {
+        case BABYLON.PointerEventTypes.POINTERUP:
+          eventType = 'mouseup';
+          break;
+        case BABYLON.PointerEventTypes.POINTERDOWN:
+          eventType = 'mousedown';
+          break;
+        default:
+          eventType = null;
+          break;
+      }
+      return this._element.dispatchEvent(new MouseEventImpl(eventType, {
+        clientX: x,
+        clientY: y,
+      }));
+    } else {
+      return true;
+    }
   }
 }
