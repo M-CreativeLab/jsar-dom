@@ -42,6 +42,7 @@ export default class DOMTokenListImpl implements DOMTokenList {
     this._element = privateData.element;
     this._attributeLocalName = privateData.attributeLocalName;
     this._supportedTokens = privateData.supportedTokens;
+    this._syncWithElement();
   }
 
   _validationSteps(token: string) {

@@ -114,7 +114,7 @@ export default class ParentNodeImpl implements ParentNode {
       });
     }
     const matcher = addNwsapi(this);
-    const list = matcher.select(selectors as string, this as Document);
+    const list = matcher.select(selectors as string, this);
     return new NodeListImpl(this._hostObject, [], {
       nodes: list,
     });

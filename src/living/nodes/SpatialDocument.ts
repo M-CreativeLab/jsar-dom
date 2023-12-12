@@ -1,5 +1,3 @@
-import nwsapi from 'nwsapi';
-
 import { NativeDocument } from '../../impl-interfaces';
 import { isElementNode, isHTMLElement, isSpatialElement } from '../node-type';
 import { DocumentTypeImpl } from './DocumentType';
@@ -288,10 +286,6 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
   _lastFocusedElement: Element | null;
   _spatialKeyframesMap: Map<string, CSSSpatialKeyframesRule> = new Map();
-
-  // CSS selectors
-  _nwsapi: nwsapi.NWSAPI;
-  _nwsapiDontThrow: nwsapi.NWSAPI;
 
   /** Used for spatial objects */
   _idsOfSpatialObjects: { [key: string]: SpatialElement } = {};

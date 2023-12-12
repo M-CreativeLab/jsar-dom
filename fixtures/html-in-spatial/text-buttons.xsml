@@ -1,0 +1,57 @@
+<xsml version="1.0">
+  <head>
+    <title>GUI Buttons</title>
+    <style type="text/scss">
+      @material litered {
+        diffuse-color: #ffccff;
+      }
+      #gui {
+        scaling: 1.2 1 1;
+        position: 0 0 -0.5;
+      }
+      #box1 {
+        material: "litered";
+      }
+    </style>
+    <script type="module" src="text-button.ts"></script>
+  </head>
+  <space>
+    <cube id="box1" size="0.8" width="1.4" depth="0.2"></cube>
+    <plane id="gui">
+      <style type="text/css">
+        #root {
+          padding:10px;
+          gap: 20px;
+        }
+        span.text {
+          color: white;
+          font-size: 70px;
+          line-height: 1.3;
+        }
+        span.sub {
+          background-color: rgba(20,33,33,.95);
+          height: 200px;
+          width: 300px;
+          margin-left: 50px;
+          font-size: 80px;
+          color: #ffffff;
+          text-align: center;
+          border: 15px solid yellow;
+          border-radius: 50px;
+          padding-top: 20px;
+        }
+      </style>
+      <div id="root">
+        <span>
+          <span class="sub">Do</span>
+          <span class="sub">Ri</span>
+          <span class="sub">Mi</span>
+          <span class="sub">Fa</span>
+        </span>
+        <span class="text">
+          空间小程序还原最开始的 Web 开发体验，并所见即所得。
+        </span>
+      </div>
+    </plane>
+  </space>
+</xsml>

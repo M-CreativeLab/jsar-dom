@@ -1,3 +1,4 @@
+import nwsapi from 'nwsapi';
 import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
 import DOMExceptionImpl from '../domexception';
@@ -7,6 +8,10 @@ import { NodeImpl } from './Node';
 export default class DocumentOrShadowRootImpl implements DocumentOrShadowRoot {
   _styleSheets: StyleSheetListImpl;
   _adoptedStyleSheets: CSSStyleSheetImpl[];
+
+  // CSS selectors
+  _nwsapi: nwsapi.NWSAPI;
+  _nwsapiDontThrow: nwsapi.NWSAPI;
 
   /**
    * It returns the inline stylesheets of this document or shadow root.
