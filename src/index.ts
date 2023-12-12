@@ -56,6 +56,16 @@ export class JSARDOM<T extends NativeDocument> {
     });
   }
 
+  async waitForSpaceReady() {
+    if (this.document._isSpaceReady === true) {
+      return Promise.resolve();
+    } else {
+      return new Promise<void>(resolve => {
+        this.document.addEventListener('spaceReady', () => resolve());
+      });
+    }
+  }
+
   /**
    * Dispose the loaded document and close the window.
    */
