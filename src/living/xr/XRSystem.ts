@@ -28,7 +28,7 @@ export default class XRSystemImpl extends EventTarget implements XRSystem {
     if (this._session) {
       throw new DOMException('Only one session can be active at a time', 'INVALID_STATE_ERR');
     }
-    this._session = new XRSessionImpl(this.#nativeDocument, [options]);
+    this._session = XRSessionImpl.createForImpl(this.#nativeDocument, [options]);
     return this._session;
   }
 

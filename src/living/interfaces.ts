@@ -7,6 +7,13 @@ import type HTMLStyleElementImpl from './nodes/HTMLStyleElement';
 import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
 import type { SpatialElement } from './nodes/SpatialElement';
 import type ImageDataImpl from './image/ImageData';
+import type DOMPointImpl from './geometry/DOMPoint';
+import type DOMPointReadOnlyImpl from './geometry/DOMPointReadOnly';
+import type DOMRectImpl from './geometry/DOMRect';
+import type DOMRectReadOnlyImpl from './geometry/DOMRectReadOnly';
+import type XRPoseImpl from './xr/XRPose';
+import type XRRigidTransformImpl from './xr/XRRigidTransform';
+import type XRSessionImpl from './xr/XRSession';
 
 let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
@@ -75,9 +82,15 @@ export async function loadImplementations() {
     import('./range/Range'),
     import('./mutation-observer/MutationObserver'),
     import('./mutation-observer/MutationRecord'),
-    import('./geometry/DOMRectReadOnly'),
+    import('./geometry/DOMPoint'),
+    import('./geometry/DOMPointReadOnly'),
     import('./geometry/DOMRect'),
+    import('./geometry/DOMRectReadOnly'),
     import('./image/ImageData'),
+    // WebXR
+    import('./xr/XRPose'),
+    import('./xr/XRRigidTransform'),
+    import('./xr/XRSession'),
   ]).then(([
     // Attributes
     NamedNodeMapImpl,
@@ -126,9 +139,15 @@ export async function loadImplementations() {
     { RangeImpl },
     { MutationObserverImpl },
     { MutationRecordImpl },
-    DOMRectReadOnlyImpl,
+    DOMPointImpl,
+    DOMPointReadOnlyImpl,
     DOMRectImpl,
+    DOMRectReadOnlyImpl,
     ImageDataImpl,
+    // WebXR
+    XRPoseImpl,
+    XRRigidTransformImpl,
+    XRSessionImpl,
   ]) => {
     implementedInterfaces.set('NamedNodeMap', NamedNodeMapImpl.default);
     implementedInterfaces.set('Attr', AttrImpl);
@@ -171,9 +190,14 @@ export async function loadImplementations() {
     implementedInterfaces.set('Range', RangeImpl);
     implementedInterfaces.set('MutationObserver', MutationObserverImpl);
     implementedInterfaces.set('MutationRecord', MutationRecordImpl);
-    implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl.default);
+    implementedInterfaces.set('DOMPoint', DOMPointImpl.default);
+    implementedInterfaces.set('DOMPointReadOnly', DOMPointReadOnlyImpl.default);
     implementedInterfaces.set('DOMRect', DOMRectImpl.default);
+    implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl.default);
     implementedInterfaces.set('ImageData', ImageDataImpl.default);
+    implementedInterfaces.set('XRPose', XRPoseImpl.default);
+    implementedInterfaces.set('XRRigidTransform', XRRigidTransformImpl.default);
+    implementedInterfaces.set('XRSession', XRSessionImpl.default);
     implementationLoaded = true;
   });
 }
@@ -187,7 +211,14 @@ export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLCont
 export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleElementImpl;
 export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
 export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
+export function getInterfaceWrapper(name: 'DOMPoint'): typeof DOMPointImpl;
+export function getInterfaceWrapper(name: 'DOMPointReadOnly'): typeof DOMPointReadOnlyImpl;
+export function getInterfaceWrapper(name: 'DOMRect'): typeof DOMRectImpl;
+export function getInterfaceWrapper(name: 'DOMRectReadOnly'): typeof DOMRectReadOnlyImpl;
 export function getInterfaceWrapper(name: 'ImageData'): typeof ImageDataImpl
+export function getInterfaceWrapper(name: 'XRPose'): typeof XRPoseImpl;
+export function getInterfaceWrapper(name: 'XRRigidTransform'): typeof XRRigidTransformImpl;
+export function getInterfaceWrapper(name: 'XRSession'): typeof XRSessionImpl;
 export function getInterfaceWrapper(name: string): any;
 export function getInterfaceWrapper(name: string) {
   if (!implementationLoaded) {

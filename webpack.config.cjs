@@ -11,8 +11,12 @@ module.exports = {
   mode: 'production',
   devtool: false,
   output: {
+    clean: true,
+    path: path.resolve(__dirname, 'dist'),
     filename: 'jsardom.js',
-    path: path.resolve(__dirname, 'dist')
+    library: {
+      type: 'module',
+    },
   },
   resolve: {
     extensions: ['.ts', '.js'],
@@ -30,7 +34,9 @@ module.exports = {
   },
   externals: {
     babylonjs: {
+      module: 'babylonjs',
       commonjs: 'babylonjs',
+      commonjs2: 'babylonjs',
       amd: 'babylonjs',
       root: 'BABYLON',
     },
@@ -82,5 +88,8 @@ module.exports = {
   ],
   optimization: {
     minimizer: [new TerserPlugin()],
+  },
+  experiments: {
+    outputModule: true,
   },
 };

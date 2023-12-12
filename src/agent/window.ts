@@ -1,7 +1,7 @@
 import * as taffy from '@bindings/taffy';
 import DOMExceptionImpl from '../living/domexception';
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
-import type { ElementImpl } from 'src/living/nodes/Element';
+import type { ElementImpl } from '../living/nodes/Element';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
 import { CustomElementRegistryImpl } from '../living/custom-elements/CustomElementRegistry';
@@ -11,6 +11,16 @@ import { GlobalEventHandlersImpl } from '../living/nodes/GlobalEventHandlers';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
 import { clearTimer, stopAllTimers, timerInitializationSteps } from './timers';
+import { getInterfaceWrapper } from '../living/interfaces';
+
+// Global interface types.
+import type XRPoseImpl from '../living/xr/XRPose';
+import type XRRigidTransformImpl from '../living/xr/XRRigidTransform';
+import type XRSessionImpl from '../living/xr/XRSession';
+import type DOMPointReadOnlyImpl from '../living/geometry/DOMPointReadOnly';
+import type DOMPointImpl from '../living/geometry/DOMPoint';
+import type DOMRectReadOnlyImpl from '../living/geometry/DOMRectReadOnly';
+import type DOMRectImpl from '../living/geometry/DOMRect';
 
 export type WindowOrDOMInit<T extends NativeDocument> = {
   url?: string;
@@ -36,6 +46,21 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
 
   URL = URL;
   Blob = Blob;
+
+  /**
+   * DOM Geometry Interfaces
+   */
+  DOMRect: typeof DOMRectImpl;
+  DOMRectReadOnly: typeof DOMRectReadOnlyImpl;
+  DOMPoint: typeof DOMPointImpl;
+  DOMPointReadOnly: typeof DOMPointReadOnlyImpl;
+
+  /**
+   * WebXR Device API
+   */
+  XRPose: typeof XRPoseImpl;
+  XRRigidTransform: typeof XRRigidTransformImpl;
+  XRSession: typeof XRSessionImpl;
 
   /**
    * Event handlers
@@ -112,6 +137,15 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
    */
   _prepare() {
     this._taffyAllocator = new taffy.Allocator();
+
+    // Set the DOM & Web interfaces
+    this.DOMRect = getInterfaceWrapper('DOMRect');
+    this.DOMRectReadOnly = getInterfaceWrapper('DOMRectReadOnly');
+    this.DOMPoint = getInterfaceWrapper('DOMPoint');
+    this.DOMPointReadOnly = getInterfaceWrapper('DOMPointReadOnly');
+    this.XRPose = getInterfaceWrapper('XRPose');
+    this.XRRigidTransform = getInterfaceWrapper('XRRigidTransform');
+    this.XRSession = getInterfaceWrapper('XRSession');
   }
 
   /**

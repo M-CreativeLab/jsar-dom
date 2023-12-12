@@ -33,14 +33,14 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
   requestHitTest?: (ray: XRRay, referenceSpace: XRReferenceSpace) => Promise<XRHitResult[]>;
   updateWorldTrackingState?: (options: { planeDetectionState?: { enabled: boolean; }; }) => void;
 
-  constructor(
+  static createForImpl(
     hostObject: NativeDocument,
-    args: [XRSessionInit],
-    privateData = null
-  ) {
-    super();
-
-    this.#nativeDocument = hostObject;
+    _args: [XRSessionInit],
+    _privateData = null
+  ): XRSessionImpl {
+    const session = new XRSessionImpl();
+    session.#nativeDocument = hostObject;
+    return session;
   }
 
   private get _nativeScene(): BABYLON.Scene {

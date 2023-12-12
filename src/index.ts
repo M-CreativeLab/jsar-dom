@@ -89,12 +89,12 @@ export class JSARDOM<T extends NativeDocument> {
     // load native bindings
     await taffy.loadTaffy();
 
-    // prepare the window
+    // prepare the window such as create layout/render context and load window's global interfaces.
     this[windowSymbol]._prepare();
   }
 }
 
 export * from './impl-interfaces';
 export {
-  SpatialDocumentImpl
+  SpatialDocumentImpl,
 }
