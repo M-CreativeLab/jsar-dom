@@ -1,0 +1,14 @@
+<xsml>
+  <head>
+    <title>Example</title>
+  </head>
+  <space>
+  </space>
+  <script type="module">
+    const rawText = 'Hello World!';
+    const encodedText = btoa(rawText);
+    const decodedText = atob(encodedText);
+    assert.equal(rawText, decodedText);
+
+  </script>
+</xsml>

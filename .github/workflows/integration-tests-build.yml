@@ -38,3 +38,4 @@ jobs:
         npm run headless-bin -- ./fixtures/esm/script-inline.xsml
         npm run headless-bin -- ./fixtures/css/spatial-basic.xsml
         npm run headless-bin -- ./fixtures/css/spatial-material-bumpmap.xsml
+        npm run headless-bin -- ./fixtures/dom/globals-in-script.xsml

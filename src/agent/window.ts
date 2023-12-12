@@ -441,23 +441,43 @@ export class BaseWindowImpl extends EventTarget implements Window {
   get performance(): Performance {
     return this.#performanceInstance;
   }
+
   atob(data: string): string {
-    return globalThis.atob(data);
+    try {
+      return globalThis.atob(data);
+    } catch (e) {
+      throw new DOMExceptionImpl(
+        'The string to be decoded contains invalid characters.',
+        'INVALID_CHARACTER_ERR'
+      );
+    }
   }
+
   btoa(data: string): string {
-    return globalThis.btoa(data);
+    try {
+      return globalThis.btoa(data);
+    } catch (e) {
+      throw new DOMExceptionImpl(
+        'The string to be decoded contains invalid characters.',
+        'INVALID_CHARACTER_ERR'
+      );
+    }
   }
+
   createImageBitmap(image: ImageBitmapSource, options?: ImageBitmapOptions): Promise<ImageBitmap>;
   createImageBitmap(image: ImageBitmapSource, sx: number, sy: number, sw: number, sh: number, options?: ImageBitmapOptions): Promise<ImageBitmap>;
   createImageBitmap(image: unknown, sx?: unknown, sy?: unknown, sw?: unknown, sh?: unknown, options?: unknown): Promise<ImageBitmap> {
     throw new Error('`window.createImageBitmap()` is not supported.');
   }
+
   fetch(input: URL | RequestInfo, init?: RequestInit): Promise<Response> {
     return globalThis.fetch(input, init);
   }
+
   queueMicrotask(callback: VoidFunction): void {
     return globalThis.queueMicrotask(callback);
   }
+
   reportError(e: any): void {
     throw new Error('`window.reportError()` is not supported.');
   }

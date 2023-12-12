@@ -544,12 +544,14 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // Web APIs
       URL: windowBase.URL,
       Blob: windowBase.Blob,
-      getComputedStyle: windowBase.getComputedStyle.bind(windowBase),
-      getComputedSpatialStyle: windowBase.getComputedSpatialStyle.bind(windowBase),
+      atob: windowBase.atob,
+      btoa: windowBase.btoa,
       setTimeout: windowBase.setTimeout.bind(windowBase),
       setInterval: windowBase.setInterval.bind(windowBase),
       clearTimeout: windowBase.clearTimeout.bind(windowBase),
       clearInterval: windowBase.clearInterval.bind(windowBase),
+      getComputedStyle: windowBase.getComputedStyle.bind(windowBase),
+      getComputedSpatialStyle: windowBase.getComputedSpatialStyle.bind(windowBase),
       get console() {
         return windowBase.console;
       },
