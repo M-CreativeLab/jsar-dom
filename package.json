@@ -1,6 +1,6 @@
 {
   "name": "@yodaos-jsar/dom",
-  "version": "0.3.0-alpha.0",
+  "version": "0.3.0-alpha.1",
   "description": "The DOM implementation for JSAR runtime",
   "main": "index.js",
   "type": "module",
