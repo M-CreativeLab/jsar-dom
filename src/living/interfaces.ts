@@ -6,6 +6,7 @@ import type { HTMLContentElement } from './nodes/HTMLContentElement';
 import type HTMLStyleElementImpl from './nodes/HTMLStyleElement';
 import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
 import type { SpatialElement } from './nodes/SpatialElement';
+import type ImageDataImpl from './image/ImageData';
 
 let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
@@ -76,6 +77,7 @@ export async function loadImplementations() {
     import('./mutation-observer/MutationRecord'),
     import('./geometry/DOMRectReadOnly'),
     import('./geometry/DOMRect'),
+    import('./image/ImageData'),
   ]).then(([
     // Attributes
     NamedNodeMapImpl,
@@ -126,6 +128,7 @@ export async function loadImplementations() {
     { MutationRecordImpl },
     DOMRectReadOnlyImpl,
     DOMRectImpl,
+    ImageDataImpl,
   ]) => {
     implementedInterfaces.set('NamedNodeMap', NamedNodeMapImpl.default);
     implementedInterfaces.set('Attr', AttrImpl);
@@ -170,6 +173,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('MutationRecord', MutationRecordImpl);
     implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl.default);
     implementedInterfaces.set('DOMRect', DOMRectImpl.default);
+    implementedInterfaces.set('ImageData', ImageDataImpl.default);
     implementationLoaded = true;
   });
 }
@@ -183,6 +187,7 @@ export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLCont
 export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleElementImpl;
 export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
 export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
+export function getInterfaceWrapper(name: 'ImageData'): typeof ImageDataImpl
 export function getInterfaceWrapper(name: string): any;
 export function getInterfaceWrapper(name: string) {
   if (!implementationLoaded) {

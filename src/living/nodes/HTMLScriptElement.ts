@@ -4,12 +4,13 @@ import vm from 'vm';
 import * as babel from '@babel/core';
 import typescriptTransformPlugin from '@babel/plugin-transform-typescript';
 import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';
-import DOMException from '../domexception';
 
+import DOMException from '../domexception';
 import type { NativeDocument, ResourceLoader } from '../../impl-interfaces';
 import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
+import { getInterfaceWrapper } from '../interfaces';
 
 const scriptMIMETypes = new Set([
   'application/javascript',
@@ -544,6 +545,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // Web APIs
       URL: windowBase.URL,
       Blob: windowBase.Blob,
+      ImageData: getInterfaceWrapper('ImageData'),
       atob: windowBase.atob,
       btoa: windowBase.btoa,
       setTimeout: windowBase.setTimeout.bind(windowBase),
