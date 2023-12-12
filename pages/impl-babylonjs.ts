@@ -327,6 +327,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     await currentDom.load();
     console.log(currentDom);
+
+    const scene = currentDom.document.scene;
+    BABYLON.SceneLoader.ImportMesh(
+      ['GitHub Pin UwU_14'],
+      './assets/',
+      '3d_skill__role_badges_and_pins.glb',
+      scene,
+      () => {
+        const githubTransform = scene.getTransformNodeById('GitHub Pin UwU_14');
+        if (githubTransform) {
+          githubTransform.position = new BABYLON.Vector3(1.7, -2, 1);
+          githubTransform.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
+          githubTransform.billboardMode = 7;
+          scene.onPointerMove = function() {
+            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
+            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
+              githubTransform.getChildMeshes().forEach(mesh => {
+                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+              });
+            } else {
+              githubTransform.getChildMeshes().forEach(mesh => {
+                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0, 0, 0);
+              });
+            }
+          };
+          scene.onPointerUp = function() {
+            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
+            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
+              githubTransform.getChildMeshes().forEach(mesh => {
+                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
+              });
+              setTimeout(() => {
+                window.open('https://github.com/M-CreativeLab/jsar-dom', '_blank');
+              }, 100);
+            }
+          };
+          scene.onPointerDown = function() {
+            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
+            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
+              githubTransform.getChildMeshes().forEach(mesh => {
+                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(1, 0.7, 0.7);
+              });
+            }
+          };
+        }
+      });
   }
 
 });
