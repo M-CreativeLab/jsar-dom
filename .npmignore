@@ -1,3 +1,5 @@
 fixtures/
 node_modules/
 pages/
+coverage/
+.github/
