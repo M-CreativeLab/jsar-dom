@@ -142,14 +142,23 @@ describe('CSSSpatialStyleDeclaration', () => {
     const style = new CSSSpatialStyleDeclaration();
     style.position = '1 2 3';
     expect(style._getPropertyValue('position').str).toEqual('1 2 3');
-    expect(style._getPropertyValue('position-x').value).toEqual(1);
-    expect(style._getPropertyValue('position-y').value).toEqual(2);
-    expect(style._getPropertyValue('position-z').value).toEqual(3);
+    expect(style._getPropertyValue('x').value).toEqual(1);
+    expect(style._getPropertyValue('y').value).toEqual(2);
+    expect(style._getPropertyValue('z').value).toEqual(3);
     style.position = '0.1 0.2 0.3';
     expect(style._getPropertyValue('position').str).toEqual('0.1 0.2 0.3');
-    expect(style._getPropertyValue('position-x').value).toEqual(.1);
-    expect(style._getPropertyValue('position-y').value).toEqual(.2);
-    expect(style._getPropertyValue('position-z').value).toEqual(.3);
+    expect(style._getPropertyValue('x').value).toEqual(.1);
+    expect(style._getPropertyValue('y').value).toEqual(.2);
+    expect(style._getPropertyValue('z').value).toEqual(.3);
+  });
+
+  it('supports x, y, z', () => {
+    const style = new CSSSpatialStyleDeclaration();
+    style.x = '20';
+    style.y = '10';
+    expect(style._getPropertyValue('x').value).toEqual(20);
+    expect(style._getPropertyValue('y').value).toEqual(10);
+    expect(style._getPropertyValue('z')).toBeNull();
   });
 
   it('supports rotation', () => {
