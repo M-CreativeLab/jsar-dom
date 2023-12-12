@@ -327,9 +327,9 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     this._scriptingDisabled = privateData.options.scriptingDisabled;
     this._encoding = privateData.options.encoding || 'UTF-8';
 
-    const urlOption = privateData.options.url === undefined ? 'about:blank' : privateData.options.url;
-    if (canParseURL(urlOption) == null) {
-      throw new TypeError(`Could not parse ${urlOption} as a URL.`);
+    let urlOption = privateData.options.url === undefined ? 'about:blank' : privateData.options.url;
+    if (!canParseURL(urlOption)) {
+      urlOption = 'file://' + urlOption;
     }
     this._URL = new URL(urlOption);
     this._workingNodeIterators = new IterableWeakSet();

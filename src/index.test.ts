@@ -30,6 +30,26 @@ describe('JSARDOM', () => {
     dom.unload();
   });
 
+  it('should be able to set as local mode', async () => {
+    const dom = new JSARDOM(`
+<xsml>
+  <head>
+    <title>Example</title>
+  </head>
+  <space>
+  </space>
+</xsml>
+    `, {
+      url: '/path/to/your/main.xsml',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    expect(dom.document.title).toBe('Example');
+    expect(dom.document.URL).toBe('file:///path/to/your/main.xsml');
+    expect(dom.document.baseURI).toBe('file:///path/to/your/main.xsml');
+    dom.unload();
+  });
+
   it('should be able to execute script', async () => {
     const dom = new JSARDOM(`
 <xsml>
