@@ -4,6 +4,9 @@ import type CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
 import position from './position';
 import rotation from './rotation';
 import scaling from './scaling';
+import positionX from './position-x';
+import positionY from './position-y';
+import positionZ from './position-z';
 import animation from './animation';
 import animationName from './animation-name';
 import animationDuration from './animation-duration';
@@ -32,6 +35,9 @@ export interface CSSSpatialStyleProperties {
   position: string;
   rotation: string;
   scaling: string;
+  x: string;
+  y: string;
+  z: string;
   animation: string;
   'animation-name': string;
   animationName: string;
@@ -86,6 +92,9 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     position,
     rotation,
     scaling,
+    x: positionX,
+    y: positionY,
+    z: positionZ,
     animation,
     'animation-name': animationName,
     animationName,

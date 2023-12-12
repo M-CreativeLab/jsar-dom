@@ -151,11 +151,20 @@ export class SpatialElement extends ElementImpl {
 
     Array.prototype.forEach.call(style, (property: string) => {
       switch (property) {
+        case 'x':
+          node.position.x = style._getPropertyValue('x').toNumber();
+          break;
+        case 'y':
+          node.position.y = style._getPropertyValue('y').toNumber();
+          break;
+        case 'z':
+          node.position.z = style._getPropertyValue('z').toNumber();
+          break;
         case 'position':
           node.position = new BABYLON.Vector3(
-            style._getPropertyValue('position-x').toNumber(),
-            style._getPropertyValue('position-y').toNumber(),
-            style._getPropertyValue('position-z').toNumber()
+            style._getPropertyValue('x').toNumber(),
+            style._getPropertyValue('y').toNumber(),
+            style._getPropertyValue('z').toNumber()
           );
           break;
         case 'rotation':

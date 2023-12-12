@@ -42,14 +42,14 @@ function toPositionStr(v: string) {
 const valueSetter = implicitSetter(
   'position',
   '',
-  ['x', 'y', 'z'],
+  [':x', ':y', ':z'],
   positionValidator,
   toPositionStr
 );
 const globalSetter = implicitSetter(
   'position',
   '',
-  ['x', 'y', 'z'],
+  [':x', ':y', ':z'],
   () => true,
   (v) => PropertyValue.createKeyword(v),
 );

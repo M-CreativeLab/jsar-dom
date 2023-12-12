@@ -1,0 +1,330 @@
+<xsml version="1.0">
+  <head>
+    <title>Spatial Lion Example</title>
+    <style type="text/scss">
+      @material yellow {
+        diffuse-color: #fdd276;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material red {
+        diffuse-color: #ad3525;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material pink {
+        diffuse-color: #e55d2b;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material white {
+        diffuse-color: #ffffff;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material purple {
+        diffuse-color: #451954;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material grey {
+        diffuse-color: #653f4c;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+      @material black {
+        diffuse-color: #302925;
+        specular-color: #000000;
+        side-orientation: frontside;
+      }
+
+      #lion {
+        rotation: 0 180 0;
+      }
+      #lion_body {
+        material: "yellow";
+        position: 0 -30 -60;
+      }
+      #lion_head {
+        y: 60;
+        z: -50;
+      }
+
+      #lion_face {
+        material: "yellow";
+        position: 0 0 135;
+      }
+      #lion_mane {
+        position: 0 -10 80;
+      }
+
+      #lion_mustache1_root {
+        position: 30 -5 175;
+      }
+      #lion_mustache2_root {
+        position: 35 -12 175;
+      }
+      #lion_mustache3_root {
+        position: 30 -19 175;
+      }
+      #lion_mustache4_root {
+        position: -30 -5 175;
+      }
+      #lion_mustache5_root {
+        position: -35 -12 175;
+      }
+      #lion_mustache6_root {
+        position: -30 -19 175;
+      }
+
+      #lion_mustache1 {
+        material: "grey";
+        position: 15 0 0;
+      }
+      #lion_mustache2 {
+        material: "grey";
+        position: 15 0 0;
+      }
+      #lion_mustache3 {
+        material: "grey";
+        position: 15 0 0;
+      }
+      #lion_mustache4 {
+        material: "grey";
+        position: -15 0 0;
+      }
+      #lion_mustache5 {
+        material: "black";
+        position: -15 0 0;
+      }
+      #lion_mustache6 {
+        material: "black";
+        position: -15 0 0;
+      }
+
+      #lion_earL {
+        material: "yellow";
+        position: 50 50 105;
+      }
+      #lion_earR {
+        material: "yellow";
+        position: -50 50 105;
+      }
+      #lion_nose {
+        material: "grey";
+        position: 0 25 170;
+      }
+
+      #lion_eyeL {
+        material: "white";
+        position: 40 25 120;
+      }
+      #lion_eyeR {
+        material: "white";
+        position: -40 25 120;
+      }
+
+      #lion_irisL {
+        material: "purple";
+        position: 42 25 120;
+      }
+      #lion_irisR {
+        material: "purple";
+        position: -42 25 120;
+      }
+
+      #lion_mouth {
+        material: "black";
+        position: 0 -30 171;
+        scaling: 0.5 0.5 1;
+      }
+
+      #lion_smile {
+        material: "grey";
+        position: 0 -15 173;
+      }
+
+      #lion_lips {
+        material: "yellow";
+        position: 0 -45 165;
+      }
+
+      #lion_spot1 {
+        material: "red";
+        position: 39 0 150;
+      }
+      #lion_spot2 {
+        material: "red";
+        position: 39 -10 160;
+      }
+      #lion_spot3 {
+        material: "red";
+        position: 39 -15 140;
+      }
+      #lion_spot4 {
+        material: "red";
+        position: 39 -20 150;
+      }
+      #lion_spot5 {
+        material: "red";
+        position: -39 0 150;
+      }
+      #lion_spot6 {
+        material: "red";
+        position: -39 -10 160;
+      }
+      #lion_spot7 {
+        material: "red";
+        position: -39 -15 140;
+      }
+      #lion_spot8 {
+        material: "red";
+        position: -39 -20 150;
+      }
+
+      #lion_kneeL {
+        material: "yellow";
+        position: 65 -60 -20;
+        rotation: 0 0 -0.3;
+      }
+      #lion_kneeR {
+        material: "yellow";
+        position: -65 -60 -20;
+        rotation: 0 0 0.3;
+      }
+      #lion_footLB {
+        material: "yellow";
+        position: 75 -90 30;
+      }
+      #lion_footRB {
+        material: "yellow";
+        position: -75 -90 30;
+      }
+      #lion_footLF {
+        material: "yellow";
+        position: 22 -90 40;
+      }
+      #lion_footRF {
+        material: "yellow";
+        position: -22 -90 40;
+      }
+
+      #fan {
+        z: -300;
+      }
+      #fan_core {
+        material: "grey";
+        z: 30;
+      }
+      #fan_prop1_root {
+        z: 15;
+        rotation: 0 0 15;
+      }
+      #fan_prop2_root {
+        z: 15;
+        rotation: 0 0 105;
+      }
+      #fan_prop3_root {
+        z: 15;
+        rotation: 0 0 195;
+      }
+      #fan_prop4_root {
+        z: 15;
+        rotation: 0 0 -75;
+      }
+      #fan_prop1 {
+        material: "red";
+        position: 0 25 0;
+      }
+      
+      #fan_prop2 {
+        material: "red";
+        position: 0 25 0;
+      }
+      #fan_prop3 {
+        material: "red";
+        position: 0 25 0;
+      }
+      #fan_prop4 {
+        material: "red";
+        position: 0 25 0;
+      }
+      #fan_sphere {
+        material: "yellow";
+        z: 15;
+      }
+    </style>
+    <script src="./spatial-lion.js"></script>
+  </head>
+  <space>
+    <bound id="lion">
+      <cylinder id="lion_body" height="140" diameter-top="30" diameter-bottom="80" tessellation="4" />
+      <bound id="lion_head">
+        <cube id="lion_face" width="80" height="80" depth="80" />
+        <bound id="lion_mane"></bound>
+        <cube id="lion_earL" width="20" height="20" depth="20" />
+        <cube id="lion_earR" width="20" height="20" depth="20" />
+        <cube id="lion_nose" width="40" height="40" depth="20" />
+        <cube id="lion_eyeL" width="5" height="30" depth="30" />
+        <cube id="lion_eyeR" width="5" height="30" depth="30" />
+        <cube id="lion_irisL" width="4" height="10" depth="10" />
+        <cube id="lion_irisR" width="4" height="10" depth="10" />
+        <cube id="lion_mouth" width="20" height="20" depth="10" />
+        <torus id="lion_smile" diameter="6" thickness="4" tessellation="2" />
+        <cube id="lion_lips" width="40" height="15" depth="20" />
+        <cube id="lion_spot1" width="4" height="4" depth="4" />
+        <cube id="lion_spot2" width="4" height="4" depth="4" />
+        <cube id="lion_spot3" width="4" height="4" depth="4" />
+        <cube id="lion_spot4" width="4" height="4" depth="4" />
+        <cube id="lion_spot5" width="4" height="4" depth="4" />
+        <cube id="lion_spot6" width="4" height="4" depth="4" />
+        <cube id="lion_spot7" width="4" height="4" depth="4" />
+        <cube id="lion_spot8" width="4" height="4" depth="4" />
+        <bound id="lion_mustache1_root">
+          <cube id="lion_mustache1" width="30" height="2" depth="1" />
+        </boud>
+        <bound id="lion_mustache2_root">
+          <cube id="lion_mustache2" width="30" height="2" depth="1" />
+        </boud>
+        <bound id="lion_mustache3_root">
+          <cube id="lion_mustache3" width="30" height="2" depth="1" />
+        </boud>
+        <bound id="lion_mustache4_root">
+          <cube id="lion_mustache4" width="30" height="2" depth="1" />
+        </boud>
+        <bound id="lion_mustache5_root">
+          <cube id="lion_mustache5" width="30" height="2" depth="1" />
+        </boud>
+        <bound id="lion_mustache6_root">
+          <cube id="lion_mustache6" width="30" height="2" depth="1" />
+        </boud>
+      </bound>
+
+      <cube id="lion_kneeL" width="20" height="80" depth="80" />
+      <cube id="lion_kneeR" width="20" height="80" depth="80" />
+
+      <cube id="lion_footLB" width="40" height="20" depth="20" />
+      <cube id="lion_footRB" width="40" height="20" depth="20" />
+      <cube id="lion_footLF" width="40" height="20" depth="20" />
+      <cube id="lion_footRF" width="40" height="20" depth="20" />
+    </bound>
+    <bound id="fan">
+      <cube id="fan_core" width="10" height="10" depth="20" />
+      <bound id="fan_propeller">
+        <bound id="fan_prop1_root">
+          <cube id="fan_prop1" width="10" height="30" depth="2" />
+        </bound>
+        <bound id="fan_prop2_root">
+          <cube id="fan_prop2" width="10" height="30" depth="2" />
+        </bound>
+        <bound id="fan_prop3_root">
+          <cube id="fan_prop3" width="10" height="30" depth="2" />
+        </bound>
+        <bound id="fan_prop4_root">
+          <cube id="fan_prop4" width="10" height="30" depth="2" />
+        </bound>
+      </bound>
+      <cube id="fan_sphere" width="10" height="10" depth="3" />
+    </bound>
+  </space>
+</xsml>

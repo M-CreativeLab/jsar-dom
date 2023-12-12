@@ -820,7 +820,13 @@ export function implicitSetter(
     }
 
     for (let i = 0; i < partNames.length; i++) {
-      const propertyName = `${before}-${partNames[i]}${after}`;
+      let propertyName: string;
+      const partName = partNames[i];
+      if (partName.startsWith(':')) {
+        propertyName = `${partName.slice(1)}${after}`;
+      } else {
+        propertyName = `${before}-${partNames[i]}${after}`;
+      }
       this.removeProperty(propertyName);
       if (values[i] !== PropertyValue.NULL_OR_EMPTY_STR) {
         this._values[propertyName] = values[i];
@@ -931,7 +937,6 @@ export function shorthandSetter(
     // string, don't set the property
     this.removeProperty(property);
     const calculated = shorthandGetter(property, shorthandFor).call(this);
-    console.log(obj, this._values, calculated);
     if (calculated !== '') {
       this._setProperty(property, calculated);
     }
