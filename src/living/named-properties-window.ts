@@ -5,8 +5,7 @@ import { treeOrderSorter } from '../utils';
 import HTMLCollectionImpl from './nodes/HTMLCollection';
 import { ElementImpl } from './nodes/Element';
 import { NodeImpl } from './nodes/Node';
-import { BaseWindowImpl } from '../agent/window';
-import { HTMLElementImpl } from './nodes/HTMLElement';
+import type { BaseWindowImpl } from '../agent/window';
 
 function isNamedPropertyElement(element: Element): boolean {
   // (for the name attribute)
@@ -52,10 +51,11 @@ function namedPropertyResolver(window: Window, name: string, values: () => Set<N
   }
 
   const document = window.document;
-  const objects = new HTMLCollectionImpl((window as BaseWindowImpl)._nativeDocument, [], {
+  const windowImpl = window as unknown as BaseWindowImpl;
+  const objects = new HTMLCollectionImpl(windowImpl._nativeDocument, [], {
     element: document.documentElement as unknown as ElementImpl,
     query: getResult,
-  })
+  });
 
   const { length } = objects;
   for (let i = 0; i < length; ++i) {

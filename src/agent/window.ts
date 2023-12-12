@@ -12,9 +12,9 @@ import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
 import { clearTimer, stopAllTimers, timerInitializationSteps } from './timers';
 
-export type WindowOrDOMInit = {
+export type WindowOrDOMInit<T extends NativeDocument> = {
   url?: string;
-  nativeDocument: NativeDocument;
+  nativeDocument: T;
   referrer?: string;
   contentType?: string;
   storageQuota?: number;
@@ -26,9 +26,9 @@ export type WindowOrDOMInit = {
  * A `BaseWindowImpl` which implements the window interfaces, and will be the global object to be used
  * in the XSML TypeScript.
  */
-export interface BaseWindowImpl extends EventTarget, GlobalEventHandlersImpl { };
-export class BaseWindowImpl extends EventTarget implements Window {
-  #document: SpatialDocumentImpl;
+export interface BaseWindowImpl<T extends NativeDocument = NativeDocument> extends EventTarget, GlobalEventHandlersImpl { };
+export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends EventTarget implements Window {
+  #document: SpatialDocumentImpl<T>;
   #nativeDocument: NativeDocument;
   #performanceInstance: Performance = null;
   #resourceLoader: ResourceLoader;
@@ -59,7 +59,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
   onstorage: (this: WindowEventHandlers, ev: StorageEvent) => any;
   onunload: (this: WindowEventHandlers, ev: Event) => any;
 
-  constructor(init: WindowOrDOMInit) {
+  constructor(init: WindowOrDOMInit<T>) {
     super();
 
     this.#nativeDocument = init.nativeDocument;
@@ -94,7 +94,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
     this.window = this as any;
   }
 
-  #setup(init: WindowOrDOMInit) {
+  #setup(init: WindowOrDOMInit<T>) {
     const { runScripts } = init;
     if (runScripts === 'outside-only' || runScripts === 'dangerously') {
       // Setup for executing scripts.
@@ -562,6 +562,6 @@ export class BaseWindowImpl extends EventTarget implements Window {
   }
 }
 
-export function createWindow(init: WindowOrDOMInit) {
+export function createWindow<T extends NativeDocument>(init: WindowOrDOMInit<T>) {
   return new BaseWindowImpl(init);
 }

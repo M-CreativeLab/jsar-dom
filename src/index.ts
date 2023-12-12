@@ -9,6 +9,7 @@ import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import type { JSARInputEvent } from './input-event';
+import type { NativeDocument } from './impl-interfaces';
 
 const windowSymbol = Symbol('window');
 let globalId = 0;
@@ -16,12 +17,15 @@ let globalId = 0;
 /**
  * It represents a JSAR DOM instance.
  */
-export class JSARDOM {
+export class JSARDOM<T extends NativeDocument> {
   id: string;
-  [windowSymbol]: BaseWindowImpl;
+  [windowSymbol]: BaseWindowImpl<T>;
 
-  constructor(private _markup: string, init: WindowOrDOMInit) {
+  private _nativeDocument: T;
+
+  constructor(private _markup: string, init: WindowOrDOMInit<T>) {
     this.id = init.id || `${globalId++}`;
+    this._nativeDocument = init.nativeDocument;
     this[windowSymbol] = createWindow(init);
   }
 
@@ -29,8 +33,12 @@ export class JSARDOM {
     return this[windowSymbol];
   }
 
-  get document(): SpatialDocumentImpl {
-    return this[windowSymbol].document as unknown as SpatialDocumentImpl;
+  get document(): SpatialDocumentImpl<T> {
+    return this[windowSymbol].document as SpatialDocumentImpl<T>;
+  }
+
+  get nativeDocument(): T {
+    return this._nativeDocument;
   }
 
   /**

@@ -100,8 +100,8 @@ const eventInterfaceTable = {
  * The `SpatialDocument` is a new Web API, it represents the document object in space computing.
  * It is the root of the document tree, and provides the primary access to the document's data.
  */
-export interface SpatialDocumentImpl extends NodeImpl, DocumentOrShadowRootImpl, GlobalEventHandlersImpl, ParentNodeImpl { };
-export class SpatialDocumentImpl extends NodeImpl implements Document {
+export interface SpatialDocumentImpl<T extends NativeDocument = NativeDocument> extends NodeImpl, DocumentOrShadowRootImpl, GlobalEventHandlersImpl, ParentNodeImpl { };
+export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> extends NodeImpl implements Document {
   #nativeDocument: NativeDocument;
   #screenWidth: number;
   #screenHeight: number;
@@ -272,7 +272,7 @@ export class SpatialDocumentImpl extends NodeImpl implements Document {
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;
-  _defaultView: BaseWindowImpl;
+  _defaultView: BaseWindowImpl<T>;
   _workingNodeIterators: IterableWeakSet<NodeIteratorImpl>;
   _asyncQueue = new AsyncResourceQueue();
   _queue = new ResourceQueue({ paused: false, asyncQueue: this._asyncQueue });

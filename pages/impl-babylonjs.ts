@@ -287,7 +287,7 @@ const defaultCode: string = `
 </xsml>
 `;
 
-let currentDom: JSARDOM;
+let currentDom: JSARDOM<NativeDocumentOnBabylonjs>;
 document.addEventListener('DOMContentLoaded', async () => {
   const canvas = document.getElementById('renderCanvas');
   const urlInput = document.getElementById('url-input') as HTMLInputElement;

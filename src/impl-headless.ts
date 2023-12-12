@@ -113,7 +113,7 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   userAgent: UserAgent;
   baseURI: string;
   console: Console;
-  attachedDocument: SpatialDocumentImpl;
+  attachedDocument: SpatialDocumentImpl<HeadlessNativeDocument>;
   closed: boolean = false;
 
   private _scene: BABYLON.Scene;

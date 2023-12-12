@@ -130,7 +130,7 @@ export interface NativeEngine extends BABYLON.Engine { }
  * The entry point that implementation must provide to the native engine.
  */
 export interface NativeDocument extends EventTarget {
-  engine: NativeEngine;
+  engine: NativeEngine | BABYLON.Engine;
   /**
    * The UserAgent instance that represents the client of executing XSML document.
    */
