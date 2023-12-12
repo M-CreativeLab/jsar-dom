@@ -11,14 +11,17 @@ import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import type { JSARInputEvent } from './input-event';
 
 const windowSymbol = Symbol('window');
+let globalId = 0;
 
 /**
  * It represents a JSAR DOM instance.
  */
 export class JSARDOM {
+  id: string;
   [windowSymbol]: BaseWindowImpl;
 
   constructor(private _markup: string, init: WindowOrDOMInit) {
+    this.id = init.id || `${globalId++}`;
     this[windowSymbol] = createWindow(init);
   }
 

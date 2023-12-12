@@ -19,6 +19,7 @@ export type WindowOrDOMInit = {
   contentType?: string;
   storageQuota?: number;
   runScripts?: 'dangerously' | 'outside-only' | 'never';
+  id?: string;
 };
 
 /**
