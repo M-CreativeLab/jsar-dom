@@ -1,4 +1,5 @@
 import * as taffy from '@bindings/taffy';
+import DOMExceptionImpl from '../living/domexception';
 import { NativeDocument, ResourceLoader } from '../impl-interfaces';
 import type { ElementImpl } from 'src/living/nodes/Element';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
@@ -9,6 +10,7 @@ import { PerformanceImpl } from '../living/hr-time/Performance';
 import { GlobalEventHandlersImpl } from '../living/nodes/GlobalEventHandlers';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
+import { clearTimer, stopAllTimers, timerInitializationSteps } from './timers';
 
 export type WindowOrDOMInit = {
   url?: string;
@@ -275,6 +277,7 @@ export class BaseWindowImpl extends EventTarget implements Window {
     throw new Error('`window.captureEvents()` has been deprecated.');
   }
   close(): void {
+    stopAllTimers();
     this.#nativeDocument.close();
 
     // Dispose self after the native document is closed.
@@ -444,12 +447,6 @@ export class BaseWindowImpl extends EventTarget implements Window {
   btoa(data: string): string {
     return globalThis.btoa(data);
   }
-  clearInterval(id: number): void {
-    throw new Error('`window.clearInterval()` is not allowed in XSML.');
-  }
-  clearTimeout(id: number): void {
-    throw new Error('`window.clearTimeout()` is not allowed in XSML.');
-  }
   createImageBitmap(image: ImageBitmapSource, options?: ImageBitmapOptions): Promise<ImageBitmap>;
   createImageBitmap(image: ImageBitmapSource, sx: number, sy: number, sw: number, sh: number, options?: ImageBitmapOptions): Promise<ImageBitmap>;
   createImageBitmap(image: unknown, sx?: unknown, sy?: unknown, sw?: unknown, sh?: unknown, options?: unknown): Promise<ImageBitmap> {
@@ -464,12 +461,47 @@ export class BaseWindowImpl extends EventTarget implements Window {
   reportError(e: any): void {
     throw new Error('`window.reportError()` is not supported.');
   }
+
   setTimeout(handler: TimerHandler, timeout?: number, ...args: any[]): number {
-    throw new Error('`window.setTimeout()` is not allowed in XSML.');
+    if (typeof handler !== 'function') {
+      throw new DOMExceptionImpl(
+        'The callback provided as parameter 1 is not a function.', 'TYPE_MISMATCH_ERR');
+    }
+    return timerInitializationSteps(
+      handler,
+      timeout,
+      args,
+      {
+        methodContext: this,
+        repeat: false,
+      }
+    );
   }
+
   setInterval(handler: TimerHandler, timeout?: number, ...args: any[]): number {
-    throw new Error('`window.setInterval()` is not allowed in XSML.');
+    if (typeof handler !== 'function') {
+      throw new DOMExceptionImpl(
+        'The callback provided as parameter 1 is not a function.', 'TYPE_MISMATCH_ERR');
+    }
+    return timerInitializationSteps(
+      handler,
+      timeout,
+      args,
+      {
+        methodContext: this,
+        repeat: true,
+      }
+    );
   }
+
+  clearInterval(id: number): void {
+    clearTimer(id);
+  }
+
+  clearTimeout(id: number): void {
+    clearTimer(id);
+  }
+
   structuredClone<T = any>(value: T, options?: StructuredSerializeOptions): T {
     throw new Error('`window.structuredClone()` is not supported.');
   }
