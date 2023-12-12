@@ -1,6 +1,10 @@
+const presets = require('ts-jest/presets');
+
 /** @type {import('ts-jest').JestConfigWithTsJest} */
 module.exports = {
-  preset: 'ts-jest/presets/js-with-ts-esm',
+  transform: {
+    ...presets.jsWithTsESM.transform,
+  },
   testEnvironment: 'node',
   extensionsToTreatAsEsm: ['.ts'],
   collectCoverageFrom: [
