@@ -331,7 +331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const scene = currentDom.document.scene;
     BABYLON.SceneLoader.ImportMesh(
       ['GitHub Pin UwU_14'],
-      'https://github.com/M-CreativeLab/jsar-dom/raw/main/pages/assets/',
+      'https://m-creativelab.github.io/jsar-dom/assets/',
       '3d_skill__role_badges_and_pins.glb',
       scene,
       () => {
