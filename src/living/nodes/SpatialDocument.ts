@@ -282,6 +282,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
    * and animation groups.
    */
   _preloadingSpatialModelObservers: Map<string, Promise<boolean>> = new Map();
+  _executingScriptsObservers: Set<Promise<void>> = new Set();
   _isSpaceReady: boolean = false;
   _lastModified: string;
   _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
@@ -348,11 +349,18 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         this._isSpaceReady = true;
         this.dispatchEvent(new Event('spaceReady'));
       };
-      if (this._preloadingSpatialModelObservers.size === 0) {
+      if (this._preloadingSpatialModelObservers.size === 0 &&
+        this._executingScriptsObservers.size === 0) {
         dispatchSpaceReadyEvent();
       } else {
-        Promise.all(this._preloadingSpatialModelObservers.values())
-          .then(dispatchSpaceReadyEvent);
+        const waitlist: Array<Promise<any>> = [];
+        for (const observer of this._preloadingSpatialModelObservers.values()) {
+          waitlist.push(observer);
+        }
+        for (const observer of this._executingScriptsObservers.values()) {
+          waitlist.push(observer);
+        }
+        Promise.all(waitlist).then(dispatchSpaceReadyEvent);
       }
     });
 

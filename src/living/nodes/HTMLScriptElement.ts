@@ -305,7 +305,9 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
 
   _attach(): void {
     super._attach();
-    this._eval();
+
+    const pending = this._eval();
+    this._ownerDocument._executingScriptsObservers.add(pending);
   }
 
   _attrModified(name, value, oldValue) {
@@ -505,7 +507,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     if (await this._load()) {
       this._ownerDocument._queue.push(null, async () => {
         try {
-          await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
+          this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
             return this._evalInternal(this._compiledEntryCode, {
               baseUrl: this._baseScriptUrl,
             });
