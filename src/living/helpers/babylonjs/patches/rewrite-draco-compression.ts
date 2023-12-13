@@ -108,8 +108,13 @@ function decodeMesh(decoderModule, dataView, attributes, onIndicesData, onAttrib
 
 // Check if the browser env
 if (typeof window === 'undefined') {
-  const decoderModulePending = import('./draco_decoder_gltf.cjs')
-    .then(DracoDecoderModule => DracoDecoderModule.default());
+  const decoderModulePending = Promise.all([
+      import('./draco_decoder_gltf.cjs'),
+      import('./draco_decoder_gltf.wasm.cjs'),
+  ]).then(([DracoDecoderModule, wasmBinary]) => {
+    return DracoDecoderModule.default(wasmBinary.default);
+  });
+
   (DracoCompression as any)._Default = {
     dispose() {
       return null;
