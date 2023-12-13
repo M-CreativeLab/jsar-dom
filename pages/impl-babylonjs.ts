@@ -176,17 +176,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
     });
 
-    scene.onPointerUp = () => {
-      if (!isCameraMoving && currentDom) {
-        currentDom.dispatchInputEvent(
-          new JSARInputEvent('raycast_action', {
-            sourceId: 'scene_default_ray',
-            type: 'up',
-          })
-        );
-      }
-    };
-    scene.onPointerDown = () => {
+    function handlePointerDown() {
       if (!isCameraMoving && currentDom) {
         currentDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
@@ -195,7 +185,29 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
           })
         );
       }
-    };
+    }
+    function handlePointerUp() {
+      if (!isCameraMoving && currentDom) {
+        currentDom.dispatchInputEvent(
+          new JSARInputEvent('raycast_action', {
+            sourceId: 'scene_default_ray',
+            type: 'up',
+          })
+        );
+      }
+    }
+    scene.onPointerObservable.add((pointerInfo) => {
+      switch (pointerInfo.type) {
+        case BABYLON.PointerEventTypes.POINTERUP:
+          handlePointerUp();
+          break;
+        case BABYLON.PointerEventTypes.POINTERDOWN:
+          handlePointerDown();
+          break;
+        default:
+          break;
+      }
+    });
   }
 
   getNativeScene(): BABYLON.Scene {

@@ -78,6 +78,7 @@ export class SpatialElement extends ElementImpl {
     if (this._internalObject) {
       /** Add the SpatialObject GUID */
       this._internalObject[SPATIAL_OBJECT_GUID_SYMBOL] = this[SPATIAL_OBJECT_GUID_SYMBOL];
+      this._internalObject.metadata = { 'jsardom.guid': this[SPATIAL_OBJECT_GUID_SYMBOL] };
       this._ownerDocument._guidSOfSpatialObjects.set(this[SPATIAL_OBJECT_GUID_SYMBOL], this);
 
       /** Append the native node(Babylon) into parent if it's a spatial element. */

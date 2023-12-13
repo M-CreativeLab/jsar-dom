@@ -261,7 +261,7 @@ let targetY = 0;
 })();
 
 async function createAudioPlayer(name) {
-  const arrayBuffer = await import(`../assets/${name}`);
+  const arrayBuffer = await import(`./assets/${name}`);
   const blob = new Blob([arrayBuffer], { type: 'audio/mpeg' });
   const objectUrl = URL.createObjectURL(blob);
   return (volume) => {
@@ -276,14 +276,15 @@ async function createAudioPlayer(name) {
 
 const fanElement = document.querySelector('#fan_sphere');
 fanElement.addEventListener('rayenter', () => {
-  fanElement.asNativeType().renderOverlay = true;
+  fanElement.asNativeType().renderOutline = true;
+  fanElement.asNativeType().outlineWidth = 2;
 });
 fanElement.addEventListener('rayleave', () => {
-  fanElement.asNativeType().renderOverlay = false;
+  fanElement.asNativeType().renderOutline = false;
 });
 
 let blowingAudio;
-fanElement.addEventListener('raydown', async (event) => {
+fanElement.addEventListener('raydown', async () => {
   isBlowing = true;
   if (blowingAudio) {
     blowingAudio.load();
@@ -293,7 +294,7 @@ fanElement.addEventListener('raydown', async (event) => {
     blowingAudio = player(1.0);
   }
 });
-fanElement.addEventListener('rayup', (event) => {
+fanElement.addEventListener('rayup', () => {
   isBlowing = false;
   if (blowingAudio) {
     blowingAudio.pause();
