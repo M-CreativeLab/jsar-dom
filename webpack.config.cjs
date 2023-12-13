@@ -5,42 +5,38 @@ const TerserPlugin = require('terser-webpack-plugin');
 const CompressionPlugin = require("compression-webpack-plugin");
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
-module.exports = {
-  target: 'web',
+const Plugins = {
+  Progress: new webpack.ProgressPlugin(),
+  Provide: new webpack.ProvidePlugin({
+    process: 'process/browser',
+    Buffer: ['buffer', 'Buffer'],
+  }),
+  LimitChunkCount: new webpack.optimize.LimitChunkCountPlugin({
+    maxChunks: 1,
+  }),
+  NpmDts: new NpmDtsPlugin({
+    entry: './src/index.ts',
+    logLevel: 'debug',
+    output: './dist/jsardom.d.ts',
+    force: true,
+    tsc: '--extendedDiagnostics',
+  }),
+  Compression: new CompressionPlugin({
+    test: /\.js$/,
+    algorithm: 'gzip',
+  }),
+  BundleAnalyzer: new BundleAnalyzerPlugin({
+    analyzerMode: 'static',
+    openAnalyzer: false,
+    reportFilename: 'bundle-report.html',
+  }),
+};
+
+/** @type {import('webpack').Configuration} */
+const sharedConfig = {
   entry: './src/index.ts',
   mode: 'production',
   devtool: false,
-  output: {
-    clean: true,
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'jsardom.js',
-    library: {
-      type: 'module',
-    },
-  },
-  resolve: {
-    extensions: ['.ts', '.js'],
-    fallback: {
-      vm: false,
-      fs: false,
-      url: require.resolve('url/'),
-      buffer: require.resolve('buffer/'),
-      util: require.resolve('util/'),
-      path: require.resolve('path-browserify'),
-      assert: require.resolve('assert-browserify'),
-      'process/browser': require.resolve('process/browser'),
-      '@bindings/taffy': require.resolve('./bindings/taffy'),
-    },
-  },
-  externals: {
-    babylonjs: {
-      module: 'babylonjs',
-      commonjs: 'babylonjs',
-      commonjs2: 'babylonjs',
-      amd: 'babylonjs',
-      root: 'BABYLON',
-    },
-  },
   module: {
     rules: [
       {
@@ -60,32 +56,15 @@ module.exports = {
       },
     ]
   },
-  plugins: [
-    new webpack.ProgressPlugin(),
-    new webpack.ProvidePlugin({
-      process: 'process/browser',
-      Buffer: ['buffer', 'Buffer'],
-    }),
-    new webpack.optimize.LimitChunkCountPlugin({
-      maxChunks: 1,
-    }),
-    new NpmDtsPlugin({
-      entry: './src/index.ts',
-      logLevel: 'debug',
-      output: './dist/jsardom.d.ts',
-      force: true,
-      tsc: '--extendedDiagnostics',
-    }),
-    new CompressionPlugin({
-      test: /\.js$/,
-      algorithm: 'gzip',
-    }),
-    new BundleAnalyzerPlugin({
-      analyzerMode: 'static',
-      openAnalyzer: false,
-      reportFilename: 'bundle-report.html',
-    }),
-  ],
+  externals: {
+    babylonjs: {
+      module: 'babylonjs',
+      commonjs: 'babylonjs',
+      commonjs2: 'babylonjs',
+      amd: 'babylonjs',
+      root: 'BABYLON',
+    },
+  },
   optimization: {
     minimizer: [new TerserPlugin()],
   },
@@ -93,3 +72,65 @@ module.exports = {
     outputModule: true,
   },
 };
+
+const distPath = path.resolve(__dirname, 'dist');
+const distLibrary = { type: 'module' };
+
+/** @type {import('webpack').Configuration[]} */
+module.exports = [
+  {
+    ...sharedConfig,
+    target: 'web',
+    output: {
+      path: distPath,
+      library: distLibrary,
+      filename: 'jsardom.browser.js',
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
+      fallback: {
+        vm: false,
+        fs: false,
+        url: require.resolve('url/'),
+        buffer: require.resolve('buffer'),
+        util: require.resolve('util/'),
+        path: require.resolve('path-browserify'),
+        assert: require.resolve('assert-browserify'),
+        'process/browser': require.resolve('process/browser'),
+        '@bindings/taffy': require.resolve('./bindings/taffy'),
+      },
+    },
+    plugins: [
+      Plugins.Progress,
+      Plugins.Provide,
+      Plugins.LimitChunkCount,
+      Plugins.Compression,
+    ],
+  },
+  {
+    ...sharedConfig,
+    target: 'node18.16',
+    node: {
+      __dirname: true,
+      __filename: true,
+    },
+    output: {
+      path: distPath,
+      library: distLibrary,
+      filename: 'jsardom.node.js',
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
+      fallback: {
+        '@bindings/taffy': require.resolve('./bindings/taffy'),
+      }
+    },
+    plugins: [
+      Plugins.Progress,
+      Plugins.LimitChunkCount,
+      Plugins.NpmDts,
+      Plugins.Compression,
+      Plugins.BundleAnalyzer,
+    ],
+  },
+];

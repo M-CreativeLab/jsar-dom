@@ -46,6 +46,22 @@ export interface RequestManager {
   size();
 }
 
+export type MediaPlayerConstructor = new () => MediaPlayerBackend;
+export interface MediaPlayerBackend {
+  load(buffer: ArrayBuffer | ArrayBufferView, onloaded: () => void): void;
+  play(when?: number): void;
+  pause(): void;
+  canPlayType(type: string): CanPlayTypeResult;
+  dispose(): void;
+
+  paused: boolean;
+  currentTime: number;
+  duration: number;
+  volume: number;
+  loop: boolean;
+  onended: () => void;
+}
+
 export type UserAgentInit = {
   /**
    * Default stylesheet to use for the document.
@@ -122,6 +138,11 @@ export interface UserAgent {
    * @returns A string containing the text entered by the user, or `null`.
    */
   prompt(message?: string, defaultValue?: string): string;
+
+  /**
+   * It returns a `MediaPlayer` constructor, which is used to play audio or video as the backend of HTMLMediaElement.
+   */
+  getMediaPlayerConstructor?(): MediaPlayerConstructor;
 }
 
 export interface NativeEngine extends BABYLON.Engine { }

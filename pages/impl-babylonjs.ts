@@ -10,6 +10,8 @@ import {
   UserAgent,
   UserAgentInit,
   JSARDOM,
+  MediaPlayerConstructor,
+  MediaPlayerBackend,
 } from '../src';
 import 'babylonjs';
 
@@ -49,6 +51,62 @@ class HeadlessResourceLoader implements ResourceLoader {
   }
 }
 
+/**
+ * This is a MediaPlayerBackend implementation for Babylon.js. Which is a MediaPlayerBackend 
+ * implementation based on HTMLAudioElement.
+ */
+class AudioPlayerOnBabylonjs implements MediaPlayerBackend {
+  private _audioInstance: HTMLAudioElement;
+
+  constructor() {
+    this._audioInstance = new Audio();
+  }
+  load(buffer: ArrayBuffer | ArrayBufferView, onloaded: () => void): void {
+    this._audioInstance.src = URL.createObjectURL(new Blob([buffer]));
+    this._audioInstance.onloadeddata = onloaded;
+  }
+  play(when?: number | undefined): void {
+    this._audioInstance.play();
+    this._audioInstance.currentTime = when || 0;
+  }
+  pause(): void {
+    this._audioInstance.pause();
+  }
+  canPlayType(type: string): CanPlayTypeResult {
+    return this._audioInstance.canPlayType(type);
+  }
+  dispose(): void {
+    // TODO
+  }
+  get paused(): boolean {
+    return this._audioInstance.paused;
+  }
+  get currentTime(): number {
+    return this._audioInstance.currentTime;
+  }
+  get duration(): number {
+    return this._audioInstance.duration;
+  }
+  get volume(): number {
+    return this._audioInstance.volume;
+  }
+  set volume(value: number) {
+    this._audioInstance.volume = value;
+  }
+  get loop(): boolean {
+    return this._audioInstance.loop;
+  }
+  set loop(value: boolean) {
+    this._audioInstance.loop = value;
+  }
+  get onended(): () => void {
+    return this._audioInstance.onended as any;
+  }
+  set onended(value: () => void) {
+    this._audioInstance.onended = value;
+  }
+}
+
 class UserAgentOnBabylonjs implements UserAgent {
   versionString: string = '1.0';
   vendor: string = '';
@@ -78,6 +136,9 @@ class UserAgentOnBabylonjs implements UserAgent {
   }
   prompt(message?: string, defaultValue?: string): string {
     throw new Error('Method not implemented.');
+  }
+  getMediaPlayerConstructor(): MediaPlayerConstructor {
+    return AudioPlayerOnBabylonjs;
   }
 }
 
@@ -352,7 +413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           githubTransform.position = new BABYLON.Vector3(1.7, -2, 1);
           githubTransform.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
           githubTransform.billboardMode = 7;
-          scene.onPointerMove = function() {
+          scene.onPointerMove = function () {
             const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
             if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
               githubTransform.getChildMeshes().forEach(mesh => {
@@ -364,7 +425,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               });
             }
           };
-          scene.onPointerUp = function() {
+          scene.onPointerUp = function () {
             const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
             if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
               githubTransform.getChildMeshes().forEach(mesh => {
@@ -375,7 +436,7 @@ document.addEventListener('DOMContentLoaded', async () => {
               }, 100);
             }
           };
-          scene.onPointerDown = function() {
+          scene.onPointerDown = function () {
             const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
             if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
               githubTransform.getChildMeshes().forEach(mesh => {

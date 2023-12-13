@@ -8,7 +8,7 @@ import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
 import { MouseEventImpl } from '../../events/MouseEvent';
-import { ShadowRootImpl } from 'src/living/nodes/ShadowRoot';
+import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{

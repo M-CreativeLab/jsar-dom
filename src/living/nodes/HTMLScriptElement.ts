@@ -547,6 +547,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // Web APIs
       URL: windowBase.URL,
       Blob: windowBase.Blob,
+      Audio: windowBase.Audio,
       ImageData: getInterfaceWrapper('ImageData'),
       atob: windowBase.atob,
       btoa: windowBase.btoa,

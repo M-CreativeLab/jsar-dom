@@ -8,7 +8,7 @@ import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
-import type { JSARInputEvent } from './input-event';
+import { JSARInputEvent } from './input-event';
 import type { NativeDocument } from './impl-interfaces';
 
 const windowSymbol = Symbol('window');
@@ -107,4 +107,5 @@ export class JSARDOM<T extends NativeDocument> {
 export * from './impl-interfaces';
 export {
   SpatialDocumentImpl,
+  JSARInputEvent,
 }

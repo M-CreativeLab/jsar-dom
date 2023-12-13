@@ -1,6 +1,6 @@
 import cssstyle from 'cssstyle';
 import { ElementImpl } from './Element';
-import { NativeDocument } from 'src/impl-interfaces';
+import { NativeDocument } from '../../impl-interfaces';
 
 export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   private _settingCssText: boolean = false;

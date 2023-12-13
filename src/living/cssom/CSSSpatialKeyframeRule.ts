@@ -1,4 +1,4 @@
-import { NativeDocument } from 'src/impl-interfaces';
+import type { NativeDocument } from '../../impl-interfaces';
 import { parseCss, css, isComment } from '../helpers/spatial-css-parser';
 import CSSRuleImpl from './CSSRule';
 import CSSSpatialStyleDeclaration from './CSSSpatialStyleDeclaration';

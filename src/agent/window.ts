@@ -1,6 +1,6 @@
 import * as taffy from '@bindings/taffy';
 import DOMExceptionImpl from '../living/domexception';
-import { NativeDocument, ResourceLoader } from '../impl-interfaces';
+import { MediaPlayerBackend, NativeDocument, ResourceLoader } from '../impl-interfaces';
 import type { ElementImpl } from '../living/nodes/Element';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
@@ -10,6 +10,7 @@ import { PerformanceImpl } from '../living/hr-time/Performance';
 import { GlobalEventHandlersImpl } from '../living/nodes/GlobalEventHandlers';
 import { SpatialDocumentImpl } from '../living/nodes/SpatialDocument';
 import { NavigatorImpl } from './navigator';
+import { createAudioConstructor } from '../living/audiocontext/Audio';
 import { clearTimer, stopAllTimers, timerInitializationSteps } from './timers';
 import { getInterfaceWrapper } from '../living/interfaces';
 
@@ -43,6 +44,8 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #performanceInstance: Performance = null;
   #resourceLoader: ResourceLoader;
   #listOfActiveTimers: Map<number, number> = new Map();
+  #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
+  #audioConstructor: typeof Audio;
 
   URL = URL;
   Blob = Blob;
@@ -126,6 +129,13 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     }
   }
 
+  #disposeAudioPlayers() {
+    for (const player of this.#listOfAudioPlayers) {
+      player.dispose();
+    }
+    this.#listOfAudioPlayers.clear();
+  }
+
   /**
    * Internals access
    */
@@ -158,6 +168,13 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
    */
   get _nativeDocument(): NativeDocument {
     return this.#nativeDocument;
+  }
+
+  /**
+   * @internal
+   */
+  get _listOfAudioPlayers(): Set<MediaPlayerBackend> {
+    return this.#listOfAudioPlayers;
   }
 
   /**
@@ -313,6 +330,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   }
   close(): void {
     stopAllTimers();
+    this.#disposeAudioPlayers();
     this.#nativeDocument.close();
 
     // Dispose self after the native document is closed.
@@ -432,8 +450,11 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   get CANNON(): any {
     return null;
   }
-  get Audio(): HTMLAudioElement {
-    throw new Error('`window.Audio` is not supported.');
+  get Audio(): typeof Audio {
+    if (!this.#audioConstructor) {
+      this.#audioConstructor = createAudioConstructor(this.#nativeDocument);
+    }
+    return this.#audioConstructor;
   }
   get AudioContext(): AudioContext {
     throw new Error('`window.AudioContext` is not supported.');

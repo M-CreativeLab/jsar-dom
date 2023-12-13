@@ -290,8 +290,8 @@ fanElement.addEventListener('raydown', async () => {
     blowingAudio.load();
     blowingAudio.play();
   } else {
-    const player = await createAudioPlayer('fan.mp3');
-    blowingAudio = player(1.0);
+    const play = await createAudioPlayer('fan.mp3');
+    blowingAudio = play(1.0);
   }
 });
 fanElement.addEventListener('rayup', () => {
