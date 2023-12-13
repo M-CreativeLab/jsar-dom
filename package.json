@@ -7,6 +7,7 @@
   "types": "dist/jsardom.d.ts",
   "type": "module",
   "scripts": {
+    "release": "webpack --mode production",
     "bindings": "wasm-pack build bindings/taffy --target web",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",

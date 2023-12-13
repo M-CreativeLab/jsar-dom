@@ -1,0 +1,38 @@
+name: Build Release
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: 1.74.0
+    - uses: actions/setup-node@v4.0.0
+      with:
+        node-version: 18.16.0
+    - name: Install Node.js dependencies
+      run: npm ci && npx tsc --version
+    - name: Build bindings
+      run: |
+        npm run bindings
+    - name: Build release
+      run: |
+        npm run release
+        ls -lh dist
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v2
+      with:
+        path: './dist'
