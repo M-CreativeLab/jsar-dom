@@ -78,7 +78,9 @@ describe('JSARDOM', () => {
       nativeDocument: sharedNativeDocument,
     });
     await dom.load();
-    expect(dom.document.URL).toBe(`file://${xsmlPath}`);
+
+    const expectUrl = new URL(xsmlPath, 'file:///');
+    expect(dom.document.URL).toBe(expectUrl.href);
     dom.unload();
   });
 
@@ -89,7 +91,9 @@ describe('JSARDOM', () => {
       nativeDocument: sharedNativeDocument,
     });
     await dom.load();
-    expect(dom.document.URL).toBe(`file://${xsmlPath}`);
+
+    const expectUrl = new URL(xsmlPath, 'file:///');
+    expect(dom.document.URL).toBe(expectUrl.href);
     dom.unload();
   });
 
