@@ -13,7 +13,7 @@ import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
 import { getInterfaceWrapper } from '../interfaces';
-import supports from '../esm-supports.json';
+import supports from '../esm-supports.json' assert { type: "json" };
 
 // const scriptMIMETypes = new Set([
 //   'application/javascript',
