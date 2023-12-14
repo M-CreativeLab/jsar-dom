@@ -47,7 +47,11 @@ jobs:
     - name: Publish core to npm
       run: |
         npm publish --tag daily --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     - name: Publish types to npm
       working-directory: ./types
       run: |
         npm publish --tag daily --access public
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
