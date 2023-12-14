@@ -1,10 +1,16 @@
-name: Build Release
+name: Release
 
 on:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  workflow_run:
+    workflows: [ "Build", "Integration Tests Build" ]
+    types:
+      - completed
+  workflow_dispatch:
+    inputs:
+      release:
+        description: 'Release version'
+        required: true
+        default: 'patch'
 
 jobs:
   build:
@@ -30,9 +36,18 @@ jobs:
         npm run bindings
     - name: Build release
       run: |
-        npm run release
-    - name: Upload artifact
+        node ./version.cjs
+        npm run build-release
+        npm run build-types
+    - name: Upload core release to artifact
       uses: actions/upload-artifact@v2
       with:
         name: jsardom-release
         path: './dist'
+    - name: Publish core to npm
+      run: |
+        npm publish --tag daily --access public
+    - name: Publish types to npm
+      working-directory: ./types
+      run: |
+        npm publish --tag daily --access public

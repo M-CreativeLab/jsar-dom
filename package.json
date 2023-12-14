@@ -1,13 +1,14 @@
 {
   "name": "@yodaos-jsar/dom",
-  "version": "0.3.0-alpha.5",
+  "version": "0.3.0",
   "description": "The DOM implementation for JSAR runtime",
   "main": "dist/jsardom.node.js",
   "browser": "dist/jsardom.browser.js",
   "types": "dist/jsardom.d.ts",
   "type": "module",
   "scripts": {
-    "release": "webpack --mode production",
+    "build-types": "node ./types/build.cjs",
+    "build-release": "webpack --mode production",
     "bindings": "wasm-pack build bindings/taffy --target web",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",

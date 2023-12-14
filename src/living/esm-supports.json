@@ -1,0 +1,24 @@
+{
+  "extensions": {
+    "script": [
+      ".ts",
+      ".mjs",
+      ".js"
+    ],
+    "json": [
+      ".json"
+    ],
+    "arraybuffer": [
+      ".bin",
+      ".data",
+      ".wasm",
+      ".png",
+      ".jpg",
+      ".jpeg",
+      ".webp",
+      ".mp3",
+      ".wav",
+      ".ogg"
+    ]
+  }
+}

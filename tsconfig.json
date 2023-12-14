@@ -24,6 +24,8 @@
     "src/**/*.ts"
   ],
   "exclude": [
+    "types",
+    "fixtures",
     "node_modules"
   ],
   "ts-node": {

@@ -1,6 +1,8 @@
 name: Build and Deploy Pages
 
 on:
+  schedule:
+    - cron: '0 10 * * *'
   push:
     branches: [ "main" ]
   workflow_dispatch:

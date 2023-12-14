@@ -14,10 +14,15 @@ const Plugins = {
   LimitChunkCount: new webpack.optimize.LimitChunkCountPlugin({
     maxChunks: 1,
   }),
-  NpmDts: new NpmDtsPlugin({
+  FrameworkDts: new NpmDtsPlugin({
     entry: './src/index.ts',
-    logLevel: 'debug',
     output: './dist/jsardom.d.ts',
+    force: true,
+    tsc: '--extendedDiagnostics',
+  }),
+  ApiDts: new NpmDtsPlugin({
+    entry: './src/living/script-context.ts',
+    output: './dist/jsar-api.d.ts',
     force: true,
     tsc: '--extendedDiagnostics',
   }),
@@ -128,7 +133,8 @@ module.exports = [
     plugins: [
       Plugins.Progress,
       Plugins.LimitChunkCount,
-      Plugins.NpmDts,
+      Plugins.FrameworkDts,
+      Plugins.ApiDts,
       Plugins.Compression,
       Plugins.BundleAnalyzer,
     ],

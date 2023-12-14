@@ -7,30 +7,23 @@ import commonjsTransformPlugin from '@babel/plugin-transform-modules-commonjs';
 
 import DOMException from '../domexception';
 import type { NativeDocument, ResourceLoader } from '../../impl-interfaces';
+import type { ScriptContext } from '../script-context';
+import type { SpatialDocumentImpl } from './SpatialDocument';
 import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
 import { getInterfaceWrapper } from '../interfaces';
+import supports from '../esm-supports.json';
 
-const scriptMIMETypes = new Set([
-  'application/javascript',
-  'application/typescript',
-  'text/javascript',
-  'text/typescript',
-]);
-const supportedScriptExtensions = ['.ts', '.mjs', '.js'];
-const supportedJsonExtensions = ['.json'];  // supports json5?
-const supportedBinaryExtensions = [
-  '.bin',                             // common binary
-  '.wasm',                            // wasm binary
-  '.png', '.jpg', '.jpeg', '.webp',   // image formats
-  '.mp3', '.wav', '.ogg'              // media formats
-];
-
-type ScriptFetchingOptions<T> = {
-  readLocalData: (url: string) => Promise<T>;
-  readResponseData: (res: Response) => Promise<T>;
-};
+// const scriptMIMETypes = new Set([
+//   'application/javascript',
+//   'application/typescript',
+//   'text/javascript',
+//   'text/typescript',
+// ]);
+const supportedScriptExtensions = supports.extensions.script;
+const supportedJsonExtensions = supports.extensions.json;  // supports json5?
+const supportedBinaryExtensions = supports.extensions.arraybuffer;
 
 /**
  * The type `CompiledScriptResult` represents the result after compiling a TypeScript/JavaScript script.
@@ -77,6 +70,17 @@ class CompiledModule {
     }
   }
 }
+
+type CommonJsModule = {
+  exports: object,
+};
+
+type PrivateScriptContext = {
+  module: CommonJsModule,
+  exports: CommonJsModule['exports'],
+  require: (id: string) => any,
+  __dynamicImport__: (specifier: string) => Promise<any>,
+};
 
 /**
  * A Babel plugin that records import sources from import and export declarations.
@@ -536,7 +540,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       // FIXME(Yorkie): add other module properties? such as: `module.id`.
     };
     const windowBase = this._ownerDocument._defaultView;
-    const context = {
+    const context: ScriptContext & PrivateScriptContext = {
       // Babylon.js
       BABYLON,
 
@@ -564,16 +568,16 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
         return windowBase.navigator;
       },
       get document() {
-        return windowBase.document;
+        return windowBase.document as SpatialDocumentImpl;
       },
 
       // XSML APIs
       get spatialDocument() {
-        return windowBase.document;
+        return windowBase.document as SpatialDocumentImpl;
       },
       get spaceDocument() {
         windowBase.console.warn('spaceDocument is deprecated, use `spatialDocument` instead.');
-        return windowBase.document;
+        return windowBase.document as SpatialDocumentImpl;
       },
 
       // cjs & esm functions

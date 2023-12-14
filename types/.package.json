@@ -1,0 +1,13 @@
+{
+  "name": "@yodaos-jsar/types",
+  "version": "{{version}}",
+  "description": "The TypeScript definitions for JSAR application developers",
+  "types": "index.d.ts",
+  "author": "Yazhong Liu <yorkiefixer@gmail.com>",
+  "license": "Apache-2.0",
+  "typeScriptVersion": "4.3",
+  "dependencies": {
+    "@types/node": "^18.12.1",
+    "babylonjs": "^6.10.0"
+  }
+}
