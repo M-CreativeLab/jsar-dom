@@ -553,14 +553,19 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       Blob: windowBase.Blob,
       Audio: windowBase.Audio,
       ImageData: getInterfaceWrapper('ImageData'),
+      OffscreenCanvas: globalThis.OffscreenCanvas,
+
       atob: windowBase.atob,
       btoa: windowBase.btoa,
       setTimeout: windowBase.setTimeout.bind(windowBase),
       setInterval: windowBase.setInterval.bind(windowBase),
       clearTimeout: windowBase.clearTimeout.bind(windowBase),
       clearInterval: windowBase.clearInterval.bind(windowBase),
+
       getComputedStyle: windowBase.getComputedStyle.bind(windowBase),
       getComputedSpatialStyle: windowBase.getComputedSpatialStyle.bind(windowBase),
+      createImageBitmap: globalThis.createImageBitmap,
+
       get console() {
         return windowBase.console;
       },

@@ -7,44 +7,16 @@ import type { SpatialDocumentImpl as SpatialDocument } from './nodes/SpatialDocu
  * Represents the script context interface.
  */
 export interface ScriptContext {
-  /**
-   * The Babylon.js namespace.
-   */
   BABYLON: typeof BABYLON;
-
-  /**
-   * The Node.js assert function.
-   */
+  Buffer: typeof buffer.Buffer;
   assert: typeof assert;
 
-  /**
-   * The Node.js Buffer class.
-   */
-  Buffer: typeof buffer.Buffer;
-
-  /**
-   * The Web URL class.
-   */
   URL: typeof URL;
-
-  /**
-   * The Web Blob class.
-   */
   Blob: typeof Blob;
-
-  /**
-   * The Web Audio/HTMLAudioElement.
-   * 
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLAudioElement/Audio
-   */
   Audio: typeof Audio;
-
-  /**
-   * The Web ImageData class.
-   * 
-   * @see https://developer.mozilla.org/en-US/docs/Web/API/ImageData/ImageData
-   */
   ImageData: typeof ImageData;
+  OffscreenCanvas: typeof OffscreenCanvas;
+
   atob: typeof atob;
   btoa: typeof btoa;
   setTimeout: typeof setTimeout;
@@ -54,6 +26,8 @@ export interface ScriptContext {
 
   getComputedStyle: typeof getComputedStyle;
   getComputedSpatialStyle: BaseWindow['getComputedSpatialStyle'];
+  createImageBitmap: typeof createImageBitmap;
+
   console: Console;
   navigator: Navigator;
   document: SpatialDocument;

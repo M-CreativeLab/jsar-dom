@@ -47,8 +47,8 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
   #audioConstructor: typeof Audio;
 
-  URL = URL;
-  Blob = Blob;
+  URL = globalThis.URL;
+  Blob = globalThis.Blob;
 
   /**
    * DOM Geometry Interfaces

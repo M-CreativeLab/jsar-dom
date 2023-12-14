@@ -14,39 +14,44 @@ async function createAudioPlayer(name: string) {
 }
 
 const audios = {} as Record<string, (volume?: number) => void>;
-(async function() {
+(async function () {
   audios['Do'] = await createAudioPlayer('40.mp3');
   audios['Ri'] = await createAudioPlayer('42.mp3');
   audios['Mi'] = await createAudioPlayer('44.mp3');
   audios['Fa'] = await createAudioPlayer('45.mp3');
 })();
 
-const wall = document.getElementById('box1');
-createImageBitmap(new Blob([wallPic], { type: 'image/jpeg' })).then((bitmap) => {
-  const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
-  const ctx = canvas.getContext('2d');
-  if (ctx == null) {
-    return;
-  }
+spatialDocument.addEventListener('spaceReady', () => {
+  const wall = spatialDocument.getElementById('box1') as any;
+  createImageBitmap(new Blob([wallPic], { type: 'image/jpeg' })).then((bitmap) => {
+    const canvas = new OffscreenCanvas(bitmap.width, bitmap.height);
+    const ctx = canvas.getContext('2d');
+    if (ctx == null) {
+      return;
+    }
 
-  ctx.fillStyle = 'yellow';
-  ctx.fillRect(0, 0, 200, 100);
+    ctx.fillStyle = 'yellow';
+    ctx.fillRect(0, 0, 200, 100);
 
-  ctx.drawImage(bitmap, 0, 0);
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-  const wallTexture = new BABYLON.RawTexture(
-    imageData.data,
-    imageData.width,
-    imageData.height,
-    BABYLON.Engine.TEXTUREFORMAT_RGBA,
-    document.scene,
-    false,
-    false,
-    BABYLON.Texture.TRILINEAR_SAMPLINGMODE);
+    ctx.drawImage(bitmap, 0, 0);
+    const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const wallTexture = new BABYLON.RawTexture(
+      imageData.data,
+      imageData.width,
+      imageData.height,
+      BABYLON.Engine.TEXTUREFORMAT_RGBA,
+      spatialDocument.scene,
+      false,
+      false,
+      BABYLON.Texture.TRILINEAR_SAMPLINGMODE);
 
-  const wallMaterial = wall.asNativeType<BABYLON.Mesh>().material as BABYLON.StandardMaterial;
-  wallMaterial.diffuseTexture = wallTexture;
+    const mat = new BABYLON.StandardMaterial('wall', spatialDocument.scene);
+    mat.diffuseTexture = wallTexture;
+    mat.diffuseColor = new BABYLON.Color3(1, 0, 0);
+    wall.asNativeType().material = mat;
+  });
 });
+
 
 const guiPlane = document.getElementById('gui');
 const panel = guiPlane.shadowRoot;
