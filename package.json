@@ -34,7 +34,6 @@
     "@babel/plugin-transform-modules-commonjs": "^7.23.3",
     "@babel/plugin-transform-typescript": "^7.23.4",
     "@babel/preset-typescript": "^7.23.3",
-    "@babylonjs/loaders": "^6.10.0",
     "canvas-txt": "^4.1.1",
     "css": "^3.0.0",
     "css-parse": "^2.0.0",
