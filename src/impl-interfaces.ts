@@ -140,6 +140,11 @@ export interface UserAgent {
   prompt(message?: string, defaultValue?: string): string;
 
   /**
+   * Implement the vibrate() method to pulses the vibration hardware on the device.
+   */
+  vibrate?(pattern: VibratePattern): boolean;
+
+  /**
    * It returns a `MediaPlayer` constructor, which is used to play audio or video as the backend of HTMLMediaElement.
    */
   getMediaPlayerConstructor?(): MediaPlayerConstructor;

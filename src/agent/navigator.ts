@@ -100,7 +100,11 @@ export class NavigatorImpl implements Navigator {
     throw new Error('`navigator.share()` is not supported.');
   }
   vibrate(pattern: VibratePattern): boolean {
-    throw new Error('`navigator.vibrate()` is not supported.');
+    if (typeof this._nativeUserAgent.vibrate === 'function') {
+      return this._nativeUserAgent.vibrate(pattern);
+    } else {
+      return false;
+    }
   }
   mozGetVRDevices: (any: any) => any;
   webkitGetUserMedia(constraints: MediaStreamConstraints, successCallback: any, errorCallback: any): void {

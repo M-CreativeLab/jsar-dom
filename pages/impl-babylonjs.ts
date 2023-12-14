@@ -137,6 +137,9 @@ class UserAgentOnBabylonjs implements UserAgent {
   prompt(message?: string, defaultValue?: string): string {
     throw new Error('Method not implemented.');
   }
+  vibrate(pattern: VibratePattern): boolean {
+    return navigator.vibrate(pattern);
+  }
   getMediaPlayerConstructor(): MediaPlayerConstructor {
     return AudioPlayerOnBabylonjs;
   }
