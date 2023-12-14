@@ -1,4 +1,5 @@
 import { afterAll, beforeAll, describe, expect, it } from '@jest/globals';
+import { join } from 'path';
 import { JSARDOM } from './';
 import { HeadlessNativeDocument } from './impl-headless';
 
@@ -67,6 +68,38 @@ describe('JSARDOM', () => {
       nativeDocument: sharedNativeDocument,
     });
     await dom.load();
+    dom.unload();
+  });
+
+  it('should load JSARDOM from a local path', async () => {
+    const xsmlPath = join(
+      import.meta.url.replace(/^file:\/\//, ''), '../../fixtures/simple.xsml');
+    const dom = new JSARDOM(xsmlPath, {
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    expect(dom.document.URL).toBe(`file://${xsmlPath}`);
+    dom.unload();
+  });
+
+  it('should load JSARDOM from a local path(file://)', async () => {
+    const xsmlPath = join(
+      import.meta.url.replace(/^file:\/\//, ''), '../../fixtures/simple.xsml');
+    const dom = new JSARDOM(`file://${xsmlPath}`, {
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    expect(dom.document.URL).toBe(`file://${xsmlPath}`);
+    dom.unload();
+  });
+
+  it('should load JSARDOM from a remote url', async () => {
+    const xsmlUrl = 'https://raw.githubusercontent.com/M-CreativeLab/jsar-dom/main/fixtures/spatial-element.xsml';
+    const dom = new JSARDOM(xsmlUrl, {
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    expect(dom.document.URL).toBe(xsmlUrl);
     dom.unload();
   });
 });

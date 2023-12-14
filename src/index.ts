@@ -8,6 +8,7 @@ import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
+import { canParseURL } from './living/helpers/url';
 import { JSARInputEvent } from './input-event';
 import type { NativeDocument } from './impl-interfaces';
 
@@ -21,11 +22,19 @@ export class JSARDOM<T extends NativeDocument> {
   id: string;
   [windowSymbol]: BaseWindowImpl<T>;
 
+  private _markupOrUrl: string;
   private _nativeDocument: T;
 
-  constructor(private _markup: string, init: WindowOrDOMInit<T>) {
+  constructor(markupOrUrl: string, init: WindowOrDOMInit<T>) {
     this.id = init.id || `${globalId++}`;
+    this._markupOrUrl = markupOrUrl.trim();
     this._nativeDocument = init.nativeDocument;
+    /**
+     * When found the markupOrUrl is a url, and the init.url is not set, update the init.url.
+     */
+    if (this._markupOrUrl[0] !== '<' && !init.url) {
+      init.url = this._markupOrUrl;
+    }
     this[windowSymbol] = createWindow(init);
   }
 
@@ -47,7 +56,18 @@ export class JSARDOM<T extends NativeDocument> {
   async load() {
     await this._beforeLoad();
 
-    parseIntoDocument(this._markup, this.document);
+    let markup: string;
+    if (this._markupOrUrl[0] !== '<') {
+      let urlOrPath = this._markupOrUrl;
+      if (!canParseURL(urlOrPath)) {
+        urlOrPath = `file://${urlOrPath}`;
+      }
+      markup = await this._nativeDocument.userAgent.resourceLoader.fetch(urlOrPath, {}, 'string');
+    } else {
+      markup = this._markupOrUrl;
+    }
+
+    parseIntoDocument(markup, this.document);
     this.document._start();
     return new Promise<void>(resolve => {
       this.document.addEventListener('load', (_event) => {
