@@ -1,3 +1,5 @@
+src/
+bindings/
 fixtures/
 node_modules/
 pages/
