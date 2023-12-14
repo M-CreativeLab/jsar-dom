@@ -59,7 +59,7 @@
       });
       elem.addEventListener('mouseup', () => {
         elem.style.fontWeight = 'normal';
-        navigator.vibrate(500);
+        navigator.vibrate(100);
       });
     }
   </script>

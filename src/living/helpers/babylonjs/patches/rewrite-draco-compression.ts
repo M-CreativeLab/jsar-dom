@@ -1,6 +1,3 @@
-import { DracoCompression } from '@babylonjs/core/Meshes/Compression/dracoCompression';
-import { VertexData } from '@babylonjs/core/Meshes/mesh.vertexData';
-
 function decodeMesh(decoderModule, dataView, attributes, onIndicesData, onAttributeData, dividers) {
   const buffer = new decoderModule.DecoderBuffer();
   buffer.Init(dataView, dataView.byteLength);
@@ -115,7 +112,7 @@ if (typeof window === 'undefined') {
     return DracoDecoderModule.default(wasmBinary.default);
   });
 
-  (DracoCompression as any)._Default = {
+  (BABYLON.DracoCompression as any)._Default = {
     dispose() {
       return null;
     },
@@ -136,7 +133,7 @@ if (typeof window === 'undefined') {
     decodeMeshAsync(data: ArrayBuffer | ArrayBufferView, attributes, dividers) {
       const dataView = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
       return decoderModulePending.then((decoderModule) => {
-        const vertexData = new VertexData();
+        const vertexData = new BABYLON.VertexData();
         decodeMesh(decoderModule, dataView, attributes, (indices) => {
           vertexData.indices = indices;
         }, (kind, data) => {
@@ -147,4 +144,3 @@ if (typeof window === 'undefined') {
     }
   };
 }
-

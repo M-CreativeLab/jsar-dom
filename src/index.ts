@@ -1,7 +1,6 @@
-// Apply patches for BabylonJS.
-import './living/helpers/babylonjs/patches';
-
 import 'babylonjs';
+import './living/helpers/babylonjs/patches';
+import './living/helpers/babylonjs/loaders/gLTF/index';
 import * as taffy from '@bindings/taffy';
 
 import { parseIntoDocument } from './agent/parser';
@@ -105,16 +104,6 @@ export class JSARDOM<T extends NativeDocument> {
   private async _beforeLoad() {
     // load dom interface implementations.
     await loadDOMInterfaceImplementations();
-
-    // load babylonjs loaders.
-    // await import('@babylonjs/loaders');
-    const { GLTFFileLoader } = await import('@babylonjs/loaders/glTF/index');
-    /**
-     * Register the gltf loader to support the script to load gltf/glb files.
-     */
-    if (BABYLON.SceneLoader) {
-      BABYLON.SceneLoader.RegisterPlugin(new GLTFFileLoader() as any);
-    }
 
     // load native bindings
     await taffy.loadTaffy();

@@ -1,0 +1,60 @@
+import type { IGLTFLoaderExtension } from '../glTFLoaderExtension';
+import { GLTFLoader, ArrayItem } from '../glTFLoader';
+import type { ITexture } from '../glTFLoaderInterfaces';
+import type { IEXTTextureWebP } from 'babylonjs-gltf2interface';
+type Nullable<T> = BABYLON.Nullable<T>;
+
+const NAME = 'EXT_texture_webp';
+
+/**
+ * [Specification](https://github.com/KhronosGroup/glTF/blob/main/extensions/2.0/Vendor/EXT_texture_webp/README.md)
+ */
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export class EXT_texture_webp implements IGLTFLoaderExtension {
+  /** The name of this extension. */
+  public readonly name = NAME;
+
+  /** Defines whether this extension is enabled. */
+  public enabled: boolean;
+
+  private _loader: GLTFLoader;
+
+  /**
+   * @internal
+   */
+  constructor(loader: GLTFLoader) {
+    this._loader = loader;
+    this.enabled = loader.isExtensionUsed(NAME);
+  }
+
+  /** @internal */
+  public dispose() {
+    (this._loader as any) = null;
+  }
+
+  /**
+   * @internal
+   */
+  public _loadTextureAsync(
+    context: string,
+    texture: ITexture,
+    assign: (babylonTexture: BABYLON.BaseTexture) => void
+  ): Nullable<Promise<BABYLON.BaseTexture>> {
+    return GLTFLoader.LoadExtensionAsync<IEXTTextureWebP, BABYLON.BaseTexture>(context, texture, this.name, (extensionContext, extension) => {
+      const sampler = texture.sampler == undefined ? GLTFLoader.DefaultSampler : ArrayItem.Get(`${context}/sampler`, this._loader.gltf.samplers, texture.sampler);
+      const image = ArrayItem.Get(`${extensionContext}/source`, this._loader.gltf.images, extension.source);
+      return this._loader._createTextureAsync(
+        context,
+        sampler,
+        image,
+        (babylonTexture) => {
+          assign(babylonTexture);
+        },
+        undefined,
+        !texture._textureInfo.nonColorData
+      );
+    });
+  }
+}
+
+GLTFLoader.RegisterExtension(NAME, (loader) => new EXT_texture_webp(loader));
