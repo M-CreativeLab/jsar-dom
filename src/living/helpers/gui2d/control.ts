@@ -1,12 +1,13 @@
 import * as taffy from '@bindings/taffy';
 import { CSSStyleDeclaration } from 'cssstyle';
-import { CanvasTextConfig, drawText } from 'canvas-txt';
+import { CanvasTextConfig, drawText, splitText } from 'canvas-txt';
 
 import DOMExceptionImpl from '../../domexception';
-import NodeTypes, { isHTMLContentElement } from '../../node-type';
+import NodeTypes, { isHTMLContentElement, isTextNode } from '../../node-type';
 import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
+import DOMRectImpl from '../../geometry/DOMRect';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 
@@ -183,6 +184,10 @@ export class Control2D {
 
   setRenderingContext(renderingContext: CanvasRenderingContext2D) {
     this._renderingContext = renderingContext;
+    if (this._ownInnerText()) {
+      const textNode = this._element.firstChild as Text;
+      this._fixSizeByText(textNode.data);
+    }
   }
 
   addChild(child: Control2D) {
@@ -206,6 +211,11 @@ export class Control2D {
     } else {
       return null;
     }
+  }
+
+  private _ownInnerText(): boolean {
+    const element = this._element;
+    return element.childNodes.length === 1 && isTextNode(element);
   }
 
   private _parseLengthStr(input: string): LengthPercentageDimension | 'auto' {
@@ -326,7 +336,15 @@ export class Control2D {
     const height = rect.height;
 
     const canvasContext = this._renderingContext;
-    const boxRect = new DOMRectReadOnlyImpl(x, y, width, height);
+    const boxRect = new DOMRectImpl(x, y, width, height);
+
+    // Fix the size by the text.
+    const textNode = this._element.firstChild as unknown as TextImpl;
+    const fixedRect = this._fixSizeByText(textNode.data, boxRect);
+    if (fixedRect != null) {
+      boxRect.width = fixedRect.width;
+      boxRect.height = fixedRect.height;
+    }
 
     /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
@@ -342,6 +360,62 @@ export class Control2D {
       this._renderInnerText(canvasContext, boxRect);
     }
     this._lastRect = boxRect;
+  }
+
+  /**
+   * Fix the rect size by text.
+   */
+  private _fixSizeByText(value: string, rect?: DOMRectReadOnly) {
+    /**
+     * There are the following 3 cases that we don't need to fix size by text:
+     * 1. The target texture is not ready.
+     * 2. The text is empty.
+     * 3. The width is already set.
+     */
+    if (!value) {
+      return null;
+    }
+
+    const metrics = this._measureText(this._renderingContext, value);
+
+    /**
+     * If the height is not set, we need to set it by the text height.
+     */
+    if (!this._style.height) {
+      const charHeight = metrics.height;
+      let height = charHeight;
+      let width: number;
+
+      /**
+       * If the width is not 0px and ends with px, such as 100px, 200px, we are able to split the text by this width value.
+       */
+      if (this._style.width.endsWith('px') && this._style.width !== '0px') {
+        width = parseFloat(this._style.width);
+      } else if (rect) {
+        width = rect.width;
+      }
+
+      /**
+       * Calculate the total height by `splitText()` if the width is set.
+       */
+      if (width) {
+        const textArray = splitText({
+          ctx: this._renderingContext,
+          text: value,
+          justify: false,
+          width,
+        });
+        height = getLineHeightValue(charHeight, this._style.lineHeight) * textArray.length;
+      }
+
+      /**
+       * Update the layout style.
+       */
+      this.updateLayoutStyle(false, { height });
+      return { width, height };
+    } else {
+      return null;
+    }
   }
 
   private _getBorderRenderingContext(name?: 'top' | 'right' | 'bottom' | 'left'): BorderRenderingContext {

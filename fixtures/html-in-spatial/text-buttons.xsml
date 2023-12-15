@@ -21,7 +21,7 @@
       <style type="text/css">
         #root {
           padding:10px;
-          gap: 20px;
+          gap: 0px;
         }
         span.text {
           color: white;
