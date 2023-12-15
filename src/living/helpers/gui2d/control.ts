@@ -476,7 +476,7 @@ export class Control2D {
    * This measures a given text in single-line mode and returns the width and height of the text block.
    */
   private _measureText(context: CanvasRenderingContext2D, text: string) {
-    const style = `${this._fontSize}px ${this._style.fontFamily}`;
+    const style = `${this._fontSize}px ${this._style.fontFamily || 'sans-serif'}`;
     const previousTextBaseline = context.textBaseline;
     const previousFont = context.font;
 
