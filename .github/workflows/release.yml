@@ -2,7 +2,7 @@ name: Release
 
 on:
   workflow_run:
-    workflows: [ "Build", "Integration Tests Build" ]
+    workflows: [ "Build" ]
     types:
       - completed
   workflow_dispatch:
