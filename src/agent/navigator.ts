@@ -1,5 +1,7 @@
+import { applyMixins } from '../mixin';
 import { NativeDocument, UserAgent as NativeUserAgent } from '../impl-interfaces';
 import XRSystemImpl from '../living/xr/XRSystem';
+import DeviceMemoryImpl from './DeviceMemory';
 
 export class NavigatorImpl implements Navigator {
   clipboard: Clipboard;
@@ -69,8 +71,8 @@ export class NavigatorImpl implements Navigator {
   hardwareConcurrency: number;
   storage: StorageManager;
 
-  private _nativeUserAgent: NativeUserAgent;
-  private _xrSystem: XRSystemImpl;
+  protected _nativeUserAgent: NativeUserAgent;
+  protected _xrSystem: XRSystemImpl;
 
   constructor(
     hostObject: NativeDocument,
@@ -138,3 +140,5 @@ export class NavigatorImpl implements Navigator {
     return false;
   }
 }
+
+applyMixins(NavigatorImpl, [DeviceMemoryImpl]);

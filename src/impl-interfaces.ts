@@ -108,6 +108,11 @@ export interface UserAgent {
   devicePixelRatio: number;
 
   /**
+   * The approximate amount of device memory in gigabytes.
+   */
+  deviceMemory?: number,
+
+  /**
    * A `DOMParser` instance is used to parse and load the given XML text content.
    */
   domParser: DOMParser;

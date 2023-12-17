@@ -118,6 +118,7 @@ class UserAgentOnBabylonjs implements UserAgent {
   ];
   defaultStylesheet: string;
   devicePixelRatio: number;
+  deviceMemory?: number;
   domParser: DOMParser;
   resourceLoader: ResourceLoader;
   requestManager: RequestManager;
@@ -127,6 +128,7 @@ class UserAgentOnBabylonjs implements UserAgent {
     this.devicePixelRatio = init.devicePixelRatio;
     this.resourceLoader = new HeadlessResourceLoader();
     // this.requestManager = null;
+    this.deviceMemory = (navigator as any).deviceMemory;
   }
   alert(message?: string): void {
     throw new Error('Method not implemented.');
@@ -357,6 +359,7 @@ const defaultCode: string = `
           cube.asNativeType<BABYLON.AbstractMesh>().renderOutline = false;
         });
       }
+      console.log(navigator);
 
     </script>
   </space>
