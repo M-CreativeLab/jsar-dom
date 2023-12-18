@@ -129,9 +129,25 @@ export default class SpatialMeshElement extends SpatialElement {
         }
         const newAnimationGroup = animationGroup.clone(
           `${animationGroup.name}/${id}`,
-          (oldTarget: BABYLON.Node) => originUidToClonedMap[oldTarget.uniqueId],
+          (oldTarget: BABYLON.Node) => {
+            if (originUidToClonedMap[oldTarget.uniqueId]) {
+              return originUidToClonedMap[oldTarget.uniqueId];
+            } else {
+              this._hostObject.console.warn(
+                `Could not find the target(${oldTarget.name}) for animation group(${animationGroup.name})`, oldTarget);
+              return null;
+            }
+          },
           false
         );
+
+        /**
+         * Remove the targeted animations if the target is null or undefined.
+         */
+        (newAnimationGroup as any)._targetedAnimations = newAnimationGroup.targetedAnimations
+          .filter((anim) => {
+            return anim.target != null && anim.target !== undefined;
+          });
 
         /**
          * When an animation group is cloned into space, we added the following listeners to mark
