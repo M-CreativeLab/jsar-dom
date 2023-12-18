@@ -33,7 +33,7 @@ describe('JSARDOM', () => {
 
   it('should be able to set as local mode', async () => {
     const dom = new JSARDOM(`
-<xsml>
+<xsml version="1.1">
   <head>
     <title>Example</title>
   </head>
@@ -48,6 +48,10 @@ describe('JSARDOM', () => {
     expect(dom.document.title).toBe('Example');
     expect(dom.document.URL).toBe('file:///path/to/your/main.xsml');
     expect(dom.document.baseURI).toBe('file:///path/to/your/main.xsml');
+
+    const xsmlElement = dom.document.querySelector('xsml');
+    expect(xsmlElement).not.toBeNull();
+    expect(xsmlElement?.getAttribute('version')).toBe('1.1');
     dom.unload();
   });
 
