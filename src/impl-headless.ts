@@ -1,8 +1,9 @@
 import fsPromises from 'node:fs/promises';
 import url from 'node:url';
+import path from 'node:path';
 
 import 'babylonjs';
-import path from 'path';
+import { Canvas, createCanvas } from '@napi-rs/canvas';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import {
   DOMParser,
@@ -19,6 +20,57 @@ interface HeadlessEngine extends BABYLON.NullEngine, EventTarget { }
 class HeadlessEngine extends BABYLON.NullEngine implements NativeEngine {
   // TODO
 }
+
+class OffscreenCanvasImpl extends EventTarget implements OffscreenCanvas {
+  #canvas: Canvas = null;
+
+  constructor(width: number, height: number) {
+    super();
+    this.#canvas = createCanvas(width, height);
+  }
+
+  getContext(contextId: '2d', options?: any): OffscreenCanvasRenderingContext2D;
+  getContext(contextId: 'bitmaprenderer', options?: any): ImageBitmapRenderingContext;
+  getContext(contextId: 'webgl', options?: any): WebGLRenderingContext;
+  getContext(contextId: 'webgl2', options?: any): WebGL2RenderingContext;
+  getContext(contextId: string, options?: unknown): OffscreenRenderingContext {
+    if (contextId !== '2d') {
+      throw new TypeError('unknown contextId');
+    } else {
+      return this.#canvas.getContext(contextId) as unknown as OffscreenRenderingContext;
+    }
+  }
+  oncontextlost: (this: OffscreenCanvas, ev: Event) => any;
+  oncontextrestored: (this: OffscreenCanvas, ev: Event) => any;
+
+  convertToBlob(options?: ImageEncodeOptions): Promise<Blob>;
+  convertToBlob(options?: ImageEncodeOptions): Promise<Blob>;
+  convertToBlob(options?: unknown): Promise<Blob> {
+    throw new Error('Method not implemented.');
+  }
+  transferToImageBitmap(): ImageBitmap;
+  transferToImageBitmap(): ImageBitmap;
+  transferToImageBitmap(): ImageBitmap {
+    throw new Error('Method not implemented.');
+  }
+
+  get width() {
+    return this.#canvas.width;
+  }
+
+  set width(value) {
+    this.#canvas.width = value;
+  }
+
+  get height() {
+    return this.#canvas.height;
+  }
+
+  set height(value) {
+    this.#canvas.height = value;
+  }
+}
+globalThis.OffscreenCanvas = OffscreenCanvasImpl;
 
 class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'string'): Promise<string>;
@@ -110,6 +162,7 @@ class HeadlessUserAgent implements UserAgent {
 
 export class HeadlessNativeDocument extends EventTarget implements NativeDocument {
   engine: NativeEngine;
+  mainCamera: BABYLON.Camera;
   userAgent: UserAgent;
   baseURI: string;
   console: Console;
@@ -131,7 +184,7 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
     this.console = globalThis.console;
     this._scene = new BABYLON.Scene(this.engine);
 
-    new BABYLON.ArcRotateCamera(
+    this.mainCamera = new BABYLON.ArcRotateCamera(
       'camera',
       Math.PI / 2,
       Math.PI / 2,
