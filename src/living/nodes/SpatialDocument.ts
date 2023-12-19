@@ -346,6 +346,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
        * Wait for all the preloading spatial models to be loaded, then dispatch the "spaceReady" event.
        */
       const dispatchSpaceReadyEvent = () => {
+        /**
+         * We need to process the DOM symbol tree once before the "spaceReady" event is dispatched.
+         */
+        this._processDomSymbolTree();
         this._isSpaceReady = true;
         this.dispatchEvent(new Event('spaceReady'));
       };
@@ -1092,26 +1096,26 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     }
   }
 
-  private _onPreRenderLoop() {
+  private _processDomSymbolTree() {
     const defaultView = this._defaultView;
     if (!defaultView) {
       return;
     }
+    // TODO: add a dirty check for the tree iterating.
+    domSymbolTree.treeToArray(this, {
+      filter: node => isElementNode(node)
+    })
+      .filter((node: ElementImpl) => isSpatialElement(node))
+      .forEach((node: SpatialElement) => {
+        const style = defaultView.getComputedSpatialStyle(node);
+        node._adoptStyle(style);
+      });
+  }
 
+  private _onPreRenderLoop() {
     this.#nativeDocument.getNativeScene()
       .onBeforeRenderObservable.add(() => {
-        // TODO: add a dirty check for the tree iterating.
-        domSymbolTree.treeToArray(this, {
-          filter: node => isElementNode(node)
-        })
-          .forEach((node: ElementImpl) => {
-            if (isSpatialElement(node)) {
-              const style = defaultView.getComputedSpatialStyle(node);
-              node._adoptStyle(style);
-            } else if (isHTMLElement(node)) {
-              // TODO: support for classic style.
-            }
-          });
+        this._processDomSymbolTree();
       });
   }
 
