@@ -1,13 +1,11 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: [ "Build" ]
-    types:
-      - completed
+  schedule:
+    - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
-      release:
+      version:
         description: 'Release version'
         required: true
         default: 'patch'
@@ -35,7 +33,7 @@ jobs:
     - name: Build bindings
       run: |
         npm run bindings
-    - name: Build release
+    - name: Build release {{ github.event.inputs.version }}
       run: |
         node ./version.cjs
         npm run build-release

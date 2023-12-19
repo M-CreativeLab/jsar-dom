@@ -22,10 +22,10 @@ export default class DOMPointReadOnlyImpl implements DOMPointReadOnly {
   }
 
   constructor(x?: number, y?: number, z?: number, w?: number) {
-    this._x = x || 0;
-    this._y = y || 0;
-    this._z = z || 0;
-    this._w = w || 0;
+    this._x = typeof x === 'number' ? x : 0;
+    this._y = typeof y === 'number' ? y : 0;
+    this._z = typeof z === 'number' ? z : 0;
+    this._w = typeof w === 'number' ? w : 1;
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {

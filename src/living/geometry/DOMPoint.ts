@@ -9,10 +9,10 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   constructor(x?: number, y?: number, z?: number, w?: number) {
-    this.x = x || 0;
-    this.y = y || 0;
-    this.z = z || 0;
-    this.w = w || 0;
+    this.x = typeof x === 'number' ? x : 0;
+    this.y = typeof y === 'number' ? y : 0;
+    this.z = typeof z === 'number' ? z : 0;
+    this.w = typeof w === 'number' ? w : 1;
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
