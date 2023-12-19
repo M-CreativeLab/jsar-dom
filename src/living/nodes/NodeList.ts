@@ -11,7 +11,7 @@ export class NodeListImpl<T extends Node> implements NodeList {
 
   constructor(
     hostObject: NativeDocument,
-    args,
+    _args: any[],
     privateData: {
       query?: () => T[];
       element?: NodeImpl;
@@ -21,6 +21,9 @@ export class NodeListImpl<T extends Node> implements NodeList {
     this._hostObject = hostObject;
     if (privateData.nodes) {
       this.#list = [...privateData.nodes];
+      for (let i = 0; i < this.#list.length; i++) {
+        this[i] = this.#list[i];
+      }
       this.#isLive = false;
     } else {
       this.#list = [];
@@ -33,7 +36,6 @@ export class NodeListImpl<T extends Node> implements NodeList {
   }
 
   [index: number]: T;
-
   get length() {
     this._update();
     return this.#list.length;
@@ -71,6 +73,7 @@ export class NodeListImpl<T extends Node> implements NodeList {
         const snapshot = this.#query();
         for (let i = 0; i < snapshot.length; i++) {
           this.#list[i] = snapshot[i];
+          this[i] = snapshot[i];
         }
         this.#list.length = snapshot.length;
         this.#version = this.#element._version;
