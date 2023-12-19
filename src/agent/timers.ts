@@ -1,8 +1,10 @@
 import DOMExceptionImpl from '../living/domexception';
 import { reportException } from '../living/helpers/runtime-script-errors';
+import type { NativeDocument } from 'src/impl-interfaces';
 import type { BaseWindowImpl } from './window';
 
 type TimerConfig = {
+  hostObject: NativeDocument;
   methodContext: BaseWindowImpl;
   repeat: boolean;
   previousHandle?: number;
@@ -17,7 +19,7 @@ export function timerInitializationSteps(
   args: any[],
   config: TimerConfig,
 ) {
-  const { methodContext, repeat, previousHandle } = config;
+  const { hostObject, methodContext, repeat, previousHandle } = config;
 
   // This appears to be unspecced, but matches browser behavior for close()ed windows.
   if (!methodContext.document) {
@@ -40,7 +42,7 @@ export function timerInitializationSteps(
         throw new DOMExceptionImpl('The callback provided as parameter 1 is not a function.', 'TYPE_MISMATCH_ERR');
       }
     } catch (e) {
-      reportException(window, e, window.location.href);
+      reportException(hostObject, e);
     }
 
     if (listOfActiveTimers.has(handle)) {
@@ -49,7 +51,7 @@ export function timerInitializationSteps(
           handler,
           timeout,
           args,
-          { methodContext, repeat, previousHandle: handle }
+          { hostObject, methodContext, repeat, previousHandle: handle }
         );
       } else {
         listOfActiveTimers.delete(handle);

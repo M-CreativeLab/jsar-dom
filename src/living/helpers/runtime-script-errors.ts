@@ -1,5 +1,6 @@
 import util from 'util';
 import ErrorEventImpl from '../events/ErrorEvent';
+import { NativeDocument } from 'src/impl-interfaces';
 
 const errorReportingMode = Symbol('error reporting mode');
 
@@ -36,7 +37,7 @@ function reportAnError(line: number, col: number, target: EventTarget, errorObje
   }
 }
 
-export function reportException(hostObject, error: Error, filenameHint?: string) {
+export function reportException(hostObject: NativeDocument, error: Error, filenameHint?: string) {
   // This function will give good results on real Error objects with stacks; poor ones otherwise
 
   const stack = error && error.stack;
@@ -60,7 +61,7 @@ export function reportException(hostObject, error: Error, filenameHint?: string)
     const jsdomError = new Error(`Uncaught ${errorString}`);
     // TODO
     // window._virtualConsole.emit('jsdomError', jsdomError);
-    throw jsdomError;
+    hostObject.console.error(jsdomError);
   }
 };
 

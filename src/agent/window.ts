@@ -548,6 +548,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
       timeout,
       args,
       {
+        hostObject: this.#nativeDocument,
         methodContext: this,
         repeat: false,
       }
@@ -564,6 +565,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
       timeout,
       args,
       {
+        hostObject: this.#nativeDocument,
         methodContext: this,
         repeat: true,
       }

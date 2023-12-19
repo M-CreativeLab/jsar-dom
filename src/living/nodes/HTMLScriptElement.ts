@@ -511,7 +511,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     if (await this._load()) {
       this._ownerDocument._queue.push(null, async () => {
         try {
-          this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
+          await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
             return this._evalInternal(this._compiledEntryCode, {
               baseUrl: this._baseScriptUrl,
             });
