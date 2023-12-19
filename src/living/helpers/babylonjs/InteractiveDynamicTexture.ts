@@ -498,6 +498,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
     material.useAlphaFromDiffuseTexture = true;
     material.diffuseTexture = texture;
+    // FIXME: this is a hack to make the material visible in the scene
+    material.emissiveColor = new BABYLON.Color3(1, 1, 1);
     mesh.material = material;
   }
 
