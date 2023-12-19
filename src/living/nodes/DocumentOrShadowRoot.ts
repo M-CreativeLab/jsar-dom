@@ -55,6 +55,9 @@ export default class DocumentOrShadowRootImpl implements DocumentOrShadowRoot {
     }
 
     const candidate = this._ownerDocument._lastFocusedElement || this._ownerDocument.body;
+    if (!candidate) {
+      return null;
+    }
     if (nodeRoot(candidate) !== this) {
       return this;
     }
