@@ -50,6 +50,7 @@
   },
   "devDependencies": {
     "@jest/globals": "^29.7.0",
+    "@napi-rs/canvas": "^0.1.44",
     "@types/babel__core": "^7.20.1",
     "@types/css": "^0.0.37",
     "@types/cssstyle": "^2.2.3",

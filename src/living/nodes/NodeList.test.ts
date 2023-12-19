@@ -60,7 +60,12 @@ describe('JSARDOM.NodeList', () => {
   <space>
     <cube></cube>
     <cube></cube>
-    <cube></cube>
+    <cube>
+      <div id="root">
+        <span class="sub" />
+        <span class="sub" />
+      </div>
+    </cube>
   </space>
 </xsml>
     `, {
@@ -72,6 +77,10 @@ describe('JSARDOM.NodeList', () => {
     const cubes = dom.document.querySelectorAll('cube');
     expect(cubes.length).toBe(3);
     expect(cubes[0].tagName).toBe('CUBE');
+
+    const spans = cubes[2].shadowRoot.querySelectorAll('span.sub');
+    expect(spans.length).toBe(2);
+    expect(spans[1].className).toBe('sub');
     dom.unload();
   });
 });
