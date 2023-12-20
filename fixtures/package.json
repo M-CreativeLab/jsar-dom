@@ -3,7 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "",
-  "main": "spatial-lion.js",
+  "main": "html-in-spatial/text-buttons.xsml",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },

@@ -1,0 +1,24 @@
+<xsml version="1.0">
+  <head>
+    <title>Material Example (Basic)</title>
+    <style type="text/scss">
+      @material litered {
+        diffuse-color: #ff0000;
+      }
+      #gui {
+        rotation: 0 160 0;
+        material: "litered";
+      }
+      #box1 {
+        position: 0.2 0.3 -0.1;
+        rotation: 0 160 0;
+        material: "litered";
+      }
+    </style>
+    <script type="module" src="./raw-texture.ts"></script>
+  </head>
+  <space>
+    <cube id="box1" size="0.8" width="1.4" depth="0.2"></cube>
+    <cube id="gui" size="0.8" width="1.4" depth="0.2"></cube>
+  </space>
+</xsml>
