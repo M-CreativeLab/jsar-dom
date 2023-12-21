@@ -1,5 +1,24 @@
+export enum HandGesture {
+  None = -1,
+  Grip = 1,
+  Palm,
+  Pinch,
+  OpenPinch,
+}
+
+export enum HandOrientation {
+  Up = 0,
+  Down,
+  Left,
+  Right,
+}
+
 export type HandtrackingInputDetail = {
+  id: number;
   joints: XRHand;
+  pose: XRPose;
+  gesture?: HandGesture;
+  orientation?: HandOrientation;
 };
 
 export type RaycastInputDetail = {

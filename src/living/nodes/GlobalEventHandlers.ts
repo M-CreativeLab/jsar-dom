@@ -1,3 +1,5 @@
+import type HandTrackingEvent from '../events/HandTrackingEvent';
+
 export const events = new Set([
   'abort',
   'auxclick',
@@ -77,10 +79,14 @@ export const events = new Set([
   'touchstart',
   'touchend',
   'touchmove',
-  'touchcancel'
+  'touchcancel',
+
+  // Added by JSAR-DOM
+  'handtracking',
 ]);
 
-export class GlobalEventHandlersImpl extends EventTarget implements GlobalEventHandlers {
+export interface GlobalEventHandlersImpl extends EventTarget { };
+export class GlobalEventHandlersImpl implements GlobalEventHandlers {
   onabort: (this: GlobalEventHandlers, ev: UIEvent) => any;
   onanimationcancel: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
   onanimationend: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
@@ -177,6 +183,7 @@ export class GlobalEventHandlersImpl extends EventTarget implements GlobalEventH
   onwebkittransitionend: (this: GlobalEventHandlers, ev: Event) => any;
   onwheel: (this: GlobalEventHandlers, ev: WheelEvent) => any;
   onbeforexrselect: (this: GlobalEventHandlers, ev: XRSessionEvent) => any;
+  onhandtracking: (this: GlobalEventHandlers, ev: HandTrackingEvent) => any;
 
   _registeredHanders = new Set();
   _eventHandlers = Object.create(null);

@@ -18,6 +18,7 @@ import KeyboardEventImpl from '../events/KeyboardEvent';
 import MessageEventImpl from '../events/MessageEvent';
 import PopStateEventImpl from '../events/PopStateEvent';
 import ProgressEventImpl from '../events/ProgressEvent';
+import HandTrackingEvent from '../events/HandTrackingEvent';
 import TouchEventImpl from '../events/TouchEvent';
 import { NodeListImpl } from './NodeList';
 import NodeIteratorImpl from '../traversal/NodeIterator';
@@ -528,6 +529,12 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     return event;
   }
 
+  addEventListener(type: 'handtracking', callback: (this: GlobalEventHandlers, ev: HandTrackingEvent) => any): void;
+  addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void;
+  addEventListener(type: string, callback: EventListenerOrEventListenerObject, options?: boolean | AddEventListenerOptions): void {
+    return super.addEventListener(type, callback, options);
+  }
+
   createNodeIterator(root: Node, whatToShow?: number, filter?: NodeFilter): NodeIterator {
     const nodeIterator = new NodeIteratorImpl(this._hostObject, [], {
       root: root as unknown as NodeImpl,
@@ -1026,7 +1033,8 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
 
   private _handleHandTrackingEventDetail(detail: HandtrackingInputDetail): boolean {
-    // TODO
+    const handtrackingGlobalEvent = new HandTrackingEvent(detail);
+    this.dispatchEvent(handtrackingGlobalEvent);
     return true;
   }
 
