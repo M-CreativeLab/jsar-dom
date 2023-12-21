@@ -1,11 +1,5 @@
 import { HandGesture, HandOrientation, HandtrackingInputDetail } from '../../input-event';
 
-type HandPoint = {
-  x: number;
-  y: number;
-  z: number;
-};
-
 enum HandType {
   Left = 0,
   Right,
@@ -13,7 +7,7 @@ enum HandType {
 
 type InputData = {
   'Type': HandType;
-  'Joints': HandPoint[];
+  'Joints': DOMPointInit[];
   'ThisPose': any;
   'Gesture': HandGesture;
   'Orientation': HandOrientation;
@@ -25,8 +19,8 @@ export default class HandTrackingEvent extends Event {
   constructor(inputDetail: HandtrackingInputDetail) {
     super('handtracking');
     this.inputData = {
-      'Type': inputDetail.id,
-      'Joints': [],
+      'Type': inputDetail.handId,
+      'Joints': inputDetail.joints,
       'ThisPose': inputDetail.pose,
       'Gesture': inputDetail.gesture,
       'Orientation': inputDetail.orientation,

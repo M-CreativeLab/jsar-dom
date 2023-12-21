@@ -14,9 +14,12 @@ export enum HandOrientation {
 }
 
 export type HandtrackingInputDetail = {
-  id: number;
-  joints: XRHand;
-  pose: XRPose;
+  handId: number;
+  joints: DOMPointInit[];
+  pose: {
+    position: DOMPointInit;
+    rotation: DOMPointInit;
+  };
   gesture?: HandGesture;
   orientation?: HandOrientation;
 };
