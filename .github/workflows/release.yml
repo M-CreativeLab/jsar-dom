@@ -5,10 +5,10 @@ on:
     - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
-      version:
-        description: 'Release version'
+      isRelease:
+        description: 'Is this a release? yes or no'
         required: true
-        default: 'patch'
+        default: 'no'
 
 jobs:
   build:
@@ -33,9 +33,11 @@ jobs:
     - name: Build bindings
       run: |
         npm run bindings
-    - name: Build release {{ github.event.inputs.version }}
+    - name: Build release ${{ github.event.inputs.version }}
       run: |
-        node ./version.cjs
+        if [ "${{ github.event.inputs.isRelease }}" != "yes" ]; then
+          node ./version.cjs
+        fi
         npm run build-release
         npm run build-types
     - name: Upload core release to artifact
@@ -45,12 +47,20 @@ jobs:
         path: './dist'
     - name: Publish core to npm
       run: |
-        npm publish --tag daily --access public
+        if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
+          npm publish --tag latest --access public
+        else
+          npm publish --tag daily --access public
+        fi
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
     - name: Publish types to npm
       working-directory: ./types
       run: |
-        npm publish --tag daily --access public
+        if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
+          npm publish --tag latest --access public
+        else
+          npm publish --tag daily --access public
+        fi
       env:
         NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
