@@ -24,6 +24,10 @@ export class JSARDOM<T extends NativeDocument> {
   private _markupOrUrl: string;
   private _nativeDocument: T;
 
+  static get version(): string {
+    return process.env.JSARDOM_VERSION;
+  }
+
   constructor(markupOrUrl: string, init: WindowOrDOMInit<T>) {
     this.id = init.id || `${globalId++}`;
     this._markupOrUrl = markupOrUrl.trim();

@@ -7,6 +7,9 @@ const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
 
 const Plugins = {
   Progress: new webpack.ProgressPlugin(),
+  Define: new webpack.DefinePlugin({
+    'process.env.JSARDOM_VERSION': JSON.stringify(require('./package.json').version),
+  }),
   Provide: new webpack.ProvidePlugin({
     process: 'process/browser',
     Buffer: ['buffer', 'Buffer'],
@@ -107,6 +110,7 @@ module.exports = [
     },
     plugins: [
       Plugins.Progress,
+      Plugins.Define,
       Plugins.Provide,
       Plugins.LimitChunkCount,
       Plugins.Compression,
@@ -132,6 +136,7 @@ module.exports = [
     },
     plugins: [
       Plugins.Progress,
+      Plugins.Define,
       Plugins.LimitChunkCount,
       Plugins.FrameworkDts,
       Plugins.ApiDts,
