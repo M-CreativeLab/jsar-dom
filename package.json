@@ -9,8 +9,10 @@
   "scripts": {
     "build-types": "node ./types/build.cjs",
     "build-release": "webpack --mode production",
-    "bindings": "wasm-pack build bindings/taffy --target web",
+    "binding-taffy": "wasm-pack build bindings/taffy --target web",
+    "bindings": "npm run binding-taffy",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
+    "gen-cdpfiles": "node --loader ./tsconfig-esm-loader.js src/cdp/builder/main.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts"
@@ -36,6 +38,7 @@
     "@babel/preset-typescript": "^7.23.3",
     "babylonjs-gltf2interface": "^6.34.0",
     "canvas-txt": "^4.1.1",
+    "cockatiel": "^3.1.2",
     "css": "^3.0.0",
     "css-parse": "^2.0.0",
     "cssstyle": "^3.0.0",
