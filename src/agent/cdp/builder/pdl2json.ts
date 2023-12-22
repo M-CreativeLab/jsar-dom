@@ -1,5 +1,4 @@
-import { toJson } from '@bindings/pdl2json';
-import { basename, join, normalize } from 'path';
+import { basename, join } from 'path';
 import fs from 'node:fs';
 import { platform } from 'os';
 
@@ -18,10 +17,6 @@ export async function pdlUrlToJson(pdlUrl: string) {
     content = await fs.promises.readFile(cacheFilename, 'utf8');
   } else {
     content = await (await fetch(pdlUrl)).text();
-  }
-
-  if (pdlUrl.endsWith('.pdl')) {
-    content = toJson(content);
   }
   return JSON.parse(content);
 }
