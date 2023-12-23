@@ -144,4 +144,34 @@ module.exports = [
       Plugins.BundleAnalyzer,
     ],
   },
+  {
+    ...sharedConfig,
+    experiments: {
+      outputModule: false,
+    },
+    target: 'node18.16',
+    node: {
+      __dirname: true,
+      __filename: true,
+    },
+    output: {
+      path: distPath,
+      library: {
+        type: 'commonjs2',
+      },
+      filename: 'jsardom.node.cjs',
+    },
+    resolve: {
+      extensions: ['.ts', '.js'],
+      fallback: {
+        '@bindings/taffy': require.resolve('./bindings/taffy'),
+      }
+    },
+    plugins: [
+      Plugins.Progress,
+      Plugins.Define,
+      Plugins.LimitChunkCount,
+      Plugins.Compression,
+    ],
+  },
 ];

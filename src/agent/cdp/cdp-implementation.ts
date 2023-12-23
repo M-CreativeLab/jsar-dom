@@ -12,11 +12,11 @@ namespace CdpJSAR {
   }
 }
 
-export function createRemoteClient<TDomains = CdpJSAR.Domains>(
+export function createRemoteClient(
   transport: ITransport,
   serializer: ISerializer = new JsonSerializer(),
-): ClientConnection<TDomains> {
-  return new Connection<ClientCdpSession<TDomains>>(transport, serializer, ClientCdpSession);
+): ClientConnection<CdpJSAR.Domains> {
+  return new Connection<ClientCdpSession<CdpJSAR.Domains>>(transport, serializer, ClientCdpSession);
 }
 
 export class CdpServerImplementation {
