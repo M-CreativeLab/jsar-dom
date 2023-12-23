@@ -22,6 +22,7 @@ import type DOMPointReadOnlyImpl from '../living/geometry/DOMPointReadOnly';
 import type DOMPointImpl from '../living/geometry/DOMPoint';
 import type DOMRectReadOnlyImpl from '../living/geometry/DOMRectReadOnly';
 import type DOMRectImpl from '../living/geometry/DOMRect';
+import { CdpServerImplementation } from './cdp/cdp-implementation';
 
 export type WindowOrDOMInit<T extends NativeDocument> = {
   url?: string;
@@ -46,6 +47,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #listOfActiveTimers: Map<number, number> = new Map();
   #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
   #audioConstructor: typeof Audio;
+  _cdpImplementation: CdpServerImplementation;
 
   URL = globalThis.URL;
   Blob = globalThis.Blob;
@@ -110,6 +112,10 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     });
     this.#document._defaultView = this as any;
     this.#nativeDocument.attachedDocument = this.#document;
+    if (this.#nativeDocument.cdpTransport) {
+      this._cdpImplementation = new CdpServerImplementation(this.#document, this.#nativeDocument.cdpTransport);
+    }
+
     this.navigator = new NavigatorImpl(this.#nativeDocument, []);
 
     // Create the performance instance.

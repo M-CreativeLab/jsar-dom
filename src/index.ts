@@ -5,6 +5,8 @@ import * as taffy from '@bindings/taffy';
 
 import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
+import * as cdpImplementation from './agent/cdp/cdp-implementation';
+import * as cdpTransport from './agent/cdp/transport';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import { canParseURL } from './living/helpers/url';
@@ -121,4 +123,9 @@ export * from './impl-interfaces';
 export {
   SpatialDocumentImpl,
   JSARInputEvent,
+}
+export namespace cdp {
+  export import ITransport = cdpTransport.ITransport;
+  export import LoopbackTransport = cdpTransport.LoopbackTransport;
+  export import createRemoteClient = cdpImplementation.createRemoteClient;
 }

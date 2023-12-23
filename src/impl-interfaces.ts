@@ -1,3 +1,4 @@
+import { ITransport } from './agent/cdp';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 
 export interface DOMParser {
@@ -231,4 +232,9 @@ export interface NativeDocument extends EventTarget {
    * mark the document's `closed` flag to `true`.
    */
   close(): void;
+
+  /**
+   * The transport used by the CDP.
+   */
+  cdpTransport?: ITransport;
 }

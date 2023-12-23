@@ -12,6 +12,7 @@ import {
   JSARDOM,
   MediaPlayerConstructor,
   MediaPlayerBackend,
+  cdp,
 } from '../src';
 import 'babylonjs';
 
@@ -156,6 +157,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   console: Console;
   attachedDocument: SpatialDocumentImpl;
   closed: boolean = false;
+  cdpTransport: cdp.ITransport;
 
   private _scene: BABYLON.Scene;
   private _preloadMeshes: Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> = new Map();
@@ -171,6 +173,11 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       devicePixelRatio: 1,
     });
     this.console = globalThis.console;
+    const transport = this.cdpTransport = new cdp.LoopbackTransport();
+    transport.onDidSend((data) => {
+      // TODO
+    });
+
     const scene = this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
     this._scene.debugLayer.show({
@@ -406,6 +413,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     await currentDom.load();
     console.log(currentDom);
+
+    const transport = new cdp.LoopbackTransport();
+    transport.onDidSend((data) => {
+      (nativeDocument.cdpTransport as cdp.LoopbackTransport).receive(data);
+    });
+
+    const cdpClient = cdp.createRemoteClient(transport)
+    await cdpClient.rootSession.api.DOM.describeNode();
 
     const scene = currentDom.document.scene;
     BABYLON.SceneLoader.ImportMesh(

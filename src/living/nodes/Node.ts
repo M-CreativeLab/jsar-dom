@@ -124,6 +124,8 @@ type ObserverItem = {
   source?: ObserverItem;
 };
 
+let globalIdByNode = 0;
+
 export class NodeImpl extends EventTarget implements Node {
   /// Original NODE Types
   readonly ELEMENT_NODE: 1 = 1;
@@ -172,6 +174,7 @@ export class NodeImpl extends EventTarget implements Node {
 
   nodeType: number;
 
+  _inspectorId: number = globalIdByNode++;
   _version: number = 0;
   _attached = false;
   _hostObject: NativeDocument;

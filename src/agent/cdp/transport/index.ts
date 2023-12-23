@@ -23,3 +23,5 @@ export interface ITransport extends IDisposable {
    */
   send(message: Transportable): void;
 }
+
+export { LoopbackTransport } from './loopback';
