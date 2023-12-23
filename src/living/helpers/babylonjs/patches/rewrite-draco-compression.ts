@@ -104,43 +104,41 @@ function decodeMesh(decoderModule, dataView, attributes, onIndicesData, onAttrib
 }
 
 // Check if the browser env
-if (typeof window === 'undefined') {
-  const decoderModulePending = Promise.all([
-      import('./draco_decoder_gltf.cjs'),
-      import('./draco_decoder_gltf.wasm.cjs'),
-  ]).then(([DracoDecoderModule, wasmBinary]) => {
-    return DracoDecoderModule.default(wasmBinary.default);
-  });
+const decoderModulePending = Promise.all([
+  import('./draco_decoder_gltf.cjs'),
+  import('./draco_decoder_gltf.wasm.cjs'),
+]).then(([DracoDecoderModule, wasmBinary]) => {
+  return DracoDecoderModule.default(wasmBinary.default);
+});
 
-  (BABYLON.DracoCompression as any)._Default = {
-    dispose() {
-      return null;
-    },
-    /**
-     * Returns a promise that resolves when ready. Call this manually to ensure draco compression is ready before use.
-     * @returns a promise that resolves when ready
-     */
-    whenReadyAsync() {
-      return decoderModulePending;
-    },
-    /**
-     * Decode Draco compressed mesh data to vertex data.
-     * @param data The ArrayBuffer or ArrayBufferView for the Draco compression data
-     * @param attributes A map of attributes from vertex buffer kinds to Draco unique ids
-     * @param dividers a list of optional dividers for normalization
-     * @returns A promise that resolves with the decoded vertex data
-     */
-    decodeMeshAsync(data: ArrayBuffer | ArrayBufferView, attributes, dividers) {
-      const dataView = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
-      return decoderModulePending.then((decoderModule) => {
-        const vertexData = new BABYLON.VertexData();
-        decodeMesh(decoderModule, dataView, attributes, (indices) => {
-          vertexData.indices = indices;
-        }, (kind, data) => {
-          vertexData.set(data, kind);
-        }, dividers);
-        return vertexData;
-      });
-    }
-  };
-}
+(BABYLON.DracoCompression as any)._Default = {
+  dispose() {
+    return null;
+  },
+  /**
+   * Returns a promise that resolves when ready. Call this manually to ensure draco compression is ready before use.
+   * @returns a promise that resolves when ready
+   */
+  whenReadyAsync() {
+    return decoderModulePending;
+  },
+  /**
+   * Decode Draco compressed mesh data to vertex data.
+   * @param data The ArrayBuffer or ArrayBufferView for the Draco compression data
+   * @param attributes A map of attributes from vertex buffer kinds to Draco unique ids
+   * @param dividers a list of optional dividers for normalization
+   * @returns A promise that resolves with the decoded vertex data
+   */
+  decodeMeshAsync(data: ArrayBuffer | ArrayBufferView, attributes, dividers) {
+    const dataView = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
+    return decoderModulePending.then((decoderModule) => {
+      const vertexData = new BABYLON.VertexData();
+      decodeMesh(decoderModule, dataView, attributes, (indices) => {
+        vertexData.indices = indices;
+      }, (kind, data) => {
+        vertexData.set(data, kind);
+      }, dividers);
+      return vertexData;
+    });
+  }
+};
