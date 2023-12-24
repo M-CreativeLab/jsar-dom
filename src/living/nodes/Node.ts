@@ -213,10 +213,13 @@ export class NodeImpl extends EventTarget implements Node {
     }
     domSymbolTree.initialize(this);
 
+    /**
+     * Add CDP Node if the implementation is available.
+     */
     if (privateData?.defaultView) {
-      privateData.defaultView._cdpImplementation.addNode(this);
+      privateData.defaultView._cdpImplementation?.addNode(this);
     } else {
-      this._ownerDocument._defaultView._cdpImplementation.addNode(this);
+      this._ownerDocument._defaultView._cdpImplementation?.addNode(this);
     }
   }
 
