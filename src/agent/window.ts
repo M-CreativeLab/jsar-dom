@@ -93,6 +93,10 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     super();
 
     this.#nativeDocument = init.nativeDocument;
+    if (this.#nativeDocument.cdpTransport) {
+      this._cdpImplementation = new CdpServerImplementation(this.#nativeDocument.cdpTransport);
+    }
+
     this.#setup(init);
     this._customElementRegistry = new CustomElementRegistryImpl(this.#nativeDocument);
 
@@ -107,15 +111,14 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
         encoding: 'utf-8',
         scriptingDisabled: init.runScripts === 'never',
         xsmlVersion: '1.0',
-        defaultView: this as any,
+        defaultView: this,
       },
     });
-    this.#document._defaultView = this as any;
+    this.#document._defaultView = this;
     this.#nativeDocument.attachedDocument = this.#document;
-    if (this.#nativeDocument.cdpTransport) {
-      this._cdpImplementation = new CdpServerImplementation(this.#document, this.#nativeDocument.cdpTransport);
+    if (this._cdpImplementation) {
+      this._cdpImplementation.document = this.#document;
     }
-
     this.navigator = new NavigatorImpl(this.#nativeDocument, []);
 
     // Create the performance instance.

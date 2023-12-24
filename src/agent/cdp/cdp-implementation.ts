@@ -5,6 +5,8 @@ import type { ITransport } from './transport';
 import { ISerializer } from './serializer';
 import { JsonSerializer } from './serializer/json';
 import { ClientCdpSession } from './client';
+import type { NodeImpl } from '../../living/nodes/Node';
+import { isAttributeNode, isElementNode } from '../../living/node-type';
 
 namespace CdpJSAR {
   export interface Domains {
@@ -20,9 +22,11 @@ export function createRemoteClient(
 }
 
 export class CdpServerImplementation {
-  private _server: ServerConnection<CdpJSAR.Domains>
+  private _server: ServerConnection<CdpJSAR.Domains>;
+  private _document: SpatialDocumentImpl;
+  private _domNodes: Map<number, NodeImpl> = new Map();
 
-  constructor(private _document: SpatialDocumentImpl, private _transport: ITransport) {
+  constructor(private _transport: ITransport) {
     this._server = Connection.server<CdpJSAR.Domains>(this._transport);
     this._server.rootSession.api = {
       DOM: {
@@ -60,8 +64,10 @@ export class CdpServerImplementation {
         async getContentQuads(client, arg) {
           return null;
         },
-        async getDocument(client, arg) {
-          return null;
+        getDocument: async (_client, arg) => {
+          return Promise.resolve({
+            root: this.serializeNode(this._document, arg.depth),
+          });
         },
         async getFlattenedDocument(client, arg) {
           return null;
@@ -105,11 +111,31 @@ export class CdpServerImplementation {
         async pushNodesByBackendIdsToFrontend(client, arg) {
           return null;
         },
-        async querySelector(client, arg) {
-          return null;
+        querySelector: async (_client, arg) => {
+          const targetNode = this._domNodes.get(arg.nodeId);
+          if (!targetNode || !isElementNode(targetNode)) {
+            return null;
+          } else {
+            const resultElement = targetNode.querySelector(arg.selector);
+            return {
+              nodeId: (resultElement as unknown as NodeImpl)._inspectorId,
+            };
+          }
         },
-        async querySelectorAll(client, arg) {
-          return null;
+        querySelectorAll: async (_client, arg) => {
+          const targetNode = this._domNodes.get(arg.nodeId);
+          if (!targetNode || !isElementNode(targetNode)) {
+            return { nodeIds: [] };
+          } else {
+            const resultElements = targetNode.querySelectorAll(arg.selector);
+            const nodeIds: number[] = [];
+            resultElements.forEach((elem) => {
+              nodeIds.push((elem as unknown as NodeImpl)._inspectorId);
+            });
+            return {
+              nodeIds,
+            };
+          }
         },
         async getTopLayerElements(client, arg) {
           return null;
@@ -176,5 +202,49 @@ export class CdpServerImplementation {
         },
       }
     };
+  }
+
+  get rootSession() {
+    return this._server.rootSession;
+  }
+
+  set document(_document: SpatialDocumentImpl) {
+    this._document = _document;
+  }
+
+  addNode(node: NodeImpl) {
+    this._domNodes.set(node._inspectorId, node);
+  }
+
+  removeNode(node: NodeImpl) {
+    this._domNodes.delete(node._inspectorId);
+  }
+
+  serializeNode(node: NodeImpl, depth: number = -1): CdpBrowser.DOM.Node {
+    const serialized: CdpBrowser.DOM.Node = {
+      nodeId: node._inspectorId,
+      parentId: node.parentNode ? (node.parentNode as unknown as NodeImpl)._inspectorId : null,
+      backendNodeId: node._inspectorId,
+      nodeType: node.nodeType,
+      nodeName: node.nodeName,
+      localName: isElementNode(node) ? node.localName : null,
+      nodeValue: node.nodeValue,
+      childNodeCount: node.childNodes.length,
+      children: [],
+      attributes: [],
+      documentURL: node._ownerDocument.documentURI,
+      baseURL: node.baseURI,
+      compatibilityMode: 'NoQuirksMode',
+    };
+    if (node.childNodes.length > 0 && (depth === -1 || depth > 0)) {
+      node.childNodes.forEach(childNode => {
+        serialized.children.push(this.serializeNode(childNode as unknown as NodeImpl, depth === -1 ? depth : depth - 1));
+      });
+    }
+    if (isAttributeNode(node)) {
+      serialized.name = node.name;
+      serialized.value = node.value;
+    }
+    return serialized;
   }
 }

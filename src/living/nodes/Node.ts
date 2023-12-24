@@ -3,6 +3,7 @@ import { domSymbolTree } from '../helpers/internal-constants';
 import { clone, isInclusiveAncestor, nodeRoot } from '../helpers/node';
 import { setAnExistingAttributeValue } from '../attributes';
 import { assignSlot, assignSlotable, assignSlotableForTree, isShadowRoot, isSlot, shadowIncludingRoot, signalSlotChange } from '../helpers/shadow-dom';
+import type { BaseWindowImpl } from '../../agent/window';
 import type { AttrImpl } from '../attributes/Attr';
 import type { ElementImpl } from './Element';
 import { simultaneousIterators } from '../../utils';
@@ -174,7 +175,6 @@ export class NodeImpl extends EventTarget implements Node {
 
   nodeType: number;
 
-  _inspectorId: number = globalIdByNode++;
   _version: number = 0;
   _attached = false;
   _hostObject: NativeDocument;
@@ -188,6 +188,12 @@ export class NodeImpl extends EventTarget implements Node {
   _memoizedQueries = {};
   _ceState: string;
 
+  /**
+   * The followings are used by inspector protocol
+   */
+  /** @internal */
+  _inspectorId: number = globalIdByNode++;
+
   #children: NodeListImpl<ChildNode>;
   #childrenList: HTMLCollection = null;
   #assignedSlot: HTMLSlotElement;
@@ -195,7 +201,9 @@ export class NodeImpl extends EventTarget implements Node {
   constructor(
     hostObject: NativeDocument,
     _args,
-    _privateData
+    privateData: {
+      defaultView?: BaseWindowImpl
+    } = null
   ) {
     super();
 
@@ -204,6 +212,12 @@ export class NodeImpl extends EventTarget implements Node {
       this._ownerDocument = hostObject.attachedDocument;
     }
     domSymbolTree.initialize(this);
+
+    if (privateData?.defaultView) {
+      privateData.defaultView._cdpImplementation.addNode(this);
+    } else {
+      this._ownerDocument._defaultView._cdpImplementation.addNode(this);
+    }
   }
 
   #getTheParent(): Node {
@@ -393,6 +407,10 @@ export class NodeImpl extends EventTarget implements Node {
     }
   }
 
+  protected get _cdpImpl() {
+    return this._ownerDocument._defaultView._cdpImplementation;
+  }
+
   _modified() {
     this._version++;
     for (const ancestor of domSymbolTree.ancestorsIterator(this)) {
@@ -512,7 +530,7 @@ export class NodeImpl extends EventTarget implements Node {
   removeChild<T extends Node>(child: T): T {
     return this._preRemove(child as unknown as NodeImpl) as unknown as T;
   }
-  
+
   replaceChild<T extends Node>(node: Node, child: T): T {
     return this._replace(node as unknown as NodeImpl, child as unknown as NodeImpl) as unknown as T;
   }

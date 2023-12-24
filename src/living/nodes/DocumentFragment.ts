@@ -15,7 +15,9 @@ export default class DocumentFragmentImpl extends NodeImpl implements DocumentFr
       host: NodeImpl,
     }
   ) {
-    super(hostObject, args, privateData);
+    super(hostObject, args, {
+      defaultView: hostObject.attachedDocument._defaultView,
+    });
     this.nodeType = NodeImpl.DOCUMENT_FRAGMENT_NODE;
     this._host = privateData.host;
   }

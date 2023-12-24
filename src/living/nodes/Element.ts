@@ -176,7 +176,9 @@ export class ElementImpl extends NodeImpl implements Element {
       isValue?: boolean;
     }
   ) {
-    super(hostObject, args, privateData);
+    super(hostObject, args, {
+      defaultView: hostObject.attachedDocument._defaultView,
+    });
 
     this._namespaceURI = privateData.namespace || HTML_NS;
     this._prefix = privateData.prefix;

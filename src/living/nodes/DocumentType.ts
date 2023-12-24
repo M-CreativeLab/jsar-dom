@@ -1,3 +1,4 @@
+import type { BaseWindowImpl } from '../../agent/window';
 import { NativeDocument } from '../../impl-interfaces';
 import { NodeImpl } from './Node';
 
@@ -13,9 +14,12 @@ export class DocumentTypeImpl extends NodeImpl implements DocumentType {
       name: string;
       publicId: string;
       systemId: string;
+      defaultView: BaseWindowImpl;
     }
   ) {
-    super(hostObject, [], null);
+    super(hostObject, [], {
+      defaultView: privateData.defaultView,
+    });
 
     this.nodeType = this.DOCUMENT_TYPE_NODE;
     this.name = privateData.name;

@@ -1,5 +1,6 @@
 import { NativeDocument } from '../../impl-interfaces';
-import { isElementNode, isHTMLElement, isSpatialElement } from '../node-type';
+import { isElementNode, isSpatialElement } from '../node-type';
+import type { BaseWindowImpl } from '../../agent/window';
 import { DocumentTypeImpl } from './DocumentType';
 import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
@@ -49,7 +50,6 @@ import SpatialTorusElement from './SpatialTorusElement';
 import SpatialPolyhedraElement from './SpatialPolyhedraElement';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import CSSSpatialKeyframesRule from '../cssom/CSSSpatialKeyframesRule';
-import { BaseWindowImpl } from '../../agent/window';
 
 import { applyMixins } from '../../mixin';
 import { applyMemoizeQueryOn } from '../../utils';
@@ -304,11 +304,13 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         encoding: string;
         scriptingDisabled?: boolean;
         xsmlVersion: string;
-        defaultView: Window & typeof globalThis;
+        defaultView: BaseWindowImpl<T>;
       }
     }
   ) {
-    super(nativeDocument, [], null);
+    super(nativeDocument, [], {
+      defaultView: privateData.options.defaultView,
+    });
 
     this.#nativeDocument = nativeDocument;
     if (options) {
@@ -320,6 +322,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
       name: 'xsml',
       publicId: '-//W3C//DTD XSML 1.0//EN',
       systemId: 'https://jsar.netlify.app/spec/xsml-1.0.dtd',
+      defaultView: privateData.options.defaultView,
     });
     this.nodeType = NodeImpl.DOCUMENT_NODE;
     this.domain = '';
