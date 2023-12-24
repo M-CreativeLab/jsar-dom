@@ -47,7 +47,10 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #listOfActiveTimers: Map<number, number> = new Map();
   #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
   #audioConstructor: typeof Audio;
-  _cdpImplementation: CdpServerImplementation;
+  /**
+   * NOTE: This is only available when the NativeDocument implements `cdpTransport`.
+   */
+  _cdpImplementation: CdpServerImplementation | null = null;
 
   URL = globalThis.URL;
   Blob = globalThis.Blob;
