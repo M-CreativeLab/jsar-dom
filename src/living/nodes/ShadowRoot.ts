@@ -56,12 +56,19 @@ export class ShadowRootImpl extends DocumentFragmentImpl implements ShadowRoot {
     this._hostAsSpatialElement = privateData.host;
   }
 
-  _attach() {
+  _attach(enableLighting = false) {
     const targetMesh = this._hostAsSpatialElement.asNativeType<BABYLON.AbstractMesh>();
     const textureWidth = 1024;  /** TODO: set texture base width via attribute? */
     const textureHeight = textureWidth * this._hostAsSpatialElement.textureSizeRatio;
 
-    this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(this, targetMesh, textureWidth, textureHeight);
+    this._interactiveDynamicTexture = InteractiveDynamicTexture.CreateForMesh(
+      this,
+      targetMesh,
+      textureWidth,
+      textureHeight,
+      true,
+      true,
+      enableLighting);
     this._interactiveDynamicTexture.start();
     super._attach();
   }

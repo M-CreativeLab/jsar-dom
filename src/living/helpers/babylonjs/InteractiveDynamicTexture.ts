@@ -459,8 +459,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     height = 1024,
     supportPointerMove = true,
     onlyAlphaTesting = true,
-    invertY?: boolean,
-    materialSetupCallback: (mesh: BABYLON.AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean) => void = this._CreateMaterial
+    enableLighting = false,
+    invertY?: boolean
   ): InteractiveDynamicTexture {
     // use a unique ID in name so serialization will work even if you create two ADTs for a single mesh
     const uniqueId = BABYLON.RandomGUID();
@@ -481,11 +481,17 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     mesh.isNearPickable = true;
 
     // Set for material
-    materialSetupCallback(mesh, uniqueId, result, onlyAlphaTesting);
+    this._CreateMaterial(mesh, uniqueId, result, onlyAlphaTesting, enableLighting);
     return result;
   }
 
-  private static _CreateMaterial(mesh: BABYLON.AbstractMesh, uniqueId: string, texture: InteractiveDynamicTexture, onlyAlphaTesting: boolean): void {
+  private static _CreateMaterial(
+    mesh: BABYLON.AbstractMesh,
+    uniqueId: string,
+    texture: InteractiveDynamicTexture,
+    onlyAlphaTesting: boolean,
+    enableLighting: boolean = false
+  ): void {
     const internalClassType = BABYLON.GetClass('BABYLON.StandardMaterial');
     if (!internalClassType) {
       throw 'StandardMaterial needs to be imported before as it contains a side-effect required by your code.';
@@ -500,6 +506,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     material.diffuseTexture = texture;
     // FIXME: this is a hack to make the material visible in the scene
     material.emissiveColor = new BABYLON.Color3(1, 1, 1);
+    material.disableLighting = !enableLighting;
     mesh.material = material;
   }
 

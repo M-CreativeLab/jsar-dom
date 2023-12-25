@@ -281,6 +281,14 @@ export class SpatialElement extends ElementImpl {
     return 1;
   }
 
+  get textureLighting(): boolean {
+    return this.getAttribute('texture-lighting') === 'yes';
+  }
+
+  set textureLighting(value: boolean) {
+    this.setAttribute('texture-lighting', value ? 'yes' : 'no');
+  }
+
   /**
    * Returns the `ShadowRoot` of this `SpatialObject` instance, it's used to get the GUI elements from script.
    */
@@ -315,7 +323,7 @@ export class SpatialElement extends ElementImpl {
        */
       this._createShadowRoot(init);
     }
-    this._shadowRoot._attach();
+    this._shadowRoot._attach(this.textureLighting);
     return this._shadowRoot;
   }
 
