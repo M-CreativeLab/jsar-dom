@@ -1,0 +1,32 @@
+<xsml>
+  <head>
+    <title>Framework Script Example (Custom Loader for resolve)</title>
+    <script type="loader">
+      export async function load(url, context, nextLoad) {
+        const result = await nextLoad(url, context);
+        if (result.format === 'module') {
+          result.source = `
+console.log('>>> custom loader');
+export const foo: string = 'custom loader';
+          `;
+        } else if (result.format === 'json') {
+          result.source = `{ "custom": "json" }`;
+        }
+        return result;
+      }
+    </script>
+    <script type="module">
+      import bin from '../esm/files/babeee.bin';
+      import wasm from '../esm/files/babeee.wasm';
+      import json from '../esm/files/babeee.json';
+      import { foo } from '../esm/foo';
+
+      console.log('bin(arraybuffer)', bin);
+      console.log('wasm(arraybuffer)', wasm);
+      assert.equal(json.custom, 'json');
+      assert.equal(foo, 'custom loader');
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>

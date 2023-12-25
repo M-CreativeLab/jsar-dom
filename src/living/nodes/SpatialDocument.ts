@@ -71,6 +71,7 @@ import {
   type RaycastInputDetail,
   type JSARInputEvent
 } from '../../input-event';
+import { CustomLoaderHooks } from '../helpers/scripting-types';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -270,6 +271,14 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   _xsmlVersion: string;
   _ids = Object.create(null);
   _parsingMode: string = 'html';
+  /**
+   * @internal
+   * 
+   * This is used to indicate whether the script or module is started, in HTMLScriptElement, a script with "loader"
+   * or "framework" type will be disallowed to execute if a script or module is started.
+   */
+  _isScriptOrModuleStarted: boolean = false;
+  _pendingCustomLoaders: Array<Promise<CustomLoaderHooks>> = [];
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;

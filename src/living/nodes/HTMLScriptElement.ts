@@ -14,6 +14,17 @@ import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/docume
 import { reportException } from '../helpers/runtime-script-errors';
 import { getInterfaceWrapper } from '../interfaces';
 import supports from '../esm-supports.json' assert { type: "json" };
+import { CustomLoaderHooks, LoadContext, LoadResult, ResolveContext, ResolveResult, getUrlFromResolveResult } from '../helpers/scripting-types';
+
+const supportedScriptTypes = [
+  'script',
+  'module',
+  // 'importmap',
+  'loader',
+  // 'framework',
+  'speculationrules',
+] as const;
+type SupportedScriptType = typeof supportedScriptTypes[number];
 
 // const scriptMIMETypes = new Set([
 //   'application/javascript',
@@ -269,9 +280,12 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * The type of the script.
    */
   get type(): string {
-    return this.getAttribute('type') || 'classic';
+    return this.getAttribute('type') || supportedScriptTypes[0];
   }
   set type(value: string) {
+    if (!supportedScriptTypes.includes(value as typeof supportedScriptTypes[number])) {
+      value = supportedScriptTypes[0];
+    }
     this.setAttribute('type', value);
   }
 
@@ -285,6 +299,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   private _code: string = '';
   private _compiledEntryCode: string;
   private _compiledModules: Map<string, CompiledModule> = new Map();
+  private _customLoaderHooks: CustomLoaderHooks[];
   private _loaded: boolean = false;
 
   /**
@@ -292,8 +307,8 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @param type The type to check.
    * @returns True if the type is supported, false otherwise.
    */
-  static supports(type: 'classic' | 'module' | 'importmap' | 'speculationrules'): boolean {
-    return type === 'classic' || type === 'module';
+  static supports(type: string): boolean {
+    return supportedScriptTypes.includes(type as typeof supportedScriptTypes[number]);
   }
 
   constructor(
@@ -307,17 +322,6 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     this._baseScriptUrl = documentBaseURL(this._ownerDocument).href;
   }
 
-  _attach(): void {
-    super._attach();
-
-    const pending = this._eval();
-    this._ownerDocument._executingScriptsObservers.add(pending);
-  }
-
-  _attrModified(name, value, oldValue) {
-    super._attrModified(name, value, oldValue);
-  }
-
   private get console(): Console {
     return this._hostObject.console;
   }
@@ -326,36 +330,189 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     return this._hostObject.userAgent.resourceLoader;
   }
 
+  private get _isUserScriptStarted(): boolean {
+    return this._ownerDocument._isScriptOrModuleStarted;
+  }
+
+  private _markUserScriptStarted() {
+    this._ownerDocument._isScriptOrModuleStarted = true;
+  }
+
+  _attach(): void {
+    super._attach();
+
+    const isLoaderOrFramework = this.type === 'loader' || this.type === 'framework';
+    if (this._isUserScriptStarted && isLoaderOrFramework) {
+      throw new DOMException(
+        'The loader/framework script must be executed before any other scripts.', 'INVALID_STATE_ERR');
+    }
+
+    type EvalResult = ReturnType<typeof this._evalInternal>;
+    let onModuleEvaluated: (result: EvalResult) => void;
+    const moduleResultFuture = new Promise<EvalResult>((resolve) => onModuleEvaluated = resolve);
+    const pending = this._eval((context) => {
+      onModuleEvaluated(context);
+    });
+    if (this.type === 'loader') {
+      this._ownerDocument._pendingCustomLoaders.push(
+        moduleResultFuture.then(context => {
+          const hooks = context?.exports as CustomLoaderHooks;
+          if (typeof hooks.initialize === 'function') {
+            hooks.initialize(null);
+          }
+          return hooks;
+        })
+      );
+    }
+    this._ownerDocument._executingScriptsObservers.add(pending);
+  }
+
   private async _addCompiledModule(url: string) {
-    const resourceExt = path.extname(url);
+    let loadResult: LoadResult;
+    try {
+      loadResult = await this._loadModule(url);
+    } catch (err) {
+      this.console.warn(`failed to load the module(${url}): ${err?.message}.`);
+      return;
+    }
 
     try {
-      // handle JSON
-      if (supportedJsonExtensions.includes(resourceExt)) {
-        const json = await this.resourceLoader.fetch(url, {}, 'json');
+      if (loadResult.format === 'json') {
+        let json: object;
+        if (
+          loadResult.source instanceof ArrayBuffer ||
+          loadResult.source instanceof Uint8Array
+        ) {
+          const textDecoder = new TextDecoder();
+          json = JSON.parse(textDecoder.decode(loadResult.source));
+        } else if (typeof loadResult.source === 'string') {
+          json = JSON.parse(loadResult.source);
+        } else if (typeof loadResult.source === 'object') {
+          json = loadResult.source;
+        } else {
+          throw new DOMException(`The module(${url}) is not a valid JSON module.`, 'SYNTAX_ERR');
+        }
         this._compiledModules.set(url, new CompiledModule(json));
-        return;
-      }
-      // handle binary
-      if (supportedBinaryExtensions.includes(resourceExt)) {
-        const arraybuffer = await this.resourceLoader.fetch(url, {}, 'arraybuffer');
-        this._compiledModules.set(url, new CompiledModule(arraybuffer));
-        return;
+      } else if (loadResult.format === 'binary') {
+        if (!(loadResult.source instanceof ArrayBuffer)) {
+          throw new DOMException(`The module(${url}) is not a valid binary module.`, 'SYNTAX_ERR');
+        }
+        this._compiledModules.set(url, new CompiledModule(loadResult.source));
+      } else if (loadResult.format === 'module') {
+        let scriptSource: string;
+        if (
+          loadResult.source instanceof ArrayBuffer ||
+          loadResult.source instanceof Uint8Array
+        ) {
+          const textDecoder = new TextDecoder();
+          scriptSource = textDecoder.decode(loadResult.source);
+        } else if (typeof loadResult.source === 'string') {
+          scriptSource = loadResult.source;
+        } else {
+          throw new DOMException(`The module(${url}) is not a valid script module.`, 'SYNTAX_ERR');
+        }
+        const result = await this._compile(scriptSource, url);
+        this._compiledModules.set(url, new CompiledModule(result, true));
+
+        // recursively add the dependencies.
+        // NOTE: only script has dependencies.
+        await this._addModuleRecursively(result.esmImports, url);
+      } else {
+        throw new DOMException(`The module format is not supported: ${url}`, 'NOT_SUPPORTED_ERR');
       }
     } catch (err) {
-      this.console.warn(`failed to fetch the module(${url}) because of ${err}.`);
+      this.console.warn(`failed to compile and add the module(${url}): ${err?.message}.`);
+      return;
     }
+  }
 
+  private _resolveModule(specifier: string, baseUrl: string): ResolveResult {
+    const context: ResolveContext = {
+      conditions: [],
+      importAttributes: {},
+      parentURL: baseUrl,
+    };
+
+    const customResolveHooks = this._customLoaderHooks
+      .filter(hooks => typeof hooks.resolve === 'function');
+    if (customResolveHooks.length === 0) {
+      return this._defaultResolveModule(specifier, context);
+    } else {
+      const createResolver = (i: number = 0) => {
+        const resolve = customResolveHooks[i].resolve;
+        const nextResolve = customResolveHooks[i + 1] ?
+          (specifier: string, context: ResolveContext) => {
+            return createResolver(i + 1)(specifier, context);
+          } : this._defaultResolveModule.bind(this);
+        return (specifier: string, context: ResolveContext) => {
+          return resolve(specifier, context, nextResolve);
+        };
+      };
+      return createResolver()(specifier, context);
+    }
+  }
+
+  private _defaultResolveModule(specifier: string, context: ResolveContext): ResolveResult {
+    const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
+    if (isRelative) {
+      return {
+        url: new URL(specifier, context.parentURL).href,
+      };
+    } else {
+      throw new TypeError(`The import path must be relative path.`);
+    }
+  }
+
+  private async _loadModule(url: string): Promise<LoadResult> {
+    const context: LoadContext = {
+      conditions: [],
+      importAttributes: {},
+      format: 'module',
+    };
+
+    const customLoadHooks = this._customLoaderHooks
+      .filter(hooks => typeof hooks.load === 'function');
+
+    if (customLoadHooks.length === 0) {
+      return this._defaultLoadModule(url, context);
+    } else {
+      const createLoader = (i: number = 0) => {
+        const load = customLoadHooks[i].load;
+        const nextLoad = customLoadHooks[i + 1] ?
+          (url: string, context: LoadContext) => {
+            return createLoader(i + 1)(url, context);
+          } : this._defaultLoadModule.bind(this);
+        return (url: string, context: LoadContext) => load(url, context, nextLoad);
+      };
+      return createLoader()(url, context);
+    }
+  }
+
+  private async _defaultLoadModule(url: string, context: LoadContext): Promise<LoadResult> {
+    const resourceExt = path.extname(url);
+
+    // handle JSON
+    if (supportedJsonExtensions.includes(resourceExt)) {
+      return {
+        format: 'json',
+        source: await this.resourceLoader.fetch(url, {}, 'json'),
+      };
+    }
+    // handle binary
+    if (supportedBinaryExtensions.includes(resourceExt)) {
+      return {
+        format: 'binary',
+        source: await this.resourceLoader.fetch(url, {}, 'arraybuffer'),
+      };
+    }
     // handle script (ts, mjs, js or no extension)
     if (resourceExt === '' || supportedScriptExtensions.includes(resourceExt)) {
-      const scriptSource = await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions);
-      const result = await this._compile(scriptSource, url);
-      this._compiledModules.set(url, new CompiledModule(result, true));
-
-      // recursively add the dependencies.
-      // NOTE: only script has dependencies.
-      await this._addModuleRecursively(result.esmImports, url);
+      return {
+        format: 'module',
+        source: await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions),
+      };
     }
+    throw new DOMException(`The module format is not supported: ${url}`, 'NOT_SUPPORTED_ERR');
   }
 
   /**
@@ -367,12 +524,12 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   private async _addModuleRecursively(esmImports: string[], baseUrl: string = this._baseScriptUrl) {
     return Promise.all(
       esmImports.map(async (importPath) => {
-        const isRelative = importPath.startsWith('./') || importPath.startsWith('../');
-        if (isRelative) {
-          await this._addCompiledModule(new URL(importPath, baseUrl).href);
-        } else {
-          throw new TypeError(`The import path must be relative path.`);
+        const resolved = this._resolveModule(importPath, baseUrl);
+        if (!resolved.url) {
+          throw new DOMException(`Failed to resolve the import path`, 'INVALID_STATE_ERR');
         }
+        const urlStr = getUrlFromResolveResult(resolved);
+        await this._addCompiledModule(urlStr);
       })
     );
   }
@@ -463,6 +620,16 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     }
 
     /**
+     * If the script is a module or a script, mark the document as a script or module started to tell the loader
+     * that the document has been started to process the user-defined scripts and not allowing the loader to be
+     * executed.
+     */
+    if (this.type === 'module' || this.type === 'script') {
+      this._markUserScriptStarted();
+      this._customLoaderHooks = await Promise.all(this._ownerDocument._pendingCustomLoaders);
+    }
+
+    /**
      * 1. Fetch or use the script content.
      */
     const src = this.getAttribute('src');
@@ -504,18 +671,24 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @returns {Promise<void>} A promise that resolves when the script evaluation is complete.
    * @throws {SyntaxError} If there is a syntax error in the script content or if both src attribute and script content are present.
    */
-  private async _eval() {
+  private async _eval(onLoad?: (result: ReturnType<typeof this._evalInternal>) => void) {
     /**
      * Load the script and then execute it.
      */
     if (await this._load()) {
       this._ownerDocument._queue.push(null, async () => {
         try {
-          await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
+          /**
+           * Executing the compiled code and fetch the result which is used by the other types.
+           */
+          const result = await this._ownerDocument._executeWithTimeProfiler('script evaluation', () => {
             return this._evalInternal(this._compiledEntryCode, {
               baseUrl: this._baseScriptUrl,
             });
           });
+          if (typeof onLoad === 'function') {
+            onLoad(result);
+          }
         } catch (error) {
           this.console.warn('============ Script evaluation failure detection ============');
           this.console.warn(error?.stack);
@@ -641,12 +814,11 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
   private _createRequireFunction(options: { baseUrl: string }) {
     let { baseUrl } = options;
     return (id: string) => {
-      const isRelative = id.startsWith('./') || id.startsWith('../');
-      if (!isRelative) {
-        // FIXME: only support relative path now, absolute path will be supported by the future.
-        throw new TypeError(`The import path must be relative path.`);
+      const resolved = this._resolveModule(id, baseUrl);
+      if (!resolved.url) {
+        throw new DOMException(`Failed to resolve the import path`, 'INVALID_STATE_ERR');
       }
-      const scriptUrl = new URL(id, baseUrl).href;
+      const scriptUrl = getUrlFromResolveResult(resolved);
       if (!this._compiledModules.has(scriptUrl)) {
         throw new TypeError(`Could not find the module: ${id}`);
       }
@@ -662,12 +834,11 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    */
   private _createDynamicImporter(options: { baseUrl: string }) {
     return async (specifier: string) => {
-      const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
-      if (!isRelative) {
-        // FIXME: only support relative path now, absolute path will be supported by the future.
-        throw new TypeError(`The import path must be relative path.`);
+      const resolved = this._resolveModule(specifier, options.baseUrl);
+      if (!resolved.url) {
+        throw new DOMException(`Failed to resolve the import path`, 'INVALID_STATE_ERR');
       }
-      const scriptUrl = new URL(specifier, options.baseUrl).href;
+      const scriptUrl = getUrlFromResolveResult(resolved);
       // Load and compile the module if it is not loaded.
       if (!this._compiledModules.has(scriptUrl)) {
         await this._addCompiledModule(scriptUrl);

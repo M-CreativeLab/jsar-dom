@@ -116,6 +116,9 @@ class HeadlessResourceLoader implements ResourceLoader {
     } else {
       return fetch(url, options)
         .then((resp) => {
+          if (resp.status >= 400) {
+            throw new Error(`Failed to fetch ${url}: ${resp.statusText}`);
+          }
           if (returnsAs === 'string') {
             return resp.text();
           } else if (returnsAs === 'json') {

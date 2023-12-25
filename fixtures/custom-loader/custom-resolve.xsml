@@ -1,0 +1,25 @@
+<xsml>
+  <head>
+    <title>Framework Script Example (Custom Loader for resolve)</title>
+    <script type="loader">
+      export function resolve(specifier, context, nextResolve) {
+        if (specifier.startsWith('@/')) {
+          return {
+            url: spatialDocument.baseURI.replace(
+              'custom-loader/custom-resolve.xsml', specifier.slice('@/'.length)),
+            format: 'esm',
+          };
+        }
+        return nextResolve(specifier, context);
+      }
+    </script>
+    <script>
+      import '@/esm/foo';
+      import('@/esm/bar/some').then((mod) => {
+        assert.equal(mod.some, 14);
+      });
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>
