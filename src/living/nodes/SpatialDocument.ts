@@ -64,6 +64,7 @@ import IterableWeakSet from '../helpers/iterable-weak-set';
 import { domSymbolTree } from '../helpers/internal-constants';
 import { firstChildWithLocalName, firstDescendantWithLocalName } from '../helpers/traversal';
 import { asciiLowercase, stripAndCollapseASCIIWhitespace } from '../helpers/strings';
+import { CustomLoaderHooks } from '../helpers/scripting-types';
 import { validateAndExtract, name as validateName } from '../helpers/validate-names';
 import {
   type HandtrackingInputDetail,
@@ -71,7 +72,6 @@ import {
   type RaycastInputDetail,
   type JSARInputEvent
 } from '../../input-event';
-import { CustomLoaderHooks } from '../helpers/scripting-types';
 
 type DocumentInitOptions = {
   screenWidth?: number;

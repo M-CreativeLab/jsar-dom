@@ -12,9 +12,16 @@ import type { SpatialDocumentImpl } from './SpatialDocument';
 import { HTMLElementImpl } from './HTMLElement';
 import { documentBaseURL, parseURLToResultingURLRecord } from '../helpers/document-base-url';
 import { reportException } from '../helpers/runtime-script-errors';
+import {
+  type CustomLoaderHooks,
+  type LoadContext,
+  type LoadResult,
+  type ResolveContext,
+  type ResolveResult,
+  getUrlFromResolveResult
+} from '../helpers/scripting-types';
 import { getInterfaceWrapper } from '../interfaces';
 import supports from '../esm-supports.json' assert { type: "json" };
-import { CustomLoaderHooks, LoadContext, LoadResult, ResolveContext, ResolveResult, getUrlFromResolveResult } from '../helpers/scripting-types';
 
 const supportedScriptTypes = [
   'script',
@@ -22,7 +29,7 @@ const supportedScriptTypes = [
   // 'importmap',
   'loader',
   // 'framework',
-  'speculationrules',
+  // 'speculationrules',
 ] as const;
 type SupportedScriptType = typeof supportedScriptTypes[number];
 
@@ -350,26 +357,33 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     type EvalResult = ReturnType<typeof this._evalInternal>;
     let onModuleEvaluated: (result: EvalResult) => void;
     const moduleResultFuture = new Promise<EvalResult>((resolve) => onModuleEvaluated = resolve);
-    const pending = this._eval((context) => {
-      onModuleEvaluated(context);
-    });
+    const pending = this._eval(onModuleEvaluated);
+
+    /**
+     * If the script is a loader, save the pending custom loader hooks to the document.
+     */
     if (this.type === 'loader') {
       this._ownerDocument._pendingCustomLoaders.push(
         moduleResultFuture.then(context => {
           const hooks = context?.exports as CustomLoaderHooks;
           if (typeof hooks.initialize === 'function') {
-            hooks.initialize(null);
+            hooks.initialize({});
           }
           return hooks;
         })
       );
     }
+
+    /**
+     * Always add the pending script no matter what the script type is.
+     */
     this._ownerDocument._executingScriptsObservers.add(pending);
   }
 
   private async _addCompiledModule(url: string) {
     let loadResult: LoadResult;
     try {
+      /** load module by url, it fetches the module content */
       loadResult = await this._loadModule(url);
     } catch (err) {
       this.console.warn(`failed to load the module(${url}): ${err?.message}.`);
@@ -426,8 +440,19 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     }
   }
 
+  /**
+   * A common method to resolve the specifier to a result object which contains the module url.
+   * @param specifier 
+   * @param baseUrl 
+   * @returns 
+   */
   private _resolveModule(specifier: string, baseUrl: string): ResolveResult {
     const context: ResolveContext = {
+      /**
+       * TODO: implement for conditions and import attributes.
+       * 
+       * @see https://nodejs.org/api/packages.html#conditional-exports for conditional exports.
+       */
       conditions: [],
       importAttributes: {},
       parentURL: baseUrl,
@@ -452,6 +477,15 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     }
   }
 
+  /**
+   * The default resolver for resolving the specifier to a result object which contains the module url.
+   * 
+   * Ths resolver supports: relative path on file and http/https protocols.
+   * 
+   * @param specifier 
+   * @param context 
+   * @returns 
+   */
   private _defaultResolveModule(specifier: string, context: ResolveContext): ResolveResult {
     const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
     if (isRelative) {
@@ -463,8 +497,18 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     }
   }
 
+  /**
+   * This method is to load the module content, which is used by the `CompiledModule`.
+   * @param url the resolved url string to fetch content.
+   * @returns a Promise<LoadResult> which contains the module format and source content.
+   */
   private async _loadModule(url: string): Promise<LoadResult> {
     const context: LoadContext = {
+      /**
+       * TODO: implement for conditions and import attributes.
+       * 
+       * @see https://nodejs.org/api/packages.html#conditional-exports for conditional exports.
+       */
       conditions: [],
       importAttributes: {},
       format: 'module',
@@ -488,7 +532,13 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     }
   }
 
-  private async _defaultLoadModule(url: string, context: LoadContext): Promise<LoadResult> {
+  /**
+   * This is the default loader for loading the module content, it loads JSON, binary and scripts.
+   * @param url 
+   * @param context 
+   * @returns 
+   */
+  private async _defaultLoadModule(url: string, _context: LoadContext): Promise<LoadResult> {
     const resourceExt = path.extname(url);
 
     // handle JSON
