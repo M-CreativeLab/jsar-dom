@@ -14,5 +14,9 @@
     assert.equal(imageData.width, 100);
     assert.equal(imageData.height, 100);
     assert.equal(imageData.colorSpace, 'srgb');
+
+    fetch('https://example.com')
+      .then(response => response.text())
+      .then(text => assert.equal(typeof text, 'string'));
   </script>
 </xsml>

@@ -19,6 +19,7 @@ export interface ScriptContext {
 
   atob: typeof atob;
   btoa: typeof btoa;
+  fetch: BaseWindow['fetch'];
   setTimeout: typeof setTimeout;
   clearTimeout: typeof clearTimeout;
   setInterval: typeof setInterval;

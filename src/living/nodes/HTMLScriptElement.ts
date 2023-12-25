@@ -780,6 +780,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
 
       atob: windowBase.atob,
       btoa: windowBase.btoa,
+      fetch: windowBase.fetch,
       setTimeout: windowBase.setTimeout.bind(windowBase),
       setInterval: windowBase.setInterval.bind(windowBase),
       clearTimeout: windowBase.clearTimeout.bind(windowBase),
