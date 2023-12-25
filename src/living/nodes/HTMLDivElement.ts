@@ -12,5 +12,7 @@ export default class HTMLDivElementImpl extends HTMLContentElement implements HT
     super(nativeDocument, args, {
       localName: 'div',
     });
+
+    this._adoptedStyle.flexDirection = 'column';
   }
 }

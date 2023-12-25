@@ -9,7 +9,7 @@
       let isOpened = false;
       openButton.addEventListener('mouseup', () => {
         spatialDocument.dispatchEvent(new Event('debug.show'));
-        openButton.textContent = isOpened ? '打开' : '关闭';
+        openButton.textContent = isOpened ? 'Show' : 'Hide';
         isOpened = !isOpened;
       });
       document.addEventListener('custom', (e) => {
@@ -21,39 +21,37 @@
     <plane id="gui">
       <style type="text/css">
         #root {
-          background-color: rgba(255, 255, 255, 0.5);
+          background-color: rgba(255, 255, 255, 0.1);
+          border-radius: 10px;
+          width: 100%;
         }
         span.text {
           color: white;
           font-size: 70px;
           text-align: left;
         }
-        span.btn {
+        .btn {
           background-color: rgba(20,33,33,1);
-          height: 200px;
-          width: 300px;
-          margin-left: 20px;
+          height: 100px;
+          width: 200px;
           font-size: 50px;
           color: #ffffff;
           text-align: center;
-          border: 15px solid yellow;
-          border-radius: 50px;
-          padding-top: 10px;
+          border: 0px solid yellow;
+          border-radius: 25px;
+          margin: 50px 20px;
         }
-        span.textline {
+        .textline {
           height: 200px;
-          width: 300px;
-          margin-left: 50px;
           font-size: 60px;
           color: #ffffff;
-          text-align: left;
-          padding-top: 10px;
+          margin-left: 20px;
         }
       </style>
       <div id="root">
-        <span>
-          <span id="open-btn" class="btn">打开</span>
-          <span class="textline">调试器</span>
+        <span style="background-color:rgba(255,0,0,.3);padding:5px;">
+          <span id="open-btn" class="btn">Show</span>
+          <span class="textline">DebugLayer</span>
         </span>
       </div>
     </plane>

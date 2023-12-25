@@ -5,12 +5,12 @@ export default class HTMLSpanElementImpl extends HTMLContentElement implements H
   constructor(
     nativeDocument: NativeDocument,
     args,
-    privateData: {} = null
+    _privateData: {} = null
   ) {
     super(nativeDocument, args, {
       localName: 'span',
     });
 
-    this._style.flexDirection = 'row';
+    this._adoptedStyle.flexDirection = 'row';
   }
 }

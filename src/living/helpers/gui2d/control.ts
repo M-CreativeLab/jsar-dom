@@ -163,6 +163,8 @@ export class Control2D {
   private _lastCursor: BABYLON.Vector2;
   private _isCursorInside = false;
   private _renderingContext: CanvasRenderingContext2D;
+  private _overwriteHeight: number;
+  private _overwriteWidth: number;
 
   constructor(
     private _allocator: taffy.Allocator,
@@ -229,8 +231,8 @@ export class Control2D {
     const layoutStyle: LayoutStyle = {
       display: taffy.Display.Flex,
       flexDirection: taffy.FlexDirection.Column,
-      height: '100%',
-      width: '100%',
+      height: this._overwriteHeight || 'auto',
+      width: this._overwriteWidth || 'auto',
     };
     if (this._style) {
       const inputStyle = this._style;
@@ -305,19 +307,10 @@ export class Control2D {
     return layoutStyle;
   }
 
-  updateLayoutStyle(forceUpdate = true, extraStyle?: LayoutStyle): boolean {
-    let style: LayoutStyle;
-    if (forceUpdate === true) {
-      style = this._initializeLayoutStyle();
-    } else {
-      style = this.layoutStyle;
-    }
-    if (extraStyle) {
-      style = { ...style, ...extraStyle };
-    }
-    this.layoutStyle = style;
+  updateLayoutStyle(): boolean {
+    this.layoutStyle = this._initializeLayoutStyle();
     if (this.layoutNode) {
-      this.layoutNode.setStyle(style);
+      this.layoutNode.setStyle(this.layoutStyle);
     }
     return true;
   }
@@ -408,13 +401,21 @@ export class Control2D {
         height = getLineHeightValue(charHeight, this._style.lineHeight) * textArray.length;
       }
 
-      /**
-       * Update the layout style.
-       */
-      this.updateLayoutStyle(false, { height });
+      this._overwriteHeight = height;
+      this.updateLayoutStyle();
       return { width, height };
     } else {
-      return null;
+      let width: number;
+      const height = parseFloat(this._style.height);
+      if (!this._style.width) {
+        width = metrics.width;
+      } else {
+        width = parseFloat(this._style.width);
+      }
+      this._overwriteHeight = height;
+      this._overwriteWidth = width;
+      this.updateLayoutStyle();
+      return { width, height };
     }
   }
 
