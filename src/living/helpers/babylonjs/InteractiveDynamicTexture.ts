@@ -500,8 +500,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const material: BABYLON.StandardMaterial = new internalClassType(
       `InteractiveDynamicTextureMaterial for ${mesh.name} [${uniqueId}]`, mesh.getScene());
     material.backFaceCulling = false;
-    material.alphaMode = BABYLON.Engine.ALPHA_ADD;
-    material.transparencyMode = BABYLON.Material.MATERIAL_ALPHATEST;
+    material.alphaMode = BABYLON.Engine.ALPHA_COMBINE;
+    material.transparencyMode = BABYLON.Material.MATERIAL_ALPHABLEND;
     material.useAlphaFromDiffuseTexture = true;
     material.diffuseTexture = texture;
     // FIXME: this is a hack to make the material visible in the scene
