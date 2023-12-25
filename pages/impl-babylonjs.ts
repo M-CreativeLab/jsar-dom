@@ -148,8 +148,6 @@ class UserAgentOnBabylonjs implements UserAgent {
   }
 }
 
-const MIN_WIDTH_SHOW_DEBUGGER = 1024;
-
 class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   engine: NativeEngine;
   userAgent: UserAgent;
@@ -162,11 +160,12 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   private _scene: BABYLON.Scene;
   private _preloadMeshes: Map<string, Array<BABYLON.AbstractMesh | BABYLON.TransformNode>> = new Map();
   private _preloadAnimationGroups: Map<string, BABYLON.AnimationGroup[]> = new Map();
+  private _clientCdpTransports: cdp.LoopbackTransport[] = [];
+  private isCameraMoving: boolean = false;
 
   constructor(canvas: HTMLCanvasElement) {
     super();
 
-    const screenWidth = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth;
     this.engine = new EngineOnBabylonjs(canvas, true);
     this.userAgent = new UserAgentOnBabylonjs({
       defaultStylesheet: '',
@@ -175,16 +174,13 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     this.console = globalThis.console;
     const transport = this.cdpTransport = new cdp.LoopbackTransport();
     transport.onDidSend((data) => {
-      // TODO
+      for (const clientTransport of this._clientCdpTransports) {
+        clientTransport.receive(data);
+      }
     });
 
     const scene = this._scene = new BABYLON.Scene(this.engine);
-    this._scene.clearColor = new BABYLON.Color4(0.5, 0.5, 0.5, 1);
-    this._scene.debugLayer.show({
-      showExplorer: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
-      showInspector: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
-      globalRoot: document.getElementById('babylonjs-root') as HTMLDivElement,
-    });
+    this._scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.1, 1);
 
     const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
       'https://assets.babylonjs.com/environments/environmentSpecular.env', this._scene);
@@ -203,7 +199,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     camera.lowerRadiusLimit = 2;
     camera.wheelDeltaPercentage = 0.01;
 
-    camera.setPosition(new BABYLON.Vector3(0, 0, -5));
+    camera.setPosition(new BABYLON.Vector3(0, 1, -5));
     camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, false, true);
 
@@ -214,44 +210,45 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       this._scene.render();
     });
     window.addEventListener('resize', () => {
-      const screenWidth = window.outerWidth || document.documentElement.clientWidth || document.body.clientWidth;
-      this._scene.debugLayer.hide();
-      this._scene.debugLayer.show({
-        showExplorer: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
-        showInspector: screenWidth > MIN_WIDTH_SHOW_DEBUGGER,
-      });
       this.engine.resize();
     });
 
     let lastCameraState = [camera.alpha, camera.beta, camera.radius];
-    let isCameraMoving = false;
     scene.onAfterCameraRenderObservable.add(() => {
       if (lastCameraState[0] !== camera.alpha || lastCameraState[1] !== camera.beta || lastCameraState[2] !== camera.radius) {
-        isCameraMoving = true;
+        this.isCameraMoving = true;
       } else {
-        isCameraMoving = false;
+        this.isCameraMoving = false;
       }
       lastCameraState = [camera.alpha, camera.beta, camera.radius];
     });
+  }
+
+  addClientCdpTransport(transport: cdp.LoopbackTransport) {
+    this._clientCdpTransports.push(transport);
+  }
+
+  addEventHandlerOnDom(targetDom: JSARDOM<NativeDocumentOnBabylonjs>) {
+    const scene = this._scene;
     scene.onBeforeRenderObservable.add(() => {
-      if (isCameraMoving === true) {
+      if (this.isCameraMoving === true) {
         return;
       }
       const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
-      if (currentDom && pickingInfo.pickedMesh) {
+      if (targetDom && pickingInfo.pickedMesh) {
         const raycastEvent = new JSARInputEvent('raycast', {
           sourceId: 'scene_default_ray',
           sourceType: 'mouse',
           targetSpatialElementInternalGuid: pickingInfo.pickedMesh[SPATIAL_OBJECT_GUID_SYMBOL],
           uvCoord: pickingInfo.getTextureCoordinates(),
         });
-        currentDom.dispatchInputEvent(raycastEvent);
+        targetDom.dispatchInputEvent(raycastEvent);
       }
     });
 
     function handlePointerDown() {
-      if (!isCameraMoving && currentDom) {
-        currentDom.dispatchInputEvent(
+      if (!this.isCameraMoving && targetDom) {
+        targetDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
             sourceId: 'scene_default_ray',
             type: 'down',
@@ -260,8 +257,8 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
     }
     function handlePointerUp() {
-      if (!isCameraMoving && currentDom) {
-        currentDom.dispatchInputEvent(
+      if (!this.isCameraMoving && targetDom) {
+        targetDom.dispatchInputEvent(
           new JSARInputEvent('raycast_action', {
             sourceId: 'scene_default_ray',
             type: 'up',
@@ -272,10 +269,10 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     scene.onPointerObservable.add((pointerInfo) => {
       switch (pointerInfo.type) {
         case BABYLON.PointerEventTypes.POINTERUP:
-          handlePointerUp();
+          handlePointerUp.call(this);
           break;
         case BABYLON.PointerEventTypes.POINTERDOWN:
-          handlePointerDown();
+          handlePointerDown.call(this);
           break;
         default:
           break;
@@ -374,6 +371,8 @@ const defaultCode: string = `
 `;
 
 let currentDom: JSARDOM<NativeDocumentOnBabylonjs>;
+let panels: JSARDOM<NativeDocumentOnBabylonjs>[] = [];
+
 document.addEventListener('DOMContentLoaded', async () => {
   const canvas = document.getElementById('renderCanvas');
   const urlInput = document.getElementById('url-input') as HTMLInputElement;
@@ -402,6 +401,53 @@ document.addEventListener('DOMContentLoaded', async () => {
     return false;
   }
 
+  function fitSpaceWithScene(spaceNode: BABYLON.TransformNode, ratio: number = 1) {
+    /**
+     * Scale the space to fit the scene.
+     */
+    const boundingVectors = spaceNode.getHierarchyBoundingVectors(true);
+    const sceneSize = boundingVectors.max.subtract(boundingVectors.min);
+    const scalingRatio = Math.min(ratio / sceneSize.x, ratio / sceneSize.y, ratio / sceneSize.z);
+    spaceNode.scaling = new BABYLON.Vector3(scalingRatio, scalingRatio, scalingRatio);
+    spaceNode.setEnabled(true);
+  }
+
+  async function loadBuiltinPanel(
+    pathname: string,
+    nativeDocument: NativeDocumentOnBabylonjs,
+    initialPosition: BABYLON.Vector3 = new BABYLON.Vector3(0, 0, 0),
+  ) {
+    const url = new URL(pathname, location.href);
+    const code = await (await fetch(url)).text();
+    const panelDom = new JSARDOM(code, {
+      url: url.href,
+      nativeDocument,
+    });
+    nativeDocument.addEventHandlerOnDom(panelDom);
+    await panelDom.load();
+    const spaceNode = panelDom.document.space.asNativeType<BABYLON.TransformNode>();
+    spaceNode.setEnabled(false);
+
+    // register apis for panel
+    let isDebugShown = false;
+    panelDom.document.addEventListener('debug.show', () => {
+      if (isDebugShown) {
+        panelDom.nativeDocument.getNativeScene().debugLayer.hide();
+        isDebugShown = false;
+      } else {
+        panelDom.nativeDocument.getNativeScene().debugLayer.show();
+        isDebugShown = true;
+      }
+    });
+
+    // wait for space ready
+    await panelDom.waitForSpaceReady();
+    spaceNode.name = `space<${pathname}>`;
+    spaceNode.position = initialPosition;
+    fitSpaceWithScene(spaceNode, 0.5);
+    return panelDom;
+  }
+
   async function load(code: string, urlBase: string = 'https://example.com/') {
     if (currentDom) {
       await currentDom.unload();
@@ -411,6 +457,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       url: urlBase,
       nativeDocument,
     });
+    nativeDocument.addEventHandlerOnDom(currentDom);
     await currentDom.load();
     console.log(currentDom);
 
@@ -418,11 +465,34 @@ document.addEventListener('DOMContentLoaded', async () => {
     transport.onDidSend((data) => {
       (nativeDocument.cdpTransport as cdp.LoopbackTransport).receive(data);
     });
+    const cdpClient = cdp.createRemoteClient(transport);
+    nativeDocument.addClientCdpTransport(transport);
 
-    const cdpClient = cdp.createRemoteClient(transport)
-    await cdpClient.rootSession.api.DOM.describeNode();
+    const spaceNode = currentDom.document.space.asNativeType<BABYLON.TransformNode>();
+    spaceNode.setEnabled(false);
+
+    await currentDom.waitForSpaceReady();
+    {
+      fitSpaceWithScene(spaceNode, 2.5);
+
+      // scene.debugLayer.show();
+      // Show panels
+      panels = await Promise.all([
+        loadBuiltinPanel(
+          'spatial-devtools/console.xsml', nativeDocument, new BABYLON.Vector3(0, -0.8, -2)),
+      ]);
+    }
 
     const scene = currentDom.document.scene;
+    cdpClient.rootSession.api.DOM.getDocument().then((result) => {
+      for (const panel of panels) {
+        const customEvent = new CustomEvent('custom', {
+          detail: result.root,
+        });
+        panel.document.dispatchEvent(customEvent);
+      }
+    });
+
     BABYLON.SceneLoader.ImportMesh(
       ['GitHub Pin UwU_14'],
       'https://m-creativelab.github.io/jsar-dom/assets/',
@@ -431,9 +501,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       () => {
         const githubTransform = scene.getTransformNodeById('GitHub Pin UwU_14');
         if (githubTransform) {
-          githubTransform.position = new BABYLON.Vector3(1.7, -2, 1);
-          githubTransform.rotation = new BABYLON.Vector3(Math.PI, 0, 0);
-          githubTransform.billboardMode = 7;
+          githubTransform.position = new BABYLON.Vector3(-1, 1, 1);
+          githubTransform.rotation = new BABYLON.Vector3(0, 0, 0);
           scene.onPointerMove = function () {
             const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
             if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {

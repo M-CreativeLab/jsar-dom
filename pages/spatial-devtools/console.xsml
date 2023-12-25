@@ -1,0 +1,61 @@
+<xsml version="1.0">
+  <head>
+    <title>GUI Buttons</title>
+    <script>
+      const guiPlane = spatialDocument.getElementById('gui');
+      const panel = guiPlane.shadowRoot;
+      const openButton = panel.getElementById('open-btn');
+
+      let isOpened = false;
+      openButton.addEventListener('mouseup', () => {
+        spatialDocument.dispatchEvent(new Event('debug.show'));
+        openButton.textContent = isOpened ? '打开' : '关闭';
+        isOpened = !isOpened;
+      });
+      document.addEventListener('custom', (e) => {
+        console.log('++++', e);
+      });
+    </script>
+  </head>
+  <space>
+    <plane id="gui">
+      <style type="text/css">
+        #root {
+          padding: 5px;
+        }
+        span.text {
+          color: white;
+          font-size: 70px;
+          text-align: left;
+        }
+        span.btn {
+          background-color: rgba(20,33,33,.95);
+          height: 200px;
+          width: 300px;
+          margin-left: 20px;
+          font-size: 50px;
+          color: #ffffff;
+          text-align: center;
+          border: 15px solid yellow;
+          border-radius: 50px;
+          padding-top: 10px;
+        }
+        span.textline {
+          height: 200px;
+          width: 300px;
+          margin-left: 50px;
+          font-size: 60px;
+          color: #ffffff;
+          text-align: left;
+          padding-top: 10px;
+        }
+      </style>
+      <div id="root">
+        <span>
+          <span id="open-btn" class="btn">打开</span>
+          <span class="textline">调试器</span>
+        </span>
+      </div>
+    </plane>
+  </space>
+</xsml>

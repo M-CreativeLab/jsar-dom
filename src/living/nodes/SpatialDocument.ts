@@ -123,7 +123,14 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
   alinkColor: string;
   bgColor: string;
-  body: HTMLElement;
+
+  get body(): HTMLElement {
+    return null;
+  }
+
+  get space(): SpatialElement {
+    return this.documentSpatialElement;
+  }
 
   get charset(): string {
     return this._encoding;
@@ -142,6 +149,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   defaultView: Window & typeof globalThis;
   designMode: string;
   dir: string;
+
   get documentElement(): HTMLElement {
     for (const childNode of domSymbolTree.childrenIterator(this)) {
       if (childNode.nodeType === NodeImpl.ELEMENT_NODE) {
@@ -150,6 +158,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     }
     return null;
   }
+  get documentSpatialElement(): SpatialElement {
+    return this.querySelector('space');
+  }
+
   get fgColor(): string {
     return '#ffffff';
   }
