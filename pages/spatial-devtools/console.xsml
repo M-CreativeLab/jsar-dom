@@ -22,7 +22,8 @@
       <style type="text/css">
         #root {
           background-color: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
+          border: 5px solid yellow;
+          border-radius: 30px;
           width: 100%;
         }
         span.text {
@@ -39,7 +40,7 @@
           text-align: center;
           border: 0px solid yellow;
           border-radius: 25px;
-          margin: 50px 20px;
+          margin: 50px;
         }
         .textline {
           height: 200px;
@@ -49,7 +50,7 @@
         }
       </style>
       <div id="root">
-        <span style="background-color:rgba(255,0,0,.3);padding:5px;">
+        <span style="padding:5px;">
           <span id="open-btn" class="btn">Show</span>
           <span class="textline">DebugLayer</span>
         </span>
