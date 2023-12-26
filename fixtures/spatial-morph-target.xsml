@@ -1,0 +1,9 @@
+<xsml>
+  <head>
+    <title>Morph Target Example</title>
+  </head>
+  <space>
+    <sphere segments="16" diameter="2" geometry-updatable="yes" />
+    <script src="./spatial-morph-target.ts"></script>
+  </space>
+</xsml>
