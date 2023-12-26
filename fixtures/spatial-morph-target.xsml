@@ -1,6 +1,14 @@
 <xsml>
   <head>
     <title>Morph Target Example</title>
+    <style>
+      @material example {
+        diffuse-texture: url(https://playground.babylonjs.com/textures/misc.jpg);
+      }
+      sphere {
+        material: "example";
+      }
+    </style>
   </head>
   <space>
     <sphere segments="16" diameter="2" geometry-updatable="yes" />
