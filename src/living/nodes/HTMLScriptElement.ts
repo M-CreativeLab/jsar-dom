@@ -408,10 +408,15 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
         }
         this._compiledModules.set(url, new CompiledModule(json));
       } else if (loadResult.format === 'binary') {
-        if (!(loadResult.source instanceof ArrayBuffer)) {
-          throw new DOMException(`The module(${url}) is not a valid binary module.`, 'SYNTAX_ERR');
+        let resultArrayBuffer: ArrayBuffer;
+        if (loadResult.source instanceof Uint8Array) {
+          resultArrayBuffer = loadResult.source.buffer;
+        } else if (loadResult.source instanceof ArrayBuffer) {
+          resultArrayBuffer = loadResult.source;
+        } else {
+          throw new DOMException(`The module(${url}) is invalid binary module, expected to be ArrayBuffer and Uint8Array`, 'SYNTAX_ERR');
         }
-        this._compiledModules.set(url, new CompiledModule(loadResult.source));
+        this._compiledModules.set(url, new CompiledModule(resultArrayBuffer));
       } else if (loadResult.format === 'module') {
         let scriptSource: string;
         if (
@@ -741,7 +746,6 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
           }
         } catch (error) {
           this.console.warn('============ Script evaluation failure detection ============');
-          this.console.warn(error?.stack);
           this.console.warn(`Script src: ${this.src}`);
           this.console.warn(`Script url: ${this._baseScriptUrl}`);
           this.console.warn(`${this._compiledEntryCode}`);
