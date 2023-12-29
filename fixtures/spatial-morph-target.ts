@@ -2,7 +2,7 @@ const scene = spatialDocument.scene;
 const sphereElement = spatialDocument.querySelector('sphere');
 
 const sphere = sphereElement.asNativeType();
-const sphere2 = sphere.clone('sphere2');
+const sphere2 = BABYLON.Mesh.CreateSphere('sphere2', 16, 2, scene);
 sphere2.setEnabled(false);
 sphere2.updateMeshPositions(function scrambleUp(data) {
   for (let index = 0; index < data.length; index++) {
