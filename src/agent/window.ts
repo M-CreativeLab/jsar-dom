@@ -1,6 +1,7 @@
 import * as taffy from '@bindings/taffy';
 import DOMExceptionImpl from '../living/domexception';
 import { MediaPlayerBackend, NativeDocument, ResourceLoader } from '../impl-interfaces';
+import { AssetsBundle } from './resources/AssetsBundle';
 import type { ElementImpl } from '../living/nodes/Element';
 import type { SpatialElement } from '../living/nodes/SpatialElement';
 import type CSSSpatialStyleDeclaration from '../living/cssom/CSSSpatialStyleDeclaration';
@@ -44,6 +45,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #nativeDocument: NativeDocument;
   #performanceInstance: Performance = null;
   #resourceLoader: ResourceLoader;
+  #assetsBundles: Map<string, AssetsBundle> = new Map();
   #listOfActiveTimers: Map<number, number> = new Map();
   #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
   #audioConstructor: typeof Audio;
@@ -168,6 +170,43 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     this.XRPose = getInterfaceWrapper('XRPose');
     this.XRRigidTransform = getInterfaceWrapper('XRRigidTransform');
     this.XRSession = getInterfaceWrapper('XRSession');
+  }
+
+  /**
+   * @internal
+   * 
+   * This creates a new assets bundle from the given assets.
+   * 
+   * @param id 
+   * @param assets 
+   * @param isGltf 
+   */
+  _createAssetsBundle(id: string, assets: BABYLON.ISceneLoaderAsyncResult, isGltf: boolean) {
+    this.#assetsBundles.set(id, new AssetsBundle(assets, isGltf));
+  }
+
+  /**
+   * @internal
+   * 
+   * This returns if the assets bundle with the given id exists.
+   * 
+   * @param id 
+   * @returns 
+   */
+  _hasAssetsBundle(id: string): boolean {
+    return this.#assetsBundles.has(id);
+  }
+
+  /**
+   * @internal
+   * 
+   * This returns the assets bundle with the given id.
+   * 
+   * @param id 
+   * @returns 
+   */
+  _getAssetsBundle(id: string): AssetsBundle {
+    return this.#assetsBundles.get(id);
   }
 
   /**
