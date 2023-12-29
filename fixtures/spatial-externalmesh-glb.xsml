@@ -2,6 +2,11 @@
   <head>
     <title>External Mesh Example(Glb)</title>
     <link id="my" rel="mesh" href="model/rokid-jungle.glb" />
+    <style>
+      space {
+        rotation: 0 180 0;
+      }
+    </style>
   </head>
   <space>
     <mesh ref="my" />

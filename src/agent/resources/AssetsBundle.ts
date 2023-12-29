@@ -133,9 +133,11 @@ export class AssetsBundle {
               console.warn(
                 `Could not find the target(${oldTarget.name}) for animation group(${animationGroup.name})`, oldTarget);
             }
+          } else if (oldTarget instanceof BABYLON.MorphTarget) {
+            return oldTarget.clone();
           } else {
             console.warn(
-              `The target(${oldTarget.name}) for animation group(${animationGroup.name}) is not a transform node, actual type is "${oldTarget.getClassName()}".`);
+              `The target(${oldTarget.name}) for animation group(${animationGroup.name}) is not a transform node, actual type is "${oldTarget.getClassName()}".`, oldTarget);
           }
           return oldTarget;
         },
