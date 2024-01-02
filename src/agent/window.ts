@@ -24,6 +24,7 @@ import type DOMPointImpl from '../living/geometry/DOMPoint';
 import type DOMRectReadOnlyImpl from '../living/geometry/DOMRectReadOnly';
 import type DOMRectImpl from '../living/geometry/DOMRect';
 import { CdpServerImplementation } from './cdp/cdp-implementation';
+import { createConsole } from './console';
 
 export type WindowOrDOMInit<T extends NativeDocument> = {
   url?: string;
@@ -99,7 +100,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
 
     this.#nativeDocument = init.nativeDocument;
     if (this.#nativeDocument.cdpTransport) {
-      this._cdpImplementation = new CdpServerImplementation(this.#nativeDocument.cdpTransport);
+      this._cdpImplementation = new CdpServerImplementation(this.#nativeDocument.cdpTransport, this);
     }
 
     this.#setup(init);
@@ -362,7 +363,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     throw new Error('`window.top` is not supported.');
   }
   get console(): Console {
-    return this.#nativeDocument.console;
+    return createConsole(this.#nativeDocument.console, this);
   }
   visualViewport: VisualViewport;
   window: Window & typeof globalThis;

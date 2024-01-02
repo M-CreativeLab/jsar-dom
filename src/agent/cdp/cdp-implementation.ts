@@ -1,15 +1,18 @@
-import { SpatialDocumentImpl } from 'src/living/nodes/SpatialDocument';
+
+import type { BaseWindowImpl } from '../window';
 import { ClientConnection, Connection, ServerConnection } from './connection';
 import { CdpBrowser } from './definitions';
 import type { ITransport } from './transport';
 import { ISerializer } from './serializer';
 import { JsonSerializer } from './serializer/json';
 import { ClientCdpSession } from './client';
+import type { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
 import type { NodeImpl } from '../../living/nodes/Node';
 import { isAttributeNode, isElementNode } from '../../living/node-type';
 
 namespace CdpJSAR {
   export interface Domains {
+    Log: CdpBrowser.Domains['Log'];
     DOM: CdpBrowser.Domains['DOM'];
   }
 }
@@ -24,11 +27,36 @@ export function createRemoteClient(
 export class CdpServerImplementation {
   private _server: ServerConnection<CdpJSAR.Domains>;
   private _document: SpatialDocumentImpl;
+
+  private _isLogEnabled: boolean = false;
   private _domNodes: Map<number, NodeImpl> = new Map();
 
-  constructor(private _transport: ITransport) {
+  public Log = this.rootSession.api.Log;
+  public DOM = this.rootSession.api.DOM;
+
+  constructor(private _transport: ITransport, private _window: BaseWindowImpl) {
     this._server = Connection.server<CdpJSAR.Domains>(this._transport);
     this._server.rootSession.api = {
+      Log: {
+        enable: async (_client, _arg) => {
+          this._isLogEnabled = true;
+          return {};
+        },
+        disable: async (_client, _arg) => {
+          this._isLogEnabled = false;
+          return {};
+        },
+        async clear() {
+          _window.console.clear();
+          return {};
+        },
+        async startViolationsReport(_client, _arg) {
+          return null;
+        },
+        async stopViolationsReport(_client, _arg) {
+          return null;
+        },
+      },
       DOM: {
         async collectClassNamesFromSubtree(client, arg) {
           return null;
@@ -246,5 +274,29 @@ export class CdpServerImplementation {
       serialized.value = node.value;
     }
     return serialized;
+  }
+
+  writeLogEntry(
+    level: 'verbose' | 'info' | 'warning' | 'error',
+    text: string,
+    source: 'javascript' | 'network' | 'appcache' | 'security' | 'other' = 'other',
+    url: string = '',
+  ) {
+    if (this._isLogEnabled === false) {
+      return;
+    }
+    const entry: CdpBrowser.Log.LogEntry = {
+      source,
+      level,
+      text,
+      timestamp: Date.now(),
+      url,
+      lineNumber: 0,
+      stackTrace: null,
+      networkRequestId: '',
+      workerId: '',
+      args: [],
+    };
+    this.rootSession.eventDispatcher.Log.entryAdded({ entry });
   }
 }
