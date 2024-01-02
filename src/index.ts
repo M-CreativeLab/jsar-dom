@@ -7,6 +7,7 @@ import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
 import * as cdpImplementation from './agent/cdp/cdp-implementation';
 import * as cdpTransport from './agent/cdp/transport';
+import * as nodetype from './living/node-type';
 import { loadImplementations as loadDOMInterfaceImplementations } from './living/interfaces';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 import { canParseURL } from './living/helpers/url';
@@ -124,6 +125,16 @@ export {
   SpatialDocumentImpl,
   JSARInputEvent,
 }
+
+export namespace nodes {
+  export const NodeTypes = nodetype.default;
+  export const isElementNode = nodetype.isElementNode;
+  export const isAttributeNode = nodetype.isAttributeNode;
+  export const isTextNode = nodetype.isTextNode;
+  export const isHTMLElement = nodetype.isHTMLElement;
+  export const isSpatialElement = nodetype.isSpatialElement;
+}
+
 export namespace cdp {
   export import ITransport = cdpTransport.ITransport;
   export import LoopbackTransport = cdpTransport.LoopbackTransport;

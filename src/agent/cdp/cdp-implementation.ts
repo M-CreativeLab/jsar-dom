@@ -31,8 +31,13 @@ export class CdpServerImplementation {
   private _isLogEnabled: boolean = false;
   private _domNodes: Map<number, NodeImpl> = new Map();
 
-  public Log = this.rootSession.api.Log;
-  public DOM = this.rootSession.api.DOM;
+  get Log() {
+    return this.rootSession.api.Log;
+  }
+
+  get DOM() {
+    return this.rootSession.api.DOM;
+  }
 
   constructor(private _transport: ITransport, private _window: BaseWindowImpl) {
     this._server = Connection.server<CdpJSAR.Domains>(this._transport);
@@ -268,6 +273,12 @@ export class CdpServerImplementation {
       node.childNodes.forEach(childNode => {
         serialized.children.push(this.serializeNode(childNode as unknown as NodeImpl, depth === -1 ? depth : depth - 1));
       });
+    }
+    if (isElementNode(node)) {
+      serialized.attributes = node.getAttributeNames().reduce<string[]>((flattenArrary, attrName) => {
+        const attrValue = node.getAttribute(attrName);
+        return [...flattenArrary, attrName, attrValue];
+      }, []);
     }
     if (isAttributeNode(node)) {
       serialized.name = node.name;
