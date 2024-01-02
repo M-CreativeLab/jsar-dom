@@ -1,3 +1,6 @@
+import type { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument'
+import { SpatialElement } from '../../living/nodes/SpatialElement';
+
 export class AssetsBundle {
   meshes: BABYLON.AbstractMesh[] = [];
   particleSystems: BABYLON.IParticleSystem[] = [];
@@ -11,7 +14,7 @@ export class AssetsBundle {
     return [...this.meshes, ...this.transformNodes];
   }
 
-  constructor(assets: BABYLON.ISceneLoaderAsyncResult, isGltf: boolean) {
+  constructor(assets: BABYLON.ISceneLoaderAsyncResult, isGltf: boolean, private _document: SpatialDocumentImpl) {
     this.meshes = assets?.meshes || [];
     this.particleSystems = assets?.particleSystems || [];
     this.skeletons = assets?.skeletons || [];
@@ -63,7 +66,7 @@ export class AssetsBundle {
    * @param selector The selector of the root node to be instantiated, currently only support the name of the node.
    * @param name The name of the new node.
    */
-  public instantiate(selector: string, name: string): BABYLON.TransformNode {
+  public instantiate(selector: string, name: string): SpatialElement {
     const rootSource = this.meshesOrTransformNodes.find(node => node.name === selector);
     if (!rootSource) {
       throw new DOMException(`No mesh or transform with selector(${selector}) is found from preloaded resource`, 'INVALID_STATE_ERR');
@@ -203,27 +206,35 @@ export class AssetsBundle {
         }
         return copied;
       }
-    ) as BABYLON.TransformNode;
+    );
+  }
+
+  private _createSpatialElement(node: BABYLON.Node): SpatialElement {
+    const element = this._document.createElement('ref');
+    element.ref(node);
+    return element;
   }
 
   private _walkTransformNodesTree(
     sourceNode: BABYLON.Node,
     getNewNode: (node: BABYLON.Node) => BABYLON.Node | null
-  ): BABYLON.Node {
-    const newNode = getNewNode(sourceNode);
-    if (newNode == null) {
+  ): SpatialElement {
+    const newNativeNode = getNewNode(sourceNode);
+    if (newNativeNode == null) {
       return null;
     }
-    newNode.setEnabled(true);
-    // TODO: creates SpatialElement for each node.
+    const newElement = this._createSpatialElement(newNativeNode);
+    newNativeNode.setEnabled(true);
 
     const directDescendantsOfSource = sourceNode.getDescendants(true);
     for (let sourceChild of directDescendantsOfSource) {
-      const newChild = this._walkTransformNodesTree(sourceChild, getNewNode);
-      if (newChild != null) {
-        newChild.parent = newNode;
+      const newChildElement = this._walkTransformNodesTree(sourceChild, getNewNode);
+      if (newChildElement != null) {
+        newElement.appendChild(newChildElement);
+        const newChildNativeNode = newChildElement.asNativeType();
+        newChildNativeNode.parent = newNativeNode;
       }
     }
-    return newNode;
+    return newElement;
   }
 }

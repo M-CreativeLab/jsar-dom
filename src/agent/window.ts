@@ -183,7 +183,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
    * @param isGltf 
    */
   _createAssetsBundle(id: string, assets: BABYLON.ISceneLoaderAsyncResult, isGltf: boolean) {
-    this.#assetsBundles.set(id, new AssetsBundle(assets, isGltf));
+    this.#assetsBundles.set(id, new AssetsBundle(assets, isGltf, this.#document));
   }
 
   /**

@@ -14,5 +14,7 @@ export default class SpatialRefElement extends SpatialElement {
 
   ref(target: BABYLON.Node) {
     this._internalObject = target;
+    this.setAttribute('id', target.id);
+    this.setAttribute('name', target.name);
   }
 }

@@ -89,7 +89,7 @@ export default class HTMLLinkElementImpl extends HTMLElementImpl implements HTML
   constructor(
     hostObject: NativeDocument,
     args,
-    privateData = null
+    _privateData = null
   ) {
     super(hostObject, args, { localName: 'link' });
   }
