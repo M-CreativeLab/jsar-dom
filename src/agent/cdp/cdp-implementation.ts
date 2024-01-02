@@ -8,13 +8,112 @@ import { JsonSerializer } from './serializer/json';
 import { ClientCdpSession } from './client';
 import type { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
 import type { NodeImpl } from '../../living/nodes/Node';
-import { isAttributeNode, isElementNode } from '../../living/node-type';
+import { isAttributeNode, isElementNode, isSpatialElement } from '../../living/node-type';
 
 namespace CdpJSAR {
   export interface Domains {
     Log: CdpBrowser.Domains['Log'];
     DOM: CdpBrowser.Domains['DOM'];
+    SpatialDOM: SpatialDOMApi;
   }
+
+  export interface SpatialDOMApi {
+    requests: {
+      describeElement: { params: SpatialElement.DescribeElementParams, result: SpatialElement.DescribeElementResult };
+    };
+    events: {};
+  }
+
+  export namespace SpatialElement {
+    export type Color3 = [number, number, number];
+    export type Color4 = [number, number, number, number];
+    export type Vector3 = { x: number; y: number; z: number; };
+    export type Quaternion = { x: number; y: number; z: number; w: number; };
+    export type Texture = {
+      width: number;
+      height: number;
+    };
+    export type SpatialType = string;
+    export type SpatialTransform = {
+      position: Vector3;
+      rotation: Quaternion;
+      scaling: Vector3;
+    };
+    export type MeshDescriptor = {
+      vertices: number;
+      faces: number;
+      hasNormals?: boolean;
+      hasTangents?: boolean;
+      hasColors?: boolean;
+      hasUv0?: boolean;
+      hasUv1?: boolean;
+      hasUv2?: boolean;
+      hasUv3?: boolean;
+      hasUv4?: boolean;
+    };
+    export type MaterialDescriptor = {
+      type: string;
+      name: string;
+      diffuseColor?: Color3;
+      diffuseTexture?: Texture;
+      ambientColor?: Color3;
+      ambientTexture?: Texture;
+      specularColor?: Color3;
+      specularTexture?: Texture;
+      emissiveColor?: Color3;
+      emissiveTexture?: Texture;
+      // PBR
+      albedoColor?: Color3;
+      albedoTexture?: Texture;
+      metallic?: number;
+      metallicRoughnessTexture?: Texture;
+      roughness?: number;
+    };
+
+    export interface Node {
+      nodeId: CdpBrowser.DOM.NodeId;
+      parentId?: CdpBrowser.DOM.NodeId;
+      type: SpatialType;
+      transform?: SpatialTransform;
+      mesh?: MeshDescriptor;
+      material?: MaterialDescriptor;
+    }
+    export interface DescribeElementParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      depth?: CdpBrowser.integer;
+    }
+    export interface DescribeElementResult {
+      node: SpatialElement.Node;
+    }
+  }
+}
+
+function toColor3(input: BABYLON.Color3): CdpJSAR.SpatialElement.Color3 {
+  if (input == null) {
+    return null;
+  }
+  return [input.r, input.g, input.b];
+}
+
+function toColor4(input: BABYLON.Color4): CdpJSAR.SpatialElement.Color4 {
+  if (input == null) {
+    return null;
+  }
+  return [input.r, input.g, input.b, input.a];
+}
+
+function toVector3(input: BABYLON.Vector3): CdpJSAR.SpatialElement.Vector3 {
+  if (input == null) {
+    return null;
+  }
+  return { x: input.x, y: input.y, z: input.z };
+}
+
+function toQuaternion(input: BABYLON.Quaternion): CdpJSAR.SpatialElement.Quaternion {
+  if (input == null) {
+    return null;
+  }
+  return { x: input.x, y: input.y, z: input.z, w: input.w };
 }
 
 export function createRemoteClient(
@@ -37,6 +136,10 @@ export class CdpServerImplementation {
 
   get DOM() {
     return this.rootSession.api.DOM;
+  }
+
+  get SpatialDOM() {
+    return this.rootSession.api.SpatialDOM;
   }
 
   constructor(private _transport: ITransport, private _window: BaseWindowImpl) {
@@ -232,6 +335,58 @@ export class CdpServerImplementation {
         },
         async getQueryingDescendantsForContainer(client, arg) {
           return null;
+        },
+      },
+      SpatialDOM: {
+        describeElement: async (_client, arg) => {
+          const node = this._domNodes.get(arg.nodeId);
+          if (node && isSpatialElement(node)) {
+            const nativeHandle = node.asNativeType();
+            const elementDescriptor: CdpJSAR.SpatialElement.Node = {
+              nodeId: node._inspectorId,
+              type: nativeHandle.getClassName(),
+            };
+            if (nativeHandle instanceof BABYLON.TransformNode) {
+              elementDescriptor.transform = {
+                position: toVector3(nativeHandle.position),
+                rotation: toQuaternion(nativeHandle.rotationQuaternion),
+                scaling: toVector3(nativeHandle.scaling),
+              };
+            }
+            if (nativeHandle instanceof BABYLON.AbstractMesh) {
+              elementDescriptor.mesh = {
+                vertices: nativeHandle.getTotalVertices(),
+                faces: nativeHandle.getTotalIndices() / 3,
+                hasNormals: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.NormalKind),
+                hasTangents: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.TangentKind),
+                hasColors: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.ColorKind),
+                hasUv0: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.UVKind),
+                hasUv1: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.UV2Kind),
+                hasUv2: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.UV3Kind),
+                hasUv3: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.UV4Kind),
+                hasUv4: nativeHandle.isVerticesDataPresent(BABYLON.VertexBuffer.UV5Kind),
+              };
+              elementDescriptor.material = {
+                type: nativeHandle.material.getClassName(),
+                name: nativeHandle.material.name,
+              };
+              if (nativeHandle.material instanceof BABYLON.StandardMaterial) {
+                elementDescriptor.material.diffuseColor = toColor3(nativeHandle.material.diffuseColor);
+                elementDescriptor.material.ambientColor = toColor3(nativeHandle.material.ambientColor);
+                elementDescriptor.material.specularColor = toColor3(nativeHandle.material.specularColor);
+                elementDescriptor.material.emissiveColor = toColor3(nativeHandle.material.emissiveColor);
+              }
+              if (nativeHandle.material instanceof BABYLON.PBRMaterial) {
+                elementDescriptor.material.albedoColor = toColor3(nativeHandle.material.albedoColor);
+                elementDescriptor.material.metallic = nativeHandle.material.metallic;
+                elementDescriptor.material.roughness = nativeHandle.material.roughness;
+              }
+            }
+            return {
+              node: elementDescriptor,
+            };
+          }
+          return { node: null };
         },
       }
     };
