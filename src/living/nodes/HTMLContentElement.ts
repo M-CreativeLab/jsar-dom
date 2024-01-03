@@ -114,6 +114,11 @@ export class HTMLContentElement extends HTMLElementImpl {
     this._tryUpdate();
   }
 
+  _childTextContentChangeSteps(): void {
+    super._childTextContentChangeSteps();
+    this._tryUpdate();
+  }
+
   /**
    * Update the target texture of this HTML element.
    * 
