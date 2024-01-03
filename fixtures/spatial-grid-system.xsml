@@ -1,0 +1,60 @@
+<xsml>
+  <head>
+    <title>Morph Target Example</title>
+    <style>
+      @material example {
+        diffuse-texture: url(https://playground.babylonjs.com/textures/misc.jpg);
+      }
+
+      #box-bound {
+        rotation: 0 -45 0;
+      }
+      #box-bound plane {
+        material: "example";
+      }
+      #plane-x {
+        position: 0 0 0.5;
+        rotation: 0 0 0;
+      }
+      #plane-y {
+        position: 0.5 0 0;
+        rotation: 0 90 0;
+      }
+      #plane-z {
+        position: 0 -0.5 0;
+        rotation: 90 0 0;
+      }
+
+      #game-panel {
+        y: 0.75;
+      }
+    </style>
+  </head>
+  <space>
+    <bound id="box-bound">
+      <plane id="plane-x" side-orientation="double" />
+      <plane id="plane-y" side-orientation="double" />
+      <plane id="plane-z" side-orientation="double" />
+    </bound>
+    <plane id="game-panel" height="0.5" width="1">
+      <style type="text/css">
+        section {
+          text-align: center;
+        }
+        div {
+          color: #fff;
+          font-size: 70px;
+          height: 150px;
+          width: 300px;
+          background-color: rgba(0, 0, 0, 0.5);
+          border: 3px solid #f00;
+          border-radius: 10%;
+        }
+      </style>
+      <section>
+        <div id="start-btn">Start</div>
+      </section>
+    </plane>
+    <script src="./spatial-grid-system.ts"></script>
+  </space>
+</xsml>
