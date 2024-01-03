@@ -35,6 +35,7 @@ import HTMLStyleElementImpl from './HTMLStyleElement';
 import HTMLScriptElementImpl from './HTMLScriptElement';
 import HTMLDivElementImpl from './HTMLDivElement';
 import HTMLSpanElementImpl from './HTMLSpanElement';
+import HTMLImageElementImpl from './HTMLImageElement';
 import { SpatialElement } from './SpatialElement';
 import { ShadowRootImpl } from './ShadowRoot';
 import SpatialSpaceElement from './SpatialSpaceElement';
@@ -814,8 +815,9 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new HTMLDivElementImpl(this.#nativeDocument, []);
       case 'span':
         return new HTMLSpanElementImpl(this.#nativeDocument, []);
-      case 'a':
       case 'img':
+        return new HTMLImageElementImpl(this.#nativeDocument, []);
+      case 'a':
       default:
         return new HTMLElementImpl(this.#nativeDocument, [], {
           localName: tagName,

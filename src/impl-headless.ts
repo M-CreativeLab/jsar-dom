@@ -15,6 +15,7 @@ import {
   UserAgentInit
 } from './impl-interfaces';
 import { canParseURL } from './living/helpers/url';
+import type ImageDataImpl from './living/image/ImageData';
 
 interface HeadlessEngine extends BABYLON.NullEngine, EventTarget { }
 class HeadlessEngine extends BABYLON.NullEngine implements NativeEngine {
@@ -215,10 +216,16 @@ export class HeadlessNativeDocument extends EventTarget implements NativeDocumen
   getPreloadedAnimationGroups(): Map<string, BABYLON.AnimationGroup[]> {
     return this._preloadAnimationGroups;
   }
-  observeInputEvent(name?: string): void {
+  observeInputEvent(_name?: string): void {
     throw new Error('Method not implemented.');
   }
-  createBoundTransformNode(nameOrId: string): BABYLON.TransformNode {
+  createBoundTransformNode(_nameOrId: string): BABYLON.TransformNode {
+    throw new Error('Method not implemented.');
+  }
+  createImageBitmap(image: ArrayBuffer | ArrayBufferView): Promise<ImageBitmap> {
+    throw new Error('Method not implemented.');
+  }
+  decodeImage(_bitmap: ImageBitmap, _size: [number, number]): Promise<ImageDataImpl> {
     throw new Error('Method not implemented.');
   }
   stop(): void {

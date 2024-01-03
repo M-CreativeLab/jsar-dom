@@ -1,0 +1,31 @@
+<xsml>
+  <head>
+    <title>HTML in Spatial Example (Images)</title>
+  </head>
+  <space>
+    <plane id="ui-cube" size="1">
+      <style type="text/css">
+        div {
+          background-color: rgba(255, 0, 0, 0.5);
+          height: 80%;
+          width: 100%;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        img {
+          width: 250px;
+          border: 5px solid black;
+        }
+        img.long {
+          width: 300px;
+        }
+      </style>
+      <div>
+        <img src="../textures/example.jpeg" />
+        <img src="../textures/wall.jpeg" />
+        <img class="long" src="../textures/example.jpeg" />
+      </div>
+    </plane>
+  </space>
+</xsml>

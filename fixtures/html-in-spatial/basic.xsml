@@ -15,7 +15,7 @@
     <cube id="ui-cube" size="1">
       <style type="text/css">
         div {
-          background-color: red;
+          background-color: rgba(255, 0, 0, 1);
           height: 80%;
           width: 100%;
           row-gap: 50px;
@@ -24,7 +24,7 @@
         }
         span {
           height: 200px;
-          width: 300px;
+          width: 200px;
           font-size: 50px;
           font-weight: normal;
           color: yellow;

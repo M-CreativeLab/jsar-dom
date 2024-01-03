@@ -10,6 +10,8 @@ import { TextImpl } from '../../nodes/Text';
 import DOMRectImpl from '../../geometry/DOMRect';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
+import type ImageDataImpl from '../../../living/image/ImageData';
+import { getInterfaceWrapper } from '../../../living/interfaces';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -165,6 +167,7 @@ export class Control2D {
   private _renderingContext: CanvasRenderingContext2D;
   private _overwriteHeight: number;
   private _overwriteWidth: number;
+  private _imageData: ImageDataImpl;
 
   constructor(
     private _allocator: taffy.Allocator,
@@ -190,6 +193,10 @@ export class Control2D {
       const textNode = this._element.firstChild as Text;
       this._fixSizeByText(textNode.data);
     }
+  }
+
+  setImageData(data: ImageDataImpl) {
+    this._imageData = data;
   }
 
   addChild(child: Control2D) {
@@ -330,13 +337,25 @@ export class Control2D {
 
     const canvasContext = this._renderingContext;
     const boxRect = new DOMRectImpl(x, y, width, height);
+    const hasTextChildren = this._isElementOwnsInnerText();
 
-    // Fix the size by the text.
-    const textNode = this._element.firstChild as unknown as TextImpl;
-    const fixedRect = this._fixSizeByText(textNode.data, boxRect);
-    if (fixedRect != null) {
-      boxRect.width = fixedRect.width;
-      boxRect.height = fixedRect.height;
+    /**
+     * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
+     */
+    if (this._imageData && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
+      // Fix the size by the image.
+      this._element._fixSizeByImage(boxRect);
+      this._overwriteWidth = boxRect.width;
+      this._overwriteHeight = boxRect.height;
+      this.updateLayoutStyle();
+    } else if (hasTextChildren) {
+      // Fix the size by the text.
+      const textNode = this._element.firstChild as unknown as TextImpl;
+      const fixedRect = this._fixSizeByText(textNode.data, boxRect);
+      if (fixedRect != null) {
+        boxRect.width = fixedRect.width;
+        boxRect.height = fixedRect.height;
+      }
     }
 
     /**
@@ -346,10 +365,12 @@ export class Control2D {
       this._renderRect(canvasContext, boxRect);
     }
 
+    this._renderImageIfExists(canvasContext, boxRect);
+
     /**
      * Render the inner text.
      */
-    if (this._isElementOwnsInnerText()) {
+    if (hasTextChildren) {
       this._renderInnerText(canvasContext, boxRect);
     }
     this._lastRect = boxRect;
@@ -670,6 +691,21 @@ export class Control2D {
     }
     renderingContext.lineWidth = border.width || 0;
     renderingContext.strokeStyle = border.color || '#000000';
+  }
+
+  private _renderImageIfExists(renderingContext: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl) {
+    if (!this._imageData) {
+      return;
+    }
+    if (!(this._element instanceof getInterfaceWrapper('HTMLImageElement'))) {
+      return;
+    }
+    const element = this._element;
+    element._dispatchResizeTask(() => {
+      element.width = rect.width;
+      element.height = rect.height;
+    });
+    renderingContext.putImageData(this._imageData, rect.x, rect.y, 0, 0, rect.width, rect.height);
   }
 
   containsPoint(x: number, y: number): boolean {

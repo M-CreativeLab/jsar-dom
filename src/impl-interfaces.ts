@@ -1,4 +1,5 @@
 import { ITransport } from './agent/cdp';
+import type ImageDataImpl from './living/image/ImageData';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
 
 export interface DOMParser {
@@ -221,6 +222,20 @@ export interface NativeDocument extends EventTarget {
    * @param nameOrId the name or id of this bouding box.
    */
   createBoundTransformNode(nameOrId: string): BABYLON.TransformNode;
+
+  /**
+   * It creates a `ImageBitmap` from the given image buffer.
+   * @param image 
+   */
+  createImageBitmap(image: ArrayBuffer | ArrayBufferView): Promise<ImageBitmap>;
+
+  /**
+   * It decodes a given `ImageBitmap` with the expected size, then returns a promise of ImageData which contains the decoded pixels.
+   * 
+   * @param image The image buffer to decode.
+   * @param sizes The size of the image in width and height.
+   */
+  decodeImage(bitmap: ImageBitmap, size?: [number, number]): Promise<ImageDataImpl>
 
   /**
    * This stops further resource loading in the current context.

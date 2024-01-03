@@ -17,6 +17,7 @@ import {
 import 'babylonjs';
 
 import { canParseURL } from '../src/living/helpers/url';
+import type ImageDataImpl from '../src/living/image/ImageData';
 import { JSARInputEvent } from '../src/input-event';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../src/symbols';
 
@@ -298,6 +299,34 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
   createBoundTransformNode(nameOrId: string): BABYLON.TransformNode {
     throw new Error('Method not implemented.');
   }
+
+  createImageBitmap(image: ArrayBuffer | ArrayBufferView): Promise<ImageBitmap> {
+    return window.createImageBitmap(new Blob([image]));
+  }
+
+  decodeImage(bitmap: ImageBitmap, size: [number, number]): Promise<ImageDataImpl> {
+    let expectedWidth = size[0];
+    let expectedHeight = size[1];
+    if (typeof expectedWidth !== 'number') {
+      expectedWidth = bitmap.width;
+    }
+    if (typeof expectedHeight !== 'number') {
+      expectedHeight = bitmap.height;
+    }
+
+    const offscreenCanvas = new window.OffscreenCanvas(expectedWidth, expectedHeight);
+    const ctx = offscreenCanvas.getContext('2d');
+    ctx?.drawImage(
+      bitmap,
+      0, 0,
+      bitmap.width, bitmap.height,
+      0, 0,
+      offscreenCanvas.width, offscreenCanvas.height
+    );
+    const imageData = ctx?.getImageData(0, 0, offscreenCanvas.width, offscreenCanvas.height) as unknown as ImageDataImpl;
+    return Promise.resolve(imageData);
+  }
+
   stop(): void {
     // TODO
   }
