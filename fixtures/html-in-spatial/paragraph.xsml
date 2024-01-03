@@ -6,7 +6,7 @@
     <plane id="ui-cube" size="1">
       <style type="text/css">
         section {
-          background-color: rgba(255, 0, 0, 0.5);
+          background-color: rgba(255, 0, 0, 0.1);
           display: block;
           height: 100%;
           width: 100%;
@@ -30,7 +30,10 @@
           Depending on the content, including a heading could also be good for SEO, so it is an option to consider.
         </p>
         <img src="../textures/example.jpeg" />
-        <p>Circumstances where you might see used without a heading are typically found in web application/UI sections rather than in traditional document structures. In a document, it doesn't really make any sense to have a separate section of content without a heading to describe its contents. Such headings are useful </p>
+        <p>
+          Circumstances where you might see used without a heading are typically found in web application/UI sections rather than in traditional document structures. 
+          In a document, it doesn't really make any sense to have a separate section of content without a heading to describe its contents. Such headings are useful
+        </p>
       </section>
     </plane>
   </space>
