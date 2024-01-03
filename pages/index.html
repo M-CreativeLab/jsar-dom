@@ -20,6 +20,18 @@
       flex: 1;
     }
 
+    #fps {
+      position: absolute;
+      background-color: rgba(0, 0, 0, 0.7);
+      border: 1px solid rgba(255, 0, 0, 0.5);
+      padding: 5px;
+      text-align: center;
+      font-size: 16px;
+      color: white;
+      top: 15px;
+      right: 10px;
+    }
+
     #renderCanvas {
       width: 100%;
       height: 100%;
@@ -53,6 +65,7 @@
 <body>
   <div id="babylonjs-root">
     <canvas id="renderCanvas"></canvas>
+    <div id="fps">Wait</div>
   </div>
   <div id="controls">
     <input type="url" id="url-input" class="form-control" placeholder="Type a XSML URL">

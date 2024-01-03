@@ -36,6 +36,9 @@ import HTMLScriptElementImpl from './HTMLScriptElement';
 import HTMLDivElementImpl from './HTMLDivElement';
 import HTMLSpanElementImpl from './HTMLSpanElement';
 import HTMLImageElementImpl from './HTMLImageElement';
+import HTMLParagraphElementImpl from './HTMLParagraphElement';
+import { HTMLContentElement } from './HTMLContentElement';
+import HTMLHeadingElementImpl from './HTMLHeadingElement';
 import { SpatialElement } from './SpatialElement';
 import { ShadowRootImpl } from './ShadowRoot';
 import SpatialSpaceElement from './SpatialSpaceElement';
@@ -767,7 +770,13 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'div'): HTMLDivElement;
   createElement(tagName: 'span'): HTMLSpanElement;
   createElement(tagName: 'a'): HTMLAnchorElement;
+  createElement(tagName: 'b'): HTMLElement;
+  createElement(tagName: 'i'): HTMLElement;
+  createElement(tagName: 'p'): HTMLParagraphElement;
   createElement(tagName: 'img'): HTMLImageElement;
+  createElement(tagName: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'): HTMLHeadingElement;
+  createElement(tagName: 'section'): HTMLElement;
+  createElement(tagName: 'header'): HTMLElement;
   // Universal signature
   createElement(tagName: string): Element;
   createElement(tagName: string): Element {
@@ -817,6 +826,19 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new HTMLSpanElementImpl(this.#nativeDocument, []);
       case 'img':
         return new HTMLImageElementImpl(this.#nativeDocument, []);
+      case 'p':
+        return new HTMLParagraphElementImpl(this.#nativeDocument, []);
+      case 'h1':
+      case 'h2':
+      case 'h3':
+      case 'h4':
+      case 'h5':
+        return new HTMLHeadingElementImpl(this.#nativeDocument, [], { level: tagName });
+      case 'header':
+      case 'section':
+        return new HTMLContentElement(this.#nativeDocument, [], {
+          localName: tagName,
+        });
       case 'a':
       default:
         return new HTMLElementImpl(this.#nativeDocument, [], {

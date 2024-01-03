@@ -168,6 +168,7 @@ export class Control2D {
   private _overwriteHeight: number;
   private _overwriteWidth: number;
   private _imageData: ImageDataImpl;
+  private _isDirty = true;
 
   constructor(
     private _allocator: taffy.Allocator,
@@ -191,7 +192,8 @@ export class Control2D {
     this._renderingContext = renderingContext;
     if (this._ownInnerText()) {
       const textNode = this._element.firstChild as Text;
-      this._fixSizeByText(textNode.data);
+      const { width, height } = this._fixSizeByText(textNode.data);
+      this._updateRectSize(width, height);
     }
   }
 
@@ -205,6 +207,10 @@ export class Control2D {
 
   removeChild(child: Control2D) {
     this.layoutNode.removeChild(child.layoutNode);
+  }
+
+  isDirty() {
+    return this._isDirty;
   }
 
   dispose() {
@@ -314,11 +320,28 @@ export class Control2D {
     return layoutStyle;
   }
 
+  private _updateRectSize(width: number, height: number) {
+    let needUpdateLayout = false;
+    if (typeof width === 'number' && this._overwriteWidth !== width) {
+      this._overwriteWidth = width;
+      needUpdateLayout = true;
+    }
+    if (typeof height === 'number' && this._overwriteHeight !== height) {
+      this._overwriteHeight = height;
+      needUpdateLayout = true;
+    }
+    if (needUpdateLayout) {
+      this.updateLayoutStyle();
+    }
+  }
+
   updateLayoutStyle(): boolean {
     this.layoutStyle = this._initializeLayoutStyle();
     if (this.layoutNode) {
       this.layoutNode.setStyle(this.layoutStyle);
+      this.layoutNode.markDirty();
     }
+    this._isDirty = true;
     return true;
   }
 
@@ -328,8 +351,17 @@ export class Control2D {
    * @internal
    * @param rect 
    * @param base 
+   * @returns if the rendering is successful.
    */
-  render(rect: DOMRect, base: DOMRectReadOnly): void {
+  render(rect: DOMRect, base: DOMRectReadOnly) {
+    /**
+     * Mark the dirty flag to be false at the beginning of the rendering.
+     * 
+     * This flag might be set to true when the layout style is updated, it indicates that we need to re-render the control
+     * in the next frame.
+     */
+    this._isDirty = false;
+
     const x = rect.x + base.x;
     const y = rect.y + base.y;
     const width = rect.width;
@@ -345,9 +377,7 @@ export class Control2D {
     if (this._imageData && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
       // Fix the size by the image.
       this._element._fixSizeByImage(boxRect);
-      this._overwriteWidth = boxRect.width;
-      this._overwriteHeight = boxRect.height;
-      this.updateLayoutStyle();
+      this._updateRectSize(boxRect.width, boxRect.height);
     } else if (hasTextChildren) {
       // Fix the size by the text.
       const textNode = this._element.firstChild as unknown as TextImpl;
@@ -355,6 +385,7 @@ export class Control2D {
       if (fixedRect != null) {
         boxRect.width = fixedRect.width;
         boxRect.height = fixedRect.height;
+        this._updateRectSize(boxRect.width, boxRect.height);
       }
     }
 
@@ -421,9 +452,6 @@ export class Control2D {
         });
         height = getLineHeightValue(charHeight, this._style.lineHeight) * textArray.length;
       }
-
-      this._overwriteHeight = height;
-      this.updateLayoutStyle();
       return { width, height };
     } else {
       let width: number;
@@ -433,9 +461,6 @@ export class Control2D {
       } else {
         width = parseFloat(this._style.width);
       }
-      this._overwriteHeight = height;
-      this._overwriteWidth = width;
-      this.updateLayoutStyle();
       return { width, height };
     }
   }

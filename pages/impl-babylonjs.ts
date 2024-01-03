@@ -223,6 +223,14 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
       }
       lastCameraState = [camera.alpha, camera.beta, camera.radius];
     });
+
+    // show fps
+    const fpsLabel = document.querySelector('#fps');
+    if (fpsLabel) {
+      scene.onAfterRenderObservable.add(() => {
+        fpsLabel.innerHTML = `${this.engine.getFps().toFixed()} fps`;
+      });
+    }
   }
 
   addClientCdpTransport(transport: cdp.LoopbackTransport) {
@@ -512,7 +520,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       ]);
     }
 
-    const scene = currentDom.document.scene;
     cdpClient.rootSession.api.DOM.getDocument().then((result) => {
       for (const panel of panels) {
         const customEvent = new CustomEvent('custom', {
@@ -521,50 +528,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         panel.document.dispatchEvent(customEvent);
       }
     });
-
-    BABYLON.SceneLoader.ImportMesh(
-      ['GitHub Pin UwU_14'],
-      'https://m-creativelab.github.io/jsar-dom/assets/',
-      '3d_skill__role_badges_and_pins.glb',
-      scene,
-      () => {
-        const githubTransform = scene.getTransformNodeById('GitHub Pin UwU_14');
-        if (githubTransform) {
-          githubTransform.position = new BABYLON.Vector3(-1, 1, 1);
-          githubTransform.rotation = new BABYLON.Vector3(0, 0, 0);
-          scene.onPointerMove = function () {
-            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
-            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
-              githubTransform.getChildMeshes().forEach(mesh => {
-                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-              });
-            } else {
-              githubTransform.getChildMeshes().forEach(mesh => {
-                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0, 0, 0);
-              });
-            }
-          };
-          scene.onPointerUp = function () {
-            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
-            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
-              githubTransform.getChildMeshes().forEach(mesh => {
-                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(0.1, 0.1, 0.1);
-              });
-              setTimeout(() => {
-                window.open('https://github.com/M-CreativeLab/jsar-dom', '_blank');
-              }, 100);
-            }
-          };
-          scene.onPointerDown = function () {
-            const pickingInfo = scene.pick(scene.pointerX, scene.pointerY);
-            if (pickingInfo.hit && pickingInfo.pickedMesh?.isDescendantOf(githubTransform)) {
-              githubTransform.getChildMeshes().forEach(mesh => {
-                (mesh.material as BABYLON.PBRMaterial).emissiveColor = new BABYLON.Color3(1, 0.7, 0.7);
-              });
-            }
-          };
-        }
-      });
   }
 
 });

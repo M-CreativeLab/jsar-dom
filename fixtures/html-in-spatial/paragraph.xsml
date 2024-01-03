@@ -1,0 +1,30 @@
+<xsml>
+  <head>
+    <title>HTML in Spatial Example (Images)</title>
+  </head>
+  <space>
+    <plane id="ui-cube" size="1">
+      <style type="text/css">
+        section {
+          background-color: rgba(255, 0, 0, 0.5);
+          display: block;
+          height: 100%;
+          width: 100%;
+          padding: 50px;
+          color: #fff;
+        }
+      </style>
+      <section>
+        <h1>Using a section without a heading</h1>
+        <h2>Heading 2</h2>
+        <h3>Heading 3</h3>
+        <h4>Heading 4</h4>
+        <h5>Heading 5</h5>
+        <p>
+          Depending on the content, including a heading could also be good for SEO, so it is an option to consider.
+        </p>
+        <p>Circumstances where you might see used without a heading are typically found in web application/UI sections rather than in traditional document structures. In a document, it doesn't really make any sense to have a separate section of content without a heading to describe its contents. Such headings are useful </p>
+      </section>
+    </plane>
+  </space>
+</xsml>

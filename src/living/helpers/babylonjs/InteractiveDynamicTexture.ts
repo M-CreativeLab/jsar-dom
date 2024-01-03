@@ -288,18 +288,19 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     // Start rendering
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
-    this._iterateLayoutResult();
+    const isDirtyAfterRendering = this._iterateLayoutResult();
     this.update();
 
     // Post steps
-    this._isDirty = false;
+    this._isDirty = isDirtyAfterRendering;
     this._isRendering = false;
   }
 
   private _iterateLayoutResult(
     base = { x: 0, y: 0 },
     currentElementOrControl: HTMLContentElement | null = null
-  ) {
+  ): boolean {
+    let isDirtyAfterRendering: boolean;
     let layout: taffy.LayoutSimple;
     let elementOrShadowRoot: HTMLContentElement | ShadowRootImpl;
     if (currentElementOrControl === null) {
@@ -307,10 +308,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       layout = control.layoutNode.getLayout();
       control.render.call(control, layout, base);
       elementOrShadowRoot = this._shadowRoot;
+      isDirtyAfterRendering = control.isDirty();
     } else {
       layout = currentElementOrControl._control.layoutNode.getLayout();
       currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
       elementOrShadowRoot = currentElementOrControl;
+      isDirtyAfterRendering = currentElementOrControl._control.isDirty();
     }
 
     for (let i = 0; i < elementOrShadowRoot.children.length; i++) {
@@ -319,11 +322,17 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       if (!isHTMLContentElement(childItem)) {
         continue;
       }
-      this._iterateLayoutResult({
+      const isDirty = this._iterateLayoutResult({
         x: base.x + layout.x,
         y: base.y + layout.y,
       }, childItem);
+
+      // If any child is dirty, the parent should be dirty.
+      if (isDirtyAfterRendering === false && isDirty === true) {
+        isDirtyAfterRendering = true;
+      }
     }
+    return isDirtyAfterRendering;
   }
 
   /**
