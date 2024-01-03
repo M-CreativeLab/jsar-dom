@@ -263,6 +263,16 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     domSymbolTree.treeToArray(this._shadowRoot, {
       filter: node => isHTMLContentElement(node)
     })
+      .filter((node: HTMLContentElement) => {
+        /**
+         * Check if the node has style cache, if not, it means the node should be updated.
+         */
+        let styleCache = node._ownerDocument._styleCache;
+        if (!styleCache) {
+          return true;
+        }
+        return styleCache.has(node) === false;
+      })
       .forEach((node: HTMLContentElement) => {
         const style = defaultView.getComputedStyle(node);
         node._adoptStyle(style);

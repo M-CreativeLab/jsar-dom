@@ -178,7 +178,10 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
 
   _attrModified(name: string, value: string, oldValue: string): void {
     if (name === 'src') {
-      this._loadImageData();
+      this._loadImageData().then(() => {
+        // Try to send the update signal when the image data is loaded.
+        this._tryUpdate();
+      });
     }
     super._attrModified(name, value, oldValue);
   }

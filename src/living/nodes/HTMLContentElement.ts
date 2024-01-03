@@ -69,6 +69,9 @@ export class HTMLContentElement extends HTMLElementImpl {
 
     this._control.setRenderingContext(this._targetTexture.getContext() as CanvasRenderingContext2D);
     super._attach();
+
+    // Send the update signal to the target texture.
+    this._tryUpdate();
   }
 
   _detach(): void {
@@ -85,6 +88,9 @@ export class HTMLContentElement extends HTMLElementImpl {
      */
     this._control.dispose();
     super._detach();
+
+    // Send the update signal to the target texture.
+    this._tryUpdate();
   }
 
   _adoptStyle(style: CSSStyleDeclaration) {
@@ -103,6 +109,11 @@ export class HTMLContentElement extends HTMLElementImpl {
     });
   }
 
+  _attrModified(name: string, value: string, oldValue: string): void {
+    super._attrModified(name, value, oldValue);
+    this._tryUpdate();
+  }
+
   /**
    * Update the target texture of this HTML element.
    * 
@@ -111,9 +122,13 @@ export class HTMLContentElement extends HTMLElementImpl {
    */
   _updateTargetTexture(targetTexture: InteractiveDynamicTexture) {
     this._targetTexture = targetTexture;
-    // TODO
   }
 
+  /**
+   * Set the target texture to be dirty, this will trigger a re-rendering of the while target texture(page).
+   * 
+   * TODO: support partial update.
+   */
   _tryUpdate() {
     if (this._targetTexture) {
       this._targetTexture.markAsDirty();
