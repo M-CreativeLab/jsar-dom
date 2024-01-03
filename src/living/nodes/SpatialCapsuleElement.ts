@@ -43,6 +43,7 @@ export default class SpatialCapsuleElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateCapsule(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         height: this.height,
         radius: this.radius,
         radiusTop: this.radiusTop,

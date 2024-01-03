@@ -50,6 +50,7 @@ export default class SpatialIcosphereElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateIcoSphere(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         radius: this.radius,
         radiusX: this.radiusX,
         radiusY: this.radiusY,

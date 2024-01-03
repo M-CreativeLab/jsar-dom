@@ -36,6 +36,7 @@ export default class SpatialTorusElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateTorus(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         diameter: this.diameter,
         thickness: this.thickness,
         tessellation: this.tessellation,

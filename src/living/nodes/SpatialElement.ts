@@ -71,6 +71,30 @@ export class SpatialElement extends ElementImpl {
     return this.id || this.getAttribute('name') || this.localName;
   }
 
+  protected _getCommonMeshBuilderOptions(): Partial<{
+    sideOrientation: number;
+    frontUVs: BABYLON.Vector4;
+    backUVs: BABYLON.Vector4;
+    updatable: boolean;
+  }> {
+    let sideOrientation: number;
+    switch (this.getAttribute('side-orientation')) {
+      case 'front':
+        sideOrientation = BABYLON.Mesh.FRONTSIDE;
+        break;
+      case 'back':
+        sideOrientation = BABYLON.Mesh.BACKSIDE;
+        break;
+      case 'double':
+        sideOrientation = BABYLON.Mesh.DOUBLESIDE;
+        break;
+    }
+    return {
+      sideOrientation,
+      updatable: this.getAttribute('geometry-updatable') === 'yes',
+    };
+  }
+
   _attach(node?: BABYLON.Node): void {
     if (node) {
       this._internalObject = node;

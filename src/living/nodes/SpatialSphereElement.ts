@@ -85,6 +85,7 @@ export default class SpatialSphereElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateSphere(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         segments: this.segments,
         diameter: this.diameter,
         diameterX: this.diameterX,

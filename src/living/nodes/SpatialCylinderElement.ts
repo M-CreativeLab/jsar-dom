@@ -50,6 +50,7 @@ export default class SpatialCylinderElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateCylinder(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         height: this.height,
         diameter: this.diameter,
         diameterTop: this.diameterTop,

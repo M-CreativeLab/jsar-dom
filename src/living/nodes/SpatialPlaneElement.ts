@@ -40,6 +40,7 @@ export default class SpatialPlaneElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreatePlane(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         size: this.size,
         width: this.width,
         height: this.height,

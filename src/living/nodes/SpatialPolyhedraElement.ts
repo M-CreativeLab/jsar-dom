@@ -74,6 +74,7 @@ export default class SpatialPolyhedraElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreatePolyhedron(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         type: PolyhedraNameToTypeIdMap[this.type],
         size: this.size,
         sizeX: this.sizeX,

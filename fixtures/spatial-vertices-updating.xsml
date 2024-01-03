@@ -4,7 +4,7 @@
     <style>
       @material example {
         material-type: physical-based;
-        albedo-color: red;
+        albedo-color: darkblue;
       }
       icosphere {
         material: "example";
@@ -21,7 +21,7 @@
     </style>
   </head>
   <space>
-    <icosphere radius="30" subdivisions="10" />
+    <icosphere radius="30" subdivisions="10" geometry-updatable="yes" />
     <script>
       const scene = spatialDocument.scene;
       const nucleus = spatialDocument.querySelector('icosphere')?.asNativeType();

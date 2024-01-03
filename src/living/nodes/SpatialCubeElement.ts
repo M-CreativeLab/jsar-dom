@@ -43,6 +43,7 @@ export default class SpatialCubeElement extends SpatialElement {
   _attach(): void {
     super._attach(
       BABYLON.MeshBuilder.CreateBox(this._getInternalNodeNameOrId(), {
+        ...this._getCommonMeshBuilderOptions(),
         size: this.size,
         width: this.width,
         depth: this.depth,
