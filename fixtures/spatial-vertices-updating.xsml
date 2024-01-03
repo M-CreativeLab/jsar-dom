@@ -1,0 +1,54 @@
+<xsml>
+  <head>
+    <title>Morph Target Example</title>
+    <style>
+      @material example {
+        material-type: physical-based;
+        albedo-color: red;
+      }
+      icosphere {
+        material: "example";
+        animation: rotate 8s linear infinite;
+      }
+      @keyframes rotate {
+        from {
+          rotation: 0 0 0;
+        }
+        to {
+          rotation: 0 360 0;
+        }
+      }
+    </style>
+  </head>
+  <space>
+    <icosphere radius="30" subdivisions="10" />
+    <script>
+      const scene = spatialDocument.scene;
+      const nucleus = spatialDocument.querySelector('icosphere')?.asNativeType();
+      function update() {
+        const vertices = nucleus.getVerticesData(BABYLON.VertexBuffer.PositionKind);
+        const factor = Math.random() * 0.002;
+
+        vertices.forEach((v, index) => {
+          const i = index * 3;
+          const time = Date.now();
+          let x = vertices[i];
+          let y = vertices[i + 1];
+          let z = vertices[i + 2];
+
+          const length = Math.sqrt(x * x + y * y + z * z);
+          x /= length;
+
+          const noise = x * 10 + time * 0.002;
+          const distance = 1 - Math.sin(noise * 2) * factor;
+
+          vertices[i] *= distance;
+          vertices[i + 1] *= distance;
+          vertices[i + 2] *= distance;
+        });
+        nucleus.updateVerticesData(BABYLON.VertexBuffer.PositionKind, vertices);
+      }
+      scene.registerBeforeRender(update);
+    </script>
+  </space>
+</xsml>

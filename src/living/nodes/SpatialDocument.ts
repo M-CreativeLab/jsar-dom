@@ -47,6 +47,7 @@ import SpatialRefElement from './SpatialRefElement';
 import SpatialCubeElement from './SpatialCubeElement';
 import SpatialPlaneElement from './SpatialPlaneElement';
 import SpatialSphereElement from './SpatialSphereElement';
+import SpatialIcosphereElement from './SpatialIcoSphereElement';
 import SpatialBoundElement from './SpatialBoundElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
@@ -761,6 +762,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'cube'): SpatialCubeElement;
   createElement(tagName: 'plane'): SpatialPlaneElement;
   createElement(tagName: 'sphere'): SpatialSphereElement;
+  createElement(tagName: 'icosphere'): SpatialIcosphereElement;
   createElement(tagName: 'cylinder'): SpatialCylinderElement;
   createElement(tagName: 'capsule'): SpatialCapsuleElement;
   createElement(tagName: 'torus'): SpatialTorusElement;
@@ -808,6 +810,8 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new SpatialPlaneElement(this.#nativeDocument, []);
       case 'sphere':
         return new SpatialSphereElement(this.#nativeDocument, []);
+      case 'icosphere':
+        return new SpatialIcosphereElement(this.#nativeDocument, []);
       case 'cylinder':
         return new SpatialCylinderElement(this.#nativeDocument, []);
       case 'capsule':
