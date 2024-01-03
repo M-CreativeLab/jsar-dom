@@ -47,7 +47,7 @@ import SpatialRefElement from './SpatialRefElement';
 import SpatialCubeElement from './SpatialCubeElement';
 import SpatialPlaneElement from './SpatialPlaneElement';
 import SpatialSphereElement from './SpatialSphereElement';
-import SpatialIcosphereElement from './SpatialIcoSphereElement';
+import SpatialIcosphereElement from './SpatialIcosphereElement';
 import SpatialBoundElement from './SpatialBoundElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
