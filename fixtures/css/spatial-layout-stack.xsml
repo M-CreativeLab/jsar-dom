@@ -1,0 +1,49 @@
+<xsml>
+  <head>
+    <title>Spatial CSS Example (Stack Layout)</title>
+  </head>
+  <space>
+    <cube>
+      <bound>
+        <button3d>Change Color</button3d>
+      </bound>
+    </cube>
+  </space>
+  <style type="text/scss">
+    @material litered {
+      diffuse-color: red;
+      specular-color: blue;
+      specular-power: 10.3;
+    }
+    @keyframes rotate {
+      0% {
+        rotation: 0 0 0;
+      }
+      100% {
+        rotation: 0 360 0;
+      }
+    }
+
+    cube {
+      position: 0 0 1.5;
+      material: "litered";
+    }
+    bound {
+      display: flex;
+      flex-direction: row;
+      gap: 0.1;
+    }
+    button3d {
+      position: 0 0 -0.8;
+    }
+  </style>
+  <script>
+    const cube = spatialDocument.querySelector('cube');
+    const buttons = spatialDocument.querySelectorAll('button3d');
+    for (const button of buttons) {
+      button.addEventListener('click', function () {
+        cube.asNativeType().material.specularColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+      });
+    }
+  </script>
+</xsml>

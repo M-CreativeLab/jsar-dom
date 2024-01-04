@@ -53,6 +53,7 @@ import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
 import SpatialPolyhedraElement from './SpatialPolyhedraElement';
+import SpatialButtonElement from './SpatialButtonElement';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import CSSSpatialKeyframesRule from '../cssom/CSSSpatialKeyframesRule';
 
@@ -768,6 +769,8 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'torus'): SpatialTorusElement;
   createElement(tagName: 'polyhedra'): SpatialPolyhedraElement;
   createElement(tagName: 'ref'): SpatialRefElement;
+  // Spatial GUI elements
+  createElement(tagName: 'button3d'): SpatialButtonElement;
   // HTML elements for texture rendering
   createElement(tagName: 'div'): HTMLDivElement;
   createElement(tagName: 'span'): HTMLSpanElement;
@@ -776,6 +779,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'i'): HTMLElement;
   createElement(tagName: 'p'): HTMLParagraphElement;
   createElement(tagName: 'img'): HTMLImageElement;
+  createElement(tagName: 'button'): HTMLButtonElement;
   createElement(tagName: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'): HTMLHeadingElement;
   createElement(tagName: 'section'): HTMLElement;
   createElement(tagName: 'header'): HTMLElement;
@@ -822,6 +826,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new SpatialPolyhedraElement(this.#nativeDocument, []);
       case 'ref':
         return new SpatialRefElement(this.#nativeDocument, []);
+
+      // Spatial GUI elements
+      case 'button3d':
+        return new SpatialButtonElement(this.#nativeDocument, []);
 
       // HTML elements for texture rendering
       case 'div':
