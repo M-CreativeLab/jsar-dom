@@ -1,4 +1,6 @@
 #![allow(non_snake_case)]
+#![deny(unsafe_code)]
+#![forbid(unsafe_code)]
 
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -6,129 +8,40 @@ use std::rc::Rc;
 use js_sys::Function;
 use js_sys::Reflect;
 use wasm_bindgen::prelude::*;
+use slotmap::SecondaryMap;
+use slotmap::{DefaultKey, SlotMap};
+
+pub(crate) struct Craft3dConfig {
+    /// Whether to round layout values
+    pub(crate) use_rounding: bool,
+    pub(crate) capacity: usize,
+}
+
+impl Default for Craft3dConfig {
+    fn default() -> Self {
+        Self {
+            use_rounding: true,
+            capacity: 16,
+        }
+    }
+}
 
 #[wasm_bindgen]
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AlignItems {
-    FlexStart,
-    FlexEnd,
     Start,
     End,
     Center,
-    Baseline,
-    Stretch,
 }
-
-// impl Into<taffy::style::AlignItems> for AlignItems {
-//     fn into(self) -> taffy::style::AlignItems {
-//         match self {
-//             AlignItems::FlexStart => taffy::style::AlignItems::FlexStart,
-//             AlignItems::FlexEnd => taffy::style::AlignItems::FlexEnd,
-//             AlignItems::Start => taffy::style::AlignItems::Start,
-//             AlignItems::End => taffy::style::AlignItems::End,
-//             AlignItems::Center => taffy::style::AlignItems::Center,
-//             AlignItems::Baseline => taffy::style::AlignItems::Baseline,
-//             AlignItems::Stretch => taffy::style::AlignItems::Stretch,
-//         }
-//     }
-// }
 
 impl From<i32> for AlignItems {
     fn from(n: i32) -> Self {
         match n {
-            0 => AlignItems::FlexStart,
-            1 => AlignItems::FlexEnd,
-            2 => AlignItems::Start,
-            3 => AlignItems::End,
-            4 => AlignItems::Center,
-            5 => AlignItems::Baseline,
-            6 => AlignItems::Stretch,
-            _ => AlignItems::Stretch,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum JustifyItems {
-    FlexStart,
-    FlexEnd,
-    Start,
-    End,
-    Center,
-    Baseline,
-    Stretch,
-}
-
-// impl Into<taffy::style::JustifyItems> for JustifyItems {
-//     fn into(self) -> taffy::style::JustifyItems {
-//         match self {
-//             JustifyItems::FlexStart => taffy::style::JustifyItems::FlexStart,
-//             JustifyItems::FlexEnd => taffy::style::JustifyItems::FlexEnd,
-//             JustifyItems::Start => taffy::style::JustifyItems::Start,
-//             JustifyItems::End => taffy::style::JustifyItems::End,
-//             JustifyItems::Center => taffy::style::JustifyItems::Center,
-//             JustifyItems::Baseline => taffy::style::JustifyItems::Baseline,
-//             JustifyItems::Stretch => taffy::style::JustifyItems::Stretch,
-//         }
-//     }
-// }
-
-impl From<i32> for JustifyItems {
-    fn from(n: i32) -> Self {
-        match n {
-            0 => JustifyItems::FlexStart,
-            1 => JustifyItems::FlexEnd,
-            2 => JustifyItems::Start,
-            3 => JustifyItems::End,
-            4 => JustifyItems::Center,
-            5 => JustifyItems::Baseline,
-            6 => JustifyItems::Stretch,
-            _ => JustifyItems::Stretch,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum JustifySelf {
-    FlexStart,
-    FlexEnd,
-    Start,
-    End,
-    Center,
-    Baseline,
-    Stretch,
-}
-
-// impl Into<taffy::style::JustifySelf> for JustifySelf {
-//     fn into(self) -> taffy::style::JustifySelf {
-//         match self {
-//             JustifySelf::FlexStart => taffy::style::JustifySelf::FlexStart,
-//             JustifySelf::FlexEnd => taffy::style::JustifySelf::FlexEnd,
-//             JustifySelf::Start => taffy::style::JustifySelf::Start,
-//             JustifySelf::End => taffy::style::JustifySelf::End,
-//             JustifySelf::Center => taffy::style::JustifySelf::Center,
-//             JustifySelf::Baseline => taffy::style::JustifySelf::Baseline,
-//             JustifySelf::Stretch => taffy::style::JustifySelf::Stretch,
-//         }
-//     }
-// }
-
-impl From<i32> for JustifySelf {
-    fn from(n: i32) -> Self {
-        match n {
-            0 => JustifySelf::FlexStart,
-            1 => JustifySelf::FlexEnd,
-            2 => JustifySelf::Start,
-            3 => JustifySelf::End,
-            4 => JustifySelf::Center,
-            5 => JustifySelf::Baseline,
-            6 => JustifySelf::Stretch,
-            _ => JustifySelf::Stretch,
+            0 => AlignItems::Start,
+            1 => AlignItems::End,
+            2 => AlignItems::Center,
+            _ => AlignItems::Start,
         }
     }
 }
@@ -137,85 +50,18 @@ impl From<i32> for JustifySelf {
 #[repr(u8)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum AlignSelf {
-    FlexStart,
-    FlexEnd,
     Start,
     End,
     Center,
-    Baseline,
-    Stretch,
 }
-
-// impl Into<taffy::style::AlignSelf> for AlignSelf {
-//     fn into(self) -> taffy::style::AlignSelf {
-//         match self {
-//             AlignSelf::FlexStart => taffy::style::AlignSelf::FlexStart,
-//             AlignSelf::FlexEnd => taffy::style::AlignSelf::FlexEnd,
-//             AlignSelf::Start => taffy::style::AlignSelf::Start,
-//             AlignSelf::End => taffy::style::AlignSelf::End,
-//             AlignSelf::Center => taffy::style::AlignSelf::Center,
-//             AlignSelf::Baseline => taffy::style::AlignSelf::Baseline,
-//             AlignSelf::Stretch => taffy::style::AlignSelf::Stretch,
-//         }
-//     }
-// }
 
 impl From<i32> for AlignSelf {
     fn from(n: i32) -> Self {
         match n {
-            0 => AlignSelf::FlexStart,
-            1 => AlignSelf::FlexEnd,
-            2 => AlignSelf::Start,
-            3 => AlignSelf::End,
-            4 => AlignSelf::Center,
-            5 => AlignSelf::Baseline,
-            6 => AlignSelf::Stretch,
+            0 => AlignSelf::Start,
+            1 => AlignSelf::End,
+            2 => AlignSelf::Center,
             _ => AlignSelf::Start,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum AlignContent {
-    FlexStart,
-    FlexEnd,
-    Start,
-    End,
-    Center,
-    Stretch,
-    SpaceBetween,
-    SpaceAround,
-}
-
-// impl Into<taffy::style::AlignContent> for AlignContent {
-//     fn into(self) -> taffy::style::AlignContent {
-//         match self {
-//             AlignContent::FlexStart => taffy::style::AlignContent::FlexStart,
-//             AlignContent::FlexEnd => taffy::style::AlignContent::FlexEnd,
-//             AlignContent::Start => taffy::style::AlignContent::FlexStart,
-//             AlignContent::End => taffy::style::AlignContent::FlexEnd,
-//             AlignContent::Center => taffy::style::AlignContent::Center,
-//             AlignContent::Stretch => taffy::style::AlignContent::Stretch,
-//             AlignContent::SpaceBetween => taffy::style::AlignContent::SpaceBetween,
-//             AlignContent::SpaceAround => taffy::style::AlignContent::SpaceAround,
-//         }
-//     }
-// }
-
-impl From<i32> for AlignContent {
-    fn from(n: i32) -> Self {
-        match n {
-            0 => AlignContent::FlexStart,
-            1 => AlignContent::FlexEnd,
-            2 => AlignContent::Start,
-            3 => AlignContent::End,
-            4 => AlignContent::Center,
-            5 => AlignContent::Stretch,
-            6 => AlignContent::SpaceBetween,
-            7 => AlignContent::SpaceAround,
-            _ => AlignContent::Stretch,
         }
     }
 }
@@ -225,26 +71,14 @@ impl From<i32> for AlignContent {
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Display {
     Flex,
-    Grid,
     None,
 }
-
-// impl Into<taffy::style::Display> for Display {
-//     fn into(self) -> taffy::style::Display {
-//         match self {
-//             Display::Flex => taffy::style::Display::Flex,
-//             Display::Grid => taffy::style::Display::Grid,
-//             Display::None => taffy::style::Display::None,
-//         }
-//     }
-// }
 
 impl From<i32> for Display {
     fn from(n: i32) -> Self {
         match n {
             0 => Display::Flex,
-            1 => Display::Grid,
-            2 => Display::None,
+            1 => Display::None,
             _ => Display::Flex,
         }
     }
@@ -256,74 +90,16 @@ impl From<i32> for Display {
 pub enum FlexDirection {
     Row,
     Column,
-    RowReverse,
-    ColumnReverse,
+    Depth,
 }
-
-// impl Into<taffy::style::FlexDirection> for FlexDirection {
-//     fn into(self) -> taffy::style::FlexDirection {
-//         match self {
-//             FlexDirection::Row => taffy::style::FlexDirection::Row,
-//             FlexDirection::Column => taffy::style::FlexDirection::Column,
-//             FlexDirection::RowReverse => taffy::style::FlexDirection::RowReverse,
-//             FlexDirection::ColumnReverse => taffy::style::FlexDirection::ColumnReverse,
-//         }
-//     }
-// }
 
 impl From<i32> for FlexDirection {
     fn from(n: i32) -> Self {
         match n {
             0 => FlexDirection::Row,
             1 => FlexDirection::Column,
-            2 => FlexDirection::RowReverse,
-            3 => FlexDirection::ColumnReverse,
+            2 => FlexDirection::Depth,
             _ => FlexDirection::Row,
-        }
-    }
-}
-
-#[wasm_bindgen]
-#[repr(u8)]
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
-pub enum JustifyContent {
-    FlexStart,
-    FlexEnd,
-    Start,
-    End,
-    Center,
-    SpaceBetween,
-    SpaceAround,
-    SpaceEvenly,
-}
-
-// impl Into<taffy::style::JustifyContent> for JustifyContent {
-//     fn into(self) -> taffy::style::JustifyContent {
-//         match self {
-//             JustifyContent::FlexStart => taffy::style::JustifyContent::FlexStart,
-//             JustifyContent::FlexEnd => taffy::style::JustifyContent::FlexEnd,
-//             JustifyContent::Start => taffy::style::JustifyContent::Start,
-//             JustifyContent::End => taffy::style::JustifyContent::End,
-//             JustifyContent::Center => taffy::style::JustifyContent::Center,
-//             JustifyContent::SpaceBetween => taffy::style::JustifyContent::SpaceBetween,
-//             JustifyContent::SpaceAround => taffy::style::JustifyContent::SpaceAround,
-//             JustifyContent::SpaceEvenly => taffy::style::JustifyContent::SpaceEvenly,
-//         }
-//     }
-// }
-
-impl From<i32> for JustifyContent {
-    fn from(n: i32) -> Self {
-        match n {
-            0 => JustifyContent::FlexStart,
-            1 => JustifyContent::FlexEnd,
-            2 => JustifyContent::Start,
-            3 => JustifyContent::End,
-            4 => JustifyContent::Center,
-            5 => JustifyContent::SpaceBetween,
-            6 => JustifyContent::SpaceAround,
-            7 => JustifyContent::SpaceEvenly,
-            _ => JustifyContent::FlexStart,
         }
     }
 }
@@ -335,15 +111,6 @@ pub enum Position {
     Relative,
     Absolute,
 }
-
-// impl Into<taffy::style::Position> for Position {
-//     fn into(self) -> taffy::style::Position {
-//         match self {
-//             Position::Relative => taffy::style::Position::Relative,
-//             Position::Absolute => taffy::style::Position::Absolute,
-//         }
-//     }
-// }
 
 impl From<i32> for Position {
     fn from(n: i32) -> Self {
@@ -361,34 +128,88 @@ impl From<i32> for Position {
 pub enum FlexWrap {
     NoWrap,
     Wrap,
-    WrapReverse,
 }
-
-// impl Into<taffy::style::FlexWrap> for FlexWrap {
-//     fn into(self) -> taffy::style::FlexWrap {
-//         match self {
-//             FlexWrap::NoWrap => taffy::style::FlexWrap::NoWrap,
-//             FlexWrap::Wrap => taffy::style::FlexWrap::Wrap,
-//             FlexWrap::WrapReverse => taffy::style::FlexWrap::WrapReverse,
-//         }
-//     }
-// }
 
 impl From<i32> for FlexWrap {
     fn from(n: i32) -> Self {
         match n {
             0 => FlexWrap::NoWrap,
             1 => FlexWrap::Wrap,
-            2 => FlexWrap::WrapReverse,
             _ => FlexWrap::NoWrap,
         }
+    }
+}
+
+/// A typed representation of the CSS style information for a single node.
+///
+/// The most important idea in flexbox is the notion of a "main" and "cross" axis, which are always perpendicular to each other.
+/// The orientation of these axes are controlled via the [`FlexDirection`] field of this struct.
+///
+/// This struct follows the [CSS equivalent](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Flexible_Box_Layout/Basic_Concepts_of_Flexbox) directly;
+/// information about the behavior on the web should transfer directly.
+///
+/// Detailed information about the exact behavior of each of these fields
+/// can be found on [MDN](https://developer.mozilla.org/en-US/docs/Web/CSS) by searching for the field name.
+/// The distinction between margin, padding and border is explained well in
+/// this [introduction to the box model](https://developer.mozilla.org/en-US/docs/Web/CSS/CSS_Box_Model/Introduction_to_the_CSS_box_model).
+///
+/// If the behavior does not match the flexbox layout algorithm on the web, please file a bug!
+#[derive(Clone, PartialEq, Debug)]
+#[cfg_attr(feature = "serde", derive(Serialize, Deserialize))]
+#[cfg_attr(feature = "serde", serde(default))]
+pub struct Style {
+    pub display: Display,
+    pub position: Position,
+    pub flex_direction: FlexDirection,
+    pub flex_wrap: FlexWrap,
+}
+
+/// Layout information for a given [`Node`](crate::node::Node)
+///
+/// Stored in a [`Craft3dTree`].
+struct NodeData {
+    pub(crate) style: Style,
+    // pub(crate) unrounded_layout: Layout,
+    // pub(crate) final_layout: Layout,
+    // pub(crate) has_context: bool,
+    // pub(crate) cache: Cache,
+}
+
+/// An entire tree of spatial nodes. The entry point to Craft3d's high-level API.
+///
+/// Allows you to build a tree of spatial nodes, run Craft3d's layout algorithms over that tree, and then access the resultant layout.
+pub struct Craft3dTree<NodeContext = ()> {
+    nodes: SlotMap<DefaultKey, NodeData>,
+    node_context_data: SecondaryMap<DefaultKey, NodeContext>,
+    config: Craft3dConfig,
+}
+
+impl Craft3dTree {
+    /// Creates a new [`Craft3dTree`] with the default configuration.
+    pub fn new() -> Craft3dTree<()> {
+        Craft3dTree::with_config(Craft3dConfig::default())
+    }
+
+    /// Creates a new [`Craft3dTree`] with the given configuration.
+    pub fn with_config(config: Craft3dConfig) -> Craft3dTree<()> {
+        Craft3dTree {
+            nodes: SlotMap::with_capacity(config.capacity),
+            node_context_data: SecondaryMap::with_capacity(config.capacity),
+            config,
+        }
+    }
+}
+
+impl Default for Craft3dTree {
+    fn default() -> Craft3dTree<()> {
+        Craft3dTree::new()
     }
 }
 
 #[wasm_bindgen]
 #[derive(Clone)]
 pub struct Allocator {
-    // taffy: Rc<RefCell<taffy::Taffy>>,
+    craft3d: Rc<RefCell<Craft3dTree>>,
 }
 
 #[wasm_bindgen]
@@ -396,7 +217,7 @@ impl Allocator {
     #[wasm_bindgen(constructor)]
     pub fn new() -> Self {
         Self {
-            // TODO
+            craft3d: Rc::new(RefCell::new(Craft3dTree::new())),
         }
     }
 }

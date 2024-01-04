@@ -1,4 +1,6 @@
+import * as craft3d from '@bindings/craft3d';
 import * as taffy from '@bindings/taffy';
+
 import DOMExceptionImpl from '../living/domexception';
 import { MediaPlayerBackend, NativeDocument, ResourceLoader } from '../impl-interfaces';
 import { AssetsBundle } from './resources/AssetsBundle';
@@ -183,6 +185,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
    * Prepare some fields internally.
    */
   _prepare() {
+    this._craft3dAllocator = new craft3d.Allocator();
     this._taffyAllocator = new taffy.Allocator();
 
     /**
@@ -268,8 +271,12 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   /**
    * @internal
    * 
-   * The Layout library shared allocator.
+   * The Layout library shared allocators.
+   * 
+   * craft3d: 3d layout
+   * taffy: 2d layout
    */
+  _craft3dAllocator: craft3d.Allocator;
   _taffyAllocator: taffy.Allocator;
 
   [index: number]: Window;
@@ -423,6 +430,8 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     this.#nativeDocument.close();
 
     // Dispose self after the native document is closed.
+    this._craft3dAllocator.free();
+    this._craft3dAllocator = null;
     this._taffyAllocator.free();
     this._taffyAllocator = null;
   }
