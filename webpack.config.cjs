@@ -106,6 +106,7 @@ module.exports = [
         assert: require.resolve('assert-browserify'),
         'process/browser': require.resolve('process/browser'),
         '@bindings/taffy': require.resolve('./bindings/taffy'),
+        '@bindings/noise': require.resolve('./bindings/noise'),
       },
     },
     plugins: [
@@ -132,6 +133,7 @@ module.exports = [
       extensions: ['.ts', '.js'],
       fallback: {
         '@bindings/taffy': require.resolve('./bindings/taffy'),
+        '@bindings/noise': require.resolve('./bindings/noise'),
       }
     },
     plugins: [
@@ -165,6 +167,7 @@ module.exports = [
       extensions: ['.ts', '.js'],
       fallback: {
         '@bindings/taffy': require.resolve('./bindings/taffy'),
+        '@bindings/noise': require.resolve('./bindings/noise'),
       }
     },
     plugins: [

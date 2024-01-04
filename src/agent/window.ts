@@ -16,6 +16,7 @@ import { clearTimer, stopAllTimers, timerInitializationSteps } from './timers';
 import { getInterfaceWrapper } from '../living/interfaces';
 
 // Global interface types.
+import type NoiseImpl from '../living/crypto/Noise';
 import type XRPoseImpl from '../living/xr/XRPose';
 import type XRRigidTransformImpl from '../living/xr/XRRigidTransform';
 import type XRSessionImpl from '../living/xr/XRSession';
@@ -57,6 +58,11 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
 
   URL = globalThis.URL;
   Blob = globalThis.Blob;
+
+  /**
+   * Web Crypto
+   */
+  Noise: typeof NoiseImpl;
 
   /**
    * DOM Geometry Interfaces
@@ -164,6 +170,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     this._taffyAllocator = new taffy.Allocator();
 
     // Set the DOM & Web interfaces
+    this.Noise = getInterfaceWrapper('Noise');
     this.DOMRect = getInterfaceWrapper('DOMRect');
     this.DOMRectReadOnly = getInterfaceWrapper('DOMRectReadOnly');
     this.DOMPoint = getInterfaceWrapper('DOMPoint');

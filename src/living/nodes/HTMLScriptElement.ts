@@ -781,6 +781,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       Audio: windowBase.Audio,
       ImageData: getInterfaceWrapper('ImageData'),
       OffscreenCanvas: globalThis.OffscreenCanvas,
+      Noise: windowBase.Noise,
 
       atob: windowBase.atob,
       btoa: windowBase.btoa,

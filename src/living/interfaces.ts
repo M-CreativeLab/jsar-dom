@@ -8,6 +8,7 @@ import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
 import type HTMLImageElementImpl from './nodes/HTMLImageElement';
 import type { SpatialElement } from './nodes/SpatialElement';
 import type ImageDataImpl from './image/ImageData';
+import type NoiseImpl from './crypto/Noise';
 import type DOMPointImpl from './geometry/DOMPoint';
 import type DOMPointReadOnlyImpl from './geometry/DOMPointReadOnly';
 import type DOMRectImpl from './geometry/DOMRect';
@@ -84,6 +85,7 @@ export async function loadImplementations() {
     import('./range/Range'),
     import('./mutation-observer/MutationObserver'),
     import('./mutation-observer/MutationRecord'),
+    import('./crypto/Noise'),
     import('./geometry/DOMPoint'),
     import('./geometry/DOMPointReadOnly'),
     import('./geometry/DOMRect'),
@@ -142,6 +144,7 @@ export async function loadImplementations() {
     { RangeImpl },
     { MutationObserverImpl },
     { MutationRecordImpl },
+    NoiseImpl,
     DOMPointImpl,
     DOMPointReadOnlyImpl,
     DOMRectImpl,
@@ -194,6 +197,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('Range', RangeImpl);
     implementedInterfaces.set('MutationObserver', MutationObserverImpl);
     implementedInterfaces.set('MutationRecord', MutationRecordImpl);
+    implementedInterfaces.set('Noise', NoiseImpl.default);
     implementedInterfaces.set('DOMPoint', DOMPointImpl.default);
     implementedInterfaces.set('DOMPointReadOnly', DOMPointReadOnlyImpl.default);
     implementedInterfaces.set('DOMRect', DOMRectImpl.default);
@@ -216,6 +220,7 @@ export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleE
 export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
 export function getInterfaceWrapper(name: 'HTMLImageElement'): typeof HTMLImageElementImpl;
 export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
+export function getInterfaceWrapper(name: 'Noise'): typeof NoiseImpl;
 export function getInterfaceWrapper(name: 'DOMPoint'): typeof DOMPointImpl;
 export function getInterfaceWrapper(name: 'DOMPointReadOnly'): typeof DOMPointReadOnlyImpl;
 export function getInterfaceWrapper(name: 'DOMRect'): typeof DOMRectImpl;

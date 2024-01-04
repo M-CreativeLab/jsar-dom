@@ -21,5 +21,6 @@ module.exports = {
   ],
   moduleNameMapper: {
     '@bindings/taffy': '<rootDir>/bindings/taffy',
+    '@bindings/noise': '<rootDir>/bindings/noise',
   },
 };

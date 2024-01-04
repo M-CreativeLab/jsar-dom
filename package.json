@@ -10,8 +10,7 @@
   "scripts": {
     "build-types": "node ./types/build.cjs",
     "build-release": "webpack --mode production",
-    "binding-taffy": "wasm-pack build bindings/taffy --target web",
-    "bindings": "npm run binding-taffy",
+    "bindings": "node ./bindings/tools/build.cjs",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "gen-cdpfiles": "node --loader ./tsconfig-esm-loader.js src/cdp/builder/main.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",

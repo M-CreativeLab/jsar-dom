@@ -17,7 +17,8 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@bindings/taffy": ["./bindings/taffy"]
+      "@bindings/taffy": ["./bindings/taffy"],
+      "@bindings/noise": ["./bindings/noise"],
     }
   },
   "include": [

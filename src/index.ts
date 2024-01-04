@@ -2,6 +2,7 @@ import 'babylonjs';
 import './living/helpers/babylonjs/patches';
 import './living/helpers/babylonjs/loaders/gLTF/index';
 import * as taffy from '@bindings/taffy';
+import * as noise from '@bindings/noise';
 
 import { parseIntoDocument } from './agent/parser';
 import { BaseWindowImpl, WindowOrDOMInit, createWindow } from './agent/window';
@@ -113,7 +114,10 @@ export class JSARDOM<T extends NativeDocument> {
     await loadDOMInterfaceImplementations();
 
     // load native bindings
-    await taffy.loadTaffy();
+    await Promise.all([
+      taffy.loadTaffy(),
+      noise.loadNoise(),
+    ]);
 
     // prepare the window such as create layout/render context and load window's global interfaces.
     this[windowSymbol]._prepare();
