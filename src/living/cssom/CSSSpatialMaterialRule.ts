@@ -3,6 +3,7 @@ import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
 import { AtMaterial, parseCss, css, isComment } from '../helpers/spatial-css-parser';
 import CSSRuleImpl from './CSSRule';
 import CSSSpatialStyleDeclaration from './CSSSpatialStyleDeclaration';
+import GridMaterial from './materials/GridMaterial';
 
 export default class CSSSpatialMaterialRule extends CSSRuleImpl {
   readonly style: CSSSpatialStyleDeclaration = new CSSSpatialStyleDeclaration();
@@ -110,6 +111,34 @@ export default class CSSSpatialMaterialRule extends CSSRuleImpl {
       if (this.style.bumpTexture) {
         this._setMaterialTexture('bump-texture', texture => mat.bumpTexture = texture);
       }
+      this._material = mat;
+    } else if (type === 'grid') {
+      let gridWidth: number = undefined;
+      let gridHeight: number = undefined;
+      if (this.style.materialGridWidth) {
+        gridWidth = this.style._getPropertyValue('material-grid-width').toLength()?.number;
+      }
+      if (this.style.materialGridHeight) {
+        gridHeight = this.style._getPropertyValue('material-grid-height').toLength()?.number;
+      }
+
+      const mat = new GridMaterial(this.name, this._scene, gridWidth, gridHeight);
+      if (this.style.materialGridBackgroundColor) {
+        this._setMaterialColor('material-grid-background-color', color => mat.backgroundColor = color.toHexString());
+      }
+      if (this.style.materialGridCellWidth) {
+        mat.cellWidth = this.style._getPropertyValue('material-grid-cell-width');
+      }
+      if (this.style.materialGridCellHeight) {
+        mat.cellHeight = this.style._getPropertyValue('material-grid-cell-height').toNumber();
+      }
+      if (this.style.materialGridMajorLineColor) {
+        this._setMaterialColor('material-grid-major-line-color', color => mat.majorLineColor = color.toHexString());
+      }
+      if (this.style.materialGridMinorLineColor) {
+        this._setMaterialColor('material-grid-minor-line-color', color => mat.minorLineColor = color.toHexString());
+      }
+      mat._enable();
       this._material = mat;
     } else {
       const mat = new BABYLON.StandardMaterial(this.name, this._scene);

@@ -159,6 +159,14 @@ export class PropertyValue<T = any> {
     }
   }
 
+  toLength() {
+    if (this.type === CSSValueType.LENGTH) {
+      return (this as PropertyLengthValue).value;
+    } else {
+      return undefined;
+    }
+  }
+
   toAngle(as: 'deg' | 'rad' | 'grad' = 'deg') {
     if (this.type === CSSValueType.ANGLE) {
       switch (as) {

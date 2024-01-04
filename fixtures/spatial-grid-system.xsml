@@ -5,12 +5,15 @@
       @material example {
         diffuse-texture: url(https://playground.babylonjs.com/textures/misc.jpg);
       }
+      @material my_grid {
+        material-type: grid;
+      }
 
       #box-bound {
         rotation: 0 -45 0;
       }
       #box-bound plane {
-        material: "example";
+        material: "my_grid";
       }
       #plane-x {
         position: 0 0 0.5;
@@ -24,7 +27,6 @@
         position: 0 -0.5 0;
         rotation: 90 0 0;
       }
-
       #game-panel {
         y: 0.75;
       }
@@ -32,9 +34,9 @@
   </head>
   <space>
     <bound id="box-bound">
-      <plane id="plane-x" side-orientation="double" />
-      <plane id="plane-y" side-orientation="double" />
-      <plane id="plane-z" side-orientation="double" />
+      <plane id="plane-x" />
+      <plane id="plane-y" />
+      <plane id="plane-z" />
     </bound>
     <plane id="game-panel" height="0.5" width="1">
       <style type="text/css">

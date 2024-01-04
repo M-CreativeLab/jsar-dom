@@ -21,4 +21,3 @@ createImageBitmap(new Blob([wallPic], { type: 'image/jpeg' })).then((bitmap) => 
   const wallMaterial = wall.asNativeType<BABYLON.Mesh>().material as BABYLON.StandardMaterial;
   wallMaterial.diffuseTexture = wallTexture;
 });
-

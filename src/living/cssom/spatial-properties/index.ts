@@ -15,6 +15,13 @@ import material from './material';
 import materialType from './material-type';
 import materialAlphaMode from './material-alpha-mode';
 import materialOrientation from './material-orientation';
+import materialGridBackgroundColor from './material-grid-background-color';
+import materialGridWidth from './material-grid-width';
+import materialGridHeight from './material-grid-height';
+import materialGridCellWidth from './material-grid-cell-width';
+import materialGridCellHeight from './material-grid-cell-height';
+import materialGridMajorLineColor from './material-grid-major-line-color';
+import materialGridMinorLineColor from './material-grid-minor-line-color';
 import wireframe from './wireframe';
 import diffuseColor from './diffuse-color';
 import diffuseTexture from './diffuse-texture';
@@ -52,6 +59,20 @@ export interface CSSSpatialStyleProperties {
   materialAlphaMode: string;
   'material-orientation': string;
   materialOrientation: string;
+  'material-grid-background-color': string;
+  materialGridBackgroundColor: string;
+  'material-grid-width': string;
+  materialGridWidth: string;
+  'material-grid-height': string;
+  materialGridHeight: string;
+  'material-grid-cell-width': string;
+  materialGridCellWidth: string;
+  'material-grid-cell-height': string;
+  materialGridCellHeight: string;
+  'material-grid-major-line-color': string;
+  materialGridMajorLineColor: string;
+  'material-grid-minor-line-color': string;
+  materialGridMinorLineColor: string;
   wireframe: string;
 
   // Standard material
@@ -109,6 +130,20 @@ export function mixinWithSpatialStyleProperties(spatialStyleDeclaration: CSSSpat
     materialAlphaMode,
     'material-orientation': materialOrientation,
     materialOrientation,
+    'material-grid-background-color': materialGridBackgroundColor,
+    materialGridBackgroundColor,
+    'material-grid-width': materialGridWidth,
+    materialGridWidth,
+    'material-grid-height': materialGridHeight,
+    materialGridHeight,
+    'material-grid-cell-width': materialGridCellWidth,
+    materialGridCellWidth,
+    'material-grid-cell-height': materialGridCellHeight,
+    materialGridCellHeight,
+    'material-grid-major-line-color': materialGridMajorLineColor,
+    materialGridMajorLineColor,
+    'material-grid-minor-line-color': materialGridMinorLineColor,
+    materialGridMinorLineColor,
     wireframe,
 
     'diffuse-color': diffuseColor,
