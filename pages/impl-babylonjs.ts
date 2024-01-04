@@ -144,6 +144,9 @@ class UserAgentOnBabylonjs implements UserAgent {
   vibrate(pattern: VibratePattern): boolean {
     return navigator.vibrate(pattern);
   }
+  getWebSocketConstructor(): typeof WebSocket {
+    return globalThis.WebSocket;
+  }
   getMediaPlayerConstructor(): MediaPlayerConstructor {
     return AudioPlayerOnBabylonjs;
   }

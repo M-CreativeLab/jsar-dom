@@ -14,6 +14,7 @@ export interface ScriptContext {
 
   URL: typeof URL;
   Blob: typeof Blob;
+  WebSocket: typeof WebSocket;
   Audio: typeof Audio;
   ImageData: typeof ImageData;
   OffscreenCanvas: typeof OffscreenCanvas;

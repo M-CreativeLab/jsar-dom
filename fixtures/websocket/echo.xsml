@@ -1,0 +1,41 @@
+<xsml>
+  <head>
+    <title>WebSocket Example (Echo)</title>
+  </head>
+  <space>
+    <plane id="ui-cube" size="1">
+      <style type="text/css">
+        section {
+          background-color: rgba(255, 0, 0, 0.1);
+          display: block;
+          height: 100%;
+          width: 100%;
+          padding: 50px;
+        }
+        section > * {
+          color: #fff;
+        }
+      </style>
+      <section>
+        <h1>Echo Response Testing</h1>
+        <p>Connect to wss://echo.websocket.org</p>
+        <p class="text">Response: waiting...</p>
+      </section>
+    </plane>
+  </space>
+  <script>
+    const panelRoot = spatialDocument.querySelector('#ui-cube').shadowRoot;
+    const section = panelRoot.querySelector('section');
+    const text = section.querySelector('.text');
+
+    const ws = new WebSocket('wss://echo.websocket.org');
+    ws.onopen = () => {
+      setInterval(() => {
+        ws.send(`hello world ${Date.now()}`);
+      }, 1000);
+    };
+    ws.onmessage = (e) => {
+      text.textContent = text.textContent + `\nResponse: received "${e.data}"`;
+    };
+  </script>
+</xsml>

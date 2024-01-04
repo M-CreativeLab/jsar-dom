@@ -152,6 +152,11 @@ export interface UserAgent {
   vibrate?(pattern: VibratePattern): boolean;
 
   /**
+   * It returns a `WebSocket` constructor, which is used to create a WebSocket connection.
+   */
+  getWebSocketConstructor?(): typeof WebSocket;
+
+  /**
    * It returns a `MediaPlayer` constructor, which is used to play audio or video as the backend of HTMLMediaElement.
    */
   getMediaPlayerConstructor?(): MediaPlayerConstructor;
@@ -195,6 +200,11 @@ export interface NativeDocument extends EventTarget {
    * It returns a `XRPose` which represents the pose of the container of the document in space.
    */
   getContainerPose(): XRPose;
+
+  /**
+   * It returns a `XRPose` which represents the pose of the viewer in space.
+   */
+  getViewerPose?(): XRPose;
 
   /**
    * It returns a map of preloaded meshes.

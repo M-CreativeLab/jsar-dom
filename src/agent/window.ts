@@ -50,14 +50,23 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   #assetsBundles: Map<string, AssetsBundle> = new Map();
   #listOfActiveTimers: Map<number, number> = new Map();
   #listOfAudioPlayers: Set<MediaPlayerBackend> = new Set();
+  #listOfWebSockets: Set<WebSocket> = new Set();
   #audioConstructor: typeof Audio;
   /**
    * NOTE: This is only available when the NativeDocument implements `cdpTransport`.
    */
   _cdpImplementation: CdpServerImplementation | null = null;
 
+  /**
+   * Bypass the following properties from global context.
+   */
   URL = globalThis.URL;
   Blob = globalThis.Blob;
+
+  /**
+   * WebSocket
+   */
+  WebSocket: (url: string, protocols?: string | string[]) => WebSocket;
 
   /**
    * Web Crypto
@@ -157,6 +166,13 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     this.#listOfAudioPlayers.clear();
   }
 
+  #disposeWebSockets() {
+    for (const websocket of this.#listOfWebSockets) {
+      websocket.close()
+    }
+    this.#listOfWebSockets.clear();
+  }
+
   /**
    * Internals access
    */
@@ -169,7 +185,20 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   _prepare() {
     this._taffyAllocator = new taffy.Allocator();
 
-    // Set the DOM & Web interfaces
+    /**
+     * Set the DOM & Web interfaces
+     */
+    const listOfWebSockets = this.#listOfWebSockets;
+    const { getWebSocketConstructor } = this.#nativeDocument.userAgent;
+    this.WebSocket = function (url: string, protocols?: string | string[]): WebSocket {
+      if (typeof getWebSocketConstructor !== 'function') {
+        throw new Error('`window.WebSocket` is not supported.');
+      }
+      const WebSocketConstructor = getWebSocketConstructor();
+      const ws = new WebSocketConstructor(url, protocols);
+      listOfWebSockets.add(ws);
+      return ws;
+    };
     this.Noise = getInterfaceWrapper('Noise');
     this.DOMRect = getInterfaceWrapper('DOMRect');
     this.DOMRectReadOnly = getInterfaceWrapper('DOMRectReadOnly');
@@ -390,6 +419,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   close(): void {
     stopAllTimers();
     this.#disposeAudioPlayers();
+    this.#disposeWebSockets();
     this.#nativeDocument.close();
 
     // Dispose self after the native document is closed.
