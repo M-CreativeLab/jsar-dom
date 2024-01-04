@@ -20,6 +20,7 @@ module.exports = {
     'cobertura',
   ],
   moduleNameMapper: {
+    '@bindings/craft3d': '<rootDir>/bindings/craft3d',
     '@bindings/taffy': '<rootDir>/bindings/taffy',
     '@bindings/noise': '<rootDir>/bindings/noise',
   },

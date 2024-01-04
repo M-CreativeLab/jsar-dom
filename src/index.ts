@@ -1,6 +1,7 @@
 import 'babylonjs';
 import './living/helpers/babylonjs/patches';
 import './living/helpers/babylonjs/loaders/gLTF/index';
+import * as craft3d from '@bindings/craft3d';
 import * as taffy from '@bindings/taffy';
 import * as noise from '@bindings/noise';
 
@@ -115,6 +116,7 @@ export class JSARDOM<T extends NativeDocument> {
 
     // load native bindings
     await Promise.all([
+      craft3d.loadCraft3D(),
       taffy.loadTaffy(),
       noise.loadNoise(),
     ]);

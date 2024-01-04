@@ -1,6 +1,7 @@
 const { execSync } = require('child_process');
 
 [
+  '../craft3d',
   '../taffy',
   '../noise',
 ].forEach(path => {
