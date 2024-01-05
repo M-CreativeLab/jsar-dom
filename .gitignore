@@ -129,5 +129,8 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
+# rust
+target
+
 # macos
 .DS_Store

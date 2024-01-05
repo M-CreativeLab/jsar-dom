@@ -171,7 +171,7 @@ struct NodeData {
     pub(crate) style: Style,
     // pub(crate) unrounded_layout: Layout,
     // pub(crate) final_layout: Layout,
-    // pub(crate) has_context: bool,
+    pub(crate) has_context: bool,
     // pub(crate) cache: Cache,
 }
 
@@ -191,12 +191,22 @@ impl Craft3dTree {
     }
 
     /// Creates a new [`Craft3dTree`] with the given configuration.
-    pub fn with_config(config: Craft3dConfig) -> Craft3dTree<()> {
+    fn with_config(config: Craft3dConfig) -> Craft3dTree<()> {
         Craft3dTree {
             nodes: SlotMap::with_capacity(config.capacity),
             node_context_data: SecondaryMap::with_capacity(config.capacity),
             config,
         }
+    }
+
+    /// Enable rounding of layout values. Rounding is enabled by default.
+    pub fn enable_rounding(&mut self) {
+        self.config.use_rounding = true;
+    }
+
+    /// Disable rounding of layout values. Rounding is enabled by default.
+    pub fn disable_rounding(&mut self) {
+        self.config.use_rounding = false;
     }
 }
 
