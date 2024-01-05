@@ -15,7 +15,8 @@
     "gen-cdpfiles": "node --loader ./tsconfig-esm-loader.js src/cdp/builder/main.ts",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
-    "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts"
+    "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts",
+    "prepublishOnly": "node ./prepublish.cjs"
   },
   "repository": {
     "type": "git",
