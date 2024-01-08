@@ -87,6 +87,8 @@ pub enum RequestedAxis {
   Horizontal,
   /// The vertical axis
   Vertical,
+  /// The depth axis
+  Depth,
   /// Both axes
   Both,
 }
@@ -96,6 +98,7 @@ impl From<AbsoluteAxis> for RequestedAxis {
     match value {
       AbsoluteAxis::Horizontal => RequestedAxis::Horizontal,
       AbsoluteAxis::Vertical => RequestedAxis::Vertical,
+      AbsoluteAxis::Depth => RequestedAxis::Depth,
     }
   }
 }
@@ -105,6 +108,7 @@ impl TryFrom<RequestedAxis> for AbsoluteAxis {
     match value {
       RequestedAxis::Horizontal => Ok(AbsoluteAxis::Horizontal),
       RequestedAxis::Vertical => Ok(AbsoluteAxis::Vertical),
+      RequestedAxis::Depth => Ok(AbsoluteAxis::Depth),
       RequestedAxis::Both => Err(()),
     }
   }

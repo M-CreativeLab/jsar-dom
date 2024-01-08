@@ -10,7 +10,6 @@ pub mod style_helpers;
 pub mod tree;
 pub mod util;
 
-use js_sys::Function;
 use js_sys::Reflect;
 use prelude::NodeId;
 use std::cell::RefCell;
@@ -97,6 +96,54 @@ impl From<i32> for AlignSelf {
       1 => AlignSelf::End,
       2 => AlignSelf::Center,
       _ => AlignSelf::Start,
+    }
+  }
+}
+
+#[wasm_bindgen]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AlignContent {
+  Start,
+  End,
+  FlexStart,
+  FlexEnd,
+  Center,
+  Stretch,
+  SpaceBetween,
+  SpaceEvenly,
+  SpaceAround,
+}
+
+impl Into<crate::style::AlignContent> for AlignContent {
+  fn into(self) -> crate::style::AlignContent {
+    match self {
+      AlignContent::Start => crate::style::AlignContent::Start,
+      AlignContent::End => crate::style::AlignContent::End,
+      AlignContent::FlexStart => crate::style::AlignContent::FlexStart,
+      AlignContent::FlexEnd => crate::style::AlignContent::FlexEnd,
+      AlignContent::Center => crate::style::AlignContent::Center,
+      AlignContent::Stretch => crate::style::AlignContent::Stretch,
+      AlignContent::SpaceBetween => crate::style::AlignContent::SpaceBetween,
+      AlignContent::SpaceEvenly => crate::style::AlignContent::SpaceEvenly,
+      AlignContent::SpaceAround => crate::style::AlignContent::SpaceAround,
+    }
+  }
+}
+
+impl From<i32> for AlignContent {
+  fn from(n: i32) -> Self {
+    match n {
+      0 => AlignContent::Start,
+      1 => AlignContent::End,
+      2 => AlignContent::FlexStart,
+      3 => AlignContent::FlexEnd,
+      4 => AlignContent::Center,
+      5 => AlignContent::Stretch,
+      6 => AlignContent::SpaceBetween,
+      7 => AlignContent::SpaceEvenly,
+      8 => AlignContent::SpaceAround,
+      _ => AlignContent::Start,
     }
   }
 }
@@ -225,6 +272,39 @@ impl From<i32> for FlexWrap {
 }
 
 #[wasm_bindgen]
+#[repr(u8)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Overflow {
+  Visible,
+  Hidden,
+  Scroll,
+  Clip,
+}
+
+impl Into<crate::style::Overflow> for Overflow {
+  fn into(self) -> crate::style::Overflow {
+    match self {
+      Overflow::Visible => crate::style::Overflow::Visible,
+      Overflow::Hidden => crate::style::Overflow::Hidden,
+      Overflow::Scroll => crate::style::Overflow::Scroll,
+      Overflow::Clip => crate::style::Overflow::Clip,
+    }
+  }
+}
+
+impl From<i32> for Overflow {
+  fn from(n: i32) -> Self {
+    match n {
+      0 => Overflow::Visible,
+      1 => Overflow::Hidden,
+      2 => Overflow::Scroll,
+      3 => Overflow::Clip,
+      _ => Overflow::Visible,
+    }
+  }
+}
+
+#[wasm_bindgen]
 #[derive(Clone)]
 pub struct Allocator {
   craft3d: Rc<RefCell<Craft3dTree>>,
@@ -234,6 +314,8 @@ pub struct Allocator {
 impl Allocator {
   #[wasm_bindgen(constructor)]
   pub fn new() -> Self {
+    util::set_panic_hook();
+
     Self {
       craft3d: Rc::new(RefCell::new(Craft3dTree::new())),
     }
@@ -586,13 +668,29 @@ fn parse_style(style: &JsValue) -> crate::style::Style {
       height: get_size_dimension(style, "maxHeight"),
     },
 
-    justify_items: todo!(),
-    justify_content: todo!(),
-    justify_self: todo!(),
-    align_content: todo!(),
+    // TODO
+    justify_items: get_i32(style, "justifyItems")
+      .map(|i| Some(AlignItems::from(i).into()))
+      .unwrap_or_default(),
+    justify_content: get_i32(style, "justifyContent")
+      .map(|i| Some(AlignContent::from(i).into()))
+      .unwrap_or_default(),
+    justify_self: get_i32(style, "justifySelf")
+      .map(|i| Some(AlignSelf::from(i).into()))
+      .unwrap_or_default(),
+    align_content: get_i32(style, "alignContent")
+      .map(|i| Some(AlignContent::from(i).into()))
+      .unwrap_or_default(),
 
     aspect_ratio: get_f32(style, "aspectRatio"),
-    overflow: todo!(),
-    scrollbar_width: todo!(),
+    overflow: crate::geometry::Point {
+      x: get_i32(style, "overflowX")
+        .map(|i| Overflow::from(i).into())
+        .unwrap_or_default(),
+      y: get_i32(style, "overflowY")
+        .map(|i| Overflow::from(i).into())
+        .unwrap_or_default(),
+    },
+    scrollbar_width: 1024.0,
   }
 }

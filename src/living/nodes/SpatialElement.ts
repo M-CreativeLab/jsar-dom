@@ -1,9 +1,10 @@
+import * as craft3d from '@bindings/craft3d';
 import DOMException from '../domexception';
 import { NativeDocument } from '../../impl-interfaces';
 import { NodeImpl } from './Node';
 import { ElementImpl } from './Element';
 import { ShadowRootImpl } from './ShadowRoot';
-import { SPATIAL_OBJECT_GUID_SYMBOL } from '../../symbols';
+import { SPATIAL_OBJECT_GUID_SYMBOL, SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL } from '../../symbols';
 import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import { createSpatialAnimation } from '../helpers/spatial-animations';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
@@ -22,6 +23,11 @@ export class SpatialElement extends ElementImpl {
    * The GUID.
    */
   [SPATIAL_OBJECT_GUID_SYMBOL]: string;
+
+  /**
+   * The craft3d node.
+   */
+  [SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL]: craft3d.Node;
 
   /**
    * @deprecated use `NodeTypes.isSpatialElement()` instaed.
@@ -118,6 +124,18 @@ export class SpatialElement extends ElementImpl {
         this.attachShadow();
       }
     }
+
+    /**
+     * Create layout node.
+     */
+    const allocator = this._ownerDocument._defaultView._craft3dAllocator;
+    this[SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL] = new craft3d.Node(allocator, this, {
+      // TODO: add spatial styles
+    });
+
+    /**
+     * Call the original `_attach` method in the last step.
+     */
     super._attach();
   }
 

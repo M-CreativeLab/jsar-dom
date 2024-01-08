@@ -202,6 +202,7 @@ impl<NodeContext> PrintTree for Craft3dTree<NodeContext> {
         match node.style.flex_direction {
           FlexDirection::Row | FlexDirection::RowReverse => "FLEX ROW",
           FlexDirection::Column | FlexDirection::ColumnReverse => "FLEX COL",
+          FlexDirection::Depth | FlexDirection::DepthReverse => "FLEX DEPTH",
         }
       }
     }
