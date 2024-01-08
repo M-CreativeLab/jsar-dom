@@ -76,6 +76,12 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   Noise: typeof NoiseImpl;
 
   /**
+   * Images & Canvas
+   */
+  ImageData: typeof ImageData;
+  OffscreenCanvas: typeof OffscreenCanvas;
+
+  /**
    * DOM Geometry Interfaces
    */
   DOMRect: typeof DOMRectImpl;
@@ -203,6 +209,11 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
       return ws;
     };
     this.Noise = getInterfaceWrapper('Noise');
+    if (globalThis.ImageData) {
+      this.ImageData = globalThis.ImageData;
+    } else {
+      this.ImageData = getInterfaceWrapper('ImageData');
+    }
     this.DOMRect = getInterfaceWrapper('DOMRect');
     this.DOMRectReadOnly = getInterfaceWrapper('DOMRectReadOnly');
     this.DOMPoint = getInterfaceWrapper('DOMPoint');

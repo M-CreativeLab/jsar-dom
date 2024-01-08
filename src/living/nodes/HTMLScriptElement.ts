@@ -780,7 +780,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       Blob: windowBase.Blob,
       WebSocket: windowBase.WebSocket as unknown as typeof WebSocket,
       Audio: windowBase.Audio,
-      ImageData: getInterfaceWrapper('ImageData'),
+      ImageData: windowBase.ImageData,
       OffscreenCanvas: globalThis.OffscreenCanvas,
       Noise: windowBase.Noise,
 
