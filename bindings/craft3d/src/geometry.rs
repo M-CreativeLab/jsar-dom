@@ -12,6 +12,8 @@ pub enum AbsoluteAxis {
   Horizontal,
   /// The vertical axis
   Vertical,
+  /// The depth axis
+  Depth,
 }
 
 impl AbsoluteAxis {
@@ -21,6 +23,7 @@ impl AbsoluteAxis {
     match *self {
       AbsoluteAxis::Horizontal => AbsoluteAxis::Vertical,
       AbsoluteAxis::Vertical => AbsoluteAxis::Horizontal,
+      AbsoluteAxis::Depth => AbsoluteAxis::Depth,
     }
   }
 }
@@ -32,6 +35,7 @@ impl<T> Size<T> {
     match axis {
       AbsoluteAxis::Horizontal => self.width,
       AbsoluteAxis::Vertical => self.height,
+      AbsoluteAxis::Depth => self.width,
     }
   }
 }
@@ -43,6 +47,7 @@ impl<T: Add> Rect<T> {
     match axis {
       AbsoluteAxis::Horizontal => self.left + self.right,
       AbsoluteAxis::Vertical => self.top + self.bottom,
+      AbsoluteAxis::Depth => self.left + self.right,
     }
   }
 }

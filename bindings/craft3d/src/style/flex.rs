@@ -54,6 +54,14 @@ pub enum FlexDirection {
   ///
   /// Items will be added from bottom to top in a column.
   ColumnReverse,
+  /// Defines +z as the main axis
+  ///
+  /// Items will be added from back to front in a row.
+  Depth,
+  /// Defines -z as the main axis
+  ///
+  /// Items will be added from front to back in a row.
+  DepthReverse,
 }
 
 impl Default for FlexDirection {
@@ -87,6 +95,7 @@ impl FlexDirection {
     match self {
       Self::Row | Self::RowReverse => AbsoluteAxis::Horizontal,
       Self::Column | Self::ColumnReverse => AbsoluteAxis::Vertical,
+      Self::Depth | Self::DepthReverse => AbsoluteAxis::Depth,
     }
   }
 
@@ -96,6 +105,7 @@ impl FlexDirection {
     match self {
       Self::Row | Self::RowReverse => AbsoluteAxis::Vertical,
       Self::Column | Self::ColumnReverse => AbsoluteAxis::Horizontal,
+      Self::Depth | Self::DepthReverse => AbsoluteAxis::Horizontal,
     }
   }
 }

@@ -134,18 +134,10 @@ impl From<i32> for Display {
 pub enum FlexDirection {
   Row,
   Column,
+  RowReverse,
+  ColumnReverse,
   Depth,
-}
-
-impl From<i32> for FlexDirection {
-  fn from(n: i32) -> Self {
-    match n {
-      0 => FlexDirection::Row,
-      1 => FlexDirection::Column,
-      2 => FlexDirection::Depth,
-      _ => FlexDirection::Row,
-    }
-  }
+  DepthReverse,
 }
 
 impl Into<crate::style::FlexDirection> for FlexDirection {
@@ -153,7 +145,24 @@ impl Into<crate::style::FlexDirection> for FlexDirection {
     match self {
       FlexDirection::Row => crate::style::FlexDirection::Row,
       FlexDirection::Column => crate::style::FlexDirection::Column,
+      FlexDirection::RowReverse => crate::style::FlexDirection::Row,
+      FlexDirection::ColumnReverse => crate::style::FlexDirection::Column,
       FlexDirection::Depth => crate::style::FlexDirection::Row,
+      FlexDirection::DepthReverse => crate::style::FlexDirection::Row,
+    }
+  }
+}
+
+impl From<i32> for FlexDirection {
+  fn from(n: i32) -> Self {
+    match n {
+      0 => FlexDirection::Row,
+      1 => FlexDirection::Column,
+      2 => FlexDirection::RowReverse,
+      3 => FlexDirection::ColumnReverse,
+      4 => FlexDirection::Depth,
+      5 => FlexDirection::DepthReverse,
+      _ => FlexDirection::Row,
     }
   }
 }
@@ -255,7 +264,7 @@ pub struct VolumetricLayout {
 
 #[wasm_bindgen]
 impl VolumetricLayout {
-  fn new(allocator: &Allocator, node: &Node) -> Self {
+  fn new(allocator: &Allocator, node: NodeId) -> Self {
     Self {
       // TODO
       width: 0.0,
@@ -330,55 +339,55 @@ impl Node {
 
   #[wasm_bindgen(js_name = setStyle)]
   pub fn set_style(&mut self, style: &JsValue) {
-    // self.allocator
-    //     .taffy
-    //     .borrow_mut()
-    //     .set_style(self.node, parse_style(style))
-    //     .unwrap();
+    self
+      .allocator
+      .craft3d
+      .borrow_mut()
+      .set_style(self.node, parse_style(style))
+      .unwrap();
     self.style = style.clone();
   }
 
   #[wasm_bindgen(js_name = markDirty)]
   pub fn mark_dirty(&mut self) {
-    // self.allocator
-    //     .taffy
-    //     .borrow_mut()
-    //     .mark_dirty(self.node)
-    //     .unwrap()
+    self
+      .allocator
+      .craft3d
+      .borrow_mut()
+      .mark_dirty(self.node)
+      .unwrap()
   }
 
   #[wasm_bindgen(js_name = isDirty)]
   pub fn is_dirty(&self) -> bool {
-    // self.allocator.taffy.borrow().dirty(self.node).unwrap()
-    true
+    self.allocator.craft3d.borrow().dirty(self.node).unwrap()
   }
 
   #[wasm_bindgen(js_name = isChildless)]
   pub fn is_childless(&mut self) -> bool {
-    // self.allocator.taffy.borrow_mut().is_childless(self.node)
-    false
+    self.allocator.craft3d.borrow_mut().child_count(self.node) == 0
   }
 
   #[wasm_bindgen(js_name = computeLayout)]
-  pub fn compute_layout(&mut self, size: &JsValue) -> bool {
-    // self.allocator
-    //     .taffy
-    //     .borrow_mut()
-    //     .compute_layout(
-    //         self.node,
-    //         taffy::geometry::Size {
-    //             width: get_available_space(size, "width"),
-    //             height: get_available_space(size, "height"),
-    //         },
-    //     )
-    //     .unwrap();
-    // Layout::new(&self.allocator, self.node)
-    true
+  pub fn compute_layout(&mut self, size: &JsValue) -> VolumetricLayout {
+    self
+      .allocator
+      .craft3d
+      .borrow_mut()
+      .compute_layout(
+        self.node,
+        crate::geometry::Size {
+          width: get_available_space(size, "width"),
+          height: get_available_space(size, "height"),
+        },
+      )
+      .unwrap();
+    VolumetricLayout::new(&self.allocator, self.node)
   }
 
   #[wasm_bindgen(js_name = getLayout)]
   pub fn get_layout(&mut self) -> VolumetricLayout {
-    VolumetricLayout::new(&self.allocator, self)
+    VolumetricLayout::new(&self.allocator, self.node)
   }
 }
 
