@@ -105,6 +105,8 @@ export class SpatialElement extends ElementImpl {
     if (node) {
       this._internalObject = node;
     }
+
+    const isInSpatialElement = this.parentNode && SpatialElement.isSpatialElement(this.parentNode);
     if (this._internalObject) {
       /** Add the SpatialObject GUID */
       this._internalObject[SPATIAL_OBJECT_GUID_SYMBOL] = this[SPATIAL_OBJECT_GUID_SYMBOL];
@@ -112,7 +114,7 @@ export class SpatialElement extends ElementImpl {
       this._ownerDocument._guidSOfSpatialObjects.set(this[SPATIAL_OBJECT_GUID_SYMBOL], this);
 
       /** Append the native node(Babylon) into parent if it's a spatial element. */
-      if (this.parentNode && SpatialElement.isSpatialElement(this.parentNode)) {
+      if (isInSpatialElement) {
         this._internalObject.parent = this.parentNode.asNativeType();
       }
 
@@ -132,6 +134,9 @@ export class SpatialElement extends ElementImpl {
     this[SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL] = new craft3d.Node(allocator, this, {
       // TODO: add spatial styles
     });
+    if (isInSpatialElement) {
+      this.parentNode[SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL].addChild(this[SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL]);
+    }
 
     /**
      * Call the original `_attach` method in the last step.
