@@ -27,7 +27,9 @@ export default class DOMPointImpl implements DOMPoint {
   }
   set x(value: number) {
     this._x = value;
-    this[GET_UPDATER_SYMBOL]('x', value);
+    if (typeof this[GET_UPDATER_SYMBOL] === 'function') {
+      this[GET_UPDATER_SYMBOL]('x', value);
+    }
   }
 
   get y(): number {
@@ -35,7 +37,9 @@ export default class DOMPointImpl implements DOMPoint {
   }
   set y(value: number) {
     this._y = value;
-    this[GET_UPDATER_SYMBOL]('y', value);
+    if (typeof this[GET_UPDATER_SYMBOL] === 'function') {
+      this[GET_UPDATER_SYMBOL]('y', value);
+    }
   }
 
   get z(): number {
@@ -43,7 +47,9 @@ export default class DOMPointImpl implements DOMPoint {
   }
   set z(value: number) {
     this._z = value;
-    this[GET_UPDATER_SYMBOL]('z', value);
+    if (typeof this[GET_UPDATER_SYMBOL] === 'function') {
+      this[GET_UPDATER_SYMBOL]('z', value);
+    }
   }
 
   get w(): number {
@@ -51,7 +57,9 @@ export default class DOMPointImpl implements DOMPoint {
   }
   set w(value: number) {
     this._w = value;
-    this[GET_UPDATER_SYMBOL]('w', value);
+    if (typeof this[GET_UPDATER_SYMBOL] === 'function') {
+      this[GET_UPDATER_SYMBOL]('w', value);
+    }
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
