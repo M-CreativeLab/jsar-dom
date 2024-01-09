@@ -8,6 +8,7 @@ import CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
 import { createSpatialAnimation } from '../helpers/spatial-animations';
 import { MATERIAL_BY_SCSS } from '../helpers/babylonjs/tags';
 import { RaycastInputDetail } from '../../input-event';
+import DOMPointImpl, { GET_UPDATER_SYMBOL } from '../geometry/DOMPoint';
 
 export class SpatialElement extends ElementImpl {
   protected _scene: BABYLON.Scene;
@@ -51,6 +52,99 @@ export class SpatialElement extends ElementImpl {
 
     // Set vgoGuid
     this[SPATIAL_OBJECT_GUID_SYMBOL] = BABYLON.Tools.RandomId();
+  }
+
+  get position(): DOMPoint {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not get position from non-transform node.', 'INVALID_STATE_ERR');
+    }
+    const point = DOMPointImpl.fromPoint(this._internalObject.position);
+    point[GET_UPDATER_SYMBOL] = (name: string, value: number) => {
+      const transformNode = this._internalObject as BABYLON.TransformNode;
+      switch (name) {
+        case 'x':
+          transformNode.position.x = value;
+          break;
+        case 'y':
+          transformNode.position.y = value;
+          break;
+        case 'z':
+          transformNode.position.z = value;
+          break;
+        default:
+          break;
+      }
+    };
+    return point;
+  }
+  set position(value: DOMPoint) {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not set position to non-transform node.', 'INVALID_STATE_ERR');
+    }
+    this._internalObject.position = new BABYLON.Vector3(value.x, value.y, value.z);
+  }
+
+  get rotationQuaternion(): DOMPoint {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not get rotation from non-transform node.', 'INVALID_STATE_ERR');
+    }
+    const point = DOMPointImpl.fromPoint(this._internalObject.rotationQuaternion);
+    point[GET_UPDATER_SYMBOL] = (name: string, value: number) => {
+      const transformNode = this._internalObject as BABYLON.TransformNode;
+      switch (name) {
+        case 'w':
+          transformNode.rotationQuaternion.w = value;
+          break;
+        case 'x':
+          transformNode.rotationQuaternion.x = value;
+          break;
+        case 'y':
+          transformNode.rotationQuaternion.y = value;
+          break;
+        case 'z':
+          transformNode.rotationQuaternion.z = value;
+          break;
+        default:
+          break;
+      }
+    };
+    return point;
+  }
+  set rotationQuaternion(value: DOMPoint) {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not set rotation to non-transform node.', 'INVALID_STATE_ERR');
+    }
+    this._internalObject.rotationQuaternion = new BABYLON.Quaternion(value.x, value.y, value.z, value.w);
+  }
+
+  get scaling(): DOMPoint {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not get scaling from non-transform node.', 'INVALID_STATE_ERR');
+    }
+    const point = DOMPointImpl.fromPoint(this._internalObject.scaling);
+    point[GET_UPDATER_SYMBOL] = (name: string, value: number) => {
+      const transformNode = this._internalObject as BABYLON.TransformNode;
+      switch (name) {
+        case 'x':
+          transformNode.scaling.x = value;
+          break;
+        case 'y':
+          transformNode.scaling.y = value;
+          break;
+        case 'z':
+          transformNode.scaling.z = value;
+          break;
+        default:
+          break;
+      }
+    };
+    return point;
+  }
+  set scaling(value: DOMPoint) {
+    if (!(this._internalObject instanceof BABYLON.TransformNode)) {
+      throw new DOMException('Could not set scaling to non-transform node.', 'INVALID_STATE_ERR');
+    }
+    this._internalObject.scaling = new BABYLON.Vector3(value.x, value.y, value.z);
   }
 
   /**
