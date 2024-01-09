@@ -1016,6 +1016,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
        */
       if (this._lastPickedSpatialObject && this._lastPickedSpatialObject !== targetSpatialObject) {
         this._lastPickedSpatialObject._processUnpicking();
+        this._lastPickedSpatialObject = null;
       }
       this._lastPickedSpatialObject = targetSpatialObject;
 
@@ -1023,7 +1024,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
        * Do the picking process.
        */
       targetSpatialObject._processPicking(detail);
-      this._lastPickingTimeout = setTimeout(() => targetSpatialObject._processUnpicking(), 100);
+      this._lastPickingTimeout = setTimeout(() => {
+        targetSpatialObject._processUnpicking();
+        this._lastPickedSpatialObject = null;
+      }, 100);
 
       /**
        * Update the `targetNativeNode` for the deprecated global event `RaycastHitEvent`.
