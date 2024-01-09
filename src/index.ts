@@ -69,7 +69,11 @@ export class JSARDOM<T extends NativeDocument> {
       if (!canParseURL(urlOrPath)) {
         urlOrPath = `file://${urlOrPath}`;
       }
-      markup = await this._nativeDocument.userAgent.resourceLoader.fetch(urlOrPath, {}, 'string');
+      try {
+        markup = await this._nativeDocument.userAgent.resourceLoader.fetch(urlOrPath, {}, 'string');
+      } catch (err) {
+        throw new Error(`Failed to load ${urlOrPath}: ${err}`);
+      }
     } else {
       markup = this._markupOrUrl;
     }

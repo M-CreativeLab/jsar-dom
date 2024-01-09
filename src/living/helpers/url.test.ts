@@ -11,6 +11,12 @@ describe('canParseURL', () => {
     const url = 'example.com';
     expect(canParseURL(url)).toBe(false);
   });
+
+  it('should return false for window path with drive letter', () => {
+    expect(canParseURL('C:\\example')).toBe(false);
+    expect(canParseURL('c:/example')).toBe(false);
+    expect(canParseURL('c:example')).toBe(false);
+  });
 });
 
 describe('join', () => {

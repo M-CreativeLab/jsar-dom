@@ -1,4 +1,5 @@
 import path from 'path';
+import { isWin32 } from '../../utils';
 
 /**
  * Checks if a given string can be parsed as a valid URL.
@@ -6,6 +7,12 @@ import path from 'path';
  * @returns True if the string can be parsed as a valid URL, false otherwise.
  */
 export function canParseURL(url: string): boolean {
+  /**
+   * When the url is a file path with a drive latter, it can't be parsed as a URL.
+   */
+  if (/^[a-zA-Z]:/.test(url)) {
+    return false;
+  }
   try {
     new URL(url);
     return true;

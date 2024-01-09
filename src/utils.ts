@@ -90,3 +90,13 @@ export const treeOrderSorter = function (a, b) {
   // disconnected or equal:
   return 0;
 };
+
+export const isWin32 = function() {
+  if (typeof navigator !== 'undefined') {
+    return navigator.platform === 'Win32';
+  } else if (typeof process !== 'undefined') {
+    return process.platform === 'win32';
+  } else {
+    throw new TypeError('Unsupported platform');
+  }
+}
