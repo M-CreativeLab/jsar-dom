@@ -17,7 +17,6 @@
     ],
     "baseUrl": "./",
     "paths": {
-      "@bindings/craft3d": ["./bindings/craft3d"],
       "@bindings/taffy": ["./bindings/taffy"],
       "@bindings/noise": ["./bindings/noise"],
     }

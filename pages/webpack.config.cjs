@@ -25,7 +25,6 @@ module.exports = {
       path: require.resolve('path-browserify'),
       assert: require.resolve('assert-browserify'),
       'process/browser': require.resolve('process/browser'),
-      '@bindings/craft3d': require.resolve('../bindings/craft3d'),
       '@bindings/taffy': require.resolve('../bindings/taffy'),
       '@bindings/noise': require.resolve('../bindings/noise'),
     },

@@ -1,7 +1,6 @@
 [workspace]
 resolver = "2"
 members = [
-  "bindings/craft3d",
   "bindings/noise",
   "bindings/taffy",
 ]

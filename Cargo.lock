@@ -37,19 +37,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "craft3d-binding"
-version = "0.1.0"
-dependencies = [
- "arrayvec",
- "console_error_panic_hook",
- "js-sys",
- "num-traits",
- "slotmap",
- "wasm-bindgen",
- "wasm-bindgen-test",
-]
-
-[[package]]
 name = "getrandom"
 version = "0.1.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
