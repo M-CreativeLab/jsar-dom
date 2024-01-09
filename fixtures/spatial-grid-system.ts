@@ -8,8 +8,7 @@ function createNewBlock() {
   block.size = 0.1;
   container.appendChild(block);
 
-  const blockMesh = block.asNativeType() as BABYLON.Mesh;
-  blockMesh.position = new BABYLON.Vector3(0, 0.45, 0);
+  block.position = new DOMPoint(0, 0.45, 0);
   return block;
 }
 
