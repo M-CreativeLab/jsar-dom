@@ -4,9 +4,11 @@
   </head>
   <space>
     <cube>
-      <bound>
+      <panel type="stack" orientation="horizontal" margin="0.01">
         <button3d>Change Color</button3d>
-      </bound>
+        <button3d>Change Color</button3d>
+        <button3d>Change Color</button3d>
+      </panel>
     </cube>
   </space>
   <style type="text/scss">

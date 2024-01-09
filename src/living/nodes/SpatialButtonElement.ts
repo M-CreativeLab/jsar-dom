@@ -54,13 +54,13 @@ export default class SpatialButtonElement extends SpatialElement {
       container2d.appendChild(button);
       shadowRoot.appendChild(container2d);
 
-      const originalScaling = container.scaling.clone();
+      const originalScaling = mesh.scaling.clone();
       container2d.addEventListener('mousedown', () => {
-        container.scaling.multiplyInPlace(new BABYLON.Vector3(0.95, 0.95, 0.95));
+        mesh.scaling.multiplyInPlace(new BABYLON.Vector3(0.95, 0.95, 0.95));
       });
       container2d.addEventListener('mouseup', () => {
         this.dispatchEvent(new Event('click')); // dispatch "click" event.
-        container.scaling = originalScaling.clone();
+        mesh.scaling = originalScaling.clone();
       });
     }
   }

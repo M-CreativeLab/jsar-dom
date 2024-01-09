@@ -49,6 +49,7 @@ import SpatialPlaneElement from './SpatialPlaneElement';
 import SpatialSphereElement from './SpatialSphereElement';
 import SpatialIcosphereElement from './SpatialIcosphereElement';
 import SpatialBoundElement from './SpatialBoundElement';
+import SpatialPanelElement from './SpatialPanelElement';
 import SpatialCylinderElement from './SpatialCylinderElement';
 import SpatialCapsuleElement from './SpatialCapsuleElement';
 import SpatialTorusElement from './SpatialTorusElement';
@@ -760,6 +761,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'space'): SpatialSpaceElement;
   createElement(tagName: 'mesh'): SpatialMeshElement;
   createElement(tagName: 'bound'): SpatialBoundElement;
+  createElement(tagName: 'panel'): SpatialPanelElement;
   createElement(tagName: 'cube'): SpatialCubeElement;
   createElement(tagName: 'plane'): SpatialPlaneElement;
   createElement(tagName: 'sphere'): SpatialSphereElement;
@@ -808,6 +810,8 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new SpatialMeshElement(this.#nativeDocument, []);
       case 'bound':
         return new SpatialBoundElement(this.#nativeDocument, []);
+      case 'panel':
+        return new SpatialPanelElement(this.#nativeDocument, []);
       case 'cube':
         return new SpatialCubeElement(this.#nativeDocument, []);
       case 'plane':
