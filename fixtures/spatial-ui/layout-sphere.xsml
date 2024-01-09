@@ -1,0 +1,43 @@
+<xsml>
+  <head>
+    <title>Spatial User Interface Example (Stack Layout)</title>
+  </head>
+  <space>
+    <panel type="sphere" columns="10" margin="0.2">
+      <button3d>Button 1</button3d>
+      <button3d>Button 2</button3d>
+      <button3d>Button 3</button3d>
+      <button3d>Button 4</button3d>
+      <button3d>Button 5</button3d>
+      <button3d>Button 6</button3d>
+      <button3d>Button 7</button3d>
+      <button3d>Button 8</button3d>
+      <button3d>Button 9</button3d>
+      <button3d>Button 10</button3d>
+      <button3d>Button 11</button3d>
+      <button3d>Button 12</button3d>
+      <button3d>Button 13</button3d>
+      <button3d>Button 14</button3d>
+      <button3d>Button 15</button3d>
+      <button3d>Button 16</button3d>
+      <button3d>Button 17</button3d>
+      <button3d>Button 18</button3d>
+      <button3d>Button 19</button3d>
+      <button3d>Button 20</button3d>
+    </panel>
+  </space>
+  <script>
+    const panel = spatialDocument.querySelector('panel');
+
+    let i = 0;
+    const timer = setInterval(() => {
+      if (i > 29) {
+        clearInterval(timer);
+        return;
+      }
+      const button = spatialDocument.createElement('button3d');
+      button.textContent = `X${i++}`;
+      panel.appendChild(button);
+    }, 100);
+  </script>
+</xsml>

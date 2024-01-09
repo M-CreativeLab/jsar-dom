@@ -1,12 +1,12 @@
 <xsml>
   <head>
-    <title>Spatial CSS Example (Stack Layout)</title>
+    <title>Spatial User Interface Example (Stack Layout)</title>
   </head>
   <space>
     <cube>
       <panel type="stack" orientation="horizontal" margin="0.01">
         <button3d>Change Color</button3d>
-        <button3d>Change Color</button3d>
+        <button3d class="change-orientation">Orientation</button3d>
         <button3d>Change Color</button3d>
       </panel>
     </cube>
@@ -41,10 +41,19 @@
   </style>
   <script>
     const cube = spatialDocument.querySelector('cube');
+    const panel = spatialDocument.querySelector('panel');
     const buttons = spatialDocument.querySelectorAll('button3d');
     for (const button of buttons) {
       button.addEventListener('click', function () {
-        cube.asNativeType().material.specularColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        if (button.classList.contains('change-orientation')) {
+          if (panel.orientation === 'horizontal') {
+            panel.orientation = 'vertical';
+          } else {
+            panel.orientation = 'horizontal';
+          }
+        } else {
+          cube.asNativeType().material.specularColor = new BABYLON.Color3(Math.random(), Math.random(), Math.random());
+        }
       });
     }
   </script>
