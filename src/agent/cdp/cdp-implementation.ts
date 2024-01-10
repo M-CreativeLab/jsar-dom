@@ -164,6 +164,7 @@ export class CdpServerImplementation {
 
   private _isLogEnabled: boolean = false;
   private _domNodes: Map<number, NodeImpl> = new Map();
+  private _highlightedMeshes: Set<BABYLON.AbstractMesh> = new Set();
 
   get Log() {
     return this.rootSession.api.Log;
@@ -427,8 +428,16 @@ export class CdpServerImplementation {
           if (node && isSpatialElement(node)) {
             const nativeHandle = node.asNativeType();
             if (nativeHandle instanceof BABYLON.AbstractMesh) {
+              // Clear previous highlights
+              for (const highlighted of this._highlightedMeshes) {
+                highlighted.renderOverlay = false;
+              }
+              this._highlightedMeshes.clear();
+
+              // Highlight new mesh
               nativeHandle.renderOverlay = true;
               nativeHandle.overlayColor = BABYLON.Color3.White();
+              this._highlightedMeshes.add(nativeHandle);
             }
           }
           return {};
