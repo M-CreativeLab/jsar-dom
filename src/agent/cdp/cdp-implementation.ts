@@ -21,6 +21,8 @@ namespace CdpJSAR {
     requests: {
       describeElement: { params: SpatialElement.DescribeElementParams, result: SpatialElement.DescribeElementResult };
       highlightElement: { params: SpatialElement.HighlightElementParams, result: SpatialElement.HighlightElementResult };
+      unhighlightElement: { params: SpatialElement.UnhighlightElementParams, result: SpatialElement.UnhighlightElementResult };
+      unhighlightElements: { params: SpatialElement.UnhighlightElementsParams, result: SpatialElement.UnhighlightElementsResult };
       setTransform: { params: SpatialElement.SetTransformParams, result: SpatialElement.SetTransformResult };
       displayMeshNormals: { params: SpatialElement.DisplayMeshNormalsParams, result: SpatialElement.DisplayMeshNormalsResult };
       displayVertexNormals: { params: SpatialElement.DisplayVertexNormalsParams, result: SpatialElement.DisplayVertexNormalsResult };
@@ -99,6 +101,12 @@ namespace CdpJSAR {
       nodeId: CdpBrowser.DOM.NodeId;
       transform: SpatialTransform;
     }
+    export interface UnhighlightElementParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+    }
+    export interface UnhighlightElementResult {}
+    export interface UnhighlightElementsParams {}
+    export interface UnhighlightElementsResult {}
     export interface SetTransformResult {}
     export interface DisplayMeshNormalsParams {
       nodeId: CdpBrowser.DOM.NodeId;
@@ -428,18 +436,33 @@ export class CdpServerImplementation {
           if (node && isSpatialElement(node)) {
             const nativeHandle = node.asNativeType();
             if (nativeHandle instanceof BABYLON.AbstractMesh) {
-              // Clear previous highlights
-              for (const highlighted of this._highlightedMeshes) {
-                highlighted.renderOverlay = false;
-              }
-              this._highlightedMeshes.clear();
-
-              // Highlight new mesh
               nativeHandle.renderOverlay = true;
               nativeHandle.overlayColor = BABYLON.Color3.White();
               this._highlightedMeshes.add(nativeHandle);
             }
           }
+          return {};
+        },
+        unhighlightElement: async (_client, arg) => {
+          const node = this._domNodes.get(arg.nodeId);
+          if (node && isSpatialElement(node)) {
+            const nativeHandle = node.asNativeType();
+            if (nativeHandle instanceof BABYLON.AbstractMesh) {
+              for (const highlighted of this._highlightedMeshes) {
+                if (highlighted.uniqueId === nativeHandle.uniqueId) {
+                  highlighted.renderOverlay = false;
+                  this._highlightedMeshes.delete(highlighted);
+                }
+              }
+            }
+          }
+          return {};
+        },
+        unhighlightElements: async (_client, arg) => {
+          for (const highlighted of this._highlightedMeshes) {
+            highlighted.renderOverlay = false;
+          }
+          this._highlightedMeshes.clear();
           return {};
         },
         setTransform: async (_client, arg) => {
