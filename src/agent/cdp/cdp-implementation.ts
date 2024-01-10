@@ -21,6 +21,11 @@ namespace CdpJSAR {
     requests: {
       describeElement: { params: SpatialElement.DescribeElementParams, result: SpatialElement.DescribeElementResult };
       highlightElement: { params: SpatialElement.HighlightElementParams, result: SpatialElement.HighlightElementResult };
+      setTransform: { params: SpatialElement.SetTransformParams, result: SpatialElement.SetTransformResult };
+      displayMeshNormals: { params: SpatialElement.DisplayMeshNormalsParams, result: SpatialElement.DisplayMeshNormalsResult };
+      displayVertexNormals: { params: SpatialElement.DisplayVertexNormalsParams, result: SpatialElement.DisplayVertexNormalsResult };
+      displayMeshBones: { params: SpatialElement.DisplayMeshBonesParams, result: SpatialElement.DisplayMeshBonesResult };
+      renderWireframeOverMesh: { params: SpatialElement.RenderWireframeOverMeshParams, result: SpatialElement.RenderWireframeOverMeshResult };
     };
     events: {};
   }
@@ -90,6 +95,31 @@ namespace CdpJSAR {
       nodeId: CdpBrowser.DOM.NodeId;
     }
     export interface HighlightElementResult {}
+    export interface SetTransformParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      transform: SpatialTransform;
+    }
+    export interface SetTransformResult {}
+    export interface DisplayMeshNormalsParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      display: boolean;
+    }
+    export interface DisplayMeshNormalsResult {}
+    export interface DisplayVertexNormalsParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      display: boolean;
+    }
+    export interface DisplayVertexNormalsResult {}
+    export interface DisplayMeshBonesParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      display: boolean;
+    }
+    export interface DisplayMeshBonesResult {}
+    export interface RenderWireframeOverMeshParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+      display: boolean;
+    }
+    export interface RenderWireframeOverMeshResult {}
   }
 }
 
@@ -178,7 +208,6 @@ export class CdpServerImplementation {
           return null;
         },
         async describeNode(client, arg) {
-          console.log('describe node');
           return null;
         },
         async scrollIntoViewIfNeeded(client, arg) {
@@ -402,6 +431,63 @@ export class CdpServerImplementation {
               nativeHandle.overlayColor = BABYLON.Color3.White();
             }
           }
+          return {};
+        },
+        setTransform: async (_client, arg) => {
+          const node = this._domNodes.get(arg.nodeId);
+          if (node && isSpatialElement(node)) {
+            const nativeHandle = node.asNativeType();
+            if (nativeHandle instanceof BABYLON.TransformNode) {
+              if (arg.transform.position) {
+                if (!isNaN(arg.transform.position.x)) {
+                  nativeHandle.position.x = arg.transform.position.x;
+                }
+                if (!isNaN(arg.transform.position.y)) {
+                  nativeHandle.position.y = arg.transform.position.y;
+                }
+                if (!isNaN(arg.transform.position.z)) {
+                  nativeHandle.position.z = arg.transform.position.z;
+                }
+              }
+              if (arg.transform.rotation) {
+                if (!isNaN(arg.transform.rotation.x)) {
+                  nativeHandle.rotationQuaternion.x = arg.transform.rotation.x;
+                }
+                if (!isNaN(arg.transform.rotation.y)) {
+                  nativeHandle.rotationQuaternion.y = arg.transform.rotation.y;
+                }
+                if (!isNaN(arg.transform.rotation.z)) {
+                  nativeHandle.rotationQuaternion.z = arg.transform.rotation.z;
+                }
+                if (!isNaN(arg.transform.rotation.w)) {
+                  nativeHandle.rotationQuaternion.w = arg.transform.rotation.w;
+                }
+              }
+              if (arg.transform.scaling) {
+                if (!isNaN(arg.transform.scaling.x)) {
+                  nativeHandle.scaling.x = arg.transform.scaling.x;
+                }
+                if (!isNaN(arg.transform.scaling.y)) {
+                  nativeHandle.scaling.y = arg.transform.scaling.y;
+                }
+                if (!isNaN(arg.transform.scaling.z)) {
+                  nativeHandle.scaling.z = arg.transform.scaling.z;
+                }
+              }
+            }
+          }
+          return {};
+        },
+        displayMeshNormals: async (_client, _arg) => {
+          return {};
+        },
+        displayMeshBones: async (_client, _arg) => {
+          return {};
+        },
+        displayVertexNormals: async (_client, _arg) => {
+          return {};
+        },
+        renderWireframeOverMesh: async (_client, _arg) => {
           return {};
         },
       }
