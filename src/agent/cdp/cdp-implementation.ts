@@ -20,6 +20,7 @@ namespace CdpJSAR {
   export interface SpatialDOMApi {
     requests: {
       describeElement: { params: SpatialElement.DescribeElementParams, result: SpatialElement.DescribeElementResult };
+      highlightElement: { params: SpatialElement.HighlightElementParams, result: SpatialElement.HighlightElementResult };
     };
     events: {};
   }
@@ -85,6 +86,10 @@ namespace CdpJSAR {
     export interface DescribeElementResult {
       node: SpatialElement.Node;
     }
+    export interface HighlightElementParams {
+      nodeId: CdpBrowser.DOM.NodeId;
+    }
+    export interface HighlightElementResult {}
   }
 }
 
@@ -387,6 +392,17 @@ export class CdpServerImplementation {
             };
           }
           return { node: null };
+        },
+        highlightElement: async (_client, arg) => {
+          const node = this._domNodes.get(arg.nodeId);
+          if (node && isSpatialElement(node)) {
+            const nativeHandle = node.asNativeType();
+            if (nativeHandle instanceof BABYLON.AbstractMesh) {
+              nativeHandle.renderOverlay = true;
+              nativeHandle.overlayColor = BABYLON.Color3.White();
+            }
+          }
+          return {};
         },
       }
     };
