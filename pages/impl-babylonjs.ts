@@ -23,7 +23,6 @@ import { SPATIAL_OBJECT_GUID_SYMBOL } from '../src/symbols';
 
 interface EngineOnBabylonjs extends BABYLON.Engine, EventTarget { }
 class EngineOnBabylonjs extends BABYLON.Engine implements NativeEngine {
-  // TODO
 }
 
 class HeadlessResourceLoader implements ResourceLoader {
@@ -171,6 +170,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     super();
 
     this.engine = new EngineOnBabylonjs(canvas, true);
+    this.engine.setHardwareScalingLevel(1 / window.devicePixelRatio);
     this.userAgent = new UserAgentOnBabylonjs({
       defaultStylesheet: '',
       devicePixelRatio: 1,
@@ -417,6 +417,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   const canvas = document.getElementById('renderCanvas');
   const urlInput = document.getElementById('url-input') as HTMLInputElement;
   const selectBtn = document.getElementById('run-btn');
+  const arBtn = document.getElementById('ar-btn');
+
   selectBtn?.addEventListener('click', async () => {
     if (!urlInput?.value) {
       await load(defaultCode);
@@ -428,6 +430,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (!(await loadFromUrl())) {
     await load(defaultCode);
   }
+
+  arBtn?.addEventListener('click', async () => {
+    const arSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync('immersive-ar');
+    if (arSupported && navigator.xr) {
+      alert('Still in development');
+    } else {
+      alert('AR is not supported on this device.');
+    }
+  });
 
   async function loadFromUrl(): Promise<boolean> {
     if (location.search && location.href) {
