@@ -20,6 +20,7 @@ import { canParseURL } from '../src/living/helpers/url';
 import type ImageDataImpl from '../src/living/image/ImageData';
 import { JSARInputEvent } from '../src/input-event';
 import { SPATIAL_OBJECT_GUID_SYMBOL } from '../src/symbols';
+import { WebXRDefaultExperience } from './xr/DefaultExperience';
 
 interface EngineOnBabylonjs extends BABYLON.Engine, EventTarget { }
 class EngineOnBabylonjs extends BABYLON.Engine implements NativeEngine {
@@ -434,7 +435,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   arBtn?.addEventListener('click', async () => {
     const arSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync('immersive-ar');
     if (arSupported && navigator.xr) {
-      alert('Still in development');
+      const scene = currentDom.nativeDocument.getNativeScene();
+      const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
+      await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local');
+      console.log('entered WebXR session', xrHelper);
     } else {
       alert('AR is not supported on this device.');
     }
