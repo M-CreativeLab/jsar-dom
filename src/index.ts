@@ -1,6 +1,7 @@
 import 'babylonjs';
 import './living/helpers/babylonjs/patches';
 import './living/helpers/babylonjs/loaders/gLTF/index';
+import viewportParser from 'metaviewport-parser';
 import * as taffy from '@bindings/taffy';
 import * as noise from '@bindings/noise';
 
@@ -87,6 +88,10 @@ export class JSARDOM<T extends NativeDocument> {
     });
   }
 
+  /**
+   * The event "spaceReady" is a new event introduced by JSAR, which means the space initialization is finished.
+   * Calling this method will return a promise which will be resolved when the "spaceReady" event is fired.
+   */
   async waitForSpaceReady() {
     if (this.document._isSpaceReady === true) {
       return Promise.resolve();
@@ -95,6 +100,93 @@ export class JSARDOM<T extends NativeDocument> {
         this.document.addEventListener('spaceReady', () => resolve());
       });
     }
+  }
+
+  /**
+   * This method is a shortcut to fetch the basic information of a loaded document.
+   */
+  async createDocumentManifest() {
+    /**
+     * The document manifest is to describe the basic information of a document.
+     */
+    const manifest: Partial<{
+      /**
+       * The version of the document spec, defined by <xsml version="{version}" >.
+       */
+      specVersion: string;
+      /**
+       * The url of the document.
+       */
+      url: string;
+      /**
+       * The title of the document, defined by <title>{title}</title>.
+       */
+      title: string;
+      /**
+       * The charset of the document, defined by <meta charset="{charset}" >.
+       */
+      charset: string;
+      /**
+       * The description of the document, defined by <meta name="description" content="{description}" >.
+       */
+      description: string;
+      /**
+       * The author of the document, defined by <meta name="author" content="{author}" >.
+       */
+      author: string;
+      /**
+       * The keywords of the document, defined by <meta name="keywords" content="{keywords}" >.
+       */
+      keywords: string;
+      /**
+       * The rating of the document, defined by <meta name="rating" content="{rating}" >.
+       */
+      rating: string;
+      /**
+       * The license of the document, defined by <meta name="license" content="{license}" >.
+       */
+      license: string;
+      /**
+       * The license url of the document, defined by <meta name="license-url" content="{licenseUrl}" >.
+       */
+      licenseUrl: string;
+      /**
+       * The viewport of the document, defined by <meta name="viewport" content="{viewport}" >.
+       */
+      viewport: {
+        initialScale: number;
+        maximumScale?: number;
+        minimumScale?: number;
+      }
+    }> = {};
+
+    manifest.specVersion = this.document.querySelector('xsml')?.getAttribute('version') || '1.0';
+    manifest.url = this.document.URL;
+    manifest.title = this.document.title;
+
+    const charsetMeta = this.document.querySelector('meta[charset]');
+    if (charsetMeta) {
+      manifest.charset = charsetMeta.getAttribute('charset') || '';
+    }
+    manifest.description = this.document.querySelector('meta[name="description"]')?.getAttribute('content') || '';
+    manifest.author = this.document.querySelector('meta[name="author"]')?.getAttribute('content') || '';
+    manifest.keywords = this.document.querySelector('meta[name="keywords"]')?.getAttribute('content') || '';
+    manifest.rating = this.document.querySelector('meta[name="rating"]')?.getAttribute('content') || '';
+    manifest.license = this.document.querySelector('meta[name="license"]')?.getAttribute('content') || '';
+    manifest.licenseUrl = this.document.querySelector('meta[name="license-url"]')?.getAttribute('content') || '';
+
+    const viewport = this.document.querySelector('meta[name="viewport"]');
+    if (viewport && viewport.hasAttribute('content')) {
+      const result = viewportParser.parseMetaViewPortContent(viewport.getAttribute('content'));
+      if (result?.validProperties && Object.keys(result.validProperties).length > 0) {
+        manifest.viewport = {
+          initialScale: result.validProperties['initial-scale'],
+          maximumScale: result.validProperties['maximum-scale'],
+          minimumScale: result.validProperties['minimum-scale'],
+        };
+      }
+    }
+    return manifest;
   }
 
   /**

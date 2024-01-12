@@ -110,4 +110,121 @@ describe('JSARDOM', () => {
     expect(dom.document.URL).toBe(xsmlUrl);
     dom.unload();
   });
+
+  it('should create a document manifest from an empty XSML', async () => {
+    const dom = new JSARDOM(`
+  <xsml>
+    <head>
+      <title>Example</title>
+    </head>
+    <space>
+    </space>
+  </xsml>
+        `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    const manifest = await dom.createDocumentManifest();
+    expect(manifest.specVersion).toBe('1.0');
+    expect(manifest.url).toBe('https://example.com/');
+    expect(manifest.title).toBe('Example');
+    dom.unload();
+  });
+
+  it('should create a document manifest with specified version', async () => {
+    const dom = new JSARDOM(`
+  <xsml version="1.1">
+    <head>
+      <title>Example</title>
+    </head>
+    <space>
+    </space>
+  </xsml>
+        `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    const manifest = await dom.createDocumentManifest();
+    expect(manifest.specVersion).toBe('1.1');
+    dom.unload();
+  });
+
+  it('should create a document manifest with specified names and properties', async () => {
+    const dom = new JSARDOM(`
+  <xsml version="1.1">
+    <head>
+      <title>Example</title>
+      <meta charset="utf-8">
+      <meta name="description" content="This is an example.">
+      <meta name="author" content="M-CreativeLab">
+      <meta name="keywords" content="example, xsml">
+      <meta name="rating" content="general">
+      <meta name="license" content="MIT">
+      <meta name="license-url" content="https://opensource.org/licenses/MIT">
+    </head>
+    <space>
+    </space>
+  </xsml>
+        `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    const manifest = await dom.createDocumentManifest();
+    expect(manifest.specVersion).toBe('1.1');
+    expect(manifest.charset).toBe('utf-8');
+    expect(manifest.description).toBe('This is an example.');
+    expect(manifest.author).toBe('M-CreativeLab');
+    expect(manifest.keywords).toBe('example, xsml');
+    expect(manifest.rating).toBe('general');
+    expect(manifest.license).toBe('MIT');
+    expect(manifest.licenseUrl).toBe('https://opensource.org/licenses/MIT');
+    dom.unload();
+  });
+
+  it('should create a document manifest with viewport', async () => {
+    const dom = new JSARDOM(`
+  <xsml version="1.1">
+    <head>
+      <title>Example</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="initial-scale=1.0, maximum-scale=2.0, minimum-scale=0.5">
+    </head>
+    <space>
+    </space>
+  </xsml>
+        `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    const manifest = await dom.createDocumentManifest();
+    expect(manifest.viewport.initialScale).toBe(1);
+    expect(manifest.viewport.maximumScale).toBe(2);
+    expect(manifest.viewport.minimumScale).toBe(0.5);
+    dom.unload();
+  });
+
+  it('should create a document manifest with a invalid viewport', async () => {
+    const dom = new JSARDOM(`
+  <xsml version="1.1">
+    <head>
+      <title>Example</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="&#foobar">
+    </head>
+    <space>
+    </space>
+  </xsml>
+        `, {
+      url: 'https://example.com',
+      nativeDocument: sharedNativeDocument,
+    });
+    await dom.load();
+    const manifest = await dom.createDocumentManifest();
+    expect(manifest.viewport).toBeUndefined();
+    dom.unload();
+  });
 });
