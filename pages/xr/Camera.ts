@@ -263,9 +263,9 @@ export class WebXRCamera extends BABYLON.FreeCamera {
       const currentRig = <BABYLON.TargetCamera>this.rigCameras[i];
       // update right and left, where applicable
       if (!currentRig.isLeftCamera && !currentRig.isRightCamera) {
-        if (view.eye === "right") {
+        if (view.eye === 'right') {
           currentRig._isRightCamera = true;
-        } else if (view.eye === "left") {
+        } else if (view.eye === 'left') {
           currentRig._isLeftCamera = true;
         }
       }

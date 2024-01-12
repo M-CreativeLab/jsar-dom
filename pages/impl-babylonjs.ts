@@ -437,7 +437,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (arSupported && navigator.xr) {
       const scene = currentDom.nativeDocument.getNativeScene();
       const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
-      await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local');
+      await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local-floor');
+      // Just moving the object space to the front of the camera
+      currentDom.document.space.position.z = 1.5;
       console.log('entered WebXR session', xrHelper);
     } else {
       alert('AR is not supported on this device.');
