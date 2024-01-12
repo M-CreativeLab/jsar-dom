@@ -492,13 +492,13 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @returns 
    */
   private _defaultResolveModule(specifier: string, context: ResolveContext): ResolveResult {
-    const isRelative = specifier.startsWith('./') || specifier.startsWith('../');
-    if (isRelative) {
+    const isHttps = specifier.startsWith('https://') || specifier.startsWith('http://');
+    if (isHttps) {
+      return { url: specifier };
+    } else {
       return {
         url: new URL(specifier, context.parentURL).href,
       };
-    } else {
-      throw new TypeError(`The import path must be relative path.`);
     }
   }
 
@@ -564,7 +564,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     if (resourceExt === '' || supportedScriptExtensions.includes(resourceExt)) {
       return {
         format: 'module',
-        source: await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions),
+        source: await this._tryFetchScriptWithExtensions(url, [''].concat(supportedScriptExtensions)),
       };
     }
     throw new DOMException(`The module format is not supported: ${url}`, 'NOT_SUPPORTED_ERR');

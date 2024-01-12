@@ -38,6 +38,7 @@ jobs:
         npm run headless-bin -- ./fixtures/spatial-polyhedra-element.xsml
         npm run headless-bin -- ./fixtures/esm/script-with-src.xsml
         npm run headless-bin -- ./fixtures/esm/script-inline.xsml
+        npm run headless-bin -- ./fixtures/esm/http-imports.xsml
         npm run headless-bin -- ./fixtures/custom-loader/custom-resolve.xsml
         npm run headless-bin -- ./fixtures/custom-loader/custom-load.xsml
         npm run headless-bin -- ./fixtures/css/spatial-basic.xsml

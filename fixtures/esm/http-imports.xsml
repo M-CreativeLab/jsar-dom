@@ -1,0 +1,11 @@
+<xsml>
+  <head>
+    <title>Imports from HTTP/HTTPS</title>
+    <script type="module">
+      import { render } from 'https://esm.sh/preact';
+      assert.equal(typeof render, 'function');
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>

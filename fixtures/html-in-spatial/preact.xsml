@@ -1,0 +1,29 @@
+<xsml>
+  <head>
+    <title>HTML in Spatial Example (Preact)</title>
+    <style>
+      @material liteblue {
+        diffuse-color: blue;
+      }
+      #inner {
+        position: 0 0 0;
+        material: "liteblue";
+      }
+    </style>
+  </head>
+  <space>
+    <plane id="inner">
+      <div id="root"></div>
+    </plane>
+  </space>
+  <script>
+    import { h, Component, render } from 'https://esm.sh/preact';
+    const plane = document.querySelector('#inner');
+    const shadowRoot = plane.shadowRoot;
+    const rootDiv = shadowRoot.querySelector('#root');
+
+    const app = h('h1', null, 'Hello World!');
+    console.log(app, render);
+    render(app, rootDiv);
+  </script>
+</xsml>
