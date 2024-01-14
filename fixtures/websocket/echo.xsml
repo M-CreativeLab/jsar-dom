@@ -32,6 +32,7 @@
     ws.onopen = () => {
       setInterval(() => {
         ws.send(`hello world ${Date.now()}`);
+        console.info(`send message ${Date.now()}`);
       }, 1000);
     };
     ws.onmessage = (e) => {

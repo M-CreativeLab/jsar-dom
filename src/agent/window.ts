@@ -44,6 +44,7 @@ export type WindowOrDOMInit<T extends NativeDocument> = {
 export interface BaseWindowImpl<T extends NativeDocument = NativeDocument> extends EventTarget, GlobalEventHandlersImpl { };
 export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends EventTarget implements Window {
   #document: SpatialDocumentImpl<T>;
+  #console: Console;
   #nativeDocument: NativeDocument;
   #performanceInstance: Performance = null;
   #resourceLoader: ResourceLoader;
@@ -413,7 +414,12 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     throw new Error('`window.top` is not supported.');
   }
   get console(): Console {
-    return createConsole(this.#nativeDocument.console, this);
+    if (this.#console) {
+      return this.#console;
+    } else {
+      this.#console = createConsole(this.#nativeDocument.console, this);
+      return this.#console;
+    }
   }
   visualViewport: VisualViewport;
   window: Window & typeof globalThis;

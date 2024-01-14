@@ -1,8 +1,20 @@
 <xsml>
   <head>
     <title>HTML in Spatial Example (Images)</title>
+    <style>
+      @material sphere_mat {
+        diffuse-color: red;
+      }
+      sphere {
+        x: 0.1;
+        y: 0.2;
+        z: -0.15;
+        material: "sphere_mat";
+      }
+    </style>
   </head>
   <space>
+    <sphere diameter="0.3" />
     <plane id="ui-cube" size="1">
       <style type="text/css">
         section {
