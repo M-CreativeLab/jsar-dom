@@ -63,7 +63,7 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DOMPoint.prototype.matrixTransform()" not implemented.');
   }
 
   toJSON() {

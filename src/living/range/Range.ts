@@ -469,10 +469,11 @@ export class RangeImpl extends AbstractRangeImpl implements Range {
   }
 
   getBoundingClientRect(): DOMRect {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Range.prototype.getBoundingClientRect()" not implemented.');
   }
+
   getClientRects(): DOMRectList {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Range.prototype.getClientRects()" not implemented.');
   }
 
   // https://dom.spec.whatwg.org/#dom-range-commonancestorcontainer

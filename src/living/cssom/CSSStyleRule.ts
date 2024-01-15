@@ -37,9 +37,9 @@ export default class CSSStyleRuleImpl extends CSSRuleImpl implements CSSStyleRul
   }
 
   deleteRule(index: number): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CSSStyleRule.prototype.deleteRule()" not implemented.');
   }
   insertRule(rule: string, index?: number): number {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CSSStyleRule.prototype.insertRule()" not implemented.');
   }
 }

@@ -287,12 +287,12 @@ export class ElementImpl extends NodeImpl implements Element {
     }
   }
 
-  attachShadow(init: ShadowRootInit): ShadowRoot {
-    throw new Error('Method not implemented.');
+  attachShadow(_init: ShadowRootInit): ShadowRoot {
+    throw new Error('The method "Element.prototype.attachShadow()" not implemented.');
   }
 
-  checkVisibility(options?: CheckVisibilityOptions): boolean {
-    throw new Error('Method not implemented.');
+  checkVisibility(_options?: CheckVisibilityOptions): boolean {
+    throw new Error('The method "Element.prototype.checkVisibility()" not implemented.');
   }
 
   closest<K extends keyof HTMLElementTagNameMap>(selector: K): HTMLElementTagNameMap[K];
@@ -300,11 +300,11 @@ export class ElementImpl extends NodeImpl implements Element {
   closest<K extends keyof MathMLElementTagNameMap>(selector: K): MathMLElementTagNameMap[K];
   closest<E extends Element = Element>(selectors: string): E;
   closest(selectors: unknown): unknown {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.closest()" not implemented.');
   }
 
   computedStyleMap(): StylePropertyMapReadOnly {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.computedStyleMap()" not implemented.');
   }
 
   getAttribute(qualifiedName: string): string {
@@ -340,7 +340,7 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   getClientRects(): DOMRectList {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.getClientRects()" not implemented.');
   }
 
   getElementsByClassName(classNames: string): HTMLCollectionOf<Element> {
@@ -377,19 +377,19 @@ export class ElementImpl extends NodeImpl implements Element {
     return hasAttributeByNameNS(this, namespace, localName);
   }
   hasAttributes(): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.hasAttributes()" not implemented.');
   }
   hasPointerCapture(pointerId: number): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.hasPointerCapture()" not implemented.');
   }
   insertAdjacentElement(where: InsertPosition, element: Element): Element {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.insertAdjacentElement()" not implemented.');
   }
   insertAdjacentHTML(position: InsertPosition, text: string): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.insertAdjacentHTML()" not implemented.');
   }
   insertAdjacentText(where: InsertPosition, data: string): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.insertAdjacentText()" not implemented.');
   }
 
   matches(selectors: string): boolean {
@@ -398,7 +398,7 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   releasePointerCapture(pointerId: number): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.releasePointerCapture()" not implemented.');
   }
 
   removeAttribute(qualifiedName: string): void {
@@ -420,28 +420,28 @@ export class ElementImpl extends NodeImpl implements Element {
     return attr;
   }
   requestFullscreen(options?: FullscreenOptions): Promise<void> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.requestFullscreen()" not implemented.');
   }
   requestPointerLock(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.requestPointerLock()" not implemented.');
   }
   scroll(options?: ScrollToOptions): void;
   scroll(x: number, y: number): void;
   scroll(x?: unknown, y?: unknown): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.scroll()" not implemented.');
   }
   scrollBy(options?: ScrollToOptions): void;
   scrollBy(x: number, y: number): void;
   scrollBy(x?: unknown, y?: unknown): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.scrollBy()" not implemented.');
   }
   scrollIntoView(arg?: boolean | ScrollIntoViewOptions): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.scrollIntoView()" not implemented.');
   }
   scrollTo(options?: ScrollToOptions): void;
   scrollTo(x: number, y: number): void;
   scrollTo(x?: unknown, y?: unknown): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.scrollTo()" not implemented.');
   }
   setAttribute(qualifiedName: string, value: string): void {
     validateNames.name(qualifiedName);
@@ -478,23 +478,23 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   setPointerCapture(pointerId: number): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.setPointerCapture()" not implemented.');
   }
 
   toggleAttribute(qualifiedName: string, force?: boolean): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.toggleAttribute()" not implemented.');
   }
 
   webkitMatchesSelector(selectors: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.webkitMatchesSelector()" not implemented.');
   }
 
   animate(keyframes: Keyframe[] | PropertyIndexedKeyframes, options?: number | KeyframeAnimationOptions): Animation {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.animate()" not implemented.');
   }
 
   getAnimations(options?: GetAnimationsOptions): Animation[] {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Element.prototype.getAnimations()" not implemented.');
   }
 }
 

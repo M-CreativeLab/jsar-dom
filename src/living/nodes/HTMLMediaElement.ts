@@ -106,8 +106,8 @@ export default class HTMLMediaElementImpl extends HTMLElementImpl implements HTM
     };
   }
 
-  addTextTrack(kind: TextTrackKind, label?: string, language?: string): TextTrack {
-    throw new Error('Method not implemented.');
+  addTextTrack(_kind: TextTrackKind, _label?: string, _language?: string): TextTrack {
+    throw new Error('The method "HTMLMediaElement.prototype.addTextTrack()" not implemented.');
   }
 
   canPlayType(type: string): CanPlayTypeResult {
@@ -138,8 +138,8 @@ export default class HTMLMediaElementImpl extends HTMLElementImpl implements HTM
     return this._play(0);
   }
 
-  setMediaKeys(mediaKeys: MediaKeys): Promise<void> {
-    throw new Error('Method not implemented.');
+  setMediaKeys(_mediaKeys: MediaKeys): Promise<void> {
+    throw new Error('The method "HTMLMediaElement.prototype.setMediaKeys()" not implemented.');
   }
 
   protected async _loadFromBlob(blob: Blob) {

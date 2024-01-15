@@ -216,10 +216,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     return '#0000ee';
   }
   get location(): Location {
-    throw new Error('Method not implemented.');
+    throw new Error('window.location not implemented.');
   }
   set location(href: Location) {
-    throw new Error('Method not implemented.');
+    throw new Error('window.location not implemented.');
   }
   get visibilityState(): DocumentVisibilityState {
     return 'visible';
@@ -428,15 +428,15 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
 
   caretRangeFromPoint(x: number, y: number): Range {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createRangeFromPoint()" not implemented.');
   }
 
   clear(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.clear()" not implemented.');
   }
 
   close(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.close()" not implemented.');
   }
 
   createAttribute(localName: string): Attr {
@@ -462,15 +462,15 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
 
   createCDATASection(data: string): CDATASection {
-    throw new DOMException('Method not implemented.', 'NotSupportedError');
+    throw new DOMException('The Method "document.createCDATASection()" not implemented.', 'NotSupportedError');
   }
 
   createComment(data: string): Comment {
-    throw new DOMException('Method not implemented.', 'NotSupportedError');
+    throw new DOMException('The method "document.createComment()" not implemented.', 'NotSupportedError');
   }
 
   createDocumentFragment(): DocumentFragment {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createDocumentFragment()" not implemented.');
   }
 
   createElementNS(namespaceURI: 'http://www.w3.org/1999/xhtml', qualifiedName: string): HTMLElement;
@@ -481,7 +481,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElementNS(namespaceURI: string, qualifiedName: string, options?: ElementCreationOptions): Element;
   createElementNS(namespace: string, qualifiedName: string, options?: string | ElementCreationOptions): Element;
   createElementNS(namespace: unknown, qualifiedName: unknown, options?: unknown): HTMLElement | Element | SVGElement | MathMLElement {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createElementNS()" not implemented.');
   }
 
   createEvent(eventInterface: 'AnimationEvent'): AnimationEvent;
@@ -576,8 +576,8 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     return nodeIterator;
   }
 
-  createProcessingInstruction(target: string, data: string): ProcessingInstruction {
-    throw new Error('Method not implemented.');
+  createProcessingInstruction(_target: string, _data: string): ProcessingInstruction {
+    throw new Error('The method "document.createProcessingInstruction()" not implemented.');
   }
 
   createRange(): Range {
@@ -594,23 +594,23 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
 
   createTreeWalker(root: Node, whatToShow?: number, filter?: NodeFilter): TreeWalker {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createTreeWalker()" not implemented.');
   }
 
   execCommand(commandId: string, showUI?: boolean, value?: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.execCommand()" not implemented.');
   }
 
   exitFullscreen(): Promise<void> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.exitFullscreen()" not implemented.');
   }
 
   exitPictureInPicture(): Promise<void> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.exitPictureInPicture()" not implemented.');
   }
 
   exitPointerLock(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.exitPointerLock()" not implemented.');
   }
 
   getElementById(elementId: string): HTMLElement {
@@ -667,40 +667,40 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
     return Boolean(this._lastFocusedElement);
   }
 
-  hasStorageAccess(): Promise<boolean> {
-    throw new Error('Method not implemented.');
+  async hasStorageAccess(): Promise<boolean> {
+    return false;
   }
 
   importNode<T extends Node>(node: T, deep?: boolean): T {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.importNode()" not implemented.');
   }
 
   open(unused1?: string, unused2?: string): Document;
   open(url: string | URL, name: string, features: string): Window;
   open(url?: unknown, name?: unknown, features?: unknown): Document | Window {
-    throw new DOMException('Method not implemented.');
+    throw new DOMException('The method "document.open()" not implemented.');
   }
 
   queryCommandEnabled(commandId: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.queryCommandEnabled()" not implemented.');
   }
   queryCommandIndeterm(commandId: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.queryCommandIndeterm()" not implemented.');
   }
   queryCommandState(commandId: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.queryCommandState()" not implemented.');
   }
   queryCommandSupported(commandId: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.queryCommandSupported()" not implemented.');
   }
   queryCommandValue(commandId: string): string {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.queryCommandValue()" not implemented.');
   }
   releaseEvents(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.releaseEvents()" not implemented.');
   }
   requestStorageAccess(): Promise<void> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.requestStorageAccess()" not implemented.');
   }
   write(..._: string[]): void {
     throw new DOMException('SpatialDocument do not support this method', 'NotSupportedError');
@@ -711,13 +711,13 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
 
   fonts: FontFaceSet;
   createExpression(expression: string, resolver?: XPathNSResolver): XPathExpression {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createExpression()" not implemented.');
   }
   createNSResolver(nodeResolver: Node): Node {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.createNSResolver()" not implemented.');
   }
   evaluate(expression: string, contextNode: Node, resolver?: XPathNSResolver, type?: number, result?: XPathResult): XPathResult {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "document.evaluate()" not implemented.');
   }
 
   /**

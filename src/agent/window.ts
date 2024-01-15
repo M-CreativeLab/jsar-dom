@@ -735,7 +735,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   };
   DracoDecoderModule: any;
   setImmediate(handler: (...args: any[]) => void): number {
-    throw new Error("Method not implemented.");
+    throw new Error('The method "window.setImmediate()" not implemented.');
   }
 }
 

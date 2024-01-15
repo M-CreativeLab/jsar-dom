@@ -39,14 +39,13 @@ export default class DocumentOrShadowRootImpl implements DocumentOrShadowRoot {
   pointerLockElement: Element;
 
   elementFromPoint(x: number, y: number): Element {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentOrShadowRoot.prototype.elementFromPoint()" not implemented.');
   }
   elementsFromPoint(x: number, y: number): Element[] {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentOrShadowRoot.prototype.elementsFromPoint()" not implemented.');
   }
-
   getAnimations(): Animation[] {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentOrShadowRoot.prototype.getAnimations()" not implemented.');
   }
 
   get activeElement() {

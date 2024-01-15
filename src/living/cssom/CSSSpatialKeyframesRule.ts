@@ -55,11 +55,11 @@ export default class CSSSpatialKeyframesRule extends CSSRuleImpl {
   }
 
   appendRule(rule: string): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CSSSpatialKeyframesRule.prototype.appendRule()" not implemented.');
   }
 
   deleteRule(select: string): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CSSSpatialKeyframesRule.prototype.deleteRule()" not implemented.');
   }
 
   findRule(select: string): CSSSpatialKeyframeRule {

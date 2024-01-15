@@ -488,7 +488,7 @@ export class NodeImpl extends EventTarget implements Node {
     return clone(this, undefined, deep);
   }
   compareDocumentPosition(other: Node): number {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Node.prototype.compareDocumentPosition()" not implemented.');
   }
   contains(other: Node): boolean {
     return isInclusiveAncestor(this, other);
@@ -503,7 +503,7 @@ export class NodeImpl extends EventTarget implements Node {
     return this._preInsert(node as unknown as NodeImpl, child as unknown as NodeImpl) as unknown as T;
   }
   isDefaultNamespace(_namespace: string): boolean {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Node.prototype.isDefaultNamespace()" not implemented.');
   }
   isEqualNode(otherNode: Node): boolean {
     if (otherNode === null) {
@@ -522,13 +522,13 @@ export class NodeImpl extends EventTarget implements Node {
     return false;
   }
   lookupNamespaceURI(prefix: string): string {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Node.prototype.lookupNamespaceURI()" not implemented.');
   }
   lookupPrefix(namespace: string): string {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Node.prototype.lookupPrefix()" not implemented.');
   }
   normalize(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "Node.prototype.normalize()" not implemented.');
   }
   removeChild<T extends Node>(child: T): T {
     return this._preRemove(child as unknown as NodeImpl) as unknown as T;

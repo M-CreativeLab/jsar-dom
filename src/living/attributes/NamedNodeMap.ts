@@ -43,18 +43,18 @@ export default class NamedNodeMapImpl implements NamedNodeMap {
   }
 
   removeNamedItem(qualifiedName: string): Attr {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "NamedNodeMap.prototype.removeNamedItem()" not implemented.');
   }
   removeNamedItemNS(namespace: string, localName: string): Attr {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "NamedNodeMap.prototype.removeNamedItemNS()" not implemented.');
   }
   setNamedItem(attr: Attr): Attr {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "NamedNodeMap.prototype.setNamedItem()" not implemented.');
   }
   setNamedItemNS(attr: Attr): Attr {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "NamedNodeMap.prototype.setNamedItemNS()" not implemented.');
   }
   [Symbol.iterator](): IterableIterator<Attr> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "NamedNodeMap.prototype[Symbol.iterator]()" not implemented.');
   }
 }

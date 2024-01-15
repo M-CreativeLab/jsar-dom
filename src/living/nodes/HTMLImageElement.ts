@@ -192,6 +192,6 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
   }
 
   decode(): Promise<void> {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLImageElement.prototype.decode()" not implemented.');
   }
 }

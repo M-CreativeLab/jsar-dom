@@ -29,7 +29,7 @@ export default class DOMPointReadOnlyImpl implements DOMPointReadOnly {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DOMPointReadOnly.prototype.matrixTransform()" not implemented.');
   }
 
   toJSON() {

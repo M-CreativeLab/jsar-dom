@@ -28,15 +28,15 @@ export class DocumentTypeImpl extends NodeImpl implements DocumentType {
   }
 
   after(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentType.prototype.after()" not implemented.');
   }
   before(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentType.prototype.before()" not implemented.');
   }
   remove(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentType.prototype.remove()" not implemented.');
   }
   replaceWith(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "DocumentType.prototype.replaceWith()" not implemented.');
   }
 }

@@ -105,16 +105,16 @@ export default class CharacterDataImpl extends NodeImpl implements CharacterData
     return this._data.slice(offset, offset + count);
   }
   after(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CharacterData.prototype.after()" not implemented.');
   }
   before(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CharacterData.prototype.before()" not implemented.');
   }
   remove(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CharacterData.prototype.remove()" not implemented.');
   }
   replaceWith(...nodes: (string | Node)[]): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "CharacterData.prototype.replaceWith()" not implemented.');
   }
   nextElementSibling: Element;
   previousElementSibling: Element;

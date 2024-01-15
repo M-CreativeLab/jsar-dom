@@ -41,19 +41,19 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   translate: boolean;
 
   attachInternals(): ElementInternals {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.attachInternals()" not implemented.');
   }
   click(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.click()" not implemented.');
   }
   hidePopover(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.hidePopover()" not implemented.');
   }
   showPopover(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.showPopover()" not implemented.');
   }
   togglePopover(force?: boolean): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.togglePopover()" not implemented.');
   }
 
   attributeStyleMap: StylePropertyMap;
@@ -182,10 +182,10 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   }
 
   blur(): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.blur()" not implemented.');
   }
   focus(options?: FocusOptions): void {
-    throw new Error('Method not implemented.');
+    throw new Error('The method "HTMLElement.prototype.focus()" not implemented.');
   }
 
   /**
