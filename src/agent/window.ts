@@ -35,6 +35,16 @@ export type WindowOrDOMInit<T extends NativeDocument> = {
   storageQuota?: number;
   runScripts?: 'dangerously' | 'outside-only' | 'never';
   id?: string;
+
+  /**
+   * Configuration for the devtools.
+   */
+  devtools?: Partial<{
+    /**
+     * Whether to enable the logging at first.
+     */
+    log: boolean;
+  }>;
 };
 
 /**
@@ -122,7 +132,8 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
 
     this.#nativeDocument = init.nativeDocument;
     if (this.#nativeDocument.cdpTransport) {
-      this._cdpImplementation = new CdpServerImplementation(this.#nativeDocument.cdpTransport, this);
+      this._cdpImplementation = new CdpServerImplementation(
+        this.#nativeDocument.cdpTransport, this, init.devtools);
     }
 
     this.#setup(init);

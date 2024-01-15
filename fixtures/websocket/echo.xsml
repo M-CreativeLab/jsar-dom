@@ -38,5 +38,6 @@
     ws.onmessage = (e) => {
       text.textContent = text.textContent + `\nResponse: received "${e.data}"`;
     };
+    console.log('hello!!!');
   </script>
 </xsml>

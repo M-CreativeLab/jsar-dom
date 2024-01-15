@@ -1,5 +1,6 @@
 
-import type { BaseWindowImpl } from '../window';
+import type { BaseWindowImpl, WindowOrDOMInit } from '../window';
+import type { NativeDocument } from '../../impl-interfaces';
 import { ClientConnection, Connection, ServerConnection } from './connection';
 import { CdpBrowser } from './definitions';
 import type { ITransport } from './transport';
@@ -96,7 +97,7 @@ namespace CdpJSAR {
     export interface HighlightElementParams {
       nodeId: CdpBrowser.DOM.NodeId;
     }
-    export interface HighlightElementResult {}
+    export interface HighlightElementResult { }
     export interface SetTransformParams {
       nodeId: CdpBrowser.DOM.NodeId;
       transform: SpatialTransform;
@@ -104,30 +105,30 @@ namespace CdpJSAR {
     export interface UnhighlightElementParams {
       nodeId: CdpBrowser.DOM.NodeId;
     }
-    export interface UnhighlightElementResult {}
-    export interface UnhighlightElementsParams {}
-    export interface UnhighlightElementsResult {}
-    export interface SetTransformResult {}
+    export interface UnhighlightElementResult { }
+    export interface UnhighlightElementsParams { }
+    export interface UnhighlightElementsResult { }
+    export interface SetTransformResult { }
     export interface DisplayMeshNormalsParams {
       nodeId: CdpBrowser.DOM.NodeId;
       display: boolean;
     }
-    export interface DisplayMeshNormalsResult {}
+    export interface DisplayMeshNormalsResult { }
     export interface DisplayVertexNormalsParams {
       nodeId: CdpBrowser.DOM.NodeId;
       display: boolean;
     }
-    export interface DisplayVertexNormalsResult {}
+    export interface DisplayVertexNormalsResult { }
     export interface DisplayMeshBonesParams {
       nodeId: CdpBrowser.DOM.NodeId;
       display: boolean;
     }
-    export interface DisplayMeshBonesResult {}
+    export interface DisplayMeshBonesResult { }
     export interface RenderWireframeOverMeshParams {
       nodeId: CdpBrowser.DOM.NodeId;
       display: boolean;
     }
-    export interface RenderWireframeOverMeshResult {}
+    export interface RenderWireframeOverMeshResult { }
   }
 }
 
@@ -170,7 +171,7 @@ export class CdpServerImplementation {
   private _server: ServerConnection<CdpJSAR.Domains>;
   private _document: SpatialDocumentImpl;
 
-  private _isLogEnabled: boolean = false;
+  private _isLogEnabled: boolean = this._init?.log || false;
   private _domNodes: Map<number, NodeImpl> = new Map();
   private _highlightedMeshes: Set<BABYLON.AbstractMesh> = new Set();
 
@@ -186,7 +187,11 @@ export class CdpServerImplementation {
     return this.rootSession.api.SpatialDOM;
   }
 
-  constructor(private _transport: ITransport, private _window: BaseWindowImpl) {
+  constructor(
+    private _transport: ITransport,
+    private _window: BaseWindowImpl,
+    private _init: WindowOrDOMInit<NativeDocument>['devtools']
+  ) {
     this._server = Connection.server<CdpJSAR.Domains>(this._transport);
     this._server.rootSession.api = {
       Log: {
