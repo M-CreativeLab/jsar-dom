@@ -1,0 +1,12 @@
+<xsml>
+  <head>
+    <title>Scripts in XML (Exception in spaceready event)</title>
+    <script>
+      document.addEventListener('spaceReady', function() {
+        throw new Error('Exception in spaceready event');
+      });
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>
