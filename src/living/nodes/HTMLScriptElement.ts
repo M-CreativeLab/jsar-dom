@@ -21,7 +21,7 @@ import {
   getUrlFromResolveResult
 } from '../helpers/scripting-types';
 import { getInterfaceWrapper } from '../interfaces';
-import supports from '../esm-supports.json' assert { type: "json" };
+import supports from '../esm-supports.json' assert { type: 'json' };
 
 const supportedScriptTypes = [
   'script',
@@ -357,7 +357,15 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     type EvalResult = ReturnType<typeof this._evalInternal>;
     let onModuleEvaluated: (result: EvalResult) => void;
     const moduleResultFuture = new Promise<EvalResult>((resolve) => onModuleEvaluated = resolve);
-    const pending = this._eval(onModuleEvaluated);
+
+    let pending: Promise<void>;
+    if (this.async) {
+      pending = this._eval(onModuleEvaluated);
+    } else {
+      pending = this._ownerDocument._pendingExecutingScript
+        .then(() => this._eval(onModuleEvaluated));
+      this._ownerDocument._pendingExecutingScript = moduleResultFuture.then(() => null);
+    }
 
     /**
      * If the script is a loader, save the pending custom loader hooks to the document.

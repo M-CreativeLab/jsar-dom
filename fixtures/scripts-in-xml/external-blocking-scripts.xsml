@@ -1,0 +1,13 @@
+<xsml>
+  <head>
+    <title>Scripts in XML (External blocking scripts)</title>
+    <script src="first.ts"></script>
+    <script src="second.js"></script>
+    <script>
+      assert.equal(document.first, 'first');
+      assert.equal(document.second, 'second');
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>

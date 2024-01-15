@@ -297,7 +297,18 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
    * or "framework" type will be disallowed to execute if a script or module is started.
    */
   _isScriptOrModuleStarted: boolean = false;
+  /**
+   * @internal
+   * 
+   * This is used to get the state of the custom loaders.
+   */
   _pendingCustomLoaders: Array<Promise<CustomLoaderHooks>> = [];
+  /**
+   * @internal
+   * 
+   * This is a state to get the pending script.
+   */
+  _pendingExecutingScript: Promise<void> = Promise.resolve(null);
   _scriptingDisabled: boolean = false;
   _encoding: string;
   _URL: URL;

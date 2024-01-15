@@ -1,0 +1,18 @@
+<xsml>
+  <head>
+    <title>Scripts in XML (External async scripts)</title>
+    <script async src="first.ts"></script>
+    <script async src="second.js"></script>
+    <script>
+      assert.equal(document.first, undefined);
+      assert.equal(document.second, undefined);
+      document.addEventListener('spaceReady', () => {
+        console.log('after space ready');
+        assert.equal(document.first, 'first');
+        assert.equal(document.second, 'second');
+      });
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>

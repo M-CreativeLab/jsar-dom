@@ -365,7 +365,7 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   hasAttribute(qualifiedName: string): boolean {
-    if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === "html") {
+    if (this._namespaceURI === HTML_NS && this._ownerDocument._parsingMode === 'html') {
       qualifiedName = asciiLowercase(qualifiedName);
     }
     return hasAttributeByName(this, qualifiedName);

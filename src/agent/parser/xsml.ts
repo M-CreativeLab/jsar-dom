@@ -13,6 +13,7 @@ class XSMLParser {
     this.xmlParser = new XMLParser({
       preserveOrder: true,
       ignoreAttributes: false,
+      allowBooleanAttributes: true,
       unpairedTags: ['link', 'meta'],
       stopNodes: ['*.pre', '*.script'],
       processEntities: true,

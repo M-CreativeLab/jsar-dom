@@ -1,0 +1,13 @@
+<xsml>
+  <head>
+    <title>Scripts in XML (Inline)</title>
+    <script>
+      document.foo = 1;
+    </script>
+    <script>
+      assert.equal(document.foo, 1);
+    </script>
+  </head>
+  <space>
+  </space>
+</xsml>
