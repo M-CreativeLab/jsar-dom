@@ -325,8 +325,8 @@ export class SpatialElement extends ElementImpl {
             this._ownerDocument._spatialKeyframesMap.get(name),
             this,
             {
-              duration: style._getPropertyValue('animation-duration').value as number,
-              iterationCount: style._getPropertyValue('animation-iteration-count').value,
+              duration: (style._getPropertyValue('animation-duration')?.value as number) || 1,
+              iterationCount: style._getPropertyValue('animation-iteration-count')?.value || 1,
               // TODO: supports animation-timing-function?
             }
           );

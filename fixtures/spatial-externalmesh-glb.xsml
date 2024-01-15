@@ -4,7 +4,7 @@
     <link id="my" rel="mesh" href="model/rokid-jungle.glb" />
     <style>
       space {
-        rotation: 0 180 0;
+        rotation: 0 0 0;
       }
     </style>
   </head>
