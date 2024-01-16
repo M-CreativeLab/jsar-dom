@@ -12,10 +12,14 @@ import {
   RequestManager,
   ResourceLoader,
   UserAgent,
-  UserAgentInit
+  UserAgentInit,
+  XRFeature,
+  XRSessionBackend,
+  XRSessionBackendInit
 } from './impl-interfaces';
 import { canParseURL } from './living/helpers/url';
 import type ImageDataImpl from './living/image/ImageData';
+import type XRInputSourceArrayImpl from './living/xr/XRInputSourceArray';
 
 interface HeadlessEngine extends BABYLON.NullEngine, EventTarget { }
 class HeadlessEngine extends BABYLON.NullEngine implements NativeEngine {
@@ -132,6 +136,40 @@ class HeadlessResourceLoader implements ResourceLoader {
   }
 }
 
+class HeadlessXRSessionBackend implements XRSessionBackend {
+  #init: XRSessionBackendInit;
+  #immersiveMode: XRSessionMode = null;
+  #enabledFeatures: XRFeature[] = [];
+
+  constructor(init: XRSessionBackendInit) {
+    this.#init = init;
+  }
+  get enabledFeatures(): XRFeature[] {
+    return this.#enabledFeatures;
+  }
+  get inputSources(): XRInputSourceArrayImpl {
+    throw new Error('Method not implemented.');
+  }
+  get visibilityState(): XRVisibilityState {
+    throw new Error('Method not implemented.');
+  }
+  request(): Promise<void> {
+    if (this.#init.immersiveMode !== 'immersive-ar') {
+      throw new Error('Only "immersive-ar" is supported in headless mode');
+    }
+    this.#immersiveMode = this.#init.immersiveMode;
+    this.#enabledFeatures = (this.#init.requiredFeatures || [])
+      .concat(this.#init.optionalFeatures || []);
+    return null;
+  }
+  requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace | XRBoundedReferenceSpace> {
+    throw new Error('Method not implemented.');
+  }
+  end(): Promise<void> {
+    throw new Error('Method not implemented.');
+  }
+}
+
 class HeadlessUserAgent implements UserAgent {
   versionString: string = '1.0';
   vendor: string = '';
@@ -161,6 +199,9 @@ class HeadlessUserAgent implements UserAgent {
   }
   prompt(message?: string, defaultValue?: string): string {
     throw new Error('Method not implemented.');
+  }
+  createXRSessionBackend(init?: XRSessionBackendInit): HeadlessXRSessionBackend {
+    return new HeadlessXRSessionBackend(init);
   }
 }
 

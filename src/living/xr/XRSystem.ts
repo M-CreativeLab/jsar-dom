@@ -1,5 +1,4 @@
-import { NativeDocument } from '../../impl-interfaces';
-import DOMException from '../domexception';
+import type { NativeDocument } from '../../impl-interfaces';
 import XRSessionImpl from './XRSession';
 
 export default class XRSystemImpl extends EventTarget implements XRSystem {
@@ -22,21 +21,16 @@ export default class XRSystemImpl extends EventTarget implements XRSystem {
   }
 
   async requestSession(mode: XRSessionMode, options?: XRSessionInit): Promise<XRSession> {
-    if (mode !== 'immersive-ar') {
-      throw new DOMException('Only immersive-ar mode is supported', 'NOT_SUPPORTED_ERR');
-    }
-    if (this._session) {
-      throw new DOMException('Only one session can be active at a time', 'INVALID_STATE_ERR');
-    }
-    this._session = XRSessionImpl.createForImpl(this.#nativeDocument, [options]);
+    this._session = await XRSessionImpl.createForImpl(this.#nativeDocument, [mode, options]);
     return this._session;
   }
 
   async isSessionSupported(mode: XRSessionMode): Promise<boolean> {
-    if (mode === 'immersive-ar') {
-      return true;
-    } else {
+    const hostObject = this.#nativeDocument;
+    if (typeof hostObject.userAgent.isXRSessionSupported !== 'function') {
       return false;
+    } else {
+      return hostObject.userAgent.isXRSessionSupported(mode);
     }
   }
 }

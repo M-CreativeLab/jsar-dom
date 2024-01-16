@@ -1,6 +1,7 @@
 import { ITransport } from './agent/cdp';
 import type ImageDataImpl from './living/image/ImageData';
 import { SpatialDocumentImpl } from './living/nodes/SpatialDocument';
+import XRInputSourceArrayImpl from './living/xr/XRInputSourceArray';
 
 export interface DOMParser {
   new(document: NativeDocument): DOMParser;
@@ -62,6 +63,36 @@ export interface MediaPlayerBackend {
   volume: number;
   loop: boolean;
   onended: () => void;
+}
+
+export const xrFeatures = [
+  'anchors',
+  'bounded-floor',
+  'depth-sensing',
+  'dom-overlay',
+  'hand-tracking',
+  'hit-test',
+  'layers',
+  'light-estimation',
+  'local',
+  'local-floor',
+  'secondary-views',
+  'unbounded',
+  'viewer',
+] as const;
+export type XRFeature = typeof xrFeatures[number];
+export type XRSessionBackendInit = {
+  immersiveMode: XRSessionMode;
+  requiredFeatures?: XRFeature[];
+  optionalFeatures?: XRFeature[];
+};
+export interface XRSessionBackend {
+  get enabledFeatures(): readonly XRFeature[];
+  get inputSources(): XRInputSourceArrayImpl;
+  get visibilityState(): XRVisibilityState;
+  request(): Promise<void>;
+  requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace | XRBoundedReferenceSpace>;
+  end(): Promise<void>;
 }
 
 export type UserAgentInit = {
@@ -160,6 +191,17 @@ export interface UserAgent {
    * It returns a `MediaPlayer` constructor, which is used to play audio or video as the backend of HTMLMediaElement.
    */
   getMediaPlayerConstructor?(): MediaPlayerConstructor;
+
+  /**
+   * It creates a `XRSessionBackend` instance, which is used to create a XRSession and related instances.
+   */
+  createXRSessionBackend?(init?: XRSessionBackendInit): XRSessionBackend;
+
+  /**
+   * Returns if the given `XRSessionMode` is supported.
+   * @param mode 
+   */
+  isXRSessionSupported?(mode: XRSessionMode): Promise<boolean>;
 }
 
 export interface NativeEngine extends BABYLON.Engine { }

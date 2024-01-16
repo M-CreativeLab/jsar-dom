@@ -1,22 +1,44 @@
 import DOMException from '../domexception';
-import { NativeDocument } from '../../impl-interfaces';
+import { NativeDocument, XRFeature, XRSessionBackend } from '../../impl-interfaces';
 import XRFrameImpl from './XRFrame';
 
 export default class XRSessionImpl extends EventTarget implements XRSession {
   #nativeDocument: NativeDocument;
   #frameObservers: Array<BABYLON.Observer<BABYLON.Scene>> = [];
+  #sessionBackend: XRSessionBackend;
 
-  inputSources: XRInputSourceArray;
-  renderState: XRRenderState;
-  environmentBlendMode: XREnvironmentBlendMode;
-  visibilityState: XRVisibilityState;
-  frameRate?: number;
+  get inputSources(): XRInputSourceArray {
+    return this.#sessionBackend.inputSources;
+  }
+
+  get renderState(): XRRenderState {
+    throw new DOMException('renderState is disallowed to use in XSML', 'NOT_SUPPORTED_ERR');
+  }
+
+  get environmentBlendMode(): XREnvironmentBlendMode {
+    throw new DOMException('environmentBlendMode is disallowed to use in XSML', 'NOT_SUPPORTED_ERR');
+  }
+  set environmentBlendMode(_value: XREnvironmentBlendMode) {
+    throw new DOMException('environmentBlendMode is disallowed to use in XSML', 'NOT_SUPPORTED_ERR');
+  }
+
+  get visibilityState(): XRVisibilityState {
+    return this.#sessionBackend.visibilityState;
+  }
+
+  get frameRate(): number {
+    return this.#nativeDocument.engine.getFps();
+  }
+
   supportedFrameRates?: Float32Array;
   domOverlayState?: XRDOMOverlayState;
   preferredReflectionFormat?: XRReflectionFormat;
   depthUsage: XRDepthUsage;
   depthDataFormat: XRDepthDataFormat;
-  enabledFeatures: string[];
+
+  get enabledFeatures(): string[] {
+    return this.#sessionBackend.enabledFeatures as string[];
+  }
 
   onend: XRSessionEventHandler;
   oninputsourceschange: XRInputSourceChangeEventHandler;
@@ -33,13 +55,25 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
   requestHitTest?: (ray: XRRay, referenceSpace: XRReferenceSpace) => Promise<XRHitResult[]>;
   updateWorldTrackingState?: (options: { planeDetectionState?: { enabled: boolean; }; }) => void;
 
-  static createForImpl(
+  static async createForImpl(
     hostObject: NativeDocument,
-    _args: [XRSessionInit],
+    args: [XRSessionMode, XRSessionInit] = [null, null],
     _privateData = null
-  ): XRSessionImpl {
+  ): Promise<XRSessionImpl> {
+    if (typeof hostObject.userAgent.createXRSessionBackend !== 'function') {
+      throw new DOMException('WebXR backend is not supported', 'NOT_SUPPORTED_ERR');
+    }
+
     const session = new XRSessionImpl();
     session.#nativeDocument = hostObject;
+
+    const [mode, init] = args;
+    session.#sessionBackend = hostObject.userAgent.createXRSessionBackend({
+      immersiveMode: mode,
+      requiredFeatures: (init?.requiredFeatures as XRFeature[]),
+      optionalFeatures: (init?.optionalFeatures as XRFeature[]),
+    });
+    await session.#sessionBackend.request();
     return session;
   }
 
@@ -48,14 +82,16 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
   }
 
   async end(): Promise<void> {
-    return;
+    await this.#sessionBackend.end();
   }
+
   cancelAnimationFrame(id: number): void {
     const observer = this.#frameObservers[id];
     if (observer) {
       observer.remove();
     }
   }
+
   requestAnimationFrame(callback: XRFrameRequestCallback): number {
     const id = this.#frameObservers.length - 1;
     this.#frameObservers[id] = this._nativeScene.onBeforeRenderObservable.addOnce(() => {
@@ -66,34 +102,48 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
     });
     return id;
   }
+
+  /**
+   * The `requestReferenceSpace()` method of the XRSession interface returns a promise that resolves with 
+   * an instance of either XRReferenceSpace or XRBoundedReferenceSpace as appropriate given the type of 
+   * reference space requested.
+   * 
+   * @param type 
+   */
   requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace | XRBoundedReferenceSpace> {
-    throw new DOMException('xrSession.requestReferenceSpace() is not supported', 'NOT_SUPPORTED_ERR');
+    return this.#sessionBackend.requestReferenceSpace(type);
   }
-  updateRenderState(renderStateInit?: XRRenderStateInit): Promise<void> {
-    throw new DOMException('xrSession.updateRenderState() is not supported', 'NOT_SUPPORTED_ERR');
+
+  /**
+   * In XSML, an object is the programable object in a scene, this method `updateRenderState()` is used to update
+   * the global-scoped states such as the base layer, camera, and so on, which is not supported to be updated in XSML.
+   * @param _renderStateInit 
+   */
+  updateRenderState(_renderStateInit?: XRRenderStateInit): Promise<void> {
+    throw new DOMException('updateRenderState() is disallowed to used in XSML', 'NOT_SUPPORTED_ERR');
   }
-  updateTargetFrameRate(rate: number): Promise<void> {
-    throw new DOMException('xrSession.updateTargetFrameRate() is not supported', 'NOT_SUPPORTED_ERR');
+
+  updateTargetFrameRate(_rate: number): Promise<void> {
+    throw new DOMException('updateTargetFrameRate() is disallowed to used in XSML', 'NOT_SUPPORTED_ERR');
   }
-  initiateRoomCapture?(): Promise<void> {
-    throw new DOMException('xrSession.initiateRoomCapture() is not supported', 'NOT_SUPPORTED_ERR');
+
+  requestLightProbe(_init?: XRLightProbeInit): Promise<XRLightProbe> {
+    throw new DOMException('requestLightProbe() is not supported', 'NOT_SUPPORTED_ERR');
   }
-  requestLightProbe(options?: XRLightProbeInit): Promise<XRLightProbe> {
-    return null;
-  }
-  getTrackedImageScores?(): Promise<XRImageTrackingScore[]> {
-    return null;
-  }
-  trySetFeaturePointCloudEnabled(enabled: boolean): boolean {
+
+  trySetFeaturePointCloudEnabled(_enabled: boolean): boolean {
     return false;
   }
-  trySetPreferredPlaneDetectorOptions(preferredOptions: XRGeometryDetectorOptions): boolean {
+
+  trySetPreferredPlaneDetectorOptions(_preferredOptions: XRGeometryDetectorOptions): boolean {
     return false;
   }
-  trySetMeshDetectorEnabled(enabled: boolean): boolean {
+
+  trySetMeshDetectorEnabled(_enabled: boolean): boolean {
     return false;
   }
-  trySetPreferredMeshDetectorOptions(preferredOptions: XRGeometryDetectorOptions): boolean {
+
+  trySetPreferredMeshDetectorOptions(_preferredOptions: XRGeometryDetectorOptions): boolean {
     return false;
   }
 }
