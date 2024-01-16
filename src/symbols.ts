@@ -11,3 +11,8 @@ export const SPATIAL_OBJECT_GUID_SYMBOL = Symbol('__spatialObjectGuid__');
  * The Symbol used to store the craft3d node, which is used for layout algorithms in space.
  */
 export const SPATIAL_ELEMENT_CRAFT3D_NODE_SYMBOL = Symbol('__spatialElementCraft3dNode__');
+
+/**
+ * The Symbol used to create an instance of a class in Web APIs.
+ */
+export const kCreateForImpl = Symbol('createForImpl');

@@ -88,8 +88,6 @@ export type XRSessionBackendInit = {
 };
 export interface XRSessionBackend {
   get enabledFeatures(): readonly XRFeature[];
-  get inputSources(): XRInputSourceArrayImpl;
-  get visibilityState(): XRVisibilityState;
   request(): Promise<void>;
   requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace | XRBoundedReferenceSpace>;
   end(): Promise<void>;

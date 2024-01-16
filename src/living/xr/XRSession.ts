@@ -1,14 +1,23 @@
 import DOMException from '../domexception';
 import { NativeDocument, XRFeature, XRSessionBackend } from '../../impl-interfaces';
 import XRFrameImpl from './XRFrame';
+import XRInputSourceArrayImpl from './XRInputSourceArray';
+
+export const kSessionInputSourcesMap = Symbol('kSessionInputSources');
+export const kSessionVisibilityState = Symbol('kSessionVisibilityState');
+export const kDispatchNextFrame = Symbol('kDispatchNextFrame');
 
 export default class XRSessionImpl extends EventTarget implements XRSession {
   #nativeDocument: NativeDocument;
-  #frameObservers: Array<BABYLON.Observer<BABYLON.Scene>> = [];
+  #nextAnimationFrameId = 0;
+  #nextAnimationFrameCallbacks: Map<number, XRFrameRequestCallback> = new Map();
   #sessionBackend: XRSessionBackend;
 
+  [kSessionInputSourcesMap]: Map<number, XRInputSource> = new Map();
+  [kSessionVisibilityState]: XRVisibilityState = 'visible';
+
   get inputSources(): XRInputSourceArray {
-    return this.#sessionBackend.inputSources;
+    return XRInputSourceArrayImpl.createFromIterator(this[kSessionInputSourcesMap].values());
   }
 
   get renderState(): XRRenderState {
@@ -23,7 +32,7 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
   }
 
   get visibilityState(): XRVisibilityState {
-    return this.#sessionBackend.visibilityState;
+    return this[kSessionVisibilityState];
   }
 
   get frameRate(): number {
@@ -86,19 +95,13 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
   }
 
   cancelAnimationFrame(id: number): void {
-    const observer = this.#frameObservers[id];
-    if (observer) {
-      observer.remove();
-    }
+    this.#nextAnimationFrameCallbacks.delete(id);
   }
 
   requestAnimationFrame(callback: XRFrameRequestCallback): number {
-    const id = this.#frameObservers.length - 1;
-    this.#frameObservers[id] = this._nativeScene.onBeforeRenderObservable.addOnce(() => {
-      const frame = new XRFrameImpl(this.#nativeDocument, [], {
-        session: this,
-      });
-      callback(Date.now(), frame);
+    const id = this.#nextAnimationFrameId++;
+    this._nativeScene.onBeforeRenderObservable.addOnce(() => {
+      this.#nextAnimationFrameCallbacks.set(id, callback);
     });
     return id;
   }
@@ -145,5 +148,14 @@ export default class XRSessionImpl extends EventTarget implements XRSession {
 
   trySetPreferredMeshDetectorOptions(_preferredOptions: XRGeometryDetectorOptions): boolean {
     return false;
+  }
+
+  [kDispatchNextFrame](): void {
+    const timestamp = Date.now();
+    const frame = new XRFrameImpl(this.#nativeDocument, [], { session: this });
+    for (const callback of this.#nextAnimationFrameCallbacks.values()) {
+      callback(timestamp, frame);
+    }
+    this.#nextAnimationFrameCallbacks.clear();
   }
 }

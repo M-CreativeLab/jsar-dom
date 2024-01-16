@@ -1,0 +1,27 @@
+<xsml>
+  <head>
+    <title>WebXR Example (Hand Tracking)</title>
+    <link id="my" rel="mesh" href="../model/rokid-jungle.glb" />
+    <style>
+      space {
+        rotation: 0 0 0;
+      }
+    </style>
+  </head>
+  <space>
+    <mesh ref="my" />
+  </space>
+  <script>
+    console.log(navigator?.xr);
+    navigator.xr
+      .requestSession('immersive-ar', {
+        requiredFeatures: ['hand-tracking'],
+      })
+      .then(session => {
+        function onframe(time, frame) {
+          session.requestAnimationFrame(onframe);
+        }
+        session.requestAnimationFrame(onframe);
+      });
+  </script>
+</xsml>

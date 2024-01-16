@@ -147,12 +147,6 @@ class HeadlessXRSessionBackend implements XRSessionBackend {
   get enabledFeatures(): XRFeature[] {
     return this.#enabledFeatures;
   }
-  get inputSources(): XRInputSourceArrayImpl {
-    throw new Error('Method not implemented.');
-  }
-  get visibilityState(): XRVisibilityState {
-    throw new Error('Method not implemented.');
-  }
   request(): Promise<void> {
     if (this.#init.immersiveMode !== 'immersive-ar') {
       throw new Error('Only "immersive-ar" is supported in headless mode');

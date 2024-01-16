@@ -1,12 +1,11 @@
 import type { NativeDocument } from '../../impl-interfaces';
 import XRSessionImpl from './XRSession';
 
+export const kSession = Symbol('kSession');
+
 export default class XRSystemImpl extends EventTarget implements XRSystem {
   #nativeDocument: NativeDocument;
-  /**
-   * @internal
-   */
-  _session: XRSessionImpl | null = null;
+  [kSession]: XRSessionImpl | null = null;
 
   ondevicechange: XRSystemDeviceChangeEventHandler;
   onsessiongranted: XRSystemSessionGrantedEventHandler;
@@ -21,8 +20,8 @@ export default class XRSystemImpl extends EventTarget implements XRSystem {
   }
 
   async requestSession(mode: XRSessionMode, options?: XRSessionInit): Promise<XRSession> {
-    this._session = await XRSessionImpl.createForImpl(this.#nativeDocument, [mode, options]);
-    return this._session;
+    this[kSession] = await XRSessionImpl.createForImpl(this.#nativeDocument, [mode, options]);
+    return this[kSession];
   }
 
   async isSessionSupported(mode: XRSessionMode): Promise<boolean> {

@@ -1,4 +1,5 @@
 import { NativeDocument } from '../../impl-interfaces';
+import { kCreateForImpl } from '../../symbols';
 import { isElementNode, isSpatialElement } from '../node-type';
 import type { BaseWindowImpl } from '../../agent/window';
 import { DocumentTypeImpl } from './DocumentType';
@@ -79,6 +80,12 @@ import {
   type RaycastInputDetail,
   type JSARInputEvent
 } from '../../input-event';
+
+// WebXR imports
+import type XRSystemImpl from '../xr/XRSystem';
+import { kSession } from '../xr/XRSystem';
+import { kDispatchNextFrame, kSessionInputSourcesMap } from '../xr/XRSession';
+import XRHandImpl from '../xr/XRHand';
 
 type DocumentInitOptions = {
   screenWidth?: number;
@@ -1007,7 +1014,51 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   private _handleHandTrackingEventDetail(detail: HandtrackingInputDetail): boolean {
     const handtrackingGlobalEvent = new HandTrackingEvent(detail);
     this.dispatchEvent(handtrackingGlobalEvent);
+
+    /**
+     * Check if the WebXR session is created and update the XRInputSourceArray.
+     */
+    if (this._defaultView?.navigator.xr) {
+      const xrSystemImpl = this._defaultView.navigator.xr as XRSystemImpl;
+      const xrSession = xrSystemImpl[kSession];
+      if (xrSession != null) {
+        const handId = detail.handId;
+        const inputSourcesMap = xrSession[kSessionInputSourcesMap];
+        const newInputSource = this._createXRHandInputSource(detail);
+        if (!inputSourcesMap.has(handId)) {
+          inputSourcesMap.set(handId, newInputSource);
+        } else {
+          const inputSource = inputSourcesMap.get(handId);
+          inputSourcesMap.set(handId, {
+            ...inputSource,
+            ...newInputSource,
+          });
+        }
+        xrSession[kDispatchNextFrame]();
+      }
+    }
     return true;
+  }
+
+  private _createXRHandInputSource(detail: HandtrackingInputDetail): XRInputSource {
+    let handedness: XRHandedness;
+    if (detail.handId === 0) {
+      handedness = 'left';
+    } else if (detail.handId === 1) {
+      handedness = 'right';
+    } else {
+      handedness = 'none';
+    }
+
+    return {
+      handedness,
+      targetRayMode: 'tracked-pointer',
+      targetRaySpace: null, // TODO
+      profiles: ['hand-tracking'],
+      gripSpace: null,      // TODO
+      gamepad: null,        // TODO
+      hand: XRHandImpl[kCreateForImpl](this._hostObject, detail.joints),
+    } as XRInputSource;
   }
 
   private _latestRaycastTimestamp: number;

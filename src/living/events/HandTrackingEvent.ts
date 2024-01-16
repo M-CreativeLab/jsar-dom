@@ -7,7 +7,10 @@ enum HandType {
 
 type InputData = {
   'Type': HandType;
-  'Joints': DOMPointInit[];
+  'Joints': Array<{
+    position: DOMPointInit;
+    rotation: DOMPointInit;
+  }>;
   'ThisPose': any;
   'Gesture': HandGesture;
   'Orientation': HandOrientation;

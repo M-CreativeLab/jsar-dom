@@ -13,6 +13,9 @@ import {
   MediaPlayerConstructor,
   MediaPlayerBackend,
   cdp,
+  XRSessionBackend,
+  XRFeature,
+  XRSessionBackendInit,
 } from '../src';
 import 'babylonjs';
 
@@ -109,6 +112,68 @@ class AudioPlayerOnBabylonjs implements MediaPlayerBackend {
   }
 }
 
+class XRSessionBackendOnBabylonjs implements XRSessionBackend {
+  #init: XRSessionBackendInit | undefined;
+  #hostSession: XRSession | undefined;
+
+  get enabledFeatures(): XRFeature[] {
+    throw new Error('Method not implemented.');
+  }
+  constructor(init?: XRSessionBackendInit | undefined) {
+    this.#init = init;
+    if (!navigator.xr) {
+      throw new Error('WebXR is not supported in your browser');
+    }
+  }
+  async request(): Promise<void> {
+    requestXRExperience()
+      .then(async session => {
+        this.#hostSession = session;
+        const localSpace = await session.requestReferenceSpace('local');
+
+        function onxrframe(_time: number, frame: XRFrame) {
+          if (currentDom && typeof frame.getJointPose === 'function') {
+            /**
+             * Dispatch hand tracking events
+             */
+            for (const inputSource of session.inputSources) {
+              if (!inputSource.hand || inputSource.hand == null) {
+                continue;
+              }
+              const joints: Array<{ position: DOMPointInit, rotation: DOMPointInit }> = [];
+              for (const [_, joint] of inputSource.hand.entries()) {
+                const pose = frame.getJointPose(joint, localSpace);
+                joints.push({
+                  position: pose.transform.position,
+                  rotation: pose.transform.orientation,
+                });
+              }
+              const eventToDispatch = new JSARInputEvent('handtracking', {
+                handId: inputSource.handedness === 'left' ? 0 : 1,
+                joints,
+              });
+              currentDom.dispatchInputEvent(eventToDispatch);
+            }
+          }
+          session.requestAnimationFrame(onxrframe);
+        }
+        session.requestAnimationFrame(onxrframe);
+      });
+  }
+  requestReferenceSpace(type: XRReferenceSpaceType): Promise<XRReferenceSpace | XRBoundedReferenceSpace> {
+    if (this.#hostSession === undefined) {
+      throw new Error('XRSession is not initialized');
+    }
+    return this.#hostSession.requestReferenceSpace(type);
+  }
+  end(): Promise<void> {
+    if (this.#hostSession === undefined) {
+      throw new Error('XRSession is not initialized');
+    }
+    return this.#hostSession.end();
+  }
+}
+
 class UserAgentOnBabylonjs implements UserAgent {
   versionString: string = '1.0';
   vendor: string = '';
@@ -149,6 +214,9 @@ class UserAgentOnBabylonjs implements UserAgent {
   }
   getMediaPlayerConstructor(): MediaPlayerConstructor {
     return AudioPlayerOnBabylonjs;
+  }
+  createXRSessionBackend(init?: XRSessionBackendInit | undefined): XRSessionBackendOnBabylonjs {
+    return new XRSessionBackendOnBabylonjs(init);
   }
 }
 
@@ -411,6 +479,23 @@ const defaultCode: string = `
 </xsml>
 `;
 
+async function requestXRExperience(): Promise<XRSession> {
+  const arSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync('immersive-ar');
+  if (arSupported && navigator.xr) {
+    const scene = currentDom.nativeDocument.getNativeScene();
+    const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
+    await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local', {
+      optionalFeatures: ['hand-tracking'],
+    });
+    // Just moving the object space to the front of the camera
+    currentDom.document.space.position.z = 1.5;
+    console.log('entered WebXR session', xrHelper);
+    return xrHelper.baseExperience.sessionManager.session
+  } else {
+    throw new Error('AR is not supported on this device.');
+  }
+}
+
 let currentDom: JSARDOM<NativeDocumentOnBabylonjs>;
 let panels: JSARDOM<NativeDocumentOnBabylonjs>[] = [];
 
@@ -433,16 +518,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   arBtn?.addEventListener('click', async () => {
-    const arSupported = await BABYLON.WebXRSessionManager.IsSessionSupportedAsync('immersive-ar');
-    if (arSupported && navigator.xr) {
-      const scene = currentDom.nativeDocument.getNativeScene();
-      const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
-      await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local');
-      // Just moving the object space to the front of the camera
-      currentDom.document.space.position.z = 1.5;
-      console.log('entered WebXR session', xrHelper);
-    } else {
-      alert('AR is not supported on this device.');
+    try {
+      requestXRExperience();
+    } catch (err) {
+      alert(err.message);
     }
   });
 
