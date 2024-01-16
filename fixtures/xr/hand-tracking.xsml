@@ -12,7 +12,6 @@
     <mesh ref="my" />
   </space>
   <script>
-    console.log(navigator?.xr);
     navigator.xr
       .requestSession('immersive-ar', {
         requiredFeatures: ['hand-tracking'],
@@ -22,6 +21,7 @@
           session.requestAnimationFrame(onframe);
         }
         session.requestAnimationFrame(onframe);
+        console.log(navigator.userAgent);
       });
   </script>
 </xsml>

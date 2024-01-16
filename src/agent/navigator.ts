@@ -31,10 +31,10 @@ export class NavigatorImpl implements Navigator {
     return false;
   }
   get appCodeName(): string {
-    return 'JSAR';
+    return this._nativeUserAgent.vendor || 'JSAR';
   }
   get appName(): string {
-    return 'JSAR';
+    return this._nativeUserAgent.vendor || 'JSAR';
   }
   get appVersion(): string {
     return this._nativeUserAgent.versionString || 'Unknown';
@@ -43,13 +43,17 @@ export class NavigatorImpl implements Navigator {
     return process.platform || window.navigator.platform;
   }
   get product(): string {
-    return 'JSAR';
+    return this._nativeUserAgent.vendor || 'JSAR';
   }
   get productSub(): string {
-    return '1.0';
+    return this._nativeUserAgent.vendorSub || '1.0';
   }
   get userAgent(): string {
-    return `JSAR/${this._nativeUserAgent.versionString || 'Unknown'} (XSML/1.0)`;
+    return [
+      `JSAR/${this._nativeUserAgent.versionString || 'Unknown'}`,
+      `JSARDOM/${process.env.JSARDOM_VERSION}`,
+      '(XSML/1.0)',
+    ].join(' ');
   }
   get vendor(): string {
     return this._nativeUserAgent.vendor;
