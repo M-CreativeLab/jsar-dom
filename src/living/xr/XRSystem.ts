@@ -14,8 +14,8 @@ export default class XRSystemImpl extends EventTarget implements XRSystem {
 
   constructor(
     hostObject: NativeDocument,
-    args,
-    privateData = null
+    _args: any[],
+    _privateData = null
   ) {
     super();
     this.#nativeDocument = hostObject;

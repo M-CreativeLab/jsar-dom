@@ -57,6 +57,9 @@ export class AssetsBundle {
     for (const light of this.lights) {
       light.setEnabled(false);
     }
+    for (const animationGroup of this.animationGroups) {
+      animationGroup.stop();
+    }
   }
 
   /**
