@@ -1012,6 +1012,12 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   }
 
   private _handleHandTrackingEventDetail(detail: HandtrackingInputDetail): boolean {
+    /**
+     * @deprecated
+     * 
+     * Dispatch the global event `handtracking` to the document, it will be deprecated when the 
+     * WebXR Hand Input API is ready.
+     */
     const handtrackingGlobalEvent = new HandTrackingEvent(detail);
     this.dispatchEvent(handtrackingGlobalEvent);
 
