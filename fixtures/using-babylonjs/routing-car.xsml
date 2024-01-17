@@ -1,0 +1,8 @@
+<xsml>
+  <head>
+    <title>Using with Babylon.js (Routing Car)</title>
+    <script type="module" src="routing-car.js"></script>
+  </head>
+  <space>
+  </space>
+</xsml>

@@ -1,0 +1,13 @@
+<xsml>
+  <head>
+    <title>Using with Babylon.js (Mesh Collision)</title>
+    <style>
+      space {
+        rotation: 0 180 0;
+      }
+    </style>
+  </head>
+  <space>
+    <script type="module" src="mesh-collision.js"></script>
+  </space>
+</xsml>

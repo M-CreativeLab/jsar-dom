@@ -1,4 +1,5 @@
 import * as taffy from '@bindings/taffy';
+import { SPATIAL_OBJECT_GUID_SYMBOL } from '../symbols';
 import DOMExceptionImpl from '../living/domexception';
 import { MediaPlayerBackend, NativeDocument, ResourceLoader } from '../impl-interfaces';
 import { AssetsBundle } from './resources/AssetsBundle';
@@ -171,6 +172,26 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
   }
 
   #setup(init: WindowOrDOMInit<T>) {
+    /**
+     * FIXME(Yorkie): This is a workaround for the Babylon.js usecase, the developers may want to
+     * use the Babylon.js script directly, to make it work with JSAR's content fit, we need to listen
+     * added meshes and transform nodes, and set their parent to the space by default.
+     * 
+     * How to recognize a mesh or transform node is added by the Babylon.js script? We can use the
+     * `SPATIAL_OBJECT_GUID_SYMBOL` to recognize it, which is added at `SpatialElementImpl`.
+     */
+    const scene = this.#nativeDocument.getNativeScene();
+    scene.onNewMeshAddedObservable.add(mesh => {
+      if (!mesh[SPATIAL_OBJECT_GUID_SYMBOL] && this.#document.space) {
+        mesh.parent = this.#document.space.asNativeType();
+      }
+    });
+    scene.onNewTransformNodeAddedObservable.add(transformNode => {
+      if (!transformNode[SPATIAL_OBJECT_GUID_SYMBOL] && this.#document.space) {
+        transformNode.parent = this.#document.space.asNativeType();
+      }
+    });
+
     const { runScripts } = init;
     if (runScripts === 'outside-only' || runScripts === 'dangerously') {
       // Setup for executing scripts.
