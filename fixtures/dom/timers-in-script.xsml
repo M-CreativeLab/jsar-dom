@@ -1,0 +1,12 @@
+<xsml>
+  <head>
+    <title>Example</title>
+  </head>
+  <space>
+  </space>
+  <script type="module">
+    setTimeout(() => {
+      console.log('hello')
+    }, 1000);
+  </script>
+</xsml>

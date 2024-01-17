@@ -297,6 +297,11 @@ function main() {
     await dom.load();
     console.log('Title:', dom.document.title);
     console.log(await dom.createDocumentManifest());
+
+    await dom.waitForSpaceReady();
+    if (startLoop) {
+      await dom.unload();
+    }
   });
 }
 
