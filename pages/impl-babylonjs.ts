@@ -629,7 +629,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         panel.document.dispatchEvent(customEvent);
       }
+      cdpClient.rootSession.api.Log.enable();
+    });
+    cdpClient.rootSession.api.Log.onEntryAdded((params) => {
+      console.log('[CDP Event] Log.onEntryAdded', params);
     });
   }
-
 });

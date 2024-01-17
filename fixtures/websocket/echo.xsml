@@ -31,8 +31,9 @@
     const ws = new WebSocket('wss://echo.websocket.org');
     ws.onopen = () => {
       setInterval(() => {
-        ws.send(`hello world ${Date.now()}`);
-        console.info(`send message ${Date.now()}`);
+        const now = Date.now();
+        ws.send(`hello world ${now}`);
+        console.info(`send message`, now);
       }, 1000);
     };
     ws.onmessage = (e) => {

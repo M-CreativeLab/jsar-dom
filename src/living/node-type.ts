@@ -17,6 +17,10 @@ const NodeTypes = Object.freeze({
   NOTATION_NODE: 12 // historical
 });
 
+export function isNode(node: Node): node is Node {
+  return node.nodeType !== undefined;
+}
+
 export function isElementNode(node: Node): node is Element {
   return node.nodeType === NodeTypes.ELEMENT_NODE;
 }

@@ -17,7 +17,7 @@ export function createConsole(nativeConsole: Console, window: BaseWindowImpl): C
       nativeConsole.countReset(label);
     },
     debug(message?: any, ...optionalParams: any[]): void {
-      cdpImpl?.writeLogEntry('verbose', message, 'javascript');
+      cdpImpl?.writeLogEntry('verbose', message, optionalParams, 'javascript');
       nativeConsole.debug(message, ...optionalParams);
     },
     dir(value?: any, ...optionalParams: any[]): void {
@@ -27,7 +27,7 @@ export function createConsole(nativeConsole: Console, window: BaseWindowImpl): C
       nativeConsole.dirxml(value);
     },
     error(message?: any, ...optionalParams: any[]): void {
-      cdpImpl?.writeLogEntry('verbose', message, 'javascript');
+      cdpImpl?.writeLogEntry('verbose', message, optionalParams, 'javascript');
       nativeConsole.error(message, ...optionalParams);
     },
     group(...label: any[]): void {
@@ -40,11 +40,11 @@ export function createConsole(nativeConsole: Console, window: BaseWindowImpl): C
       nativeConsole.groupEnd();
     },
     info(message?: any, ...optionalParams: any[]): void {
-      cdpImpl?.writeLogEntry('info', message, 'javascript');
+      cdpImpl?.writeLogEntry('info', message, optionalParams, 'javascript');
       nativeConsole.info(message, ...optionalParams);
     },
     log(message?: any, ...optionalParams: any[]): void {
-      cdpImpl?.writeLogEntry('info', message, 'javascript');
+      cdpImpl?.writeLogEntry('info', message, optionalParams, 'javascript');
       nativeConsole.log(message, ...optionalParams);
     },
     table(tabularData: any, properties?: string[]): void {
@@ -63,7 +63,7 @@ export function createConsole(nativeConsole: Console, window: BaseWindowImpl): C
       nativeConsole.trace(message, ...optionalParams);
     },
     warn(message?: any, ...optionalParams: any[]): void {
-      cdpImpl?.writeLogEntry('warning', message, 'javascript');
+      cdpImpl?.writeLogEntry('warning', message, optionalParams, 'javascript');
       nativeConsole.warn(message, ...optionalParams);
     },
     profile(reportName?: string): void {

@@ -2,14 +2,14 @@
 import type { BaseWindowImpl, WindowOrDOMInit } from '../window';
 import type { NativeDocument } from '../../impl-interfaces';
 import { ClientConnection, Connection, ServerConnection } from './connection';
-import { CdpBrowser } from './definitions';
+import { CdpBrowser, CdpV8 } from './definitions';
 import type { ITransport } from './transport';
 import { ISerializer } from './serializer';
 import { JsonSerializer } from './serializer/json';
 import { ClientCdpSession } from './client';
 import type { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
-import type { NodeImpl } from '../../living/nodes/Node';
-import { isAttributeNode, isElementNode, isSpatialElement } from '../../living/node-type';
+import { NodeImpl } from '../../living/nodes/Node';
+import { isNode, isAttributeNode, isElementNode, isSpatialElement } from '../../living/node-type';
 
 namespace CdpJSAR {
   export interface Domains {
@@ -581,9 +581,84 @@ export class CdpServerImplementation {
     return serialized;
   }
 
+  private _getValueSubtype(value: any): CdpV8.Runtime.RemoteObject['subtype'] {
+    if (value == null) {
+      return 'null';
+    } else if (Array.isArray(value)) {
+      return 'array';
+    } else if (isNode(value)) {
+      return 'node';
+    } else if (value instanceof RegExp) {
+      return 'regexp';
+    } else if (value instanceof Date) {
+      return 'date';
+    } else if (value instanceof Map) {
+      return 'map';
+    } else if (value instanceof Set) {
+      return 'set';
+    } else if (value instanceof WeakMap) {
+      return 'weakmap';
+    } else if (value instanceof WeakSet) {
+      return 'weakset';
+    } else if (value instanceof Error) {
+      return 'error';
+    } else if (value instanceof Proxy) {
+      return 'proxy';
+    } else if (value instanceof Promise) {
+      return 'promise';
+    } else if (value instanceof ArrayBuffer) {
+      return 'arraybuffer';
+    } else if (ArrayBuffer.isView(value)) {
+      return 'typedarray';
+    } else if (value instanceof DataView) {
+      return 'dataview';
+    }
+  }
+
+  private _createPropertyPreview(name: string, value: any): CdpV8.Runtime.PropertyPreview {
+    const subtype = this._getValueSubtype(value);
+    return {
+      name,
+      type: typeof value,
+      value: value?.toString() || '',
+      valuePreview: {
+        type: typeof value,
+        subtype,
+        overflow: false,
+        properties: typeof value === 'object' ?
+          Object.keys(value).map(name => this._createPropertyPreview(name, value[name])) :
+          [],
+      },
+      subtype,
+    };
+  }
+
+  createRemoteObject(value: any): CdpV8.Runtime.RemoteObject {
+    const subtype = this._getValueSubtype(value);
+    return {
+      type: typeof value,
+      subtype,
+      className: value?.constructor?.name || '',
+      value,
+      unserializableValue: value?.toString() || '',
+      description: '',
+      objectId: '',     // TODO
+      preview: {
+        type: typeof value,
+        subtype,
+        description: '',
+        overflow: false,
+        properties: typeof value === 'object' ?
+          Object.keys(value).map(name => this._createPropertyPreview(name, value[name])) :
+          [],
+      },
+    };
+  }
+
   writeLogEntry(
     level: 'verbose' | 'info' | 'warning' | 'error',
-    text: string,
+    text: any,
+    args: any[],
     source: 'javascript' | 'network' | 'appcache' | 'security' | 'other' = 'other',
     url: string = '',
   ) {
@@ -593,14 +668,14 @@ export class CdpServerImplementation {
     const entry: CdpBrowser.Log.LogEntry = {
       source,
       level,
-      text,
+      text: text?.toString() || '',
       timestamp: Date.now(),
       url,
       lineNumber: 0,
       stackTrace: null,
       networkRequestId: '',
       workerId: '',
-      args: [],
+      args: Array.isArray(args) ? args.map(arg => this.createRemoteObject(arg)) : [],
     };
     this.rootSession.eventDispatcher.Log.entryAdded({ entry });
   }
