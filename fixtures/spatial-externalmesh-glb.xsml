@@ -9,7 +9,7 @@
     </style>
   </head>
   <space>
-    <mesh ref="my" />
+    <mesh ref="my" id="model" />
   </space>
   <script src="./spatial-externalmesh-glb.ts"></script>
 </xsml>
