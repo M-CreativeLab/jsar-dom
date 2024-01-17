@@ -34,7 +34,7 @@ class HeadlessResourceLoader implements ResourceLoader {
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'json'): Promise<object>;
   fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs: 'arraybuffer'): Promise<ArrayBuffer>;
   fetch<T = string | object | ArrayBuffer>(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<T>;
-  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object> | Promise<ArrayBuffer> | Promise<string> {
+  fetch(url: string, options: { accept?: string; cookieJar?: any; referrer?: string; }, returnsAs?: 'string' | 'json' | 'arraybuffer'): Promise<object | ArrayBuffer | string> {
     if (!canParseURL(url)) {
       throw new TypeError('Invalid URL');
     }
@@ -44,6 +44,9 @@ class HeadlessResourceLoader implements ResourceLoader {
     } else {
       return fetch(url, options)
         .then((resp) => {
+          if (!resp.ok) {
+            throw new Error(`The request to ${url} failed with status ${resp.status}`);
+          }
           if (returnsAs === 'string') {
             return resp.text();
           } else if (returnsAs === 'json') {

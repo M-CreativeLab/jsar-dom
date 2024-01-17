@@ -572,7 +572,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
     if (resourceExt === '' || supportedScriptExtensions.includes(resourceExt)) {
       return {
         format: 'module',
-        source: await this._tryFetchScriptWithExtensions(url, [''].concat(supportedScriptExtensions)),
+        source: await this._tryFetchScriptWithExtensions(url, supportedScriptExtensions),
       };
     }
     throw new DOMException(`The module format is not supported: ${url}`, 'NOT_SUPPORTED_ERR');
@@ -605,21 +605,24 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
    * @returns The script source in utf8 encoding.
    */
   async _tryFetchScriptWithExtensions(url: string, extensions: string[]): Promise<string> {
-    const triedUris: string[] = [url];
-    for (let ext of extensions) {
-      triedUris.push(url + ext);
+    let scriptSource: string = null;
+    const triedUrls: string[] = [url].concat(extensions.map(ext => url + ext));
+    for (let fixedUrl of triedUrls) {
       try {
-        const scriptSource = await this.resourceLoader.fetch(url + ext, {}, 'string');
-        return scriptSource;
+        scriptSource = await this.resourceLoader.fetch(fixedUrl, {}, 'string');
       } catch (err) {
         this.console.warn(`failed to fetch the script because of ${err.message}, try next.`);
       }
+      if (scriptSource != null) {
+        break;
+      }
     }
-    try {
-      return await this.resourceLoader.fetch(url, {}, 'string');
-    } catch (_err) {
-      const details = triedUris.map(s => `  ${s}`).join('\n');
+
+    if (scriptSource == null) {
+      const details = triedUrls.map(s => `  ${s}`).join('\n');
       throw new TypeError(`Failed to fetch the script source: ${url}, tried uris:\n${details}`);
+    } else {
+      return scriptSource;
     }
   }
 
@@ -885,7 +888,7 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       }
       const scriptUrl = getUrlFromResolveResult(resolved);
       if (!this._compiledModules.has(scriptUrl)) {
-        throw new TypeError(`Could not find the module: ${id}`);
+        throw new TypeError(`Could not find the module: ${id}, script url is: ${scriptUrl}`);
       }
       return this._getModuleExports(this._compiledModules.get(scriptUrl), scriptUrl);
     };
