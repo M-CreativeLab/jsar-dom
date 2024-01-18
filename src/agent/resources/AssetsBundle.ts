@@ -80,7 +80,6 @@ export class AssetsBundle {
     const newTransformNodes: BABYLON.TransformNode[] = [];
     const newSkeletons: BABYLON.Skeleton[] = [];
     const newAnimationGroups: BABYLON.AnimationGroup[] = [];
-    const newMorphTargetManagers: BABYLON.MorphTargetManager[] = [];
     let defaultRoot: BABYLON.TransformNode = null;
     let sourceRoot: BABYLON.TransformNode = null;
 
@@ -91,18 +90,6 @@ export class AssetsBundle {
       const newMesh = mesh.clone(`${name}.${mesh.name}`, null, true);
       newMeshes.push(newMesh);
       sourceUidToCopied.set(mesh.uniqueId, newMesh);
-
-      /**
-       * Add the new `MorthTargetManager` to the managers list, it will be used to update the morph
-       * targets later when parsing animation groups.
-       * 
-       * The Babylon.js does deep copy for the `MorphTargetManager` but not the `MorphTarget`, so when
-       * the original animation group would effect the new mesh. Thus we need to update the 
-       * `MorphTargetManager` targets manually.
-       */
-      if (newMesh.morphTargetManager != null) {
-        newMorphTargetManagers.push(newMesh.morphTargetManager);
-      }
     }
     for (const transformNode of this.transformNodes) {
       if (transformNode.name === selector) {
@@ -153,40 +140,12 @@ export class AssetsBundle {
                 `Could not find the target(${oldTarget.name}) for animation group(${animationGroup.name})`, oldTarget);
             }
           } else if (oldTarget instanceof BABYLON.MorphTarget) {
-            let foundFromManager = false;
-            const newTarget = oldTarget.clone();
-
             /**
-             * When we are to clone a morph target, we need to replace the existing targets in the `MorphTargetManager` with the
-             * new one, otherwise the animation group will still effect the old mesh.
+             * Nothing to do for MorphTarget, the MorphTarget could be shared by multiple meshes and not linked to another
+             * node in the scene graph.
+             * 
+             * FIXME(Yorkie): support MorphTarget isolation?
              */
-            for (const manager of newMorphTargetManagers) {
-              for (let i = 0; i < manager.numTargets; i++) {
-                const target = manager.getTarget(i);
-                if (target.uniqueId === oldTarget.uniqueId) {
-                  /**
-                   * Remove the old one and add the new `MorphTarget` to the manager.
-                   * 
-                   * FIXME: this could effect the targets index, however the Babylon.js doesn't provide a way
-                   *        to assign in place?
-                   */
-                  manager.removeTarget(target);
-                  manager.addTarget(newTarget);
-                  foundFromManager = true;
-                  break;
-                }
-              }
-            }
-
-            /**
-             * If not found from the cloned managers, it means the target is not used by any mesh, then it
-             * possibly is caused by the model creator's mistake? Anyway, we should warn the developer.
-             */
-            if (!foundFromManager) {
-              console.warn(
-                `Could not find the target(${oldTarget.name}) from the loaded mesh\'s MorthTargetManager.`);
-            }
-            return newTarget;
           } else {
             console.warn(
               `The target(${oldTarget.name}) for animation group(${animationGroup.name}) is not a transform node, actual type is "${oldTarget.getClassName()}".`, oldTarget);
