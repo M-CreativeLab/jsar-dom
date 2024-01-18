@@ -11,6 +11,16 @@ import type { SpatialDocumentImpl } from '../../living/nodes/SpatialDocument';
 import { NodeImpl } from '../../living/nodes/Node';
 import { isNode, isAttributeNode, isElementNode, isSpatialElement } from '../../living/node-type';
 
+function isProxy(value: any) {
+  let r: boolean = false;
+  try {
+    r = value instanceof Proxy;
+  } catch (_e) {
+    r = false;
+  }
+  return r;
+}
+
 namespace CdpJSAR {
   export interface Domains {
     Log: CdpBrowser.Domains['Log'];
@@ -605,7 +615,7 @@ export class CdpServerImplementation {
       return 'weakset';
     } else if (value instanceof Error) {
       return 'error';
-    } else if (value instanceof Proxy) {
+    } else if (isProxy(value)) {
       return 'proxy';
     } else if (value instanceof Promise) {
       return 'promise';

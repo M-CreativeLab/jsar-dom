@@ -595,6 +595,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     currentDom = new JSARDOM(code, {
       url: urlBase,
       nativeDocument,
+      devtools: {
+        log: true,
+      }
     });
     nativeDocument.addEventHandlerOnDom(currentDom);
     await currentDom.load();
@@ -605,6 +608,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       (nativeDocument.cdpTransport as cdp.LoopbackTransport).receive(data);
     });
     const cdpClient = cdp.createRemoteClient(transport);
+    cdpClient.rootSession.api.Log.onEntryAdded((params) => {
+      console.log('[CDP Event] Log.onEntryAdded', params);
+    });
     nativeDocument.addClientCdpTransport(transport);
 
     const spaceNode = currentDom.document.space.asNativeType<BABYLON.TransformNode>();
@@ -629,10 +635,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         });
         panel.document.dispatchEvent(customEvent);
       }
-      cdpClient.rootSession.api.Log.enable();
-    });
-    cdpClient.rootSession.api.Log.onEntryAdded((params) => {
-      console.log('[CDP Event] Log.onEntryAdded', params);
     });
   }
 });
