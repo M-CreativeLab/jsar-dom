@@ -581,7 +581,10 @@ export class CdpServerImplementation {
     return serialized;
   }
 
-  private _getValueSubtype(value: any): CdpV8.Runtime.RemoteObject['subtype'] {
+  private _getValueSubtype(value: any): CdpV8.Runtime.RemoteObject['subtype'] | undefined {
+    if (typeof value !== 'object') {
+      return undefined;
+    }
     if (value == null) {
       return 'null';
     } else if (Array.isArray(value)) {
@@ -665,18 +668,28 @@ export class CdpServerImplementation {
     if (this._isLogEnabled === false) {
       return;
     }
-    const entry: CdpBrowser.Log.LogEntry = {
-      source,
-      level,
-      text: text?.toString() || '',
-      timestamp: Date.now(),
-      url,
-      lineNumber: 0,
-      stackTrace: null,
-      networkRequestId: '',
-      workerId: '',
-      args: Array.isArray(args) ? args.map(arg => this.createRemoteObject(arg)) : [],
-    };
-    this.rootSession.eventDispatcher.Log.entryAdded({ entry });
+
+    let argsInEntry: CdpBrowser.Log.LogEntry['args'] = [];
+    if (Array.isArray(args)) {
+      try {
+        argsInEntry = args.map(arg => this.createRemoteObject(arg));
+      } catch (_err) {
+        // ignore
+      }
+    }
+    this.rootSession.eventDispatcher.Log.entryAdded({
+      entry: {
+        source,
+        level,
+        text: text?.toString() || '',
+        timestamp: Date.now(),
+        url,
+        lineNumber: 0,
+        stackTrace: null,
+        networkRequestId: '',
+        workerId: '',
+        args: argsInEntry,
+      },
+    });
   }
 }
