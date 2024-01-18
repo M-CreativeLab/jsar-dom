@@ -2,7 +2,7 @@
   <head>
     <title>Example</title>
     <script type="module">
-      console.log('hello world', new URL('https://example.com'));
+      console.log('hello world', new URL('https://example.com'), navigator.userAgent);
     </script>
   </head>
   <space>
