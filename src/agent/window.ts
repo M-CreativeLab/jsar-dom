@@ -207,7 +207,7 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
 
   #disposeWebSockets() {
     for (const websocket of this.#listOfWebSockets) {
-      websocket.close()
+      websocket.close();
     }
     this.#listOfWebSockets.clear();
   }
@@ -475,8 +475,12 @@ export class BaseWindowImpl<T extends NativeDocument = NativeDocument> extends E
     this.#nativeDocument.close();
 
     // Dispose self after the native document is closed.
-    this._taffyAllocator.free();
-    this._taffyAllocator = null;
+    try {
+      this._taffyAllocator.free();
+      this._taffyAllocator = null;
+    } catch (_err) {
+      // ignore
+    }
   }
   confirm(message?: string): boolean {
     return this.#nativeDocument.userAgent.confirm(message);
