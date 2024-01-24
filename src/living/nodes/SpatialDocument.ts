@@ -338,7 +338,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
 
   /** Used for spatial objects */
   _idsOfSpatialObjects: { [key: string]: SpatialElement } = {};
-  _guidSOfSpatialObjects: Map<string, SpatialElement> = new Map();
+  _guidSOfSpatialObjects: Map<number, SpatialElement> = new Map();
 
   constructor(
     nativeDocument: NativeDocument,
@@ -939,7 +939,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
    * This is used to get the spatial object by the transmute GUID.
    * @internal
    */
-  _getSpatialObjectByGuid(guid: string): SpatialElement {
+  _getSpatialObjectByGuid(guid: number): SpatialElement {
     return this._guidSOfSpatialObjects.get(guid);
   }
 

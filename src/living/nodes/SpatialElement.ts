@@ -22,7 +22,7 @@ export class SpatialElement extends ElementImpl {
   /**
    * The GUID.
    */
-  [SPATIAL_OBJECT_GUID_SYMBOL]: string;
+  [SPATIAL_OBJECT_GUID_SYMBOL]: number;
 
   /**
    * @deprecated use `NodeTypes.isSpatialElement()` instaed.
@@ -49,9 +49,6 @@ export class SpatialElement extends ElementImpl {
     this._scene = hostObject.getNativeScene();
     this._style = new CSSSpatialStyleDeclaration();
     this.nodeType = NodeImpl.ELEMENT_NODE;
-
-    // Set vgoGuid
-    this[SPATIAL_OBJECT_GUID_SYMBOL] = BABYLON.Tools.RandomId();
   }
 
   get position(): DOMPoint {
@@ -197,7 +194,7 @@ export class SpatialElement extends ElementImpl {
     const isInSpatialElement = this.parentNode && SpatialElement.isSpatialElement(this.parentNode);
     if (this._internalObject) {
       /** Add the SpatialObject GUID */
-      this._internalObject[SPATIAL_OBJECT_GUID_SYMBOL] = this[SPATIAL_OBJECT_GUID_SYMBOL];
+      this[SPATIAL_OBJECT_GUID_SYMBOL] = this._internalObject.uniqueId;
       this._internalObject.metadata = { 'jsardom.guid': this[SPATIAL_OBJECT_GUID_SYMBOL] };
       this._ownerDocument._guidSOfSpatialObjects.set(this[SPATIAL_OBJECT_GUID_SYMBOL], this);
 

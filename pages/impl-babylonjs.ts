@@ -323,7 +323,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
         const raycastEvent = new JSARInputEvent('raycast', {
           sourceId: 'scene_default_ray',
           sourceType: 'mouse',
-          targetSpatialElementInternalGuid: pickingInfo.pickedMesh[SPATIAL_OBJECT_GUID_SYMBOL],
+          targetSpatialElementInternalGuid: pickingInfo.pickedMesh.uniqueId,
           uvCoord: pickingInfo.getTextureCoordinates(),
         });
         targetDom.dispatchInputEvent(raycastEvent);

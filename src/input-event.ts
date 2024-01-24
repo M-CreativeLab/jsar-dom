@@ -30,7 +30,7 @@ export type HandtrackingInputDetail = {
 export type RaycastInputDetail = {
   sourceId: string;
   sourceType?: 'hand' | 'head' | 'gamepad' | 'mouse' | 'custom';
-  targetSpatialElementInternalGuid: string;
+  targetSpatialElementInternalGuid: number;
   uvCoord: BABYLON.Nullable<BABYLON.Vector2>;
 };
 
