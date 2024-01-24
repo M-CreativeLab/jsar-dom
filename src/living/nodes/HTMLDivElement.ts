@@ -14,5 +14,6 @@ export default class HTMLDivElementImpl extends HTMLContentElement implements HT
     });
 
     this._adoptedStyle.flexDirection = 'column';
+    this._adoptedStyle.width = '100%';
   }
 }

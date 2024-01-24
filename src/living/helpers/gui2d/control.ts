@@ -421,6 +421,13 @@ export class Control2D {
       return null;
     }
 
+    /**
+     * If the width and height has been set, we don't need to fix the size by text.
+     */
+    if (this._style.height && this._style.width) {
+      return null;
+    }
+
     const metrics = this._measureText(this._renderingContext, value);
 
     /**
@@ -438,6 +445,8 @@ export class Control2D {
         width = parseFloat(this._style.width);
       } else if (rect) {
         width = rect.width;
+      } else {
+        width = metrics.width;
       }
 
       /**

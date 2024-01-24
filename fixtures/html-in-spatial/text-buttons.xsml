@@ -2,15 +2,9 @@
   <head>
     <title>GUI Buttons</title>
     <style type="text/scss">
-      @material litered {
-        diffuse-color: #ffccff;
-      }
       #gui {
         scaling: 1.2 1 1;
         position: 0 0 -0.5;
-      }
-      #box1 {
-        material: "litered";
       }
     </style>
     <script type="module" src="text-button.ts"></script>
@@ -30,10 +24,10 @@
         }
         span.sub {
           background-color: rgba(20,33,33,.95);
-          height: 200px;
-          width: 300px;
           margin-left: 50px;
           font-size: 80px;
+          height: 200px;
+          width: 200px;
           color: #ffffff;
           text-align: center;
           border: 15px solid yellow;
