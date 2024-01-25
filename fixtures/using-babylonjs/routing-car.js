@@ -142,7 +142,7 @@ const textureGround = new BABYLON.DynamicTexture('dynamic texture', {
 ground.material.albedoTexture = textureGround;
 
 // //Add text to dynamic texture
-var font = 'bold 20px arial';
+var font = 'bold 20px sans-serif';
 textureGround.drawText("你好 Hello!!", 75, 135, font, 'green', 'black', true, true);
 
 var textureContext = textureGround.getContext();

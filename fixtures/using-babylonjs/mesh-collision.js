@@ -16,12 +16,18 @@ mOrigin.position = pointToIntersect;
 mOrigin.material = matPlan;
 
 // Create two planes
-const plan1 = BABYLON.Mesh.CreatePlane('plane1', 20, scene);
+const plan1 = BABYLON.MeshBuilder.CreatePlane('plane1', {
+  size: 20,
+  sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+}, scene);
 plan1.position = new BABYLON.Vector3(13, 0, 0);
 plan1.rotation.x = -Math.PI / 4;
 plan1.material = matPlan;
 
-const plan2 = BABYLON.Mesh.CreatePlane('plane2', 20, scene);
+const plan2 = BABYLON.MeshBuilder.CreatePlane('plane2', {
+  size: 20,
+  sideOrientation: BABYLON.Mesh.DOUBLESIDE,
+}, scene);
 plan2.position = new BABYLON.Vector3(-13, 0, 0);
 plan2.rotation.x = -Math.PI / 4;
 plan2.material = matPlan;
@@ -42,9 +48,9 @@ planOBB.material = matBB;
 const balloon1 = BABYLON.Mesh.CreateSphere('balloon1', 10, 2.0, scene);
 const balloon2 = BABYLON.Mesh.CreateSphere('balloon2', 10, 2.0, scene);
 const balloon3 = BABYLON.Mesh.CreateSphere('balloon3', 10, 2.0, scene);
-balloon1.material = new BABYLON.StandardMaterial('matBallon', scene);
-balloon2.material = new BABYLON.StandardMaterial('matBallon', scene);
-balloon3.material = new BABYLON.StandardMaterial('matBallon', scene);
+balloon1.material = new BABYLON.StandardMaterial('matBallon1', scene);
+balloon2.material = new BABYLON.StandardMaterial('matBallon2', scene);
+balloon3.material = new BABYLON.StandardMaterial('matBallon3', scene);
 
 balloon1.position = new BABYLON.Vector3(6, 5, 0);
 balloon2.position = new BABYLON.Vector3(-6, 5, 0);

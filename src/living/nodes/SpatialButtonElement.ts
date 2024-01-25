@@ -2,6 +2,8 @@ import { NativeDocument } from '../../impl-interfaces';
 import { SpatialElement } from './SpatialElement';
 
 export default class SpatialButtonElement extends SpatialElement {
+  private _meshMaterial: BABYLON.Material = null;
+
   constructor(
     hostObject: NativeDocument,
     args,
@@ -12,12 +14,25 @@ export default class SpatialButtonElement extends SpatialElement {
     });
   }
 
+  get meshMaterial(): BABYLON.Material {
+    return this._meshMaterial;
+  }
+
   _attach(): void {
     const nameOrId = this._getInternalNodeNameOrId();
     const container = BABYLON.MeshBuilder.CreatePlane(nameOrId, {
       width: 0.5,
       height: 0.5,
     });
+
+    /**
+     * Create default mesh material
+     */
+    this._meshMaterial = new BABYLON.StandardMaterial(`${nameOrId}#material`, this._scene);
+
+    /**
+     * Create default mesh
+     */
     const mesh = BABYLON.MeshBuilder.CreateBox(`${nameOrId}#mesh`, {
       ...this._getCommonMeshBuilderOptions(),
       width: 0.5,
@@ -26,6 +41,7 @@ export default class SpatialButtonElement extends SpatialElement {
     }, this._scene);
     mesh.position.z = 0.01;
     mesh.parent = container;
+    mesh.material = this._meshMaterial;
     super._attach(container);
 
     const shadowRoot = this.attachShadow({ mode: 'open' });
