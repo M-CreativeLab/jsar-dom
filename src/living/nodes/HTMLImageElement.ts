@@ -147,6 +147,7 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
 
     this._currentSrc = null;
     this._currentRequestState = 'unavailable';
+    this._resetHandles(); // Reset the handles before loading the image data.
 
     const src = this.src;
     let urlString: string;
@@ -184,6 +185,21 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
       });
     }
     super._attrModified(name, value, oldValue);
+  }
+
+  _detach(): void {
+    super._detach();
+    this._resetHandles();
+  }
+
+  private _resetHandles() {
+    if (this._imageBitmap) {
+      this._imageBitmap.close();
+      this._imageBitmap = null;
+    }
+    if (this._imageData) {
+      this._imageData = null;
+    }
   }
 
   _renderSelf(rect: DOMRect, base: DOMRectReadOnly): void {
