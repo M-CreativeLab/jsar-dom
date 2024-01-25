@@ -148,3 +148,4 @@ textureGround.drawText("你好 Hello!!", 75, 135, font, 'green', 'black', true, 
 var textureContext = textureGround.getContext();
 textureContext.fillStyle = 'red';
 textureContext.fillRect(0, 0, 512, 24);
+textureGround.update();
