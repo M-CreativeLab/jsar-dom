@@ -786,6 +786,9 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       Buffer,
       assert,
 
+      // Crypto APIs
+      Noise: windowBase.Noise,
+
       // Web APIs
       URL: windowBase.URL,
       Blob: windowBase.Blob,
@@ -793,7 +796,12 @@ export default class HTMLScriptElementImpl extends HTMLElementImpl implements HT
       Audio: windowBase.Audio,
       ImageData: windowBase.ImageData,
       OffscreenCanvas: globalThis.OffscreenCanvas,
-      Noise: windowBase.Noise,
+
+      // Geometry APIs
+      DOMPoint: windowBase.DOMPoint,
+      DOMPointReadOnly: windowBase.DOMPointReadOnly,
+      DOMRect: windowBase.DOMRect,
+      DOMRectReadOnly: windowBase.DOMRectReadOnly,
 
       atob: windowBase.atob,
       btoa: windowBase.btoa,

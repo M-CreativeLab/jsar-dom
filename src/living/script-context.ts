@@ -18,6 +18,11 @@ export interface ScriptContext {
   Audio: typeof Audio;
   ImageData: typeof ImageData;
   OffscreenCanvas: typeof OffscreenCanvas;
+
+  DOMPoint: typeof DOMPoint;
+  DOMPointReadOnly: typeof DOMPointReadOnly;
+  DOMRect: typeof DOMRect;
+  DOMRectReadOnly: typeof DOMRectReadOnly;
   Noise: typeof NoiseImpl;
 
   atob: typeof atob;
