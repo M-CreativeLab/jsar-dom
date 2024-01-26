@@ -488,7 +488,7 @@ async function requestXRExperience(): Promise<XRSession> {
     const scene = currentDom.nativeDocument.getNativeScene();
     const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
     await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local', {
-      optionalFeatures: ['hand-tracking'],
+      optionalFeatures: [],
     });
     // Just moving the object space to the front of the camera
     currentDom.document.space.position.z = 1.5;
