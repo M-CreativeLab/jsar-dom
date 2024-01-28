@@ -434,7 +434,7 @@ const defaultCode: string = `
       }
 
       cube {
-        animation: rotate 5s linear infinite;
+        animation: rotate 50s linear infinite;
       }
       plane {
         position: 0.25 0.5 -1;
@@ -442,7 +442,7 @@ const defaultCode: string = `
     </style>
   </head>
   <space>
-    <cube />
+    <cube size="1" />
     <plane height="0.5" width="1.5">
       <div>
         <span>Hello JSAR!</span>
@@ -467,12 +467,21 @@ const defaultCode: string = `
     <script>
       const cube = document.querySelector('cube');
       if (cube) {
+        const mesh = cube.asNativeType<BABYLON.AbstractMesh>();
+        mesh.outlineColor = new BABYLON.Color3(0, 1, 1);
+        mesh.overlayColor = new BABYLON.Color3(0, 1, 0);
+
         cube.addEventListener('rayenter', () => {
-          cube.asNativeType<BABYLON.AbstractMesh>().renderOutline = true;
-          cube.asNativeType<BABYLON.AbstractMesh>().outlineColor = new BABYLON.Color3(0, 1, 1);
+          mesh.renderOutline = true;
         });
         cube.addEventListener('rayleave', () => {
-          cube.asNativeType<BABYLON.AbstractMesh>().renderOutline = false;
+          mesh.renderOutline = false;
+        });
+        cube.addEventListener('raydown', () => {
+          mesh.renderOverlay = true;
+        });
+        cube.addEventListener('rayup', () => {
+          mesh.renderOverlay = false;
         });
       }
       console.log(navigator);
