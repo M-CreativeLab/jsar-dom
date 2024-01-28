@@ -803,6 +803,11 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   createElement(tagName: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6'): HTMLHeadingElement;
   createElement(tagName: 'section'): HTMLElement;
   createElement(tagName: 'header'): HTMLElement;
+  createElement(tagName: 'footer'): HTMLElement;
+  createElement(tagName: 'nav'): HTMLElement;
+  createElement(tagName: 'aside'): HTMLElement;
+  createElement(tagName: 'article'): HTMLElement;
+
   // Universal signature
   createElement(tagName: string): Element;
   createElement(tagName: string): Element {
@@ -870,6 +875,10 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         return new HTMLHeadingElementImpl(this.#nativeDocument, [], { level: tagName });
       case 'header':
       case 'section':
+      case 'footer':
+      case 'nav':
+      case 'aside':
+      case 'article':
         return new HTMLContentElement(this.#nativeDocument, [], {
           localName: tagName,
         });
