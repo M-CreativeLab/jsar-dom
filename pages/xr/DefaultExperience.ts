@@ -1,3 +1,4 @@
+import './features/index';
 import { WebXRExperienceHelper } from './ExperienceHelper';
 import { WebXRInput } from './Input';
 

@@ -173,30 +173,31 @@ export class WebXRSessionManager implements BABYLON.IDisposable, BABYLON.IWebXRR
     if (!xr) {
       throw new Error('WebXR not available');
     }
-    return xr.requestSession(xrSessionMode, xrSessionInit).then((session: XRSession) => {
-      console.log('session', session);
-      this.session = session;
-      this._sessionMode = xrSessionMode;
-      this.onXRSessionInit.notifyObservers(session);
-      this.inXRSession = true;
-      this.session.addEventListener(
-        'end',
-        () => {
-          this.inXRSession = false;
-          this.onXRSessionEnded.notifyObservers(null);
-          if (this._engine) {
-            this._engine.framebufferDimensionsObject = null;
-            this._engine.restoreDefaultFramebuffer();
-            this._engine.customAnimationFrameRequester = null;
-            this._engine._renderLoop();
-          }
-          this._baseLayerRTTProvider = null;
-          this._baseLayerWrapper = null;
-        },
-        { once: true }
-      );
-      return this.session;
-    });
+    return xr.requestSession(xrSessionMode, xrSessionInit)
+      .then((session: XRSession) => {
+        console.info(`a session request(mode=${xrSessionMode} was successful`, session);
+        this.session = session;
+        this._sessionMode = xrSessionMode;
+        this.onXRSessionInit.notifyObservers(session);
+        this.inXRSession = true;
+        this.session.addEventListener(
+          'end',
+          () => {
+            this.inXRSession = false;
+            this.onXRSessionEnded.notifyObservers(null);
+            if (this._engine) {
+              this._engine.framebufferDimensionsObject = null;
+              this._engine.restoreDefaultFramebuffer();
+              this._engine.customAnimationFrameRequester = null;
+              this._engine._renderLoop();
+            }
+            this._baseLayerRTTProvider = null;
+            this._baseLayerWrapper = null;
+          },
+          { once: true }
+        );
+        return this.session;
+      });
   }
 
   /**

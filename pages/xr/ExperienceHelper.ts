@@ -1,4 +1,5 @@
 import { WebXRCamera } from './Camera';
+import { WebXRFeatureName, WebXRFeaturesManager } from './FeatureManager';
 import { WebXRSessionManager } from './SessionManager';
 
 export class WebXRExperienceHelper implements BABYLON.IDisposable {
@@ -15,7 +16,7 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
    */
   public camera: WebXRCamera;
   /** A features manager for this xr session */
-  // public featuresManager: WebXRFeaturesManager;
+  public featuresManager: WebXRFeaturesManager;
   /**
    * Observers registered here will be triggered after the camera's initial transformation is set
    * This can be used to set a different ground level or an extra rotation.
@@ -62,7 +63,7 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
   private constructor(private _scene: BABYLON.Scene) {
     this.sessionManager = new WebXRSessionManager(_scene);
     this.camera = new WebXRCamera('webxr', _scene, this.sessionManager);
-    // this.featuresManager = new WebXRFeaturesManager(this.sessionManager);
+    this.featuresManager = new WebXRFeaturesManager(this.sessionManager);
 
     _scene.onDisposeObservable.addOnce(() => {
       this.dispose();
@@ -96,6 +97,8 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
     sessionCreationOptions: XRSessionInit = {},
     renderTarget: BABYLON.WebXRRenderTarget = this.sessionManager.getWebXRRenderTarget(),
   ): Promise<WebXRSessionManager> {
+    console.info(`enterXRAsync: sessionMode=${sessionMode}, referenceSpaceType=${referenceSpaceType}, sessionCreationOptions=${sessionCreationOptions}, renderTarget=${renderTarget}`);
+
     if (!this._supported) {
       throw new Error('WebXR not supported in this browser or environment');
     }
@@ -104,7 +107,7 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
       sessionCreationOptions.optionalFeatures = sessionCreationOptions.optionalFeatures || [];
       sessionCreationOptions.optionalFeatures.push(referenceSpaceType);
     }
-    // sessionCreationOptions = await this.featuresManager._extendXRSessionInitObject(sessionCreationOptions);
+    sessionCreationOptions = await this.featuresManager._extendXRSessionInitObject(sessionCreationOptions);
     // we currently recommend "unbounded" space in AR (#7959)
     if (sessionMode === 'immersive-ar' && referenceSpaceType !== 'unbounded') {
       BABYLON.Logger.Warn('We recommend using \'unbounded\' reference space type when using \'immersive-ar\' session mode');
@@ -122,9 +125,9 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
       };
 
       // The layers feature will have already initialized the xr session's layers on session init.
-      // if (!this.featuresManager.getEnabledFeature(WebXRFeatureName.LAYERS)) {
+      if (!this.featuresManager.getEnabledFeature(WebXRFeatureName.LAYERS)) {
         xrRenderState.baseLayer = baseLayer;
-      // }
+      }
 
       this.sessionManager.updateRenderState(xrRenderState);
       // run the render loop
@@ -141,10 +144,12 @@ export class WebXRExperienceHelper implements BABYLON.IDisposable {
         this._nonXRToXRCamera();
       } else {
         // Kept here, TODO - check if needed
-        this._scene.autoClear = false;
+        this._scene.clearColor.set(0, 0, 0, 0);
+        this._scene.autoClear = true;
+        this._scene.autoClearDepthAndStencil = false;
         this.camera.compensateOnFirstFrame = false;
         // reset the camera's position to the origin
-        this.camera.position.set(0, 0, 0);
+        this.camera.position.set(0, 0, -2);
         this.camera.rotationQuaternion.set(0, 0, 0, 1);
         this.onInitialXRPoseSetObservable.notifyObservers(this.camera);
       }

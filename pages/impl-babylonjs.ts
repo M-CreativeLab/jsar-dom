@@ -498,11 +498,11 @@ async function requestXRExperience(): Promise<XRSession> {
     const xrHelper = await WebXRDefaultExperience.CreateAsync(scene, {});
     await xrHelper.baseExperience.enterXRAsync('immersive-ar', 'local', {
       optionalFeatures: [],
-    });
+    }, xrHelper.renderTarget);
     // Just moving the object space to the front of the camera
     currentDom.document.space.position.z = 1.5;
     console.log('entered WebXR session', xrHelper);
-    return xrHelper.baseExperience.sessionManager.session
+    return xrHelper.baseExperience.sessionManager.session;
   } else {
     throw new Error('AR is not supported on this device.');
   }

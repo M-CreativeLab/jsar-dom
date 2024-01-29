@@ -88,8 +88,8 @@ export class WebXRManagedOutputCanvas implements BABYLON.WebXRRenderTarget {
     });
 
     if (!_options.canvasElement) {
-      const canvas = document.createElement("canvas");
-      canvas.style.cssText = this._options.newCanvasCssStyle || "position:absolute; bottom:0px;right:0px;";
+      const canvas = document.createElement('canvas');
+      canvas.style.cssText = this._options.newCanvasCssStyle || 'position:absolute; bottom:0px;right:0px;';
       this._setManagedOutputCanvas(canvas);
     } else {
       this._setManagedOutputCanvas(_options.canvasElement);
@@ -200,9 +200,9 @@ export class WebXRManagedOutputCanvas implements BABYLON.WebXRRenderTarget {
         height: canvas.offsetHeight,
       };
       this._canvas = canvas;
-      this.canvasContext = <any>this._canvas.getContext('webgl2');
+      this.canvasContext = <any>this._canvas.getContext('webgl2', {xrCompatible: true});
       if (!this.canvasContext) {
-        this.canvasContext = <any>this._canvas.getContext('webgl');
+        this.canvasContext = <any>this._canvas.getContext('webgl', {xrCompatible: true});
       }
     }
   }
