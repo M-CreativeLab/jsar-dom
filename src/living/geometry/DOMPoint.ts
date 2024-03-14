@@ -1,3 +1,6 @@
+import * as glMatrix from 'gl-matrix';
+import { kReadInternalData } from './DOMMatrixReadOnly'
+import DOMMatrix from './DOMMatrix'
 export const GET_UPDATER_SYMBOL = Symbol('__getUpdater__');
 
 export default class DOMPointImpl implements DOMPoint {
@@ -63,7 +66,29 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    throw new Error('The method "DOMPoint.prototype.matrixTransform()" not implemented.');
+    if (matrix.is2D) {
+      // 2D
+      const pointVector = new Float32Array([this.x, this.y]);
+      const midmatrix = new DOMMatrix([matrix.a, matrix.b, matrix.c,
+                                      matrix.d, matrix.e, matrix.f]);
+      console.log(midmatrix);
+      const transformMatrix = midmatrix[kReadInternalData]();
+      glMatrix.vec2.transformMat4(pointVector,pointVector,transformMatrix);
+      const re = new DOMPointImpl(pointVector[0], pointVector[1]);
+      return re;
+    }
+    else {
+      // 3D Matrix
+      const pointVector = new Float32Array([this.x, this.y, this.z, this.w]);
+      const midmatrix = new DOMMatrix([matrix.m11, matrix.m12, matrix.m13, matrix.m14,
+        matrix.m21, matrix.m22, matrix.m23, matrix.m24,
+        matrix.m31, matrix.m32, matrix.m33, matrix.m34,
+        matrix.m41, matrix.m42, matrix.m43, matrix.m44]);
+      const transformMatrix = midmatrix[kReadInternalData]();
+      glMatrix.vec4.transformMat4(pointVector,pointVector,transformMatrix);
+      const re = new DOMPointImpl(pointVector[0], pointVector[1], pointVector[2], pointVector[3]);
+      return re;
+    }
   }
 
   toJSON() {
