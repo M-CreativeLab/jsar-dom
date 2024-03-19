@@ -1,6 +1,6 @@
-import * as glMatrix from 'gl-matrix';
-import { kReadInternalData } from './DOMMatrixReadOnly'
+import { Get_Matrix_Elements } from './DOMMatrixReadOnly'
 import DOMMatrix from './DOMMatrix'
+import DOMMatrixImpl from './DOMMatrix';
 export const GET_UPDATER_SYMBOL = Symbol('__getUpdater__');
 
 export default class DOMPointImpl implements DOMPoint {
@@ -66,29 +66,38 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    if (matrix.is2D) {
-      // 2D
-      const pointVector = new Float32Array([this.x, this.y]);
-      const midmatrix = new DOMMatrix([matrix.a, matrix.b, matrix.c,
-                                      matrix.d, matrix.e, matrix.f]);
-      console.log(midmatrix);
-      const transformMatrix = midmatrix[kReadInternalData]();
-      glMatrix.vec2.transformMat4(pointVector,pointVector,transformMatrix);
-      const re = new DOMPointImpl(pointVector[0], pointVector[1]);
-      return re;
+    // const pointVector = new Float32Array([this.x, this.y, this.z, this.w]);
+    if(matrix.is2D && this.z === 0 && this.w === 1) {
+      const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + matrix.m41;
+      const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + matrix.m42;
+      const resPoint = new DOMPointImpl(transformed_x, transformed_y);
+      return resPoint;
     }
-    else {
-      // 3D Matrix
-      const pointVector = new Float32Array([this.x, this.y, this.z, this.w]);
-      const midmatrix = new DOMMatrix([matrix.m11, matrix.m12, matrix.m13, matrix.m14,
-        matrix.m21, matrix.m22, matrix.m23, matrix.m24,
-        matrix.m31, matrix.m32, matrix.m33, matrix.m34,
-        matrix.m41, matrix.m42, matrix.m43, matrix.m44]);
-      const transformMatrix = midmatrix[kReadInternalData]();
-      glMatrix.vec4.transformMat4(pointVector,pointVector,transformMatrix);
-      const re = new DOMPointImpl(pointVector[0], pointVector[1], pointVector[2], pointVector[3]);
-      return re;
-    }
+    const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + this.z * matrix.m31 + this.w * matrix.m41;
+    const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + this.z * matrix.m32 + this.w * matrix.m42;
+    const transformed_z = this.x * matrix.m13 + this.y * matrix.m23 + this.z * matrix.m33 + this.w * matrix.m43;
+    const transformed_w = this.x * matrix.m14 + this.y * matrix.m24 + this.z * matrix.m34 + this.w * matrix.m44;
+    const resPoint = new DOMPointImpl(transformed_x, transformed_y, transformed_z, transformed_w);
+    // const transformMatrix = tmpMatrix[Get_Matrix_Elements]();
+
+    // // glMatrix.vec4.transformMat4(pointVector,pointVector,transformMatrix);
+    // const pointMatrix = this.point2matrix(this);
+    // console.log("⚽️⚽️⚽️ pointMatrix: ", pointMatrix);
+    // const tmpMatrix2 = pointMatrix.post_multiply(pointMatrix, tmpMatrix); 
+    // const resMatrix = new DOMMatrixImpl(tmpMatrix2[Get_Matrix_Elements]());
+    // const re = new DOMPointImpl(pointVector[0], pointVector[1], pointVector[2], pointVector[3]);
+    // const resPoint = this.matrix2point(resMatrix);
+    return resPoint;
+  }
+
+  point2matrix(point?: DOMPoint): DOMMatrix {
+    const pointMatrix = new DOMMatrix([point.x, 0, 0, 0, point.y, 0, 0, 0, point.z, 0, 0, 0, point.w, 0, 0, 0]);
+    return pointMatrix;
+  }
+
+  matrix2point(matrix?: DOMMatrix): DOMPoint {
+    const point = new DOMPointImpl(matrix[Get_Matrix_Elements]()[0], matrix[Get_Matrix_Elements]()[4], matrix[Get_Matrix_Elements]()[8], matrix[Get_Matrix_Elements]()[12]);
+    return point;
   }
 
   toJSON() {

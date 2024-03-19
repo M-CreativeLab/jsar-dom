@@ -1,121 +1,246 @@
-import DOMMatrixReadOnlyImpl from "./DOMMatrixReadOnly";
+import DOMMatrixReadOnlyImpl, { Get_Matrix_Elements } from './DOMMatrixReadOnly';
+import * as glMatrix from 'gl-matrix';
 
 export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMMatrix {
-    // private _internalData: Float32Array;
-    // private _is2D: boolean;
-    // private _is3D: boolean;
-    // private _isIdentity: boolean;
+  get a(): number {
+    return super.a;
+  }
 
-    get a(): number {
-        return this._internalData[0];
-    }
+  set a(value: number) {
+    this._matrixElements[0] = value;
+  }
 
-    get b(): number {
-        return this._internalData[1];
-    }
+  get b(): number {
+    return super.b;
+  }
 
-    get c(): number {
-        return this._internalData[2];
-    }
+  set b(value: number) {
+    this._matrixElements[1] = value;
+  }
 
-    get d(): number {
-        return this._internalData[3];
-    }
+  get c(): number {
+    return super.c;
+  }
 
-    get e(): number {
-        return this._internalData[4];
-    }
+  set c(value: number) {
+    this._matrixElements[4] = value;
+  }
 
-    get f(): number {
-        return this._internalData[5];
-    }
+  get d(): number {
+    return super.d;
+  }
 
-    get m11(): number {
-        return this._internalData[0];
-    }
+  set d(value: number) {
+    this._matrixElements[5] = value;
+  }
 
-    get m12(): number {
-        return this._internalData[1];
-    }
+  get e(): number {
+    return super.e;
+  }
 
-    get m13(): number {
-        return this._internalData[2];
-    }
+  set e(value: number) {
+    this._matrixElements[8] = value;
+  }
 
-    get m14(): number {
-        return this._internalData[3];
-    }
+  get f(): number {
+    return super.f;
+  }
 
-    get m21(): number {
-        return this._internalData[4];
-    }
+  set f(value: number) {
+    this._matrixElements[9] = value;
+  }
 
-    get m22(): number {
-        return this._internalData[5];
-    }
+  get m11(): number {
+    return super.m11;
+  }
 
-    get m23(): number {
-        return this._internalData[6];
-    }
+  set m11(value: number) {
+    this._matrixElements[0] = value;
+  }
 
-    get m24(): number {
-        return this._internalData[7];
-    }
+  get m12(): number {
+    return super.m12;
+  }
 
-    get m31(): number {
-        return this._internalData[8];
-    }
+  set m12(value: number) {
+    this._matrixElements[4] = value;
+  }
 
-    get m32(): number {
-        return this._internalData[9];
-    }
+  get m13(): number {
+    return super.m13;
+  }
 
-    get m33(): number {
-        return this._internalData[10];
-    }
+  set m13(value: number) {
+    this._matrixElements[8] = value;
+  }
 
-    get m34(): number {
-        return this._internalData[11];
-    }
+  get m14(): number {
+    return super.m14;
+  }
 
-    get m41(): number {
-        return this._internalData[12];
-    }
+  set m14(value: number) {
+    this._matrixElements[12] = value;
+  }
 
-    get m42(): number {
-        return this._internalData[13];
-    }
+  get m21(): number {
+    return super.m21;
+  }
 
-    get m43(): number {
-        return this._internalData[14];
-    }
+  set m21(value: number) {
+    this._matrixElements[1] = value;
+  }
 
-    get m44(): number {
-        return this._internalData[15];
+  get m22(): number {
+    return super.m22;
+  }
+
+  set m22(value: number) {
+    this._matrixElements[5] = value;
+  }
+
+  get m23(): number {
+    return super.m23;
+  }
+
+  set m23(value: number) {
+    this._matrixElements[9] = value;
+  }
+
+  get m24(): number {
+    return super.m24;
+  }
+
+  set m24(value: number) {
+    this._matrixElements[13] = value;
+  }
+
+  get m31(): number {
+    return super.m31;
+  }
+
+  set m31(value: number) {
+    this._matrixElements[2] = value;
+  }
+
+  get m32(): number {
+    return super.m32;
+  }
+
+  set m32(value: number) {
+    this._matrixElements[6] = value;
+  }
+
+  get m33(): number {
+    return super.m33;
+  }
+
+  set m33(value: number) {
+    this._matrixElements[10] = value;
+  }
+
+  get m34(): number {
+    return super.m34;
+  }
+
+  set m34(value: number) {
+    this._matrixElements[14] = value;
+  }
+
+  get m41(): number {
+    return super.m41;
+  }
+  
+  set m41(value: number) {
+    this._matrixElements[3] = value;
+  }
+  
+  get m42(): number {
+    return super.m42;
+  }
+  
+  set m42(value: number) {
+    this._matrixElements[7] = value;
+  }
+  
+  get m43(): number {
+    return super.m43;
+  }
+  
+  set m43(value: number) {
+    this._matrixElements[11] = value;
+  }
+  
+  get m44(): number {
+    return super.m44;
+  }
+
+  set m44(value: number) {
+    this._matrixElements[15] = value;
+  }
+
+  get is2D(): boolean {
+    return super.is2D;
+  }
+
+  set is2D(value: boolean) {
+    this._is2D = value;
+  }
+
+  get isIdentity(): boolean {
+    return super.isIdentity;
+  }
+
+  set isIdentity(value: boolean) {
+    this._isIdentity = value;
+  }
+
+  constructor(init?: string | number[]) {
+    super(init);
+  }
+
+  static fromMatrix(other: DOMMatrixInit): DOMMatrixImpl {
+    const { m11, m12, m21, m22, m41, m42 } = other;
+    return new DOMMatrixImpl([m11, m21, 0, m41, m12, m22, 0, m42, 0, 0, 1, 0, 0, 0, 0, 1]);
+  }
+
+  multiplySelf(other?: DOMMatrixInit): this {
+    let otherObject = DOMMatrixImpl.fromMatrix(other);
+    otherObject.multiplySelf(this);
+    if (otherObject.is2D === false) {
+      this.is2D = false;
     }
-    constructor(init?: string | number[]) {
-        super(init);
+    return this;
+  }
+
+  preMultiplySelf(other?: DOMMatrix): this {
+    let otherObject = DOMMatrixImpl.fromMatrix(other);
+    otherObject.preMultiplySelf(this);
+    if (otherObject.is2D === false) {
+      this.is2D = false;
     }
-    rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    setMatrixValue(transformList: string): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    skewXSelf(sx?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    skewYSelf(sy?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
-    translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
-        throw new Error("Method not implemented.");
-    }
+    return this;
+  }
+
+  rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  setMatrixValue(transformList: string): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  skewXSelf(sx?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  skewYSelf(sy?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
+  translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
+    throw new Error("Method not implemented.");
+  }
 
 }
