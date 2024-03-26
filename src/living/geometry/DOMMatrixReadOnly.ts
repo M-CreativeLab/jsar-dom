@@ -1,4 +1,3 @@
-import DOMMatrixImpl from './DOMMatrix';
 import DOMPoint from './DOMPoint';
 import { post_multiply, pre_multiply } from './MatrixFunction';
 export const Get_Matrix_Elements = Symbol('_ReadInternalSymbol');
@@ -24,11 +23,11 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get e(): number {
-    return this._matrixElements[8];
+    return this._matrixElements[12];
   }
 
   get f(): number {
-    return this._matrixElements[9];
+    return this._matrixElements[13];
   }
 
   get m11(): number {
@@ -36,19 +35,19 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get m12(): number {
-    return this._matrixElements[4];
+    return this._matrixElements[1];
   }
 
   get m13(): number {
-    return this._matrixElements[8];
+    return this._matrixElements[2];
   }
 
   get m14(): number {
-    return this._matrixElements[12];
+    return this._matrixElements[3];
   }
 
   get m21(): number {
-    return this._matrixElements[1];
+    return this._matrixElements[4];
   }
 
   get m22(): number {
@@ -56,19 +55,19 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get m23(): number {
-    return this._matrixElements[9];
+    return this._matrixElements[6];
   }
 
   get m24(): number {
-    return this._matrixElements[13];
+    return this._matrixElements[7];
   }
 
   get m31(): number {
-    return this._matrixElements[2];
+    return this._matrixElements[8];
   }
 
   get m32(): number {
-    return this._matrixElements[6];
+    return this._matrixElements[9];
   }
 
   get m33(): number {
@@ -76,19 +75,19 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get m34(): number {
-    return this._matrixElements[14];
+    return this._matrixElements[11];
   }
 
   get m41(): number {
-    return this._matrixElements[3];
+    return this._matrixElements[12];
   }
 
   get m42(): number {
-    return this._matrixElements[7];
+    return this._matrixElements[13];
   }
 
   get m43(): number {
-    return this._matrixElements[11];
+    return this._matrixElements[14];
   }
 
   get m44(): number {
@@ -153,7 +152,7 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       this._is2D = false;
       this._isIdentity = true;
       for (var _i = 0; _i < init.length; _i ++) {
-        this._matrixElements[Math.floor(_i / 4) + (_i % 4) * 4] = init[_i];
+        this._matrixElements[_i] = init[_i];
       }
       return;
     }
@@ -165,98 +164,88 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   translate(tx?: number, ty?: number, tz?: number): DOMMatrix {
-    return this.translateSelf(tx, ty, tz);
+    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
+    return tmpMatrix.translateSelf(tx, ty, tz);
   }
 
-  translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
-    const translationMatrix = new DOMMatrix;([ 
-      1, 0, 0, tx ?? 0,
-      0, 1, 0, ty ?? 0,
-      0, 0, 1, tz ?? 0,
-      0, 0, 0, 1
-    ]);
-    const thisMatrix = new DOMMatrix(Array.from(this[Get_Matrix_Elements]()));
-    return post_multiply(thisMatrix, translationMatrix);
-  } 
   scale(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-    return this.scaleSelf(scaleX, scaleY, scaleZ, originX, originY, originZ);
+    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
+    return tmpMatrix.scaleSelf(scaleX, scaleY, scaleZ, originX, originY, originZ);
   }
-  scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-    // define the transformation matrix for scaling
-    const scalationMatrix = new DOMMatrix([
-    scaleX ?? 1, 0, 0, 0,
-    0, scaleY ?? scaleX ?? 1, 0, 0,
-    0, 0, scaleZ ?? 1, 0,
-    0, 0, 0, 1
-    ])
-    if (scaleZ !== 1 || originZ !== 0 || originZ !== -0) {
-      this._is2D = false;
-    }
-    const thisMatrix = new DOMMatrix(Array.from(this[Get_Matrix_Elements]()));
-    return post_multiply(thisMatrix, scalationMatrix).translate(-originX, -originY, -originZ);
-  }
+
   scaleNonUniform(scaleX?: number, scaleY?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+  
   scale3d(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
     throw new Error("Method not implemented.")
   }
+
   flipX(): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+  
   flipY(): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   inverse(): DOMMatrix {
     throw new Error("Method not implemented.");
   }
 
   multiply(other?: DOMMatrix): DOMMatrix{
-    const tmpMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
+    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
     return tmpMatrix.multiplySelf(other)
-  }
-  post_multiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix { 
-    console.log("🥚🥚🥚otherMatrix: ", other);
-    const resMatrix = self.multiply(other); 
-    return resMatrix;
   }
 
   rotate(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   invertSelf(): this {
     throw new Error("Method not implemented.");
   }
+
   rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): this {
     throw new Error("Method not implemented.");
   }
+
   rotateFromVectorSelf(x?: number, y?: number): this {
     throw new Error("Method not implemented.");
   }
+
   rotateAxisAngle(x?: number, y?: number, z?: number, angle?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   rotateFromVector(x?: number, y?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   skewX(sx?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   skewY(sy?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   toFloat32Array(): Float32Array {
     throw new Error("Method not implemented.");
   }
+
   toFloat64Array(): Float64Array {
     throw new Error("Method not implemented.");
   }
+
   toJSON() {
     throw new Error("Method not implemented.");
   }
+
   transformPoint(point?: DOMPointInit): DOMPoint {
     throw new Error("Method not implemented.");
   }
+
   toString(): string {
     throw new Error("Method not implemented.");
   }

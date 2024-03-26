@@ -1,6 +1,6 @@
 import DOMMatrixReadOnlyImpl, { Get_Matrix_Elements } from './DOMMatrixReadOnly';
 import * as glMatrix from 'gl-matrix';
-
+import { post_multiply } from './MatrixFunction';
 export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMMatrix {
   get a(): number {
     return super.a;
@@ -224,23 +224,47 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
   rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+  
   scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+  
   scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
+    // define the transformation matrix for scaling
+    const scalationMatrix = new DOMMatrix([
+    scaleX ?? 1, 0, 0, 0,
+    0, scaleY ?? scaleX ?? 1, 0, 0,
+    0, 0, scaleZ ?? 1, 0,
+    0, 0, 0, 1
+    ])
+    if (scaleZ !== 1 || originZ !== 0 || originZ !== -0) {
+      this._is2D = false;
+    }
+    const thisMatrix = new DOMMatrix(Array.from(this[Get_Matrix_Elements]()));
+    return post_multiply(thisMatrix, scalationMatrix).translate(-originX, -originY, -originZ);
   }
+
   setMatrixValue(transformList: string): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   skewXSelf(sx?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   skewYSelf(sy?: number): DOMMatrix {
     throw new Error("Method not implemented.");
   }
+
   translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
-  }
+    const translationMatrix = new DOMMatrix;([ 
+      1, 0, 0, tx ?? 0,
+      0, 1, 0, ty ?? 0,
+      0, 0, 1, tz ?? 0,
+      0, 0, 0, 1
+    ]);
+    const thisMatrix = new DOMMatrix(Array.from(this[Get_Matrix_Elements]()));
+    return post_multiply(thisMatrix, translationMatrix);
+  } 
 
 }

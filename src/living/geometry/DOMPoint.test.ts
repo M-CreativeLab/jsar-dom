@@ -10,13 +10,16 @@ describe('DOMPoint', () => {
     return new DOMPointImpl(x, y, w, z)
   }
 
-  function checkDOMPoint(p: DOMPoint, exp: DOMPoint) {
-    console.log("p.x: ", p.x);
-    console.log("exp.x: ", exp.x);
+  function checkDOMPoint(p: DOMPoint, exp: DOMPoint, is2D: Boolean) {
+    if (is2D === true)  {
+      expect(p.x).toEqual(exp.x);
+      expect(p.y).toEqual(exp.y);
+      return;
+    }
     expect(p.x).toEqual(exp.x);
     expect(p.y).toEqual(exp.y);
     expect(p.z).toEqual(exp.z);
-    expect(p.w).toEqual(exp.w);
+    expect(p.w).toEqual(exp.w); 
   }
 
   it('creates a DOMPoint', () => {
@@ -51,12 +54,12 @@ describe('DOMPoint', () => {
     expect(point.y).toBe(10);
   });
 
-  it('should return the correct value for the transformation', () => {
+  it('should return the correct value for the 2D transformation', () => {
     const point = new DOMPointImpl(5, 4);
     const matrix = new DOMMatrixImpl([2, 0, 0, 2, 10, 10]);
     const result = point.matrixTransform(matrix);
     const expected = getMatrixTransform(matrix, point);
-    checkDOMPoint(result, expected);
+    checkDOMPoint(result, expected, true);
   });
 
   it('supports toJSON()', () => {

@@ -1,6 +1,5 @@
 import { Get_Matrix_Elements } from './DOMMatrixReadOnly'
 import DOMMatrix from './DOMMatrix'
-import DOMMatrixImpl from './DOMMatrix';
 export const GET_UPDATER_SYMBOL = Symbol('__getUpdater__');
 
 export default class DOMPointImpl implements DOMPoint {
@@ -66,7 +65,6 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    // const pointVector = new Float32Array([this.x, this.y, this.z, this.w]);
     if(matrix.is2D && this.z === 0 && this.w === 1) {
       const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + matrix.m41;
       const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + matrix.m42;
@@ -78,15 +76,6 @@ export default class DOMPointImpl implements DOMPoint {
     const transformed_z = this.x * matrix.m13 + this.y * matrix.m23 + this.z * matrix.m33 + this.w * matrix.m43;
     const transformed_w = this.x * matrix.m14 + this.y * matrix.m24 + this.z * matrix.m34 + this.w * matrix.m44;
     const resPoint = new DOMPointImpl(transformed_x, transformed_y, transformed_z, transformed_w);
-    // const transformMatrix = tmpMatrix[Get_Matrix_Elements]();
-
-    // // glMatrix.vec4.transformMat4(pointVector,pointVector,transformMatrix);
-    // const pointMatrix = this.point2matrix(this);
-    // console.log("⚽️⚽️⚽️ pointMatrix: ", pointMatrix);
-    // const tmpMatrix2 = pointMatrix.post_multiply(pointMatrix, tmpMatrix); 
-    // const resMatrix = new DOMMatrixImpl(tmpMatrix2[Get_Matrix_Elements]());
-    // const re = new DOMPointImpl(pointVector[0], pointVector[1], pointVector[2], pointVector[3]);
-    // const resPoint = this.matrix2point(resMatrix);
     return resPoint;
   }
 
