@@ -45,6 +45,7 @@
     "cssstyle": "^3.0.0",
     "domexception": "^4.0.0",
     "fast-xml-parser": "^4.3.2",
+    "gl-matrix": "^3.4.3",
     "meshoptimizer": "^0.20.0",
     "metaviewport-parser": "^0.3.0",
     "nwsapi": "^2.2.7",
