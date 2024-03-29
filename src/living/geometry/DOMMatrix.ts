@@ -198,27 +198,27 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     super(init);
   }
 
-  static fromMatrix(other: DOMMatrixInit): DOMMatrixImpl {
+  static fromMatrix(other: DOMMatrixInit): DOMMatrix {
     const { m11, m12, m21, m22, m41, m42 } = other;
-    return new DOMMatrixImpl([m11, m21, 0, m41, m12, m22, 0, m42, 0, 0, 1, 0, 0, 0, 0, 1]);
+    return new DOMMatrixImpl([m11, m12, 0, 0, m21, m22, 0, 0, m41, m42, 1, 0, 0, 0, 0, 1]);
   }
 
-  multiplySelf(other?: DOMMatrixInit): this {
+  multiplySelf(other?: DOMMatrixInit): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
-    otherObject.multiplySelf(this);
+    const resMatrix = post_multiply(this, otherObject);
     if (otherObject.is2D === false) {
       this.is2D = false;
     }
-    return this;
+    return resMatrix;
   }
 
-  preMultiplySelf(other?: DOMMatrix): this {
+  preMultiplySelf(other?: DOMMatrix): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
-    otherObject.preMultiplySelf(this);
+    const resMatrix = post_multiply(this, otherObject);
     if (otherObject.is2D === false) {
       this.is2D = false;
     }
-    return this;
+    return resMatrix;
   }
 
   rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {

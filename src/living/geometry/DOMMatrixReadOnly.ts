@@ -1,5 +1,7 @@
 import DOMPoint from './DOMPoint';
 import { post_multiply, pre_multiply } from './MatrixFunction';
+import { getInterfaceWrapper } from '../interfaces';
+
 export const Get_Matrix_Elements = Symbol('_ReadInternalSymbol');
 export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   protected _matrixElements: Float32Array;
@@ -164,12 +166,14 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   translate(tx?: number, ty?: number, tz?: number): DOMMatrix {
-    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
+    const DOMMatrixImpl = getInterfaceWrapper('DOMMatrix');
+    const tmpMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
     return tmpMatrix.translateSelf(tx, ty, tz);
   }
 
   scale(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
+    const DOMMatrixImpl = getInterfaceWrapper('DOMMatrix');
+    const tmpMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
     return tmpMatrix.scaleSelf(scaleX, scaleY, scaleZ, originX, originY, originZ);
   }
 
@@ -193,8 +197,9 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     throw new Error("Method not implemented.");
   }
 
-  multiply(other?: DOMMatrix): DOMMatrix{
-    const tmpMatrix = new DOMMatrix(Array.from(this._matrixElements));
+  multiply(other?: DOMMatrix): DOMMatrix {
+    const DOMMatrixImpl = getInterfaceWrapper('DOMMatrix');
+    const tmpMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
     return tmpMatrix.multiplySelf(other)
   }
 
@@ -239,7 +244,24 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   toJSON() {
-    throw new Error("Method not implemented.");
+    return {
+      m11: this.m11,
+      m12: this.m12,
+      m13: this.m13,
+      m14: this.m14,
+      m21: this.m21,
+      m22: this.m22,
+      m23: this.m23,
+      m24: this.m24,
+      m31: this.m31,
+      m32: this.m32,
+      m33: this.m33,
+      m34: this.m34,
+      m41: this.m41,
+      m42: this.m42,
+      m43: this.m43,
+      m44: this.m44,
+  };
   }
 
   transformPoint(point?: DOMPointInit): DOMPoint {
