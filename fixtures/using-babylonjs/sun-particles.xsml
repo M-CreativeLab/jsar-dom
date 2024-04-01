@@ -1,0 +1,8 @@
+<xsml>
+  <head>
+    <title>Using with Babylon.js (Sun Particles)</title>
+    <script type="module" src="sun-particles.js"></script>
+  </head>
+  <space>
+  </space>
+</xsml>
