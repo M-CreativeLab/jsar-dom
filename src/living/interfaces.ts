@@ -35,67 +35,74 @@ const implementedInterfaces = new Map<string, any>();
  * ensures that, during both build time and runtime, the necessary precautions are taken to 
  * guarantee correct invocation of the function when utilizing related interfaces.
  */
+let isVMModules = true;
+if('NODE_OPTIONS' in process.env) {
+    isVMModules = process.env.NODE_OPTIONS.includes('--experimental-vm-modules');
+} else {
+  isVMModules = false;
+}
+
 export async function loadImplementations() {
   return Promise.all([
     // Attributes
-    import('./attributes/NamedNodeMap'),
-    import('./attributes/Attr'),
+    isVMModules ? await import('./attributes/NamedNodeMap') : import('./attributes/NamedNodeMap'),
+    isVMModules ? await import('./attributes/Attr') : import('./attributes/Attr'),
     // Classic Nodes
-    import('./nodes/Node'),
-    import('./nodes/NodeList'),
-    import('./nodes/Element'),
-    import('./nodes/DocumentFragment'),
-    import('./nodes/DocumentType'),
-    import('./nodes/SpatialDocument'),
-    import('./nodes/Text'),
-    import('./nodes/HTMLCollection'),
-    import('./nodes/DOMTokenList'),
-    import('./nodes/HTMLElement'),
-    import('./nodes/HTMLContentElement'),
-    import('./nodes/HTMLHeadElement'),
-    import('./nodes/HTMLTitleElement'),
-    import('./nodes/HTMLMetaElement'),
-    import('./nodes/HTMLStyleElement'),
-    import('./nodes/HTMLScriptElement'),
-    import('./nodes/HTMLDivElement'),
-    import('./nodes/HTMLSpanElement'),
-    import('./nodes/HTMLImageElement'),
+    isVMModules ? await import('./nodes/Node') : import('./nodes/Node'),
+    isVMModules ? await import('./nodes/NodeList') : import('./nodes/NodeList'),
+    isVMModules ? await import('./nodes/Element') : import('./nodes/Element'),
+    isVMModules ? await import('./nodes/DocumentFragment') : import('./nodes/DocumentFragment'),
+    isVMModules ? await import('./nodes/DocumentType') : import('./nodes/DocumentType'),
+    isVMModules ? await import('./nodes/SpatialDocument') : import('./nodes/SpatialDocument'),
+    isVMModules ? await import('./nodes/Text') : import('./nodes/Text'),
+    isVMModules ? await import('./nodes/HTMLCollection') : import('./nodes/HTMLCollection'),
+    isVMModules ? await import('./nodes/DOMTokenList') : import('./nodes/DOMTokenList'),
+    isVMModules ? await import('./nodes/HTMLElement') : import('./nodes/HTMLElement'),
+    isVMModules ? await import('./nodes/HTMLContentElement') : import('./nodes/HTMLContentElement'),
+    isVMModules ? await import('./nodes/HTMLHeadElement') : import('./nodes/HTMLHeadElement'),
+    isVMModules ? await import('./nodes/HTMLTitleElement') : import('./nodes/HTMLTitleElement'),
+    isVMModules ? await import('./nodes/HTMLMetaElement') : import('./nodes/HTMLMetaElement'),
+    isVMModules ? await import('./nodes/HTMLStyleElement') : import('./nodes/HTMLStyleElement'),
+    isVMModules ? await import('./nodes/HTMLScriptElement') : import('./nodes/HTMLScriptElement'),
+    isVMModules ? await import('./nodes/HTMLDivElement') : import('./nodes/HTMLDivElement'),
+    isVMModules ? await import('./nodes/HTMLSpanElement') : import('./nodes/HTMLSpanElement'),
+    isVMModules ? await import('./nodes/HTMLImageElement') : import('./nodes/HTMLImageElement'),
     // Spatial Nodes
-    import('./nodes/SpatialElement'),
+    isVMModules ? await import('./nodes/SpatialElement') : import('./nodes/SpatialElement'),
     // CSSOM
-    import('./cssom/StyleSheetList'),
+    isVMModules ? await import('./cssom/StyleSheetList') : import('./cssom/StyleSheetList'),
     // Events
-    import('./events/CloseEvent'),
-    import('./events/CustomEvent'),
-    import('./events/ErrorEvent'),
-    import('./events/FocusEvent'),
-    import('./events/HashChangeEvent'),
-    import('./events/KeyboardEvent'),
-    import('./events/MessageEvent'),
-    import('./events/MouseEvent'),
-    import('./events/PopStateEvent'),
-    import('./events/ProgressEvent'),
-    import('./events/TouchEvent'),
-    import('./events/UIEvent'),
+    isVMModules ? await import('./events/CloseEvent') : import('./events/CloseEvent'),
+    isVMModules ? await import('./events/CustomEvent') : import('./events/CustomEvent'),
+    isVMModules ? await import('./events/ErrorEvent') : import('./events/ErrorEvent'),
+    isVMModules ? await import('./events/FocusEvent') : import('./events/FocusEvent'),
+    isVMModules ? await import('./events/HashChangeEvent') : import('./events/HashChangeEvent'),
+    isVMModules ? await import('./events/KeyboardEvent') : import('./events/KeyboardEvent'),
+    isVMModules ? await import('./events/MessageEvent') : import('./events/MessageEvent'),
+    isVMModules ? await import('./events/MouseEvent') : import('./events/MouseEvent'),
+    isVMModules ? await import('./events/PopStateEvent') : import('./events/PopStateEvent'),
+    isVMModules ? await import('./events/ProgressEvent') : import('./events/ProgressEvent'),
+    isVMModules ? await import('./events/TouchEvent') : import('./events/TouchEvent'),
+    isVMModules ? await import('./events/UIEvent') : import('./events/UIEvent'),
     // Others
-    import('./domexception'),
-    import('./custom-elements/CustomElementRegistry'),
-    import('./hr-time/Performance'),
-    import('./range/AbstractRange'),
-    import('./range/Range'),
-    import('./mutation-observer/MutationObserver'),
-    import('./mutation-observer/MutationRecord'),
-    import('./crypto/Noise'),
-    import('./geometry/DOMPoint'),
-    import('./geometry/DOMPointReadOnly'),
-    import('./geometry/DOMRect'),
-    import('./geometry/DOMRectReadOnly'),
-    import('./image/ImageData'),
+    isVMModules ? await import('./domexception') : import('./domexception'),
+    isVMModules ? await import('./custom-elements/CustomElementRegistry') : import('./custom-elements/CustomElementRegistry'),
+    isVMModules ? await import('./hr-time/Performance') : import('./hr-time/Performance'),
+    isVMModules ? await import('./range/AbstractRange') : import('./range/AbstractRange'),
+    isVMModules ? await import('./range/Range') : import('./range/Range'),
+    isVMModules ? await import('./mutation-observer/MutationObserver') : import('./mutation-observer/MutationObserver'),
+    isVMModules ? await import('./mutation-observer/MutationRecord') : import('./mutation-observer/MutationRecord'),
+    isVMModules ? await import('./crypto/Noise') : import('./crypto/Noise'),
+    isVMModules ? await import('./geometry/DOMPoint') : import('./geometry/DOMPoint'),
+    isVMModules ? await import('./geometry/DOMPointReadOnly') : import('./geometry/DOMPointReadOnly'),
+    isVMModules ? await import('./geometry/DOMRect') : import('./geometry/DOMRect'),
+    isVMModules ? await import('./geometry/DOMRectReadOnly') : import('./geometry/DOMRectReadOnly'),
+    isVMModules ? await import('./image/ImageData') : import('./image/ImageData'),
     // WebXR
-    import('./xr/XRPose'),
-    import('./xr/XRRigidTransform'),
-    import('./xr/XRSession'),
-  ]).then(([
+    isVMModules ? await import('./xr/XRPose') : import('./xr/XRPose'),
+    isVMModules ? await import('./xr/XRRigidTransform') : import('./xr/XRRigidTransform'),
+    isVMModules ? await import('./xr/XRSession') : import('./xr/XRSession'),
+    ]).then(([
     // Attributes
     NamedNodeMapImpl,
     { AttrImpl },
@@ -137,7 +144,7 @@ export async function loadImplementations() {
     TouchEventImpl,
     { UIEventImpl },
     // Others
-    DOMException,
+    DOMExceptionImpl,
     { CustomElementRegistryImpl },
     { PerformanceImpl },
     { AbstractRangeImpl },
@@ -190,7 +197,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('ProgressEvent', ProgressEventImpl);
     implementedInterfaces.set('TouchEvent', TouchEventImpl);
     implementedInterfaces.set('UIEvent', UIEventImpl);  
-    implementedInterfaces.set('DOMException', DOMException);
+    implementedInterfaces.set('DOMException', DOMExceptionImpl);
     implementedInterfaces.set('CustomElementRegistry', CustomElementRegistryImpl);
     implementedInterfaces.set('Performance', PerformanceImpl);
     implementedInterfaces.set('AbstractRange', AbstractRangeImpl);
