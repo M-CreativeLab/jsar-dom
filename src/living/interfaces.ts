@@ -35,74 +35,80 @@ const implementedInterfaces = new Map<string, any>();
  * ensures that, during both build time and runtime, the necessary precautions are taken to 
  * guarantee correct invocation of the function when utilizing related interfaces.
  */
-let isVMModules = true;
-if('NODE_OPTIONS' in process.env) {
-    isVMModules = process.env.NODE_OPTIONS.includes('--experimental-vm-modules');
-} else {
-  isVMModules = false;
+
+async function importImplementations(modulePaths: string[], isParallel: boolean) {
+  if (isParallel === false) {
+    return Promise.all(modulePaths.map((path) => import(path)));
+  } else {
+    const impls = [];
+    for (const path of modulePaths) {
+      impls.push(await import(path));
+    }
+    return impls;
+  }
 }
 
-export async function loadImplementations() {
-  return Promise.all([
+export async function loadImplementations(isParallel: boolean = false) {
+  await importImplementations([
     // Attributes
-    isVMModules ? await import('./attributes/NamedNodeMap') : import('./attributes/NamedNodeMap'),
-    isVMModules ? await import('./attributes/Attr') : import('./attributes/Attr'),
+    './attributes/NamedNodeMap',
+    './attributes/Attr',
     // Classic Nodes
-    isVMModules ? await import('./nodes/Node') : import('./nodes/Node'),
-    isVMModules ? await import('./nodes/NodeList') : import('./nodes/NodeList'),
-    isVMModules ? await import('./nodes/Element') : import('./nodes/Element'),
-    isVMModules ? await import('./nodes/DocumentFragment') : import('./nodes/DocumentFragment'),
-    isVMModules ? await import('./nodes/DocumentType') : import('./nodes/DocumentType'),
-    isVMModules ? await import('./nodes/SpatialDocument') : import('./nodes/SpatialDocument'),
-    isVMModules ? await import('./nodes/Text') : import('./nodes/Text'),
-    isVMModules ? await import('./nodes/HTMLCollection') : import('./nodes/HTMLCollection'),
-    isVMModules ? await import('./nodes/DOMTokenList') : import('./nodes/DOMTokenList'),
-    isVMModules ? await import('./nodes/HTMLElement') : import('./nodes/HTMLElement'),
-    isVMModules ? await import('./nodes/HTMLContentElement') : import('./nodes/HTMLContentElement'),
-    isVMModules ? await import('./nodes/HTMLHeadElement') : import('./nodes/HTMLHeadElement'),
-    isVMModules ? await import('./nodes/HTMLTitleElement') : import('./nodes/HTMLTitleElement'),
-    isVMModules ? await import('./nodes/HTMLMetaElement') : import('./nodes/HTMLMetaElement'),
-    isVMModules ? await import('./nodes/HTMLStyleElement') : import('./nodes/HTMLStyleElement'),
-    isVMModules ? await import('./nodes/HTMLScriptElement') : import('./nodes/HTMLScriptElement'),
-    isVMModules ? await import('./nodes/HTMLDivElement') : import('./nodes/HTMLDivElement'),
-    isVMModules ? await import('./nodes/HTMLSpanElement') : import('./nodes/HTMLSpanElement'),
-    isVMModules ? await import('./nodes/HTMLImageElement') : import('./nodes/HTMLImageElement'),
+    './nodes/Node',
+    './nodes/NodeList',
+    './nodes/Element',
+    './nodes/DocumentFragment',
+    './nodes/DocumentType',
+    './nodes/SpatialDocument',
+    './nodes/Text',
+    './nodes/HTMLCollection',
+    './nodes/DOMTokenList',
+    './nodes/HTMLElement',
+    './nodes/HTMLContentElement',
+    './nodes/HTMLHeadElement',
+    './nodes/HTMLTitleElement',
+    './nodes/HTMLMetaElement',
+    './nodes/HTMLStyleElement',
+    './nodes/HTMLScriptElement',
+    './nodes/HTMLDivElement',
+    './nodes/HTMLSpanElement',
+    './nodes/HTMLImageElement',
     // Spatial Nodes
-    isVMModules ? await import('./nodes/SpatialElement') : import('./nodes/SpatialElement'),
+    './nodes/SpatialElement',
     // CSSOM
-    isVMModules ? await import('./cssom/StyleSheetList') : import('./cssom/StyleSheetList'),
+    './cssom/StyleSheetList',
     // Events
-    isVMModules ? await import('./events/CloseEvent') : import('./events/CloseEvent'),
-    isVMModules ? await import('./events/CustomEvent') : import('./events/CustomEvent'),
-    isVMModules ? await import('./events/ErrorEvent') : import('./events/ErrorEvent'),
-    isVMModules ? await import('./events/FocusEvent') : import('./events/FocusEvent'),
-    isVMModules ? await import('./events/HashChangeEvent') : import('./events/HashChangeEvent'),
-    isVMModules ? await import('./events/KeyboardEvent') : import('./events/KeyboardEvent'),
-    isVMModules ? await import('./events/MessageEvent') : import('./events/MessageEvent'),
-    isVMModules ? await import('./events/MouseEvent') : import('./events/MouseEvent'),
-    isVMModules ? await import('./events/PopStateEvent') : import('./events/PopStateEvent'),
-    isVMModules ? await import('./events/ProgressEvent') : import('./events/ProgressEvent'),
-    isVMModules ? await import('./events/TouchEvent') : import('./events/TouchEvent'),
-    isVMModules ? await import('./events/UIEvent') : import('./events/UIEvent'),
+    './events/CloseEvent',
+    './events/CustomEvent',
+    './events/ErrorEvent',
+    './events/FocusEvent',
+    './events/HashChangeEvent',
+    './events/KeyboardEvent',
+    './events/MessageEvent',
+    './events/MouseEvent',
+    './events/PopStateEvent',
+    './events/ProgressEvent',
+    './events/TouchEvent',
+    './events/UIEvent',
     // Others
-    isVMModules ? await import('./domexception') : import('./domexception'),
-    isVMModules ? await import('./custom-elements/CustomElementRegistry') : import('./custom-elements/CustomElementRegistry'),
-    isVMModules ? await import('./hr-time/Performance') : import('./hr-time/Performance'),
-    isVMModules ? await import('./range/AbstractRange') : import('./range/AbstractRange'),
-    isVMModules ? await import('./range/Range') : import('./range/Range'),
-    isVMModules ? await import('./mutation-observer/MutationObserver') : import('./mutation-observer/MutationObserver'),
-    isVMModules ? await import('./mutation-observer/MutationRecord') : import('./mutation-observer/MutationRecord'),
-    isVMModules ? await import('./crypto/Noise') : import('./crypto/Noise'),
-    isVMModules ? await import('./geometry/DOMPoint') : import('./geometry/DOMPoint'),
-    isVMModules ? await import('./geometry/DOMPointReadOnly') : import('./geometry/DOMPointReadOnly'),
-    isVMModules ? await import('./geometry/DOMRect') : import('./geometry/DOMRect'),
-    isVMModules ? await import('./geometry/DOMRectReadOnly') : import('./geometry/DOMRectReadOnly'),
-    isVMModules ? await import('./image/ImageData') : import('./image/ImageData'),
+    './domexception',
+    './custom-elements/CustomElementRegistry',
+    './hr-time/Performance',
+    './range/AbstractRange',
+    './range/Range',
+    './mutation-observer/MutationObserver',
+    './mutation-observer/MutationRecord',
+    './crypto/Noise',
+    './geometry/DOMPoint',
+    './geometry/DOMPointReadOnly',
+    './geometry/DOMRect',
+    './geometry/DOMRectReadOnly',
+    './image/ImageData',
     // WebXR
-    isVMModules ? await import('./xr/XRPose') : import('./xr/XRPose'),
-    isVMModules ? await import('./xr/XRRigidTransform') : import('./xr/XRRigidTransform'),
-    isVMModules ? await import('./xr/XRSession') : import('./xr/XRSession'),
-    ]).then(([
+    './xr/XRPose',
+    './xr/XRRigidTransform',
+    './xr/XRSession'
+    ], isParallel).then(([
     // Attributes
     NamedNodeMapImpl,
     { AttrImpl },
