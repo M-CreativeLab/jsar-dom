@@ -17,7 +17,7 @@ import type XRPoseImpl from './xr/XRPose';
 import type XRRigidTransformImpl from './xr/XRRigidTransform';
 import type XRSessionImpl from './xr/XRSession';
 
-let implementationLoaded = false;
+export let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
 
 /**
@@ -36,8 +36,13 @@ const implementedInterfaces = new Map<string, any>();
  * guarantee correct invocation of the function when utilizing related interfaces.
  */
 
+/**
+ * dynamically import modules either in parallel or sequentially based on the isParallel flag.
+ * @param arrays of modules' paths
+ * @param running parallel or not
+ */
 async function importImplementations(modulePaths: string[], isParallel: boolean) {
-  if (isParallel === false) {
+  if (isParallel) {
     return Promise.all(modulePaths.map((path) => import(path)));
   } else {
     const impls = [];
@@ -48,7 +53,7 @@ async function importImplementations(modulePaths: string[], isParallel: boolean)
   }
 }
 
-export async function loadImplementations(isParallel: boolean = false) {
+export async function loadImplementations(isParallel: boolean = true) {
   await importImplementations([
     // Attributes
     './attributes/NamedNodeMap',

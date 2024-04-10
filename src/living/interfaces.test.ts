@@ -1,10 +1,13 @@
-import { loadImplementations } from './interfaces'
+import { loadImplementations, implementationLoaded } from './interfaces'
 import { describe, it, expect } from '@jest/globals'
 
 describe('interfaces', () => {
   it('should successfully dynamically import all libraries', async() => {
-    const isParallel = true;
+    const isParallel = false;
     await expect(loadImplementations(isParallel)).resolves.toBeUndefined();
-    return 0;
-  })
+  });
+
+  it('should ensure that all modules are loaded', () => {
+    expect(implementationLoaded).toEqual(true);
+  });
 });
