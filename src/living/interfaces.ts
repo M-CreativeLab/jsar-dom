@@ -35,67 +35,86 @@ const implementedInterfaces = new Map<string, any>();
  * ensures that, during both build time and runtime, the necessary precautions are taken to 
  * guarantee correct invocation of the function when utilizing related interfaces.
  */
-export async function loadImplementations() {
-  return Promise.all([
+
+/**
+ * solve the issue https://github.com/jestjs/jest/issues/11434 
+ * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
+ * @param arrays of modules' paths
+ * @param running parallel or not
+ */
+async function importImplementations(moduleSpecifiers: string[], isParallel: boolean): Promise<any>{
+  if (isParallel) {
+    return Promise.all(moduleSpecifiers.map((specifer) => import(specifer)));
+  } else {
+    const impls = [];
+    for (const specifier of moduleSpecifiers) {
+      impls.push(await import(specifier));
+    }
+    return impls;
+  }
+}
+
+export async function loadImplementations(isParallel: boolean = true) {
+  await importImplementations([
     // Attributes
-    import('./attributes/NamedNodeMap'),
-    import('./attributes/Attr'),
+    './attributes/NamedNodeMap',
+    './attributes/Attr',
     // Classic Nodes
-    import('./nodes/Node'),
-    import('./nodes/NodeList'),
-    import('./nodes/Element'),
-    import('./nodes/DocumentFragment'),
-    import('./nodes/DocumentType'),
-    import('./nodes/SpatialDocument'),
-    import('./nodes/Text'),
-    import('./nodes/HTMLCollection'),
-    import('./nodes/DOMTokenList'),
-    import('./nodes/HTMLElement'),
-    import('./nodes/HTMLContentElement'),
-    import('./nodes/HTMLHeadElement'),
-    import('./nodes/HTMLTitleElement'),
-    import('./nodes/HTMLMetaElement'),
-    import('./nodes/HTMLStyleElement'),
-    import('./nodes/HTMLScriptElement'),
-    import('./nodes/HTMLDivElement'),
-    import('./nodes/HTMLSpanElement'),
-    import('./nodes/HTMLImageElement'),
+    './nodes/Node',
+    './nodes/NodeList',
+    './nodes/Element',
+    './nodes/DocumentFragment',
+    './nodes/DocumentType',
+    './nodes/SpatialDocument',
+    './nodes/Text',
+    './nodes/HTMLCollection',
+    './nodes/DOMTokenList',
+    './nodes/HTMLElement',
+    './nodes/HTMLContentElement',
+    './nodes/HTMLHeadElement',
+    './nodes/HTMLTitleElement',
+    './nodes/HTMLMetaElement',
+    './nodes/HTMLStyleElement',
+    './nodes/HTMLScriptElement',
+    './nodes/HTMLDivElement',
+    './nodes/HTMLSpanElement',
+    './nodes/HTMLImageElement',
     // Spatial Nodes
-    import('./nodes/SpatialElement'),
+    './nodes/SpatialElement',
     // CSSOM
-    import('./cssom/StyleSheetList'),
+    './cssom/StyleSheetList',
     // Events
-    import('./events/CloseEvent'),
-    import('./events/CustomEvent'),
-    import('./events/ErrorEvent'),
-    import('./events/FocusEvent'),
-    import('./events/HashChangeEvent'),
-    import('./events/KeyboardEvent'),
-    import('./events/MessageEvent'),
-    import('./events/MouseEvent'),
-    import('./events/PopStateEvent'),
-    import('./events/ProgressEvent'),
-    import('./events/TouchEvent'),
-    import('./events/UIEvent'),
+    './events/CloseEvent',
+    './events/CustomEvent',
+    './events/ErrorEvent',
+    './events/FocusEvent',
+    './events/HashChangeEvent',
+    './events/KeyboardEvent',
+    './events/MessageEvent',
+    './events/MouseEvent',
+    './events/PopStateEvent',
+    './events/ProgressEvent',
+    './events/TouchEvent',
+    './events/UIEvent',
     // Others
-    import('./domexception'),
-    import('./custom-elements/CustomElementRegistry'),
-    import('./hr-time/Performance'),
-    import('./range/AbstractRange'),
-    import('./range/Range'),
-    import('./mutation-observer/MutationObserver'),
-    import('./mutation-observer/MutationRecord'),
-    import('./crypto/Noise'),
-    import('./geometry/DOMPoint'),
-    import('./geometry/DOMPointReadOnly'),
-    import('./geometry/DOMRect'),
-    import('./geometry/DOMRectReadOnly'),
-    import('./image/ImageData'),
+    './domexception',
+    './custom-elements/CustomElementRegistry',
+    './hr-time/Performance',
+    './range/AbstractRange',
+    './range/Range',
+    './mutation-observer/MutationObserver',
+    './mutation-observer/MutationRecord',
+    './crypto/Noise',
+    './geometry/DOMPoint',
+    './geometry/DOMPointReadOnly',
+    './geometry/DOMRect',
+    './geometry/DOMRectReadOnly',
+    './image/ImageData',
     // WebXR
-    import('./xr/XRPose'),
-    import('./xr/XRRigidTransform'),
-    import('./xr/XRSession'),
-  ]).then(([
+    './xr/XRPose',
+    './xr/XRRigidTransform',
+    './xr/XRSession'
+  ], isParallel).then(([
     // Attributes
     NamedNodeMapImpl,
     { AttrImpl },
@@ -137,7 +156,7 @@ export async function loadImplementations() {
     TouchEventImpl,
     { UIEventImpl },
     // Others
-    DOMException,
+    DOMExceptionImpl,
     { CustomElementRegistryImpl },
     { PerformanceImpl },
     { AbstractRangeImpl },
@@ -190,7 +209,7 @@ export async function loadImplementations() {
     implementedInterfaces.set('ProgressEvent', ProgressEventImpl);
     implementedInterfaces.set('TouchEvent', TouchEventImpl);
     implementedInterfaces.set('UIEvent', UIEventImpl);  
-    implementedInterfaces.set('DOMException', DOMException);
+    implementedInterfaces.set('DOMException', DOMExceptionImpl);
     implementedInterfaces.set('CustomElementRegistry', CustomElementRegistryImpl);
     implementedInterfaces.set('Performance', PerformanceImpl);
     implementedInterfaces.set('AbstractRange', AbstractRangeImpl);
