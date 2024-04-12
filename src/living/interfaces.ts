@@ -17,7 +17,7 @@ import type XRPoseImpl from './xr/XRPose';
 import type XRRigidTransformImpl from './xr/XRRigidTransform';
 import type XRSessionImpl from './xr/XRSession';
 
-export let implementationLoaded = false;
+let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
 
 /**
@@ -37,17 +37,18 @@ const implementedInterfaces = new Map<string, any>();
  */
 
 /**
- * dynamically import modules either in parallel or sequentially based on the isParallel flag.
+ * solve the issue https://github.com/jestjs/jest/issues/11434 
+ * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
  * @param arrays of modules' paths
  * @param running parallel or not
  */
-async function importImplementations(modulePaths: string[], isParallel: boolean) {
+async function importImplementations(moduleSpecifiers: string[], isParallel: boolean): Promise<any>{
   if (isParallel) {
-    return Promise.all(modulePaths.map((path) => import(path)));
+    return Promise.all(moduleSpecifiers.map((specifer) => import(specifer)));
   } else {
     const impls = [];
-    for (const path of modulePaths) {
-      impls.push(await import(path));
+    for (const specifier of moduleSpecifiers) {
+      impls.push(await import(specifier));
     }
     return impls;
   }
@@ -113,7 +114,7 @@ export async function loadImplementations(isParallel: boolean = true) {
     './xr/XRPose',
     './xr/XRRigidTransform',
     './xr/XRSession'
-    ], isParallel).then(([
+  ], isParallel).then(([
     // Attributes
     NamedNodeMapImpl,
     { AttrImpl },

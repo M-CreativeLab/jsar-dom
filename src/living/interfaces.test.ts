@@ -1,13 +1,13 @@
-import { loadImplementations, implementationLoaded } from './interfaces'
-import { describe, it, expect } from '@jest/globals'
+import { loadImplementations, getInterfaceWrapper } from './interfaces';
+import { describe, it, expect } from '@jest/globals';
 
 describe('interfaces', () => {
-  it('should successfully dynamically import all libraries', async() => {
+  it('should ensure that all modules are loaded', async() => {
     const isParallel = false;
-    await expect(loadImplementations(isParallel)).resolves.toBeUndefined();
-  });
+    await loadImplementations(isParallel);
 
-  it('should ensure that all modules are loaded', () => {
-    expect(implementationLoaded).toEqual(true);
+    expect(getInterfaceWrapper('NamedNodeMap').prototype.constructor.name).toBe('NamedNodeMapImpl');
+    expect(getInterfaceWrapper('XRSession').prototype.constructor.name).toBe('XRSessionImpl');
+    expect(getInterfaceWrapper('SpatialElement').prototype.constructor.name).toBe('SpatialElement');
   });
 });
