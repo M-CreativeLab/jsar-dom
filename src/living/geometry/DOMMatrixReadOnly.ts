@@ -1,5 +1,4 @@
 import DOMPoint from './DOMPoint';
-import { post_multiply, pre_multiply } from './MatrixFunction';
 import { getInterfaceWrapper } from '../interfaces';
 
 export const Get_Matrix_Elements = Symbol('_ReadInternalSymbol');
@@ -271,5 +270,4 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   toString(): string {
     throw new Error("Method not implemented.");
   }
-  
 }
