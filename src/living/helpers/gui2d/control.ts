@@ -164,12 +164,14 @@ export class Control2D {
   private _lastRect: DOMRectReadOnlyImpl;
   private _lastCursor: BABYLON.Vector2;
   private _isCursorInside = false;
-  private _renderingContext: CanvasRenderingContext2D;
+  protected _renderingContext: CanvasRenderingContext2D;
   private _overwriteHeight: number;
   private _overwriteWidth: number;
   private _imageData: ImageDataImpl;
   private _isDirty = true;
 
+  private _transform: DOMMatrix;
+  private _currentTransform: DOMMatrix;
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
@@ -228,6 +230,23 @@ export class Control2D {
     }
   }
 
+
+  get transform(): DOMMatrix {
+    return this._transform;
+  }
+  
+  set transform(value: DOMMatrix) {
+    this._transform = value;
+  }
+
+  get currentTransform(): DOMMatrix {
+    return this._currentTransform;
+  }
+  
+  set currentTransform(value: DOMMatrix) {
+    this._currentTransform = value;
+  }
+  
   private _ownInnerText(): boolean {
     const element = this._element;
     return element.childNodes.length === 1 && isTextNode(element);
@@ -405,6 +424,11 @@ export class Control2D {
       this._renderInnerText(canvasContext, boxRect);
     }
     this._lastRect = boxRect;
+
+    /**
+     * Render the transform.
+     */
+    this._updateTransform();
   }
 
   /**
@@ -741,7 +765,23 @@ export class Control2D {
     });
     renderingContext.putImageData(this._imageData, rect.x, rect.y, 0, 0, rect.width, rect.height);
   }
+  
+  _updateTransform() {
+    const transformMatrix = this.transform;
+    const ctx = this._renderingContext;
+    ctx.setTransform(transformMatrix);
+  }
 
+  _accumulatesTransform() {
+    const transformMatrix = this.transform;
+    const tmpElement = this._element;
+    const parentElement = tmpElement.parentElement as HTMLContentElement;
+    const parentControl = parentElement._control;
+    const parentMatrix = parentControl.currentTransform;
+    const transform =  parentMatrix.multiply(transformMatrix);
+    this.currentTransform = transform;
+  }
+  
   containsPoint(x: number, y: number): boolean {
     const rect = this._lastRect;
     if (!rect) {

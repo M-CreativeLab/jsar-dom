@@ -7,7 +7,8 @@ import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { isHTMLContentElement } from '../../node-type';
 import { Control2D } from '../gui2d/control';
 import { domSymbolTree } from '../internal-constants';
-
+import DOMMatrixImpl from '../../geometry/DOMMatrix'
+import { post_multiply } from '../../geometry/MatrixFunction';
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
  */
@@ -313,6 +314,13 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       isDirtyAfterRendering = control.isDirty();
     } else {
       layout = currentElementOrControl._control.layoutNode.getLayout();
+      const control =  currentElementOrControl._control;
+      const style = currentElementOrControl.style;
+      const transformStr = style.transform; 
+      if (currentElementOrControl.parentElement === null) {
+        // control.currentTransform = this._parserTransform(transformStr)
+      }
+      // control.transform = this._parserTransform(transformStr) //    transform
       currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
       elementOrShadowRoot = currentElementOrControl;
       isDirtyAfterRendering = currentElementOrControl._control.isDirty();
@@ -335,6 +343,43 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       }
     }
     return isDirtyAfterRendering;
+  }
+
+  // 不能在render里调，开销太大
+  static _parserTransform(transformStr: string): DOMMatrix {
+    const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
+    const matches = [...transformStr.matchAll(pattern)];
+    const transforms = matches.map(match => ({
+      type: match[1], 
+      value: match[2], 
+      unit: match[3], 
+    }));
+    console.log(transforms);
+    // const transforms = transformStr.split(' ').reverse(); // transformation is applied from right to left 
+    let matrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,   0, 1, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
+    console.log("🐻", transforms[0]);
+    console.log("🐔matrix: ", matrix);
+    transforms.forEach(transform => {
+      console.log("🐔🐔", transform.type);
+      if (transform.type === 'translateX') {
+        const x = parseFloat(transform.value);
+        const translateMatrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, 0, 0, 1]);
+        console.log("🐷", translateMatrix);
+        matrix = post_multiply(matrix, translateMatrix);
+        // console.log("🐼", matrix);
+      }
+
+      if (transform.type === 'rotate') {
+        const angle = parseFloat(transform.value);
+        console.log("🐻🐻", Math.cos(angle * Math.PI / 180));
+        const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+        const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+        const rotateMatrix: DOMMatrix = new DOMMatrixImpl([cosValue, sinValue, 0, 0,  -sinValue, cosValue, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
+        matrix = post_multiply(matrix, rotateMatrix) as DOMMatrixImpl;
+        console.log("🐻‍❄️rotateMatrix: ", rotateMatrix);
+      }
+    });
+    return matrix;
   }
 
   /**
