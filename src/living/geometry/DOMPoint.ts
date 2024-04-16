@@ -65,7 +65,7 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrixTransform(matrix?: DOMMatrixInit): DOMPoint {
-    if(matrix.is2D && this.z === 0 && this.w === 1) {
+    if (matrix.is2D && this.z === 0 && this.w === 1) {
       const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + matrix.m41;
       const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + matrix.m42;
       const resPoint = new DOMPointImpl(transformed_x, transformed_y);

@@ -1,5 +1,5 @@
 import DOMMatrixReadOnlyImpl, { Get_Matrix_Elements } from './DOMMatrixReadOnly';
-import { post_multiply } from './MatrixFunction';
+import { postMultiply } from '../helpers/matrix-functions';
 
 export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMMatrix {
   get a(): number {
@@ -210,7 +210,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
 
   multiplySelf(other?: DOMMatrixInit): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
-    const resMatrix = post_multiply(this, otherObject);
+    const resMatrix = postMultiply(this, otherObject);
     if (otherObject.is2D === false) {
       this.is2D = false;
     }
@@ -219,7 +219,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
 
   preMultiplySelf(other?: DOMMatrix): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
-    const resMatrix = post_multiply(this, otherObject);
+    const resMatrix = postMultiply(this, otherObject);
     if (otherObject.is2D === false) {
       this.is2D = false;
     }
@@ -227,11 +227,11 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
   }
 
   rotateSelf(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   
   scale3dSelf(scale?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
   
   scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
@@ -241,24 +241,24 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
       this._is2D = false;
     }
     const thisMatrix = new DOMMatrixImpl(Array.from(this[Get_Matrix_Elements]()));
-    return post_multiply(thisMatrix, scalationMatrix).translateSelf(-originX, -originY, -originZ);
+    return postMultiply(thisMatrix, scalationMatrix).translateSelf(-originX, -originY, -originZ);
   }
 
   setMatrixValue(transformList: string): DOMMatrix {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   skewXSelf(sx?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   skewYSelf(sy?: number): DOMMatrix {
-    throw new Error("Method not implemented.");
+    throw new Error('Method not implemented.');
   }
 
   translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
     const translationMatrix = new DOMMatrixImpl([1,0,0,0,  0,1,0,0,  0,0,1,0,  tx??0,ty??0,tz??0,1]);
     // const thisMatrix = new DOMMatrixImpl(Array.from(this[Get_Matrix_Elements]()));
-    return post_multiply(this, translationMatrix);
+    return postMultiply(this, translationMatrix);
   } 
 }
