@@ -70,15 +70,13 @@ export default class DOMPointImpl implements DOMPoint {
     if (matrix.is2D && this.z === 0 && this.w === 1) {
       const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + matrix.m41;
       const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + matrix.m42;
-      const resPoint = new DOMPointImpl(transformed_x, transformed_y);
-      return resPoint;
+      return new DOMPointImpl(transformed_x, transformed_y);
     }
     const transformed_x = this.x * matrix.m11 + this.y * matrix.m21 + this.z * matrix.m31 + this.w * matrix.m41;
     const transformed_y = this.x * matrix.m12 + this.y * matrix.m22 + this.z * matrix.m32 + this.w * matrix.m42;
     const transformed_z = this.x * matrix.m13 + this.y * matrix.m23 + this.z * matrix.m33 + this.w * matrix.m43;
     const transformed_w = this.x * matrix.m14 + this.y * matrix.m24 + this.z * matrix.m34 + this.w * matrix.m44;
-    const resPoint = new DOMPointImpl(transformed_x, transformed_y, transformed_z, transformed_w);
-    return resPoint;
+    return new DOMPointImpl(transformed_x, transformed_y, transformed_z, transformed_w);
   }
 
   point2matrix(point?: DOMPoint): DOMMatrix {

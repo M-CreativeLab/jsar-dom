@@ -2,6 +2,9 @@ import DOMPoint from './DOMPoint';
 import { getInterfaceWrapper } from '../interfaces';
 
 export const GET_MATRIX_ELEMENTS = Symbol('__ReadInternalSymbo__');
+
+export const SET_IS_2D = Symbol('__SetInternalSymbo__');
+
 export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   protected _matrixElements: Float32Array;
   protected _is2D: boolean;
@@ -100,11 +103,25 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get isIdentity(): boolean {
+    let identityMatrix: Float32Array;
+    identityMatrix.set([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1 
+    ]); 
+    if (this._matrixElements = identityMatrix) {
+      this._isIdentity = true;
+    }
     return this._isIdentity;
   }
 
   [GET_MATRIX_ELEMENTS]() {
     return this._matrixElements;
+  }
+
+  [SET_IS_2D](is2D: boolean) {
+    this._is2D = is2D;
   }
 
   constructor(init?: string | number[]) {
@@ -127,7 +144,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     // `init` is a sequence with 6 elements
     if (Array.isArray(init) && init.length === 6) {
       this._is2D = true;
-      this._isIdentity = true;
       this._matrixElements[0] = init[0];
       this._matrixElements[1] = init[1];
       this._matrixElements[4] = init[2];
@@ -137,18 +153,16 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
 
       this._matrixElements[10] = 1;
       this._matrixElements[15] = 1;
-      
       return;
     }
 
-    // init is a sequence with 16 elements
+    // `init` is a sequence with 16 elements
     if (init.length === 16) {
       this._is2D = false;
-      this._isIdentity = true;
       this._matrixElements.set(init);
       return;
     }
-    
+
     // otherwise
     this._is2D = false;
     this._isIdentity = false;
