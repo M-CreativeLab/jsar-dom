@@ -3,6 +3,11 @@ import DOMPointImpl from './DOMPoint';
 import DOMMatrixImpl from './DOMMatrix';
 
 describe('DOMPoint', () => {
+  /**
+   * Test case borrowed from the latest version of the Web Platform Tests (WPT) suite
+   * under the path "css/geometry/DOMPoint-002.html" to ensure compliance with
+   * the CSS Geometry Module standard.
+   */
   function getMatrixTransform(matrix: DOMMatrix, point: DOMPoint) {
     var x = point.x * matrix.m11 + point.x * matrix.m21 + point.z * matrix.m31 + point.w * matrix.m41;
     var y = point.x * matrix.m12 + point.y * matrix.m22 + point.z * matrix.m32 + point.w * matrix.m42;

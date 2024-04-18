@@ -110,8 +110,8 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   constructor(init?: string | number[]) {
     this._matrixElements = new Float32Array(16);
     this._matrixElements.fill(0);
-    
-    // init is omitted
+
+    // `init` is omitted
     if (!init) {
       this._is2D = true;
       this._isIdentity = true;
@@ -119,12 +119,12 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       return;
     }
     
-    // init is a string
+    // `init` is a string
     if (typeof init === 'string') {
       throw new Error('String initialization is not implemented');
     }
 
-    // init is a sequence with 6 elements
+    // `init` is a sequence with 6 elements
     if (Array.isArray(init) && init.length === 6) {
       this._is2D = true;
       this._isIdentity = true;
@@ -148,6 +148,7 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       this._matrixElements.set(init);
       return;
     }
+    
     // otherwise
     this._is2D = false;
     this._isIdentity = false;

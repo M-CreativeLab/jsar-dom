@@ -1,4 +1,5 @@
 import { GET_MATRIX_ELEMENTS } from './DOMMatrixReadOnly';
+import { getInterfaceWrapper } from '../interfaces';
 import DOMMatrix from './DOMMatrix';
 
 export const GET_UPDATER_SYMBOL = Symbol('__getUpdater__');
@@ -81,13 +82,23 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   point2matrix(point?: DOMPoint): DOMMatrix {
-    const pointMatrix = new DOMMatrix([point.x, 0, 0, 0, point.y, 0, 0, 0, point.z, 0, 0, 0, point.w, 0, 0, 0]);
-    return pointMatrix;
+    const DOMMatrixImpl = getInterfaceWrapper('DOMMatrix');
+    return new DOMMatrixImpl([
+      point.x, 0, 0, 0, 
+      point.y, 0, 0, 0, 
+      point.z, 0, 0, 0, 
+      point.w, 0, 0, 0
+    ]);
   }
 
   matrix2point(matrix?: DOMMatrix): DOMPoint {
-    const point = new DOMPointImpl(matrix[GET_MATRIX_ELEMENTS]()[0], matrix[GET_MATRIX_ELEMENTS]()[4], matrix[GET_MATRIX_ELEMENTS]()[8], matrix[GET_MATRIX_ELEMENTS]()[12]);
-    return point;
+    const matrixElements = matrix[GET_MATRIX_ELEMENTS]();
+    return new DOMPointImpl(
+      matrixElements[0], 
+      matrixElements[4], 
+      matrixElements[8], 
+      matrixElements[12]
+    );
   }
 
   toJSON() {
