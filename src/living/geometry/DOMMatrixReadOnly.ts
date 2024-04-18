@@ -1,7 +1,7 @@
 import DOMPoint from './DOMPoint';
 import { getInterfaceWrapper } from '../interfaces';
 
-export const GET_MATRIX_ELEMENTS = Symbol('__ReadInternalSymbo__');
+export const GET_MATRIX_ELEMENTS = Symbol('__GetMatrixElementsSymbol__');
 
 export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   protected _matrixElements: Float32Array;
@@ -106,9 +106,12 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       0, 0, 1, 0, 
       0, 0, 0, 1
     ]);
-    if (this._matrixElements === identityMatrix) {
-      return true;
+    for (let i = 0; i < 16; i++) {
+      if (this._matrixElements[i] !== identityMatrix[i]) {
+        return false;
+      }
     }
+    return true;
   }
 
   [GET_MATRIX_ELEMENTS]() {
