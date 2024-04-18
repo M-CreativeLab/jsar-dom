@@ -1,4 +1,4 @@
-import DOMMatrixReadOnlyImpl, { Get_Matrix_Elements } from './DOMMatrixReadOnly';
+import DOMMatrixReadOnlyImpl from './DOMMatrixReadOnly';
 import { postMultiply } from '../helpers/matrix-functions';
 
 export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMMatrix {
@@ -208,6 +208,14 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     }
   }
 
+  static fromFloat32Array(array32: Float32Array): DOMMatrix {
+    return new DOMMatrixImpl([array32[0], array32[1], array32[2], array32[3], array32[4], array32[5], array32[6], array32[7], array32[8], array32[9], array32[10], array32[11], array32[12], array32[13], array32[14], array32[15]]);
+  }
+
+  static fromFloat64Array(array64: Float64Array): DOMMatrix {
+    return new DOMMatrixImpl([array64[0], array64[1], array64[2], array64[3], array64[4], array64[5], array64[6], array64[7], array64[8], array64[9], array64[10], array64[11], array64[12], array64[13], array64[14], array64[15]]);
+  }
+
   multiplySelf(other?: DOMMatrixInit): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
     const resMatrix = postMultiply(this, otherObject);
@@ -217,7 +225,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     return resMatrix;
   }
 
-  preMultiplySelf(other?: DOMMatrix): DOMMatrix {
+  preMultiplySelf(other?: DOMMatrixInit): DOMMatrix {
     let otherObject = DOMMatrixImpl.fromMatrix(other);
     const resMatrix = postMultiply(this, otherObject);
     if (otherObject.is2D === false) {
@@ -235,13 +243,18 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
   }
   
   scaleSelf(scaleX?: number, scaleY?: number, scaleZ?: number, originX?: number, originY?: number, originZ?: number): DOMMatrix {
+    let resMatrix = this.translateSelf(originX, originY, originZ);
     // define the transformation matrix for scaling
-    const scalationMatrix = new DOMMatrixImpl([scaleX ?? 1,0,0,0,  0,scaleY ?? scaleX ?? 1,0,0,  0,0, scaleZ ?? 1,0,  0,0,0,1]);
+    const scalationMatrix = new DOMMatrixImpl([scaleX, 0, 0, 0,  0, scaleY ?? scaleX, 0, 0,  0, 0, scaleZ, 0,  0, 0, 0, 1]);
+    resMatrix = postMultiply(resMatrix, scalationMatrix);
+    originX = -originX;
+    originY = -originY;
+    originZ = -originZ;
+    resMatrix = resMatrix.translateSelf(originX, originY, originZ);
     if (scaleZ !== 1 || originZ !== 0 || originZ !== -0) {
       this._is2D = false;
     }
-    const thisMatrix = new DOMMatrixImpl(Array.from(this[Get_Matrix_Elements]()));
-    return postMultiply(thisMatrix, scalationMatrix).translateSelf(-originX, -originY, -originZ);
+    return resMatrix;
   }
 
   setMatrixValue(transformList: string): DOMMatrix {
@@ -258,7 +271,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
 
   translateSelf(tx?: number, ty?: number, tz?: number): DOMMatrix {
     const translationMatrix = new DOMMatrixImpl([1,0,0,0,  0,1,0,0,  0,0,1,0,  tx??0,ty??0,tz??0,1]);
-    // const thisMatrix = new DOMMatrixImpl(Array.from(this[Get_Matrix_Elements]()));
-    return postMultiply(this, translationMatrix);
+    const resMatrix = postMultiply(this, translationMatrix)
+    return resMatrix;
   } 
 }

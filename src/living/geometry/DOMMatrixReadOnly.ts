@@ -205,15 +205,15 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     throw new Error('Method not implemented.');
   }
 
-  invertSelf(): this {
+  invertSelf(): DOMMatrix {
     throw new Error('Method not implemented.');
   }
 
-  rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): this {
+  rotateAxisAngleSelf(x?: number, y?: number, z?: number, angle?: number): DOMMatrix {
     throw new Error('Method not implemented.');
   }
 
-  rotateFromVectorSelf(x?: number, y?: number): this {
+  rotateFromVectorSelf(x?: number, y?: number): DOMMatrix {
     throw new Error('Method not implemented.');
   }
 
@@ -230,6 +230,10 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   skewY(sy?: number): DOMMatrix {
+    throw new Error('Method not implemented.');
+  }
+
+  transformPoint(point?: DOMPointInit): DOMPoint {
     throw new Error('Method not implemented.');
   }
 
@@ -260,10 +264,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       m43: this.m43,
       m44: this.m44,
     };
-  }
-
-  transformPoint(point?: DOMPointInit): DOMPoint {
-    throw new Error('Method not implemented.');
   }
 
   toString(): string {

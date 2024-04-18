@@ -77,7 +77,7 @@ describe('DOMMatrixImplImpl', () => {
     const originX = 1;
     const originY = 1;
     const originZ = 1;
-    const expectedMatrix = new DOMMatrixImpl([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, -5, -5, -5, -5]);
+    const expectedMatrix = new DOMMatrixImpl([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, -2, -2, -2, -2]);
     const resultMatrix = matrix.scaleSelf(scaleX, scaleY, scaleZ, originX, originY, originZ);
     expect(resultMatrix).toEqual(expectedMatrix);
   });
