@@ -1,6 +1,7 @@
 import { describe, expect, it } from '@jest/globals';
 import DOMPointImpl from './DOMPoint';
 import DOMMatrixImpl from './DOMMatrix';
+
 describe('DOMPoint', () => {
   function getMatrixTransform(matrix: DOMMatrix, point: DOMPoint) {
     var x = point.x * matrix.m11 + point.x * matrix.m21 + point.z * matrix.m31 + point.w * matrix.m41;

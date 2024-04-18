@@ -1,7 +1,7 @@
 import DOMPoint from './DOMPoint';
 import { getInterfaceWrapper } from '../interfaces';
 
-export const Get_Matrix_Elements = Symbol('__ReadInternalSymbo__');
+export const GET_MATRIX_ELEMENTS = Symbol('__ReadInternalSymbo__');
 export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   protected _matrixElements: Float32Array;
   protected _is2D: boolean;
@@ -103,12 +103,14 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     return this._isIdentity;
   }
 
-  [Get_Matrix_Elements]() {
+  [GET_MATRIX_ELEMENTS]() {
     return this._matrixElements;
   }
 
   constructor(init?: string | number[]) {
     this._matrixElements = new Float32Array(16);
+    this._matrixElements.fill(0);
+    
     // init is omitted
     if (!init) {
       this._is2D = true;
@@ -120,7 +122,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     // init is a string
     if (typeof init === 'string') {
       throw new Error('String initialization is not implemented');
-      return;
     }
 
     // init is a sequence with 6 elements
@@ -134,27 +135,17 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
       this._matrixElements[12] = init[4];
       this._matrixElements[13] = init[5];
 
-      this._matrixElements[2] = 0;
-      this._matrixElements[3] = 0;
-      this._matrixElements[6] = 0;
-      this._matrixElements[7] = 0;
-      this._matrixElements[8] = 0;
-      this._matrixElements[9] = 0;
-      this._matrixElements[11] = 0;
-      this._matrixElements[14] = 0;
-
       this._matrixElements[10] = 1;
       this._matrixElements[15] = 1;
       
       return;
     }
+
     // init is a sequence with 16 elements
     if (init.length === 16) {
       this._is2D = false;
       this._isIdentity = true;
-      for (var _i = 0; _i < init.length; _i ++) {
-        this._matrixElements[_i] = init[_i];
-      }
+      this._matrixElements.set(init);
       return;
     }
     // otherwise
@@ -197,11 +188,11 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
 
   multiply(other?: DOMMatrix): DOMMatrix {
     const DOMMatrixImpl = getInterfaceWrapper('DOMMatrix');
-    const tmpMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
-    return tmpMatrix.multiplySelf(other);
+    let resMatrix = new DOMMatrixImpl(Array.from(this._matrixElements));
+    return resMatrix.multiplySelf(other);
   }
 
-  rotate(rotX?: number, rotY?: number, rotZ?: number): DOMMatrix {
+  rotate(): DOMMatrix {
     throw new Error('Method not implemented.');
   }
 

@@ -1,9 +1,9 @@
-import { Get_Matrix_Elements } from '../geometry/DOMMatrixReadOnly';
+import { GET_MATRIX_ELEMENTS } from '../geometry/DOMMatrixReadOnly';
 import DOMMatrixImpl from '../geometry/DOMMatrix'; 
 
 export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix { 
-  const selfElements = Array.from(self[Get_Matrix_Elements]());
-  const otherElements = Array.from(other[Get_Matrix_Elements]());
+  const selfElements = Array.from(self[GET_MATRIX_ELEMENTS]());
+  const otherElements = Array.from(other[GET_MATRIX_ELEMENTS]());
   const resElements = [];
   for (let i = 0; i < 16; i = i + 1) {
     resElements[i] = 0;
@@ -16,8 +16,8 @@ export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix {
 }
 
 export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix { 
-  const selfElements = Array.from(self[Get_Matrix_Elements]);
-  const otherElements = Array.from(other[Get_Matrix_Elements]);
+  const selfElements = Array.from(self[GET_MATRIX_ELEMENTS]());
+  const otherElements = Array.from(other[GET_MATRIX_ELEMENTS]());
   const resElements = [];
   for (let i = 0; i < 16; i = i + 1) {
     resElements[i] = 0;

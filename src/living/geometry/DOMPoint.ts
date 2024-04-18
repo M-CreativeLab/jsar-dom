@@ -1,5 +1,6 @@
-import { Get_Matrix_Elements } from './DOMMatrixReadOnly'
-import DOMMatrix from './DOMMatrix'
+import { GET_MATRIX_ELEMENTS } from './DOMMatrixReadOnly';
+import DOMMatrix from './DOMMatrix';
+
 export const GET_UPDATER_SYMBOL = Symbol('__getUpdater__');
 
 export default class DOMPointImpl implements DOMPoint {
@@ -85,7 +86,7 @@ export default class DOMPointImpl implements DOMPoint {
   }
 
   matrix2point(matrix?: DOMMatrix): DOMPoint {
-    const point = new DOMPointImpl(matrix[Get_Matrix_Elements]()[0], matrix[Get_Matrix_Elements]()[4], matrix[Get_Matrix_Elements]()[8], matrix[Get_Matrix_Elements]()[12]);
+    const point = new DOMPointImpl(matrix[GET_MATRIX_ELEMENTS]()[0], matrix[GET_MATRIX_ELEMENTS]()[4], matrix[GET_MATRIX_ELEMENTS]()[8], matrix[GET_MATRIX_ELEMENTS]()[12]);
     return point;
   }
 

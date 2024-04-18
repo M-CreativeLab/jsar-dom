@@ -24,7 +24,12 @@ describe('DOMMatrixImplImpl', () => {
   });
 
   it('create a DOMMatrixImpl from a sequence with 16 elements', () => {
-    const matrix = new DOMMatrixImpl([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]);
+    const matrix = new DOMMatrixImpl([
+      1, 2, 3, 4, 
+      5, 6, 7, 8, 
+      9, 10, 11, 12, 
+      13, 14, 15, 16
+    ]);
     expect(matrix.m11).toBe(1);
     expect(matrix.m12).toBe(2);
     expect(matrix.m13).toBe(3);
@@ -53,31 +58,61 @@ describe('DOMMatrixImplImpl', () => {
   });
 
   it('All-ones matrix multiplyself by identity matrix', () => {
-    const matrix = new DOMMatrixImpl([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
-    const transformMatrix = new DOMMatrixImpl([1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]);
+    const matrix = new DOMMatrixImpl([
+      1, 1, 1, 1, 
+      1, 1, 1, 1, 
+      1, 1, 1, 1, 
+      1, 1, 1, 1
+    ]);
+    const transformMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0, 
+      0, 1, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ]);
     const resMatrix = matrix.multiplySelf(transformMatrix);
     expect(resMatrix).toEqual(matrix);
   });
 
   it('All-ones matrix translateSelf by (1, 1, 1)', () => {
-    const matrix = new DOMMatrixImpl([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    const matrix = new DOMMatrixImpl([
+      1, 1, 1, 1,
+      1, 1, 1, 1, 
+      1, 1, 1, 1, 
+      1, 1, 1, 1
+    ]);
     const tx = 1;
     const ty = 1;
     const tz = 1;
     const resMatrix = matrix.translateSelf(tx, ty, tz);
-    const expMatrix = new DOMMatrixImpl([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 4, 4, 4, 4]);
+    const expMatrix = new DOMMatrixImpl([
+      1, 1, 1, 1,
+      1, 1, 1, 1,
+      1, 1, 1, 1,
+      4, 4, 4, 4
+    ]);
     expect(resMatrix).toEqual(expMatrix);
   });
 
   it('All-ones matrix scaleSelf by (2, 2, 2, 1, 1, 1)', () => {
-    const matrix = new DOMMatrixImpl([1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]);
+    const matrix = new DOMMatrixImpl([
+      1, 1, 1, 1, 
+      1, 1, 1, 1, 
+      1, 1, 1, 1, 
+      1, 1, 1, 1
+    ]);
     const scaleX = 2;
     const scaleY = 2;
     const scaleZ = 2;
     const originX = 1;
     const originY = 1;
     const originZ = 1;
-    const expectedMatrix = new DOMMatrixImpl([2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, -2, -2, -2, -2]);
+    const expectedMatrix = new DOMMatrixImpl([
+      2, 2, 2, 2, 
+      2, 2, 2, 2, 
+      2, 2, 2, 2,
+      -2, -2, -2, -2
+    ]);
     const resultMatrix = matrix.scaleSelf(scaleX, scaleY, scaleZ, originX, originY, originZ);
     expect(resultMatrix).toEqual(expectedMatrix);
   });
