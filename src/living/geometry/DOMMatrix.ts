@@ -1,5 +1,4 @@
 import DOMMatrixReadOnlyImpl from './DOMMatrixReadOnly';
-import { SET_IS_2D } from './DOMMatrixReadOnly';
 import { postMultiply } from '../helpers/matrix-functions';
 
 export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMMatrix {
@@ -230,7 +229,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     let otherObject = DOMMatrixImpl.fromMatrix(other);
     const resMatrix = postMultiply(this, otherObject);
     if (otherObject.is2D === false) {
-      this[SET_IS_2D](false);
+      this._is2D = false;
     }
     return resMatrix;
   }
@@ -239,7 +238,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     let otherMatrix = DOMMatrixImpl.fromMatrix(other);
     const resMatrix = postMultiply(this, otherMatrix);
     if (otherMatrix.is2D === false) {
-      this[SET_IS_2D](false);
+      this._is2D = false;
     }
     return resMatrix;
   }
@@ -267,7 +266,7 @@ export default class DOMMatrixImpl extends DOMMatrixReadOnlyImpl implements DOMM
     originZ = -originZ;
     resMatrix = resMatrix.translateSelf(originX, originY, originZ);
     if (scaleZ !== 1 || originZ !== 0 || originZ !== -0) {
-      this[SET_IS_2D](false);
+      this._is2D = false;
     }
     return resMatrix;
   }

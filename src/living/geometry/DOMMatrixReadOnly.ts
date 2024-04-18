@@ -3,12 +3,9 @@ import { getInterfaceWrapper } from '../interfaces';
 
 export const GET_MATRIX_ELEMENTS = Symbol('__ReadInternalSymbo__');
 
-export const SET_IS_2D = Symbol('__SetInternalSymbo__');
-
 export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   protected _matrixElements: Float32Array;
   protected _is2D: boolean;
-  protected _isIdentity: boolean;
 
   get a(): number {
     return this._matrixElements[0];
@@ -103,25 +100,19 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   get isIdentity(): boolean {
-    let identityMatrix: Float32Array;
-    identityMatrix.set([
+    const identityMatrix = new Float32Array([
       1, 0, 0, 0,
       0, 1, 0, 0,
-      0, 0, 1, 0,
-      0, 0, 0, 1 
-    ]); 
-    if (this._matrixElements = identityMatrix) {
-      this._isIdentity = true;
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ]);
+    if (this._matrixElements === identityMatrix) {
+      return true;
     }
-    return this._isIdentity;
   }
 
   [GET_MATRIX_ELEMENTS]() {
     return this._matrixElements;
-  }
-
-  [SET_IS_2D](is2D: boolean) {
-    this._is2D = is2D;
   }
 
   constructor(init?: string | number[]) {
@@ -131,7 +122,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
     // `init` is omitted
     if (!init) {
       this._is2D = true;
-      this._isIdentity = true;
       this._matrixElements.set([1, 0, 0, 1, 0, 0], 0);
       return;
     }
@@ -165,7 +155,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
 
     // otherwise
     this._is2D = false;
-    this._isIdentity = false;
     throw new TypeError('Invalid type for matrix initialization.');
   }
 
