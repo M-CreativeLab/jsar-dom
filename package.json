@@ -53,6 +53,7 @@
     "xml-name-validator": "^5.0.0"
   },
   "devDependencies": {
+    "@babel/template": "^7.24.0",
     "@jest/globals": "^29.7.0",
     "@napi-rs/canvas": "^0.1.44",
     "@types/babel__core": "^7.20.1",
