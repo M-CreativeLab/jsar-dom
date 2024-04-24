@@ -37,26 +37,22 @@ const implementedInterfaces = new Map<string, any>();
  * guarantee correct invocation of the function when utilizing related interfaces.
  */
 
+
 /**
  * solve the issue https://github.com/jestjs/jest/issues/11434 
  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
- * @param arrays of modules' paths
  * @param running parallel or not
  */
-async function importImplementations(moduleSpecifiers: string[], isParallel: boolean): Promise<any>{
-  if (isParallel) {
-    return Promise.all(moduleSpecifiers.map((specifer) => import(specifer)));
-  } else {
-    const impls = [];
-    for (const specifier of moduleSpecifiers) {
-      impls.push(await import(specifier));
-    }
-    return impls;
+async function importImplementations(moduleSpecifiers: string[]): Promise<any>{
+  const impls = [];
+  for (const specifier of moduleSpecifiers) {
+    impls.push(await import(specifier));
   }
+  return impls;
 }
 
 export async function loadImplementations(isParallel: boolean = true) {
-  await importImplementations([
+  const moduleSpecifiers = [
     // Attributes
     './attributes/NamedNodeMap',
     './attributes/Attr',
@@ -116,7 +112,77 @@ export async function loadImplementations(isParallel: boolean = true) {
     './xr/XRPose',
     './xr/XRRigidTransform',
     './xr/XRSession'
-  ], isParallel).then(([
+  ]; 
+
+  let modules: Promise<any>;
+
+  if (isParallel) {
+    modules = Promise.all([
+      // Attributes
+      import('./attributes/NamedNodeMap'),
+      import('./attributes/Attr'),
+      // Classic Nodes
+      import('./nodes/Node'),
+      import('./nodes/NodeList'),
+      import('./nodes/Element'),
+      import('./nodes/DocumentFragment'),
+      import('./nodes/DocumentType'),
+      import('./nodes/SpatialDocument'),
+      import('./nodes/Text'),
+      import('./nodes/HTMLCollection'),
+      import('./nodes/DOMTokenList'),
+      import('./nodes/HTMLElement'),
+      import('./nodes/HTMLContentElement'),
+      import('./nodes/HTMLHeadElement'),
+      import('./nodes/HTMLTitleElement'),
+      import('./nodes/HTMLMetaElement'),
+      import('./nodes/HTMLStyleElement'),
+      import('./nodes/HTMLScriptElement'),
+      import('./nodes/HTMLDivElement'),
+      import('./nodes/HTMLSpanElement'),
+      import('./nodes/HTMLImageElement'),
+      // Spatial Nodes
+      import('./nodes/SpatialElement'),
+      // CSSOM
+      import('./cssom/StyleSheetList'),
+      // Events
+      import('./events/CloseEvent'),
+      import('./events/CustomEvent'),
+      import('./events/ErrorEvent'),
+      import('./events/FocusEvent'),
+      import('./events/HashChangeEvent'),
+      import('./events/KeyboardEvent'),
+      import('./events/MessageEvent'),
+      import('./events/MouseEvent'),
+      import('./events/PopStateEvent'),
+      import('./events/ProgressEvent'),
+      import('./events/TouchEvent'),
+      import('./events/UIEvent'),
+      // Others
+      import('./domexception'),
+      import('./custom-elements/CustomElementRegistry'),
+      import('./hr-time/Performance'),
+      import('./range/AbstractRange'),
+      import('./range/Range'),
+      import('./mutation-observer/MutationObserver'),
+      import('./mutation-observer/MutationRecord'),
+      import('./crypto/Noise'),
+      import('./geometry/DOMPoint'),
+      import('./geometry/DOMPointReadOnly'),
+      import('./geometry/DOMRect'),
+      import('./geometry/DOMRectReadOnly'),
+      import('./geometry/DOMMatrix'),
+      import('./image/ImageData'),
+      // WebXR
+      import('./xr/XRPose'),
+      import('./xr/XRRigidTransform'),
+      import('./xr/XRSession')
+    ]);
+  } else {
+      importImplementations(moduleSpecifiers);
+  }
+ 
+  modules.then(([
     // Attributes
     NamedNodeMapImpl,
     { AttrImpl },
