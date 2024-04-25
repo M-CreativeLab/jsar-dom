@@ -66,85 +66,55 @@ const moduleSpecifiers = [
   './xr/XRSession'
 ];
 
-// const buildParallelImports = template.default(`
-//   import(%%source%%)
-// `);
+const buildParallelImports = template.default(`
+  import(%%source%%)
+`);
 
-// const buildSequentialImports = template.default(`
-//   await import(%%source%%)
-// `);
+const buildSequentialImports = template.default(`
+  await import(%%source%%)
+`);
 
-// const buildModule = template.default(`
-//   modules = Promise.all(%%source%%)
-// `);
+const buildModule = template.default(`
+  modules = Promise.all(%%source%%)
+`);
 
-// const buildIfStatement = template.default(`
-//   if (%%isParallel%%) {
-//     %%parallelImports%%
-//   } else {
-//     %%sequentialImports%%
-//   }
-// `, );
+const buildIfStatement = template.default(`
+  if (%%isParallel%%) {
+    %%parallelImports%%
+  } else {
+    %%sequentialImports%%
+  }
+`, );
 
-const typeNames = [
-  "NamedNodeMapImpl",
-  "NodeImpl",
-  "ElementImpl",
-  "HTMLElementImpl",
-  "HTMLContentElement",
-  "HTMLStyleElementImpl",
-  "HTMLScriptElementImpl",
-  "HTMLImageElementImpl",
-  "SpatialElement",
-  "ImageDataImpl",
-  "NoiseImpl",
-  "DOMPointImpl",
-  "DOMPointReadOnlyImpl",
-  "DOMRectImpl",
-  "DOMRectReadOnlyImpl",
-  "DOMMatrixImpl",
-  "XRPoseImpl",
-  "XRRigidTransformImpl",
-  "XRSessionImpl"
-];
+const buildStaticImports = defaultTemplate(`
+import type NamedNodeMapImpl from './attributes/NamedNodeMap';
+import type { NodeImpl } from './nodes/Node';
+import type { ElementImpl } from './nodes/Element';
+import type { HTMLElementImpl } from './nodes/HTMLElement';
+import type { HTMLContentElement } from './nodes/HTMLContentElement';
+import type HTMLStyleElementImpl from './nodes/HTMLStyleElement';
+import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
+import type HTMLImageElementImpl from './nodes/HTMLImageElement';
+import type { SpatialElement } from './nodes/SpatialElement';
+import type ImageDataImpl from './image/ImageData';
+import type NoiseImpl from './crypto/Noise';
+import type DOMPointImpl from './geometry/DOMPoint';
+import type DOMPointReadOnlyImpl from './geometry/DOMPointReadOnly';
+import type DOMRectImpl from './geometry/DOMRect';
+import type DOMRectReadOnlyImpl from './geometry/DOMRectReadOnly';
+import type DOMMatrixImpl from './geometry/DOMMatrix';
+import type XRPoseImpl from './xr/XRPose';
+import type XRRigidTransformImpl from './xr/XRRigidTransform';
+import type XRSessionImpl from './xr/XRSession';
 
-const filePaths = [
-  "./attributes/NamedNodeMap",
-  "./nodes/Node",
-  "./nodes/Element",
-  "./nodes/HTMLElement",
-  "./nodes/HTMLContentElement",
-  "./nodes/HTMLStyleElement",
-  "./nodes/HTMLScriptElement",
-  "./nodes/HTMLImageElement",
-  "./nodes/SpatialElement",
-  "./image/ImageData",
-  "./crypto/Noise",
-  "./geometry/DOMPoint",
-  "./geometry/DOMPointReadOnly",
-  "./geometry/DOMRect",
-  "./geometry/DOMRectReadOnly",
-  "./geometry/DOMMatrix",
-  "./xr/XRPose",
-  "./xr/XRRigidTransform",
-  "./xr/XRSession"
-];
-
-const buildStaticImports = defaultTemplate.ast(`
-  import type %%typeNames%% from %%filePaths%%;
+let implementationLoaded = false;
+const implementedInterfaces = new Map<string, any>();
 `, {
   plugins: [
     'typescript'
   ]
 });
-
-const staticImports = typeNames.map((typeName, index) => buildStaticImports({
-  typeNames: t.identifier(typeName),
-  filePaths: t.stringLiteral(filePaths[index])
-}));
-
-console.log(generate.default(staticImports).code);
-
+                
 const buildGetInterfaceWrapper = template.default(`
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -280,7 +250,29 @@ const buildIntegration = template.default(`
   %%staticImports%%
   %%loadImplementations%%
   %%getInterfaceWrapper%%
-`)
+`);
+
+const comments = `
+  To load all the implementations of the interfaces.
+  *
+  * __Why?__
+  * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
+  * attention to the order of dependencies and sometimes necessitating the splitting of modules 
+  * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
+  * resolves dependencies based on file order, leading to compromises in project directory design. 
+  * 
+  * To address this issue, we introduce the following method:
+  * leveraging dynamic imports() for asynchronous loading of type instances. Subsequently, we use a synchronous function,
+  * getInterfaceWrapper, to ensure the smooth functioning of the type system. This approach 
+  * ensures that, during both build time and runtime, the necessary precautions are taken to 
+  * guarantee correct invocation of the function when utilizing related interfaces. 
+  * 
+  * solve the issue https://github.com/jestjs/jest/issues/11434 
+  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag. 
+  * @param running parallel or not 
+`;
+                 
+const staticImports = buildStaticImports();
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
   source: t.stringLiteral(specifier)
@@ -308,6 +300,8 @@ const loadImplementations = buildLoadImplementations({
   ifStatement: ifStatement
 });
 
+t.addComment(loadImplementations, 'leading', comments);
+
 const getInterfaceWrapper = buildGetInterfaceWrapper();
 
 const integration = buildIntegration({
@@ -316,7 +310,7 @@ const integration = buildIntegration({
   getInterfaceWrapper: getInterfaceWrapper
 })
 
-const code = generate.default(integration).code;
+const code = generate.default(t.program(integration)).code;
 console.log(code);
 
 // const getInterfaceWrapperCode = generate.default(getInterfaceWrapper).code;
