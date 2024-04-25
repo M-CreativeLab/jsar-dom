@@ -45,67 +45,6 @@ const implementedInterfaces = new Map<string, any>();
  */
 
 export async function loadImplementations(isParallel: boolean = true) {
-  const moduleSpecifiers = [
-    // Attributes
-    './attributes/NamedNodeMap',
-    './attributes/Attr',
-    // Classic Nodes
-    './nodes/Node',
-    './nodes/NodeList',
-    './nodes/Element',
-    './nodes/DocumentFragment',
-    './nodes/DocumentType',
-    './nodes/SpatialDocument',
-    './nodes/Text',
-    './nodes/HTMLCollection',
-    './nodes/DOMTokenList',
-    './nodes/HTMLElement',
-    './nodes/HTMLContentElement',
-    './nodes/HTMLHeadElement',
-    './nodes/HTMLTitleElement',
-    './nodes/HTMLMetaElement',
-    './nodes/HTMLStyleElement',
-    './nodes/HTMLScriptElement',
-    './nodes/HTMLDivElement',
-    './nodes/HTMLSpanElement',
-    './nodes/HTMLImageElement',
-    // Spatial Nodes
-    './nodes/SpatialElement',
-    // CSSOM
-    './cssom/StyleSheetList',
-    // Events
-    './events/CloseEvent',
-    './events/CustomEvent',
-    './events/ErrorEvent',
-    './events/FocusEvent',
-    './events/HashChangeEvent',
-    './events/KeyboardEvent',
-    './events/MessageEvent',
-    './events/MouseEvent',
-    './events/PopStateEvent',
-    './events/ProgressEvent',
-    './events/TouchEvent',
-    './events/UIEvent',
-    // Others
-    './domexception',
-    './custom-elements/CustomElementRegistry',
-    './hr-time/Performance',
-    './range/AbstractRange',
-    './range/Range',
-    './mutation-observer/MutationObserver',
-    './mutation-observer/MutationRecord',
-    './crypto/Noise',
-    './geometry/DOMPoint',
-    './geometry/DOMPointReadOnly',
-    './geometry/DOMRect',
-    './geometry/DOMRectReadOnly',
-    './geometry/DOMMatrix',
-    './image/ImageData',
-    // WebXR
-    './xr/XRPose',
-    './xr/XRRigidTransform',
-    './xr/XRSession'
-  ];
   let modules: Promise<any>;
 
   if (isParallel) {
@@ -170,14 +109,67 @@ export async function loadImplementations(isParallel: boolean = true) {
       import('./xr/XRRigidTransform'),
       import('./xr/XRSession')
     ]);
-  } else { 
-    modules = (async() => {
-      const impls = [];
-      for (const specifier of moduleSpecifiers) {
-        impls.push(await import(/* webpackInclude: /\.ts$/ */`${specifier}`));
-      }
-      return impls;
-    })();
+  } else { modules = Promise.all([
+      // Attributes
+      await import('./attributes/NamedNodeMap'),
+      await import('./attributes/Attr'),
+      // Classic Nodes
+      await import('./nodes/Node'),
+      await import('./nodes/NodeList'),
+      await import('./nodes/Element'),
+      await import('./nodes/DocumentFragment'),
+      await import('./nodes/DocumentType'),
+      await import('./nodes/SpatialDocument'),
+      await import('./nodes/Text'),
+      await import('./nodes/HTMLCollection'),
+      await import('./nodes/DOMTokenList'),
+      await import('./nodes/HTMLElement'),
+      await import('./nodes/HTMLContentElement'),
+      await import('./nodes/HTMLHeadElement'),
+      await import('./nodes/HTMLTitleElement'),
+      await import('./nodes/HTMLMetaElement'),
+      await import('./nodes/HTMLStyleElement'),
+      await import('./nodes/HTMLScriptElement'),
+      await import('./nodes/HTMLDivElement'),
+      await import('./nodes/HTMLSpanElement'),
+      await import('./nodes/HTMLImageElement'),
+      // Spatial Nodes
+      await import('./nodes/SpatialElement'),
+      // CSSOM
+      await import('./cssom/StyleSheetList'),
+      // Events
+      await import('./events/CloseEvent'),
+      await import('./events/CustomEvent'),
+      await import('./events/ErrorEvent'),
+      await import('./events/FocusEvent'),
+      await import('./events/HashChangeEvent'),
+      await import('./events/KeyboardEvent'),
+      await import('./events/MessageEvent'),
+      await import('./events/MouseEvent'),
+      await import('./events/PopStateEvent'),
+      await import('./events/ProgressEvent'),
+      await import('./events/TouchEvent'),
+      await import('./events/UIEvent'),
+      // Others
+      await import('./domexception'),
+      await import('./custom-elements/CustomElementRegistry'),
+      await import('./hr-time/Performance'),
+      await import('./range/AbstractRange'),
+      await import('./range/Range'),
+      await import('./mutation-observer/MutationObserver'),
+      await import('./mutation-observer/MutationRecord'),
+      await import('./crypto/Noise'),
+      await import('./geometry/DOMPoint'),
+      await import('./geometry/DOMPointReadOnly'),
+      await import('./geometry/DOMRect'),
+      await import('./geometry/DOMRectReadOnly'),
+      await import('./geometry/DOMMatrix'),
+      await import('./image/ImageData'),
+      // WebXR
+      await import('./xr/XRPose'),
+      await import('./xr/XRRigidTransform'),
+      await import('./xr/XRSession')
+      ])
   }
  
   return modules.then(([
