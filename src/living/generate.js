@@ -1,6 +1,7 @@
-import generate from "@babel/generator";
-import template from "@babel/template";
-import * as t from "@babel/types";
+import generate from '@babel/generator';
+import template from '@babel/template';
+import * as t from '@babel/types';
+import { parse } from '@babel/parser';
 import fs from 'fs';
 import path from 'path';
 
@@ -8,65 +9,89 @@ let defaultTemplate = template.smart;
 
 const moduleSpecifiers = [
   // Attributes
-  './attributes/NamedNodeMap',
-  './attributes/Attr',
+  { path: './attributes/NamedNodeMap', type: 'NamedNodeMapImpl', isDefault: true },
+  { path: './attributes/Attr', type: 'AttrImpl', isDefault: false },
   // Classic Nodes
-  './nodes/Node',
-  './nodes/NodeList',
-  './nodes/Element',
-  './nodes/DocumentFragment',
-  './nodes/DocumentType',
-  './nodes/SpatialDocument',
-  './nodes/Text',
-  './nodes/HTMLCollection',
-  './nodes/DOMTokenList',
-  './nodes/HTMLElement',
-  './nodes/HTMLContentElement',
-  './nodes/HTMLHeadElement',
-  './nodes/HTMLTitleElement',
-  './nodes/HTMLMetaElement',
-  './nodes/HTMLStyleElement',
-  './nodes/HTMLScriptElement',
-  './nodes/HTMLDivElement',
-  './nodes/HTMLSpanElement',
-  './nodes/HTMLImageElement',
+  { path: './nodes/Node', type: 'NodeImpl', isDefault: false },
+  { path: './nodes/NodeList', type: 'NodeListImpl', isDefault: false },
+  { path: './nodes/Element', type: 'ElementImpl', isDefault: false },
+  { path: './nodes/DocumentFragment', type: 'DocumentFragmentImpl', isDefault: true },
+  { path: './nodes/DocumentType', type: 'DocumentTypeImpl', isDefault: false },
+  { path: './nodes/SpatialDocument', type: 'SpatialDocumentImpl', isDefault: false },
+  { path: './nodes/Text', type: 'TextImpl', isDefault: false },
+  { path: './nodes/HTMLCollection', type: 'HTMLCollectionImpl', isDefault: false },
+  { path: './nodes/DOMTokenList', type: 'DOMTokenListImpl', isDefault: false },
+  { path: './nodes/HTMLElement', type: 'HTMLElementImpl', isDefault: false },
+  { path: './nodes/HTMLContentElement', type: 'HTMLContentElementImpl', isDefault: false },
+  { path: './nodes/HTMLHeadElement', type: 'HTMLHeadElementImpl', isDefault: true },
+  { path: './nodes/HTMLTitleElement', type: 'HTMLTitleElementImpl', isDefault: true },
+  { path: './nodes/HTMLMetaElement', type: 'HTMLMetaElementImpl', isDefault: true },
+  { path: './nodes/HTMLStyleElement', type: 'HTMLStyleElementImpl', isDefault: true },
+  { path: './nodes/HTMLScriptElement', type: 'HTMLScriptElementImpl', isDefault: true },
+  { path: './nodes/HTMLDivElement', type: 'HTMLDivElementImpl', isDefault: true },
+  { path: './nodes/HTMLSpanElement', type: 'HTMLSpanElementImpl', isDefault: true },
+  { path: './nodes/HTMLImageElement', type: 'HTMLImageElementImpl', isDefault: true },
   // Spatial Nodes
-  './nodes/SpatialElement',
+  { path: './nodes/SpatialElement', type: 'SpatialElementImpl', isDefault: false },
   // CSSOM
-  './cssom/StyleSheetList',
+  { path: './cssom/StyleSheetList', type: 'StyleSheetListImpl', isDefault: true },
   // Events
-  './events/CloseEvent',
-  './events/CustomEvent',
-  './events/ErrorEvent',
-  './events/FocusEvent',
-  './events/HashChangeEvent',
-  './events/KeyboardEvent',
-  './events/MessageEvent',
-  './events/MouseEvent',
-  './events/PopStateEvent',
-  './events/ProgressEvent',
-  './events/TouchEvent',
-  './events/UIEvent',
+  { path: './events/CloseEvent', type: 'CloseEventImpl', isDefault: false },
+  { path: './events/CustomEvent', type: 'CustomEventImpl', isDefault: false },
+  { path: './events/ErrorEvent', type: 'ErrorEventImpl', isDefault: true },
+  { path: './events/FocusEvent', type: 'FocusEventImpl', isDefault: true },
+  { path: './events/HashChangeEvent', type: 'HashChangeEventImpl', isDefault: true },
+  { path: './events/KeyboardEvent', type: 'KeyboardEventImpl', isDefault: true },
+  { path: './events/MessageEvent', type: 'MessageEventImpl', isDefault: true },
+  { path: './events/MouseEvent', type: 'MouseEventImpl', isDefault: false },
+  { path: './events/PopStateEvent', type: 'PopStateEventImpl', isDefault: true },
+  { path: './events/ProgressEvent', type: 'ProgressEventImpl', isDefault: true },
+  { path: './events/TouchEvent', type: 'TouchEventImpl', isDefault: true },
+  { path: './events/UIEvent', type: 'UIEventImpl', isDefault: false },
   // Others
-  './domexception',
-  './custom-elements/CustomElementRegistry',
-  './hr-time/Performance',
-  './range/AbstractRange',
-  './range/Range',
-  './mutation-observer/MutationObserver',
-  './mutation-observer/MutationRecord',
-  './crypto/Noise',
-  './geometry/DOMPoint',
-  './geometry/DOMPointReadOnly',
-  './geometry/DOMRect',
-  './geometry/DOMRectReadOnly',
-  './geometry/DOMMatrix',
-  './image/ImageData',
+  { path: './domexception', type: 'DOMExceptionImpl', isDefault: false },
+  { path: './custom-elements/CustomElementRegistry', type: 'CustomElementRegistryImpl', isDefault: false },
+  { path: './hr-time/Performance', type: 'PerformanceImpl', isDefault: false },
+  { path: './range/AbstractRange', type: 'AbstractRangeImpl', isDefault: false },
+  { path: './range/Range', type: 'RangeImpl', isDefault: false },
+  { path: './mutation-observer/MutationObserver', type: 'MutationObserverImpl', isDefault: false },
+  { path: './mutation-observer/MutationRecord', type: 'MutationRecordImpl', isDefault: false },
+  { path: './crypto/Noise', type: 'NoiseImpl', isDefault: false },
+  { path: './geometry/DOMPoint', type: 'DOMPointImpl', isDefault: true },
+  { path: './geometry/DOMPointReadOnly', type: 'DOMPointReadOnlyImpl', isDefault: true },
+  { path: './geometry/DOMRect', type: 'DOMRectImpl', isDefault: true },
+  { path: './geometry/DOMRectReadOnly', type: 'DOMRectReadOnlyImpl', isDefault: true },
+  { path: './geometry/DOMMatrix', type: 'DOMMatrixImpl', isDefault: true },
+  { path: './image/ImageData', type: 'ImageDataImpl', isDefault: true },
   // WebXR
-  './xr/XRPose',
-  './xr/XRRigidTransform',
-  './xr/XRSession'
+  { path: './xr/XRPose', type: 'XRPoseImpl', isDefault: true },
+  { path: './xr/XRRigidTransform', type: 'XRRigidTransformImpl', isDefault: true },
+  { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true }
 ];
+
+const buildTypeImports = (arg) => {
+  const baseTemplate = defaultTemplate(`
+    import type ${arg.TYPE} from '${arg.SPECIFIER}';
+  `, {
+    plugins: [
+      'typescript'
+    ],
+    syntacticPlaceholders: false
+  });
+  return baseTemplate({});
+};
+
+// Build the templates
+const buildHeadStatement = defaultTemplate(`
+  %%typeImports%%
+
+  let implementationLoaded = false;
+  const implementedInterfaces = new Map<string, any>();
+`, {
+  plugins: [
+    'typescript'
+  ]
+});
 
 const comments = `
   To load all the implementations of the interfaces.
@@ -84,16 +109,17 @@ const comments = `
   * guarantee correct invocation of the function when utilizing related interfaces. 
   * 
   * solve the issue https://github.com/jestjs/jest/issues/11434 
-  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag. 
+  * by importing modules dynamically either in parallel or 
+  * sequentially based on the isParallel flag. 
   * @param running parallel or not 
 `;
 
 const buildParallelImports = template.default(`
-  import(%%source%%)
+  import(%%module%%)\n
 `);
 
 const buildSequentialImports = template.default(`
-  await import(%%source%%)
+  await import(%%module%%)\n
 `);
 
 const buildModule = template.default(`
@@ -106,36 +132,7 @@ const buildIfStatement = template.default(`
   } else {
     %%sequentialImports%%
   }
-`, );
-
-const buildStaticImports = defaultTemplate(`
-import type NamedNodeMapImpl from './attributes/NamedNodeMap';
-import type { NodeImpl } from './nodes/Node';
-import type { ElementImpl } from './nodes/Element';
-import type { HTMLElementImpl } from './nodes/HTMLElement';
-import type { HTMLContentElement } from './nodes/HTMLContentElement';
-import type HTMLStyleElementImpl from './nodes/HTMLStyleElement';
-import type HTMLScriptElementImpl from './nodes/HTMLScriptElement';
-import type HTMLImageElementImpl from './nodes/HTMLImageElement';
-import type { SpatialElement } from './nodes/SpatialElement';
-import type ImageDataImpl from './image/ImageData';
-import type NoiseImpl from './crypto/Noise';
-import type DOMPointImpl from './geometry/DOMPoint';
-import type DOMPointReadOnlyImpl from './geometry/DOMPointReadOnly';
-import type DOMRectImpl from './geometry/DOMRect';
-import type DOMRectReadOnlyImpl from './geometry/DOMRectReadOnly';
-import type DOMMatrixImpl from './geometry/DOMMatrix';
-import type XRPoseImpl from './xr/XRPose';
-import type XRRigidTransformImpl from './xr/XRRigidTransform';
-import type XRSessionImpl from './xr/XRSession';
-
-let implementationLoaded = false;
-const implementedInterfaces = new Map<string, any>();
-`, {
-  plugins: [
-    'typescript'
-  ]
-});
+`);
 
 const buildLoadImplementations = template.default(`
   export async function loadImplementations(isParallel = true) {
@@ -257,14 +254,12 @@ const buildLoadImplementations = template.default(`
       implementationLoaded = true;
     });
   }
-`);
+`, {
+  plugins: [
+    'typescript'
+  ]
+});
 
-const buildIntegration = template.default(`
-  %%staticImports%%
-  %%loadImplementations%%
-  %%getInterfaceWrapper%%
-`);
-                 
 const buildGetInterfaceWrapper = template.default(`
   // TODO: help me to fullfill the other interfaces
   export function getInterfaceWrapper(name: 'NamedNodeMap'): typeof NamedNodeMapImpl;
@@ -299,14 +294,45 @@ const buildGetInterfaceWrapper = template.default(`
   ]
 });
 
-const staticImports = buildStaticImports();
+const buildIntegration = template.default(`
+  %%headStatement%%
+  %%loadImplementations%%
+  %%getInterfaceWrapper%%
+`);
+
+// const types = moduleSpecifiers.map(specifier => `import type ${specifier.type} from ${specifier.path};`).join('\n');
+// const ast = parse(types);
+
+// const output = generate.default(
+//   ast,
+//   {
+//     /* options */
+//   },
+//   types
+// );
+// console.log(output.code);
+
+// Build the code
+const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
+  TYPE: specifier.type,
+  SPECIFIER: specifier.path,
+}));
+
+// const typeImports = moduleSpecifiers.map(spcecifier => t.tsImportType(
+//   argument = t.identifier(spcecifier.type),
+//   qualifier = t.stringLiteral(spcecifier.path),
+// ));
+
+const headStatement = buildHeadStatement({
+  typeImports: typeImports
+});
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
-  source: t.stringLiteral(specifier)
+  module: t.stringLiteral(specifier.path)
 }));
 
 const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImports({
-  source: t.stringLiteral(specifier)
+  module: t.stringLiteral(specifier.path)
 }));
 
 const parallelModule = buildModule({
@@ -332,16 +358,13 @@ t.addComment(loadImplementations, 'leading', comments);
 const getInterfaceWrapper = buildGetInterfaceWrapper();
 
 const integration = buildIntegration({
-  staticImports: staticImports,
+  headStatement: headStatement,
   loadImplementations: loadImplementations,
   getInterfaceWrapper: getInterfaceWrapper
 })
 
+// Generate the code
 const code = generate.default(t.program(integration)).code;
-console.log(code);
-
 const __dirname = "/Users/faych/workspace/jsar-dom/src/living/"
 const outputPath = path.resolve(__dirname, 'interface.ts');
 fs.writeFileSync(outputPath, code, 'utf8')
-// const getInterfaceWrapperCode = generate.default(getInterfaceWrapper).code;
-// console.log(getInterfaceWrapperCode);
