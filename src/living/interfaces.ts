@@ -21,28 +21,28 @@ import type XRSessionImpl from './xr/XRSession';
 let implementationLoaded = false;
 const implementedInterfaces = new Map<string, any>();
 
-/**
- * To load all the implementations of the interfaces.
- * 
- * __Why?__
- * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
- * attention to the order of dependencies and sometimes necessitating the splitting of modules 
- * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
- * resolves dependencies based on file order, leading to compromises in project directory design.
- *
- * To address this issue, we introduce the following method: leveraging dynamic `imports()` for 
- * asynchronous loading of type instances. Subsequently, we use a synchronous function, 
- * `getInterfaceWrapper`, to ensure the smooth functioning of the type system. This approach 
- * ensures that, during both build time and runtime, the necessary precautions are taken to 
- * guarantee correct invocation of the function when utilizing related interfaces.
- */
+// /**
+//  * To load all the implementations of the interfaces.
+//  * 
+//  * __Why?__
+//  * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
+//  * attention to the order of dependencies and sometimes necessitating the splitting of modules 
+//  * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
+//  * resolves dependencies based on file order, leading to compromises in project directory design.
+//  *
+//  * To address this issue, we introduce the following method: leveraging dynamic `imports()` for 
+//  * asynchronous loading of type instances. Subsequently, we use a synchronous function, 
+//  * `getInterfaceWrapper`, to ensure the smooth functioning of the type system. This approach 
+//  * ensures that, during both build time and runtime, the necessary precautions are taken to 
+//  * guarantee correct invocation of the function when utilizing related interfaces.
+//  */
 
 
-/**
- * solve the issue https://github.com/jestjs/jest/issues/11434 
- * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
- * @param running parallel or not
- */
+// /**
+//  * solve the issue https://github.com/jestjs/jest/issues/11434 
+//  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
+//  * @param running parallel or not
+//  */
 
 export async function loadImplementations(isParallel: boolean = true) {
   let modules: Promise<any>;

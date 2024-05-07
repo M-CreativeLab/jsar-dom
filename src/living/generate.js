@@ -1,6 +1,8 @@
 import generate from "@babel/generator";
 import template from "@babel/template";
 import * as t from "@babel/types";
+import fs from 'fs';
+import path from 'path';
 
 let defaultTemplate = template.smart;
 
@@ -66,6 +68,26 @@ const moduleSpecifiers = [
   './xr/XRSession'
 ];
 
+const comments = `
+  To load all the implementations of the interfaces.
+  *
+  * __Why?__
+  * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
+  * attention to the order of dependencies and sometimes necessitating the splitting of modules 
+  * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
+  * resolves dependencies based on file order, leading to compromises in project directory design. 
+  * 
+  * To address this issue, we introduce the following method:
+  * leveraging dynamic imports() for asynchronous loading of type instances. Subsequently, we use a synchronous function,
+  * getInterfaceWrapper, to ensure the smooth functioning of the type system. This approach 
+  * ensures that, during both build time and runtime, the necessary precautions are taken to 
+  * guarantee correct invocation of the function when utilizing related interfaces. 
+  * 
+  * solve the issue https://github.com/jestjs/jest/issues/11434 
+  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag. 
+  * @param running parallel or not 
+`;
+
 const buildParallelImports = template.default(`
   import(%%source%%)
 `);
@@ -114,15 +136,6 @@ const implementedInterfaces = new Map<string, any>();
     'typescript'
   ]
 });
-                
-const buildGetInterfaceWrapper = template.default(`
-  export function getInterfaceWrapper(name) {
-    if (!implementationLoaded) {
-      throw new Error('DOM Implementation not loaded');
-    }
-    return implementedInterfaces.get(name);
-  }
-`);
 
 const buildLoadImplementations = template.default(`
   export async function loadImplementations(isParallel = true) {
@@ -251,27 +264,41 @@ const buildIntegration = template.default(`
   %%loadImplementations%%
   %%getInterfaceWrapper%%
 `);
-
-const comments = `
-  To load all the implementations of the interfaces.
-  *
-  * __Why?__
-  * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
-  * attention to the order of dependencies and sometimes necessitating the splitting of modules 
-  * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
-  * resolves dependencies based on file order, leading to compromises in project directory design. 
-  * 
-  * To address this issue, we introduce the following method:
-  * leveraging dynamic imports() for asynchronous loading of type instances. Subsequently, we use a synchronous function,
-  * getInterfaceWrapper, to ensure the smooth functioning of the type system. This approach 
-  * ensures that, during both build time and runtime, the necessary precautions are taken to 
-  * guarantee correct invocation of the function when utilizing related interfaces. 
-  * 
-  * solve the issue https://github.com/jestjs/jest/issues/11434 
-  * by importing modules dynamically either in parallel or sequentially based on the isParallel flag. 
-  * @param running parallel or not 
-`;
                  
+const buildGetInterfaceWrapper = template.default(`
+  // TODO: help me to fullfill the other interfaces
+  export function getInterfaceWrapper(name: 'NamedNodeMap'): typeof NamedNodeMapImpl;
+  export function getInterfaceWrapper(name: 'Node'): typeof NodeImpl;
+  export function getInterfaceWrapper(name: 'Element'): typeof ElementImpl;
+  export function getInterfaceWrapper(name: 'HTMLElement'): typeof HTMLElementImpl;
+  export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLContentElement;
+  export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleElementImpl;
+  export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
+  export function getInterfaceWrapper(name: 'HTMLImageElement'): typeof HTMLImageElementImpl;
+  export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
+  export function getInterfaceWrapper(name: 'Noise'): typeof NoiseImpl;
+  export function getInterfaceWrapper(name: 'DOMPoint'): typeof DOMPointImpl;
+  export function getInterfaceWrapper(name: 'DOMPointReadOnly'): typeof DOMPointReadOnlyImpl;
+  export function getInterfaceWrapper(name: 'DOMRect'): typeof DOMRectImpl;
+  export function getInterfaceWrapper(name: 'DOMRectReadOnly'): typeof DOMRectReadOnlyImpl;
+  export function getInterfaceWrapper(name: 'DOMMatrix'): typeof DOMMatrixImpl;
+  export function getInterfaceWrapper(name: 'ImageData'): typeof ImageDataImpl;
+  export function getInterfaceWrapper(name: 'XRPose'): typeof XRPoseImpl;
+  export function getInterfaceWrapper(name: 'XRRigidTransform'): typeof XRRigidTransformImpl;
+  export function getInterfaceWrapper(name: 'XRSession'): typeof XRSessionImpl;
+  export function getInterfaceWrapper(name: string): any;
+  export function getInterfaceWrapper(name) {
+    if (!implementationLoaded) {
+      throw new Error('DOM Implementation not loaded');
+    }
+    return implementedInterfaces.get(name);
+  }
+`, {
+  plugins: [
+    'typescript'
+  ]
+});
+
 const staticImports = buildStaticImports();
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
@@ -313,5 +340,8 @@ const integration = buildIntegration({
 const code = generate.default(t.program(integration)).code;
 console.log(code);
 
+const __dirname = "/Users/faych/workspace/jsar-dom/src/living/"
+const outputPath = path.resolve(__dirname, 'interface.ts');
+fs.writeFileSync(outputPath, code, 'utf8')
 // const getInterfaceWrapperCode = generate.default(getInterfaceWrapper).code;
 // console.log(getInterfaceWrapperCode);
