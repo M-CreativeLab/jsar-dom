@@ -69,9 +69,22 @@ const moduleSpecifiers = [
   { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true }
 ];
 
+
+// Build the templates
 const buildTypeImports = (arg) => {
+  if (arg.ISDEFUALT) {
+    const baseTemplate = defaultTemplate(`
+      import type ${arg.TYPE} from '${arg.SPECIFIER}';
+    `, {
+      plugins: [
+        'typescript'
+      ],
+      syntacticPlaceholders: false
+    });
+    return baseTemplate({});
+  } 
   const baseTemplate = defaultTemplate(`
-    import type ${arg.TYPE} from '${arg.SPECIFIER}';
+    import type { ${arg.TYPE} } from '${arg.SPECIFIER}';
   `, {
     plugins: [
       'typescript'
@@ -81,7 +94,6 @@ const buildTypeImports = (arg) => {
   return baseTemplate({});
 };
 
-// Build the templates
 const buildHeadStatement = defaultTemplate(`
   %%typeImports%%
 
@@ -134,123 +146,32 @@ const buildIfStatement = template.default(`
   }
 `);
 
+const buildThen = defaultTemplate(`
+  TYPE
+`, {
+  plugins: [
+    'typescript'
+  ],
+  syntacticPlaceholders: false,
+});
+
+const buildImplementedInterfaces = defaultTemplate(`
+  implementedInterfaces.set(TYPE, TYPE.default);
+`, {
+  plugins: [
+    'typescript'
+  ],
+  syntacticPlaceholders: false,
+});
+
 const buildLoadImplementations = template.default(`
   export async function loadImplementations(isParallel = true) {
     let modules;
     %%ifStatement%%
     return modules.then(([
-      // Attributes
-      NamedNodeMapImpl,
-      { AttrImpl },
-      // Nodes
-      { NodeImpl },
-      { NodeListImpl },
-      { ElementImpl },
-      DocumentFragmentImpl,
-      { DocumentTypeImpl },
-      { SpatialDocumentImpl },
-      { TextImpl },
-      HTMLCollectionImpl,
-      DOMTokenListImpl,
-      { HTMLElementImpl },
-      { HTMLContentElement: HTMLContentElementImpl },
-      HTMLHeadElementImpl,
-      HTMLTitleElementImpl,
-      HTMLMetaElementImpl,
-      HTMLStyleElementImpl,
-      HTMLScriptElementImpl,
-      HTMLDivElementImpl,
-      HTMLSpanElementImpl,
-      HTMLImageElementImpl,
-      // Spatial Nodes
-      { SpatialElement },
-      // CSSOM
-      StyleSheetListImpl,
-      // Events
-      { CloseEventImpl },
-      { CustomEventImpl },
-      ErrorEventImpl,
-      FocusEventImpl,
-      HashChangeEventImpl,
-      KeyboardEventImpl,
-      MessageEventImpl,
-      MouseEventImpl,
-      PopStateEventImpl,
-      ProgressEventImpl,
-      TouchEventImpl,
-      { UIEventImpl },
-      // Others
-      DOMExceptionImpl,
-      { CustomElementRegistryImpl },
-      { PerformanceImpl },
-      { AbstractRangeImpl },
-      { RangeImpl },
-      { MutationObserverImpl },
-      { MutationRecordImpl },
-      NoiseImpl,
-      DOMPointImpl,
-      DOMPointReadOnlyImpl,
-      DOMRectImpl,
-      DOMRectReadOnlyImpl,
-      DOMMatrixImpl,
-      ImageDataImpl,
-      // WebXR
-      XRPoseImpl,
-      XRRigidTransformImpl,
-      XRSessionImpl,
+      %%then%%
     ]) => {
-      implementedInterfaces.set('NamedNodeMap', NamedNodeMapImpl.default);
-      implementedInterfaces.set('Attr', AttrImpl);
-      implementedInterfaces.set('Node', NodeImpl);
-      implementedInterfaces.set('NodeList', NodeListImpl);
-      implementedInterfaces.set('Element', ElementImpl);
-      implementedInterfaces.set('DocumentFragment', DocumentFragmentImpl);
-      implementedInterfaces.set('DocumentType', DocumentTypeImpl);
-      implementedInterfaces.set('SpatialDocument', SpatialDocumentImpl);
-      implementedInterfaces.set('Text', TextImpl);
-      implementedInterfaces.set('HTMLCollection', HTMLCollectionImpl);
-      implementedInterfaces.set('DOMTokenList', DOMTokenListImpl);
-      implementedInterfaces.set('HTMLElement', HTMLElementImpl);
-      implementedInterfaces.set('HTMLContentElement', HTMLContentElementImpl);
-      implementedInterfaces.set('HTMLHeadElement', HTMLHeadElementImpl);
-      implementedInterfaces.set('HTMLTitleElement', HTMLTitleElementImpl);
-      implementedInterfaces.set('HTMLMetaElement', HTMLMetaElementImpl);
-      implementedInterfaces.set('HTMLStyleElement', HTMLStyleElementImpl.default);
-      implementedInterfaces.set('HTMLScriptElement', HTMLScriptElementImpl.default);
-      implementedInterfaces.set('HTMLDivElement', HTMLDivElementImpl.default);
-      implementedInterfaces.set('HTMLSpanElement', HTMLSpanElementImpl.default);
-      implementedInterfaces.set('HTMLImageElement', HTMLImageElementImpl.default);
-      implementedInterfaces.set('SpatialElement', SpatialElement);
-      implementedInterfaces.set('StyleSheetList', StyleSheetListImpl.default);
-      implementedInterfaces.set('CloseEvent', CloseEventImpl);
-      implementedInterfaces.set('CustomEvent', CustomEventImpl);
-      implementedInterfaces.set('ErrorEvent', ErrorEventImpl);
-      implementedInterfaces.set('FocusEvent', FocusEventImpl);
-      implementedInterfaces.set('HashChangeEvent', HashChangeEventImpl);
-      implementedInterfaces.set('KeyboardEvent', KeyboardEventImpl);
-      implementedInterfaces.set('MessageEvent', MessageEventImpl);
-      implementedInterfaces.set('MouseEvent', MouseEventImpl);
-      implementedInterfaces.set('PopStateEvent', PopStateEventImpl);
-      implementedInterfaces.set('ProgressEvent', ProgressEventImpl);
-      implementedInterfaces.set('TouchEvent', TouchEventImpl);
-      implementedInterfaces.set('UIEvent', UIEventImpl);  
-      implementedInterfaces.set('DOMException', DOMExceptionImpl);
-      implementedInterfaces.set('CustomElementRegistry', CustomElementRegistryImpl);
-      implementedInterfaces.set('Performance', PerformanceImpl);
-      implementedInterfaces.set('AbstractRange', AbstractRangeImpl);
-      implementedInterfaces.set('Range', RangeImpl);
-      implementedInterfaces.set('MutationObserver', MutationObserverImpl);
-      implementedInterfaces.set('MutationRecord', MutationRecordImpl);
-      implementedInterfaces.set('Noise', NoiseImpl.default);
-      implementedInterfaces.set('DOMPoint', DOMPointImpl.default);
-      implementedInterfaces.set('DOMPointReadOnly', DOMPointReadOnlyImpl.default);
-      implementedInterfaces.set('DOMRect', DOMRectImpl.default);
-      implementedInterfaces.set('DOMRectReadOnly', DOMRectReadOnlyImpl.default);
-      implementedInterfaces.set('DOMMatrix', DOMMatrixImpl.default)
-      implementedInterfaces.set('ImageData', ImageDataImpl.default);
-      implementedInterfaces.set('XRPose', XRPoseImpl.default);
-      implementedInterfaces.set('XRRigidTransform', XRRigidTransformImpl.default);
-      implementedInterfaces.set('XRSession', XRSessionImpl.default);
+      %%implementedInterfaces%%
       implementationLoaded = true;
     });
   }
@@ -260,27 +181,22 @@ const buildLoadImplementations = template.default(`
   ]
 });
 
+const buildExportFunction = (arg) => {
+  const baseTemplate = defaultTemplate(`
+    export function getInterfaceWrapper(name: ${arg.TYPE}): typeof ${arg.TYPE}; 
+  `, {
+    plugins: [
+      'typescript'
+      ],
+    syntacticPlaceholders: false,
+    }
+  )
+  return baseTemplate({});
+};
+
 const buildGetInterfaceWrapper = template.default(`
   // TODO: help me to fullfill the other interfaces
-  export function getInterfaceWrapper(name: 'NamedNodeMap'): typeof NamedNodeMapImpl;
-  export function getInterfaceWrapper(name: 'Node'): typeof NodeImpl;
-  export function getInterfaceWrapper(name: 'Element'): typeof ElementImpl;
-  export function getInterfaceWrapper(name: 'HTMLElement'): typeof HTMLElementImpl;
-  export function getInterfaceWrapper(name: 'HTMLContentElement'): typeof HTMLContentElement;
-  export function getInterfaceWrapper(name: 'HTMLStyleElement'): typeof HTMLStyleElementImpl;
-  export function getInterfaceWrapper(name: 'HTMLScriptElement'): typeof HTMLScriptElementImpl;
-  export function getInterfaceWrapper(name: 'HTMLImageElement'): typeof HTMLImageElementImpl;
-  export function getInterfaceWrapper(name: 'SpatialElement'): typeof SpatialElement;
-  export function getInterfaceWrapper(name: 'Noise'): typeof NoiseImpl;
-  export function getInterfaceWrapper(name: 'DOMPoint'): typeof DOMPointImpl;
-  export function getInterfaceWrapper(name: 'DOMPointReadOnly'): typeof DOMPointReadOnlyImpl;
-  export function getInterfaceWrapper(name: 'DOMRect'): typeof DOMRectImpl;
-  export function getInterfaceWrapper(name: 'DOMRectReadOnly'): typeof DOMRectReadOnlyImpl;
-  export function getInterfaceWrapper(name: 'DOMMatrix'): typeof DOMMatrixImpl;
-  export function getInterfaceWrapper(name: 'ImageData'): typeof ImageDataImpl;
-  export function getInterfaceWrapper(name: 'XRPose'): typeof XRPoseImpl;
-  export function getInterfaceWrapper(name: 'XRRigidTransform'): typeof XRRigidTransformImpl;
-  export function getInterfaceWrapper(name: 'XRSession'): typeof XRSessionImpl;
+  %%exportFunction%%
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -300,28 +216,12 @@ const buildIntegration = template.default(`
   %%getInterfaceWrapper%%
 `);
 
-// const types = moduleSpecifiers.map(specifier => `import type ${specifier.type} from ${specifier.path};`).join('\n');
-// const ast = parse(types);
-
-// const output = generate.default(
-//   ast,
-//   {
-//     /* options */
-//   },
-//   types
-// );
-// console.log(output.code);
-
 // Build the code
 const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
   TYPE: specifier.type,
   SPECIFIER: specifier.path,
+  ISDEFUALT: specifier.isDefault
 }));
-
-// const typeImports = moduleSpecifiers.map(spcecifier => t.tsImportType(
-//   argument = t.identifier(spcecifier.type),
-//   qualifier = t.stringLiteral(spcecifier.path),
-// ));
 
 const headStatement = buildHeadStatement({
   typeImports: typeImports
@@ -349,13 +249,29 @@ const ifStatement = buildIfStatement({
   sequentialImports: sequentialModule
 });
 
+const then = moduleSpecifiers.map(specifier => buildThen({
+  TYPE: specifier.type
+}));
+
+const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
+  TYPE: specifier.type
+}));
+
 const loadImplementations = buildLoadImplementations({
-  ifStatement: ifStatement
+  ifStatement: ifStatement,
+  then: t.arrayPattern(then.map(th => th.expression)),
+  implementedInterfaces: t.arrayExpression(implementedInterfaces.map(impl => impl.expression))
 });
 
 t.addComment(loadImplementations, 'leading', comments);
 
-const getInterfaceWrapper = buildGetInterfaceWrapper();
+const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
+  TYPE: specifier.type
+}));
+
+const getInterfaceWrapper = buildGetInterfaceWrapper({
+  exportFunction: exportFunction
+});
 
 const integration = buildIntegration({
   headStatement: headStatement,
