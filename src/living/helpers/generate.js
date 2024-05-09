@@ -81,7 +81,6 @@ const moduleSpecifiers = [
   { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true }
 ];
 
-
 // Build the templates
 const buildTypeImports = (arg) => {
   if (arg.ISDEFAULT) {
@@ -123,23 +122,23 @@ const buildHeadStatement = defaultTemplate(`
  * @param running parallel or not
  */
 
-const buildParallelImports = template.default(`
+const buildParallelImports = defaultTemplate(`
   import(%%module%%)\n
 `);
 
-const buildSequentialImports = template.default(`
+const buildSequentialImports = defaultTemplate(`
   await import(%%module%%)\n
 `);
 
-const buildModule = template.default(`
+const buildModule = defaultTemplate(`
   modules = Promise.all(%%source%%)
 `);
 
-const buildIfStatement = template.default(`
+const buildIfStatement = defaultTemplate(`
   if (%%isParallel%%) {
-    %%parallelImports%%
+    %%parallelModule%%
   } else {
-    %%sequentialImports%%
+    %%sequentialModule%%
   }
 `);
 
@@ -161,7 +160,7 @@ const buildImplementedInterfaces = defaultTemplate(`
   syntacticPlaceholders: false,
 });
 
-const buildLoadImplementations = template.default(`
+const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
     let modules;
     %%ifStatement%%
@@ -191,7 +190,7 @@ const buildExportFunction = (arg) => {
   return baseTemplate({});
 };
 
-const buildGetInterfaceWrapper = template.default(`
+const buildGetInterfaceWrapper = defaultTemplate(`
   %%exportFunction%%
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
@@ -206,7 +205,7 @@ const buildGetInterfaceWrapper = template.default(`
   ]
 });
 
-const buildIntegration = template.default(`
+const buildIntegration = defaultTemplate(`
   %%headStatement%%
   %%loadImplementations%%
   %%getInterfaceWrapper%%
@@ -241,8 +240,8 @@ const sequentialModule = buildModule({
 
 const ifStatement = buildIfStatement({
   isParallel: t.identifier('isParallel'),
-  parallelImports: parallelModule,
-  sequentialImports: sequentialModule
+  parallelModule: parallelModule,
+  sequentialModule: sequentialModule
 });
 
 const then = moduleSpecifiers.map(specifier => buildThen({
