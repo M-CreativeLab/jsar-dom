@@ -23,7 +23,7 @@
   },
   "include": [
     "src/**/*.ts"
-, "src/living/generate.js"  ],
+  ],
   "exclude": [
     "types",
     "fixtures",

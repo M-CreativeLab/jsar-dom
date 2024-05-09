@@ -4,7 +4,12 @@ import * as t from '@babel/types';
 import fs from 'fs';
 import path from 'path';
 
-let defaultTemplate = template.smart;
+let defaultTemplate = template.smart({
+  plugins: [
+    'typescript'
+  ],
+  syntacticPlaceholders: false
+});
 
 /**
  * This file is responsible for generating the `interface.ts` file in the `living` directory.
@@ -86,35 +91,21 @@ const buildTypeImports = (arg) => {
   if (arg.ISDEFAULT) {
     const baseTemplate = defaultTemplate(`
       import type ${arg.TYPE} from '${arg.SPECIFIER}';
-    `, {
-      plugins: [
-        'typescript'
-      ],
-      syntacticPlaceholders: false
-    });
+    `);
     return baseTemplate({});
   } 
   const baseTemplate = defaultTemplate(`
     import type { ${arg.TYPE} } from '${arg.SPECIFIER}';
-  `, {
-    plugins: [
-      'typescript'
-    ],
-    syntacticPlaceholders: false
-  });
+  `);
   return baseTemplate({});
 };
 
 const buildHeadStatement = defaultTemplate(`
-  %%typeImports%%
+  TYPEIMPORTS
 
   let implementationLoaded = false;
   const implementedInterfaces = new Map<string, any>();
-`, {
-  plugins: [
-    'typescript'
-  ]
-});
+`);
 
 /**
  * solve the issue https://github.com/jestjs/jest/issues/11434 
@@ -123,75 +114,55 @@ const buildHeadStatement = defaultTemplate(`
  */
 
 const buildParallelImports = defaultTemplate(`
-  import(%%module%%)\n
+  import(MODULE)
 `);
 
 const buildSequentialImports = defaultTemplate(`
-  await import(%%module%%)\n
+  await import(MODULE)
 `);
 
 const buildModule = defaultTemplate(`
-  modules = Promise.all(%%source%%)
+  modules = Promise.all(SOURCE)
 `);
 
 const buildIfStatement = defaultTemplate(`
-  if (%%isParallel%%) {
-    %%parallelModule%%
+  if (ISPARALLEL) {
+    PARALLELMODULE
   } else {
-    %%sequentialModule%%
+    SEQUENTIALMODULE
   }
 `);
 
 const buildThen = defaultTemplate(`
   TYPE
-`, {
-  plugins: [
-    'typescript'
-  ],
-  syntacticPlaceholders: false,
-});
+`);
 
 const buildImplementedInterfaces = defaultTemplate(`
   implementedInterfaces.set(TYPE, TYPE.default);
-`, {
-  plugins: [
-    'typescript'
-  ],
-  syntacticPlaceholders: false,
-});
+`);
 
 const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
     let modules;
-    %%ifStatement%%
+    IFSTATEMENT
     return modules.then(([
-      %%then%%
+      THEN
     ]) => {
-      %%implementedInterfaces%%
+      IMPLEMENTEDINTERFACES
       implementationLoaded = true;
     });
   }
-`, {
-  plugins: [
-    'typescript'
-  ]
-});
+`);
 
 const buildExportFunction = (arg) => {
   const baseTemplate = defaultTemplate(`
     export function getInterfaceWrapper(name: '${arg.TYPE}'): typeof ${arg.TYPE}; 
-  `, {
-    plugins: [
-      'typescript'
-      ],
-    syntacticPlaceholders: false,
-    }
-  )
+  `);
   return baseTemplate({});
 };
 
 const buildGetInterfaceWrapper = defaultTemplate(`
-  %%exportFunction%%
+  EXPORTFUNCTION
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -199,16 +170,12 @@ const buildGetInterfaceWrapper = defaultTemplate(`
     }
     return implementedInterfaces.get(name);
   }
-`, {
-  plugins: [
-    'typescript'
-  ]
-});
+`);
 
 const buildIntegration = defaultTemplate(`
-  %%headStatement%%
-  %%loadImplementations%%
-  %%getInterfaceWrapper%%
+  HEADSTATEMENT
+  LOADIMPLEMENTATIONS
+  GETINTERFACEWRAPPER
 `);
 
 // Build the code
@@ -219,29 +186,29 @@ const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
 }));
 
 const headStatement = buildHeadStatement({
-  typeImports: typeImports
+  TYPEIMPORTS: typeImports
 });
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
-  module: t.stringLiteral(specifier.path)
+  MODULE: t.stringLiteral(specifier.path)
 }));
 
 const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImports({
-  module: t.stringLiteral(specifier.path)
+  MODULE: t.stringLiteral(specifier.path)
 }));
 
 const parallelModule = buildModule({
-  source: t.arrayExpression(parallelImports.map(imp => imp.expression))
+  SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
 });
 
 const sequentialModule = buildModule({
-  source: t.arrayExpression(sequentialImports.map(imp => imp.expression))
+  SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
 });
 
 const ifStatement = buildIfStatement({
-  isParallel: t.identifier('isParallel'),
-  parallelModule: parallelModule,
-  sequentialModule: sequentialModule
+  ISPARALLEL: t.identifier('isParallel'),
+  PARALLELMODULE: parallelModule,
+  SEQUENTIALMODULE: sequentialModule
 });
 
 const then = moduleSpecifiers.map(specifier => buildThen({
@@ -253,9 +220,9 @@ const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplemented
 }));
 
 const loadImplementations = buildLoadImplementations({
-  ifStatement: ifStatement,
-  then: t.arrayPattern(then.map(th => th.expression)),
-  implementedInterfaces: implementedInterfaces
+  IFSTATEMENT: ifStatement,
+  THEN: t.arrayPattern(then.map(th => th.expression)),
+  IMPLEMENTEDINTERFACES: implementedInterfaces
 });
 
 const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
@@ -263,17 +230,17 @@ const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({
 }));
 
 const getInterfaceWrapper = buildGetInterfaceWrapper({
-  exportFunction: exportFunction
+  EXPORTFUNCTION: exportFunction
 });
 
 const integration = buildIntegration({
-  headStatement: headStatement,
-  loadImplementations: loadImplementations,
-  getInterfaceWrapper: getInterfaceWrapper
+  HEADSTATEMENT: headStatement,
+  LOADIMPLEMENTATIONS: loadImplementations,
+  GETINTERFACEWRAPPER: getInterfaceWrapper
 });
 
 // Generate the code
 const code = generate.default(t.program(integration)).code;
-const __dirname = "/Users/faych/workspace/jsar-dom/src/living/";
+const __dirname = 'src/living/';
 const outputPath = path.resolve(__dirname, 'interfaces.ts');
 fs.writeFileSync(outputPath, code, 'utf8');

@@ -134,3 +134,6 @@ target
 
 # macos
 .DS_Store
+
+# eslint config
+eslint.config.js
