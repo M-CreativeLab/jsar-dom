@@ -1,11 +1,23 @@
 import generate from '@babel/generator';
 import template from '@babel/template';
 import * as t from '@babel/types';
-import { parse } from '@babel/parser';
 import fs from 'fs';
 import path from 'path';
 
 let defaultTemplate = template.smart;
+
+/**
+ * This file is responsible for generating the `interface.ts` file in the `living` directory.
+ * It is used to load all the implementations of the interfaces asynchronously.
+ * 
+ * In TypeScript, avoiding circular dependencies can be challenging, especially when dealing with 
+ * dependencies that need to be resolved in a specific order. This can lead to compromises in the 
+ * project directory structure. To address this issue, we use dynamic imports() to load type 
+ * instances asynchronously. We also provide a synchronous function, getInterfaceWrapper, to ensure 
+ * the smooth functioning of the type system. This approach ensures that the necessary precautions 
+ * are taken during both build time and runtime to guarantee the correct invocation of the function 
+ * when using related interfaces.
+ */
 
 const moduleSpecifiers = [
   // Attributes
@@ -19,10 +31,10 @@ const moduleSpecifiers = [
   { path: './nodes/DocumentType', type: 'DocumentTypeImpl', isDefault: false },
   { path: './nodes/SpatialDocument', type: 'SpatialDocumentImpl', isDefault: false },
   { path: './nodes/Text', type: 'TextImpl', isDefault: false },
-  { path: './nodes/HTMLCollection', type: 'HTMLCollectionImpl', isDefault: false },
-  { path: './nodes/DOMTokenList', type: 'DOMTokenListImpl', isDefault: false },
+  { path: './nodes/HTMLCollection', type: 'HTMLCollectionImpl', isDefault: true },
+  { path: './nodes/DOMTokenList', type: 'DOMTokenListImpl', isDefault: true },
   { path: './nodes/HTMLElement', type: 'HTMLElementImpl', isDefault: false },
-  { path: './nodes/HTMLContentElement', type: 'HTMLContentElementImpl', isDefault: false },
+  { path: './nodes/HTMLContentElement', type: 'HTMLContentElement', isDefault: false },
   { path: './nodes/HTMLHeadElement', type: 'HTMLHeadElementImpl', isDefault: true },
   { path: './nodes/HTMLTitleElement', type: 'HTMLTitleElementImpl', isDefault: true },
   { path: './nodes/HTMLMetaElement', type: 'HTMLMetaElementImpl', isDefault: true },
@@ -32,7 +44,7 @@ const moduleSpecifiers = [
   { path: './nodes/HTMLSpanElement', type: 'HTMLSpanElementImpl', isDefault: true },
   { path: './nodes/HTMLImageElement', type: 'HTMLImageElementImpl', isDefault: true },
   // Spatial Nodes
-  { path: './nodes/SpatialElement', type: 'SpatialElementImpl', isDefault: false },
+  { path: './nodes/SpatialElement', type: 'SpatialElement', isDefault: false },
   // CSSOM
   { path: './cssom/StyleSheetList', type: 'StyleSheetListImpl', isDefault: true },
   // Events
@@ -49,14 +61,14 @@ const moduleSpecifiers = [
   { path: './events/TouchEvent', type: 'TouchEventImpl', isDefault: true },
   { path: './events/UIEvent', type: 'UIEventImpl', isDefault: false },
   // Others
-  { path: './domexception', type: 'DOMExceptionImpl', isDefault: false },
+  { path: './domexception', type: 'DOMExceptionImpl', isDefault: true },
   { path: './custom-elements/CustomElementRegistry', type: 'CustomElementRegistryImpl', isDefault: false },
   { path: './hr-time/Performance', type: 'PerformanceImpl', isDefault: false },
   { path: './range/AbstractRange', type: 'AbstractRangeImpl', isDefault: false },
   { path: './range/Range', type: 'RangeImpl', isDefault: false },
   { path: './mutation-observer/MutationObserver', type: 'MutationObserverImpl', isDefault: false },
   { path: './mutation-observer/MutationRecord', type: 'MutationRecordImpl', isDefault: false },
-  { path: './crypto/Noise', type: 'NoiseImpl', isDefault: false },
+  { path: './crypto/Noise', type: 'NoiseImpl', isDefault: true },
   { path: './geometry/DOMPoint', type: 'DOMPointImpl', isDefault: true },
   { path: './geometry/DOMPointReadOnly', type: 'DOMPointReadOnlyImpl', isDefault: true },
   { path: './geometry/DOMRect', type: 'DOMRectImpl', isDefault: true },
@@ -105,26 +117,11 @@ const buildHeadStatement = defaultTemplate(`
   ]
 });
 
-const comments = `
-  To load all the implementations of the interfaces.
-  *
-  * __Why?__
-  * In TypeScript, avoiding circular dependencies is a challenging task, requiring constant 
-  * attention to the order of dependencies and sometimes necessitating the splitting of modules 
-  * to ensure no circular dependencies. This is due to the fact that the TypeScript compiler (tsc) 
-  * resolves dependencies based on file order, leading to compromises in project directory design. 
-  * 
-  * To address this issue, we introduce the following method:
-  * leveraging dynamic imports() for asynchronous loading of type instances. Subsequently, we use a synchronous function,
-  * getInterfaceWrapper, to ensure the smooth functioning of the type system. This approach 
-  * ensures that, during both build time and runtime, the necessary precautions are taken to 
-  * guarantee correct invocation of the function when utilizing related interfaces. 
-  * 
-  * solve the issue https://github.com/jestjs/jest/issues/11434 
-  * by importing modules dynamically either in parallel or 
-  * sequentially based on the isParallel flag. 
-  * @param running parallel or not 
-`;
+/**
+ * solve the issue https://github.com/jestjs/jest/issues/11434 
+ * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
+ * @param running parallel or not
+ */
 
 const buildParallelImports = template.default(`
   import(%%module%%)\n
@@ -183,7 +180,7 @@ const buildLoadImplementations = template.default(`
 
 const buildExportFunction = (arg) => {
   const baseTemplate = defaultTemplate(`
-    export function getInterfaceWrapper(name: ${arg.TYPE}): typeof ${arg.TYPE}; 
+    export function getInterfaceWrapper(name: '${arg.TYPE}'): typeof ${arg.TYPE}; 
   `, {
     plugins: [
       'typescript'
@@ -195,7 +192,6 @@ const buildExportFunction = (arg) => {
 };
 
 const buildGetInterfaceWrapper = template.default(`
-  // TODO: help me to fullfill the other interfaces
   %%exportFunction%%
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
@@ -260,10 +256,9 @@ const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplemented
 const loadImplementations = buildLoadImplementations({
   ifStatement: ifStatement,
   then: t.arrayPattern(then.map(th => th.expression)),
-  implementedInterfaces: t.arrayExpression(implementedInterfaces.map(impl => impl.expression))
+  // implementedInterfaces: t.arrayExpression(implementedInterfaces.map(impl => impl.expression))
+  implementedInterfaces: implementedInterfaces
 });
-
-t.addComment(loadImplementations, 'leading', comments);
 
 const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
   TYPE: specifier.type
