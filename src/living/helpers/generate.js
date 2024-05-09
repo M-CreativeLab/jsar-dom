@@ -84,7 +84,7 @@ const moduleSpecifiers = [
 
 // Build the templates
 const buildTypeImports = (arg) => {
-  if (arg.ISDEFUALT) {
+  if (arg.ISDEFAULT) {
     const baseTemplate = defaultTemplate(`
       import type ${arg.TYPE} from '${arg.SPECIFIER}';
     `, {
@@ -216,7 +216,7 @@ const buildIntegration = template.default(`
 const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
   TYPE: specifier.type,
   SPECIFIER: specifier.path,
-  ISDEFUALT: specifier.isDefault
+  ISDEFAULT: specifier.isDefault
 }));
 
 const headStatement = buildHeadStatement({
@@ -256,7 +256,6 @@ const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplemented
 const loadImplementations = buildLoadImplementations({
   ifStatement: ifStatement,
   then: t.arrayPattern(then.map(th => th.expression)),
-  // implementedInterfaces: t.arrayExpression(implementedInterfaces.map(impl => impl.expression))
   implementedInterfaces: implementedInterfaces
 });
 
@@ -272,10 +271,10 @@ const integration = buildIntegration({
   headStatement: headStatement,
   loadImplementations: loadImplementations,
   getInterfaceWrapper: getInterfaceWrapper
-})
+});
 
 // Generate the code
 const code = generate.default(t.program(integration)).code;
-const __dirname = "/Users/faych/workspace/jsar-dom/src/living/"
-const outputPath = path.resolve(__dirname, 'interface.ts');
-fs.writeFileSync(outputPath, code, 'utf8')
+const __dirname = "/Users/faych/workspace/jsar-dom/src/living/";
+const outputPath = path.resolve(__dirname, 'interfaces.ts');
+fs.writeFileSync(outputPath, code, 'utf8');
