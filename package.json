@@ -16,7 +16,8 @@
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts",
-    "prepublishOnly": "node ./prepublish.cjs"
+    "prepublishOnly": "node ./prepublish.cjs",
+    "generate-interfaces": "node ./tools/generate.js"
   },
   "repository": {
     "type": "git",

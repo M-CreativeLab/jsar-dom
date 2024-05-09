@@ -158,7 +158,7 @@ const buildExportFunction = (arg) => {
   const baseTemplate = defaultTemplate(`
     export function getInterfaceWrapper(name: '${arg.TYPE}'): typeof ${arg.TYPE}; 
   `);
-  return baseTemplate({});
+  return baseTemplate({}); 
 };
 
 const buildGetInterfaceWrapper = defaultTemplate(`

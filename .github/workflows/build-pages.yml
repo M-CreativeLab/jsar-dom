@@ -2,9 +2,9 @@ name: Build and Deploy Pages
 
 on:
   schedule:
-    - cron: '0 10 * * *'
+    - cron: "0 10 * * *"
   push:
-    branches: [ "main" ]
+    branches: ["main"]
   workflow_dispatch:
 
 permissions:
@@ -27,32 +27,35 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-    - uses: actions/checkout@v3
-    - name: Set up Rust
-      uses: actions-rs/toolchain@v1
-      with:
-        profile: minimal
-        toolchain: 1.74.0
-    - uses: actions/setup-node@v4.0.0
-      with:
-        node-version: 18.16.0
-    - name: Install Node.js dependencies
-      run: npm ci && npx tsc --version
-    - name: Setup Pages
-      uses: actions/configure-pages@v3
-    - name: Install pages dependencies
-      working-directory: ./pages
-      run: npm ci
-    - name: Build bindings
-      run: |
-        npm run bindings
-    - name: Build Pages
-      working-directory: ./pages
-      run: npx webpack
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: './pages'
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v2
+      - uses: actions/checkout@v3
+      - name: Set up Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          profile: minimal
+          toolchain: 1.74.0
+      - uses: actions/setup-node@v4.0.0
+        with:
+          node-version: 18.16.0
+      - name: Install Node.js dependencies
+        run: npm ci && npx tsc --version
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Install pages dependencies
+        working-directory: ./pages
+        run: npm ci
+      - name: Generate interfaces.ts
+        run: |
+          npm run generate-interfaces
+      - name: Build bindings
+        run: |
+          npm run bindings
+      - name: Build Pages
+        working-directory: ./pages
+        run: npx webpack
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: "./pages"
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
