@@ -2,13 +2,13 @@ name: Release
 
 on:
   schedule:
-    - cron: "0 10 * * *"
+    - cron: '0 10 * * *'
   workflow_dispatch:
     inputs:
       isRelease:
-        description: "Is this a release? yes or no"
+        description: 'Is this a release? yes or no'
         required: true
-        default: "no"
+        default: 'no'
 
 jobs:
   build:
@@ -20,52 +20,53 @@ jobs:
         os: [ubuntu-latest]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.74.0
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 18.16.0
-          registry-url: "https://registry.npmjs.org"
-      - name: Install Node.js dependencies
-        run: npm ci && npx tsc --version
-      - name: Generate interfaces.ts
-        run: |
-          npm run generate-interfaces
-      - name: Build bindings
-        run: |
-          npm run bindings
-      - name: Build release ${{ github.event.inputs.version }}
-        run: |
-          if [ "${{ github.event.inputs.isRelease }}" != "yes" ]; then
-            node ./version.cjs
-          fi
-          npm run build-release
-          npm run build-types
-      - name: Upload core release to artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: jsardom-release
-          path: "./dist"
-      - name: Publish core to npm
-        run: |
-          if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
-            npm publish --tag latest --access public
-          else
-            npm publish --tag daily --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-      - name: Publish types to npm
-        working-directory: ./types
-        run: |
-          if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
-            npm publish --tag latest --access public
-          else
-            npm publish --tag daily --access public
-          fi
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - uses: actions/checkout@v3
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: 1.74.0
+    - uses: actions/setup-node@v4.0.0
+      with:
+        node-version: 18.16.0
+        registry-url: 'https://registry.npmjs.org'
+    - name: Install Node.js dependencies
+      run: npm ci && npx tsc --version
+    - name: Generate interfaces.ts
+      run: |
+        npm run generate-interfaces
+    - name: Build bindings
+      run: |
+        npm run bindings
+    - name: Build release ${{ github.event.inputs.version }}
+      run: |
+        if [ "${{ github.event.inputs.isRelease }}" != "yes" ]; then
+          node ./version.cjs
+        fi
+        npm run build-release
+        npm run build-types
+    - name: Upload core release to artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: jsardom-release
+        path: './dist'
+    - name: Publish core to npm
+      run: |
+        if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
+          npm publish --tag latest --access public
+        else
+          npm publish --tag daily --access public
+        fi
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+    - name: Publish types to npm
+      working-directory: ./types
+      run: |
+        if [ "${{ github.event.inputs.isRelease }}" = "yes" ]; then
+          npm publish --tag latest --access public
+        else
+          npm publish --tag daily --access public
+        fi
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        

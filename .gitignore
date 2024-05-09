@@ -135,8 +135,5 @@ target
 # macos
 .DS_Store
 
-# eslint config
-eslint.config.js
-
 # interfaces
 src/living/interfaces.ts

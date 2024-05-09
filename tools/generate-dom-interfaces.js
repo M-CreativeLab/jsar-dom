@@ -4,7 +4,7 @@ import * as t from '@babel/types';
 import fs from 'fs';
 import path from 'path';
 
-let defaultTemplate = template.smart({
+const defaultTemplate = template.smart({
   plugins: [
     'typescript'
   ],
@@ -88,7 +88,7 @@ const moduleSpecifiers = [
 
 // Build the templates
 const buildTypeImports = (arg) => {
-  if (arg.ISDEFAULT) {
+  if (arg.IS_DEFAULT) {
     const baseTemplate = defaultTemplate(`
       import type ${arg.TYPE} from '${arg.SPECIFIER}';
     `);
@@ -101,7 +101,7 @@ const buildTypeImports = (arg) => {
 };
 
 const buildHeadStatement = defaultTemplate(`
-  TYPEIMPORTS
+  TYPE_IMPORTS
   let implementationLoaded = false;
   const implementedInterfaces = new Map<string, any>();
 `);
@@ -131,15 +131,15 @@ const buildModule = defaultTemplate(`
 `);
 
 const buildIfStatement = defaultTemplate(`
-  if (ISPARALLEL) {
-    PARALLELMODULE
+  if (IS_PARALLEL) {
+    PARALLEL_MODULE
   } else {
-    SEQUENTIALMODULE
+    SEQUENTIAL_MODULE
   }
 `);
 
 const buildImplementedInterfaces = (arg) => {
-  if (arg.ISDEFAULT) {
+  if (arg.IS_DEFAULT) {
     const baseTemplate = defaultTemplate(`
       implementedInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
     `);
@@ -154,11 +154,11 @@ const buildImplementedInterfaces = (arg) => {
 const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
     let modules;
-    IFSTATEMENT
+    IF_STATEMENT
     return modules.then(([
       THEN
     ]) => {
-      IMPLEMENTEDINTERFACES
+      IMPLEMENTED_INTERFACES
       implementationLoaded = true;
     });
   }
@@ -172,7 +172,7 @@ const buildExportFunction = (arg) => {
 };
 
 const buildGetInterfaceWrapper = defaultTemplate(`
-  EXPORTFUNCTION
+  EXPORT_FUNCTION
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -183,20 +183,20 @@ const buildGetInterfaceWrapper = defaultTemplate(`
 `);
 
 const buildIntegration = defaultTemplate(`
-  HEADSTATEMENT
-  LOADIMPLEMENTATIONS
-  GETINTERFACEWRAPPER
+  HEAD_STATEMENT
+  LOAD_IMPLEMENTATIONS
+  GET_INTERFACE_WRAPPER
 `);
 
 // Build the code
 const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
   TYPE: specifier.type,
   SPECIFIER: specifier.path,
-  ISDEFAULT: specifier.isDefault
+  IS_DEFAULT: specifier.isDefault
 }));
 
 const headStatement = buildHeadStatement({
-  TYPEIMPORTS: typeImports
+  TYPE_IMPORTS: typeImports
 });
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
@@ -216,9 +216,9 @@ const sequentialModule = buildModule({
 });
 
 const ifStatement = buildIfStatement({
-  ISPARALLEL: t.identifier('isParallel'),
-  PARALLELMODULE: parallelModule,
-  SEQUENTIALMODULE: sequentialModule
+  IS_PARALLEL: t.identifier('isParallel'),
+  PARALLEL_MODULE: parallelModule,
+  SEQUENTIAL_MODULE: sequentialModule
 });
 
 // Template cannot handle single-word task,
@@ -233,14 +233,14 @@ const then = moduleSpecifiers.map(specifier => {
 
 const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
   NAME: specifier.name,
-  ISDEFAULT: specifier.isDefault,
+  IS_DEFAULT: specifier.isDefault,
   TYPE: specifier.type
 }));
 
 const loadImplementations = buildLoadImplementations({
-  IFSTATEMENT: ifStatement,
+  IF_STATEMENT: ifStatement,
   THEN: then,
-  IMPLEMENTEDINTERFACES: implementedInterfaces
+  IMPLEMENTED_INTERFACES: implementedInterfaces
 });
 
 const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
@@ -249,17 +249,17 @@ const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({
 }));
 
 const getInterfaceWrapper = buildGetInterfaceWrapper({
-  EXPORTFUNCTION: exportFunction
+  EXPORT_FUNCTION: exportFunction
 });
 
 const integration = buildIntegration({
-  HEADSTATEMENT: headStatement,
-  LOADIMPLEMENTATIONS: loadImplementations,
-  GETINTERFACEWRAPPER: getInterfaceWrapper
+  HEAD_STATEMENT: headStatement,
+  LOAD_IMPLEMENTATIONS: loadImplementations,
+  GET_INTERFACE_WRAPPER: getInterfaceWrapper
 });
 
 // Generate the code
 const code = generate.default(t.program(integration)).code;
-const __dirname = 'src/living/';
-const outputPath = path.resolve(__dirname, 'interfaces.ts');
+const outputDir = 'src/living/';
+const outputPath = path.resolve(outputDir, 'interfaces.ts');
 fs.writeFileSync(outputPath, code, 'utf8');

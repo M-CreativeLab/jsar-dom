@@ -2,11 +2,11 @@ name: Build
 
 on:
   schedule:
-    - cron: "0 10 * * *"
+    - cron: '0 10 * * *'
   push:
-    branches: ["main"]
+    branches: [ "main" ]
   pull_request:
-    branches: ["main"]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -16,22 +16,23 @@ jobs:
         os: [ubuntu-latest, windows-latest]
 
     steps:
-      - uses: actions/checkout@v3
-      - name: Set up Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          profile: minimal
-          toolchain: 1.74.0
-      - uses: actions/setup-node@v4.0.0
-        with:
-          node-version: 18.16.0
-      - name: Install Node.js dependencies
-        run: npm ci && npx tsc --version
-      - name: Generate interfaces.ts
-        run: |
-          npm run generate-interfaces
-      - name: Build bindings
-        run: |
-          npm run bindings
-      - name: Run Tests
-        run: npm test
+    - uses: actions/checkout@v3
+    - name: Set up Rust
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: 1.74.0
+    - uses: actions/setup-node@v4.0.0
+      with:
+        node-version: 18.16.0
+    - name: Install Node.js dependencies
+      run: npm ci && npx tsc --version
+    - name: Generate interfaces.ts
+      run: |
+        npm run generate-interfaces
+    - name: Build bindings
+      run: |
+        npm run bindings
+    - name: Run Tests
+      run: npm test
+      
