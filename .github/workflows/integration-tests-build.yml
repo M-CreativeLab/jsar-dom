@@ -30,7 +30,7 @@ jobs:
         npm ci && npx tsc --version
     - name: Generate interfaces.ts
       run: |
-        npm run generate-interfaces
+        npm run gen-dom-interfaces
     - name: Build bindings
       run: |
         npm run bindings

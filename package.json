@@ -13,7 +13,7 @@
     "bindings": "node ./bindings/tools/build.cjs",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "gen-cdpfiles": "node --loader ./tsconfig-esm-loader.js src/cdp/builder/main.ts",
-    "gen-dom-interfaces": "node ./tools/generate.js",
+    "gen-dom-interfaces": "node ./tools/generate-dom-interfaces.js",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts",

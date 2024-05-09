@@ -12,13 +12,13 @@ const defaultTemplate = template.smart({
 });
 
 /**
- * This file is responsible for generating the `interface.ts` file in the `living` directory.
- * It is used to load all the implementations of the interfaces asynchronously.
+ * This file is responsible for generating the `interfaces.ts` file in the `src/living` directory.
+ * It is used to load all the implementations of the interfaces asynchronously to avoid the circular dependeny
  * 
  * In TypeScript, avoiding circular dependencies can be challenging, especially when dealing with 
  * dependencies that need to be resolved in a specific order. This can lead to compromises in the 
- * project directory structure. To address this issue, we use dynamic imports() to load type 
- * instances asynchronously. We also provide a synchronous function, getInterfaceWrapper, to ensure 
+ * project directory structure. To address this issue, we use dynamic `imports()` to load type 
+ * instances asynchronously. We also provide a function, getInterfaceWrapper, to ensure
  * the smooth functioning of the type system. This approach ensures that the necessary precautions 
  * are taken during both build time and runtime to guarantee the correct invocation of the function 
  * when using related interfaces.
