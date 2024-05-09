@@ -35,4 +35,3 @@ jobs:
         npm run bindings
     - name: Run Tests
       run: npm test
-      
