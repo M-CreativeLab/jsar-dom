@@ -26,64 +26,64 @@ let defaultTemplate = template.smart({
 
 const moduleSpecifiers = [
   // Attributes
-  { path: './attributes/NamedNodeMap', type: 'NamedNodeMapImpl', isDefault: true },
-  { path: './attributes/Attr', type: 'AttrImpl', isDefault: false },
+  { path: './attributes/NamedNodeMap', type: 'NamedNodeMapImpl', isDefault: true, name: 'NamedNodeMap' },
+  { path: './attributes/Attr', type: 'AttrImpl', isDefault: false, name: 'Attr' },
   // Classic Nodes
-  { path: './nodes/Node', type: 'NodeImpl', isDefault: false },
-  { path: './nodes/NodeList', type: 'NodeListImpl', isDefault: false },
-  { path: './nodes/Element', type: 'ElementImpl', isDefault: false },
-  { path: './nodes/DocumentFragment', type: 'DocumentFragmentImpl', isDefault: true },
-  { path: './nodes/DocumentType', type: 'DocumentTypeImpl', isDefault: false },
-  { path: './nodes/SpatialDocument', type: 'SpatialDocumentImpl', isDefault: false },
-  { path: './nodes/Text', type: 'TextImpl', isDefault: false },
-  { path: './nodes/HTMLCollection', type: 'HTMLCollectionImpl', isDefault: true },
-  { path: './nodes/DOMTokenList', type: 'DOMTokenListImpl', isDefault: true },
-  { path: './nodes/HTMLElement', type: 'HTMLElementImpl', isDefault: false },
-  { path: './nodes/HTMLContentElement', type: 'HTMLContentElement', isDefault: false },
-  { path: './nodes/HTMLHeadElement', type: 'HTMLHeadElementImpl', isDefault: true },
-  { path: './nodes/HTMLTitleElement', type: 'HTMLTitleElementImpl', isDefault: true },
-  { path: './nodes/HTMLMetaElement', type: 'HTMLMetaElementImpl', isDefault: true },
-  { path: './nodes/HTMLStyleElement', type: 'HTMLStyleElementImpl', isDefault: true },
-  { path: './nodes/HTMLScriptElement', type: 'HTMLScriptElementImpl', isDefault: true },
-  { path: './nodes/HTMLDivElement', type: 'HTMLDivElementImpl', isDefault: true },
-  { path: './nodes/HTMLSpanElement', type: 'HTMLSpanElementImpl', isDefault: true },
-  { path: './nodes/HTMLImageElement', type: 'HTMLImageElementImpl', isDefault: true },
+  { path: './nodes/Node', type: 'NodeImpl', isDefault: false, name: 'Node' },
+  { path: './nodes/NodeList', type: 'NodeListImpl', isDefault: false, name: 'NodeList' },
+  { path: './nodes/Element', type: 'ElementImpl', isDefault: false, name: 'Element' },
+  { path: './nodes/DocumentFragment', type: 'DocumentFragmentImpl', isDefault: true, name: 'DocumentFragment' },
+  { path: './nodes/DocumentType', type: 'DocumentTypeImpl', isDefault: false, name: 'DocumentType' },
+  { path: './nodes/SpatialDocument', type: 'SpatialDocumentImpl', isDefault: false, name: 'SpatialDocument' },
+  { path: './nodes/Text', type: 'TextImpl', isDefault: false, name: 'Text' },
+  { path: './nodes/HTMLCollection', type: 'HTMLCollectionImpl', isDefault: true, name: 'HTMLCollection' },
+  { path: './nodes/DOMTokenList', type: 'DOMTokenListImpl', isDefault: true, name: 'DOMTokenList' },
+  { path: './nodes/HTMLElement', type: 'HTMLElementImpl', isDefault: false, name: 'HTMLElement' },
+  { path: './nodes/HTMLContentElement', type: 'HTMLContentElement', isDefault: false, name: 'HTMLContentElement' },
+  { path: './nodes/HTMLHeadElement', type: 'HTMLHeadElementImpl', isDefault: true, name: 'HTMLHeadElement' },
+  { path: './nodes/HTMLTitleElement', type: 'HTMLTitleElementImpl', isDefault: true, name: 'HTMLTitleElement' },
+  { path: './nodes/HTMLMetaElement', type: 'HTMLMetaElementImpl', isDefault: true, name: 'HTMLMetaElement' },
+  { path: './nodes/HTMLStyleElement', type: 'HTMLStyleElementImpl', isDefault: true, name: 'HTMLStyleElement' },
+  { path: './nodes/HTMLScriptElement', type: 'HTMLScriptElementImpl', isDefault: true, name: 'HTMLScriptElement' },
+  { path: './nodes/HTMLDivElement', type: 'HTMLDivElementImpl', isDefault: true, name: 'HTMLDivElement' },
+  { path: './nodes/HTMLSpanElement', type: 'HTMLSpanElementImpl', isDefault: true, name: 'HTMLSpanElement' },
+  { path: './nodes/HTMLImageElement', type: 'HTMLImageElementImpl', isDefault: true, name: 'HTMLImageElement' },
   // Spatial Nodes
-  { path: './nodes/SpatialElement', type: 'SpatialElement', isDefault: false },
+  { path: './nodes/SpatialElement', type: 'SpatialElement', isDefault: false, name: 'SpatialElement' },
   // CSSOM
-  { path: './cssom/StyleSheetList', type: 'StyleSheetListImpl', isDefault: true },
+  { path: './cssom/StyleSheetList', type: 'StyleSheetListImpl', isDefault: true, name: 'StyleSheetList' },
   // Events
-  { path: './events/CloseEvent', type: 'CloseEventImpl', isDefault: false },
-  { path: './events/CustomEvent', type: 'CustomEventImpl', isDefault: false },
-  { path: './events/ErrorEvent', type: 'ErrorEventImpl', isDefault: true },
-  { path: './events/FocusEvent', type: 'FocusEventImpl', isDefault: true },
-  { path: './events/HashChangeEvent', type: 'HashChangeEventImpl', isDefault: true },
-  { path: './events/KeyboardEvent', type: 'KeyboardEventImpl', isDefault: true },
-  { path: './events/MessageEvent', type: 'MessageEventImpl', isDefault: true },
-  { path: './events/MouseEvent', type: 'MouseEventImpl', isDefault: false },
-  { path: './events/PopStateEvent', type: 'PopStateEventImpl', isDefault: true },
-  { path: './events/ProgressEvent', type: 'ProgressEventImpl', isDefault: true },
-  { path: './events/TouchEvent', type: 'TouchEventImpl', isDefault: true },
-  { path: './events/UIEvent', type: 'UIEventImpl', isDefault: false },
+  { path: './events/CloseEvent', type: 'CloseEventImpl', isDefault: false, name: 'CloseEvent' },
+  { path: './events/CustomEvent', type: 'CustomEventImpl', isDefault: false, name: 'CustomEvent' },
+  { path: './events/ErrorEvent', type: 'ErrorEventImpl', isDefault: true, name: 'ErrorEvent' },
+  { path: './events/FocusEvent', type: 'FocusEventImpl', isDefault: true, name: 'FocusEvent' },
+  { path: './events/HashChangeEvent', type: 'HashChangeEventImpl', isDefault: true, name: 'HashChangeEvent' },
+  { path: './events/KeyboardEvent', type: 'KeyboardEventImpl', isDefault: true, name: 'KeyboardEvent' },
+  { path: './events/MessageEvent', type: 'MessageEventImpl', isDefault: true, name: 'MessageEvent' },
+  { path: './events/MouseEvent', type: 'MouseEventImpl', isDefault: false, name: 'MouseEvent' },
+  { path: './events/PopStateEvent', type: 'PopStateEventImpl', isDefault: true, name: 'PopStateEvent' },
+  { path: './events/ProgressEvent', type: 'ProgressEventImpl', isDefault: true, name: 'ProgressEvent' },
+  { path: './events/TouchEvent', type: 'TouchEventImpl', isDefault: true, name: 'TouchEvent' },
+  { path: './events/UIEvent', type: 'UIEventImpl', isDefault: false, name: 'UIEvent' },
   // Others
-  { path: './domexception', type: 'DOMExceptionImpl', isDefault: true },
-  { path: './custom-elements/CustomElementRegistry', type: 'CustomElementRegistryImpl', isDefault: false },
-  { path: './hr-time/Performance', type: 'PerformanceImpl', isDefault: false },
-  { path: './range/AbstractRange', type: 'AbstractRangeImpl', isDefault: false },
-  { path: './range/Range', type: 'RangeImpl', isDefault: false },
-  { path: './mutation-observer/MutationObserver', type: 'MutationObserverImpl', isDefault: false },
-  { path: './mutation-observer/MutationRecord', type: 'MutationRecordImpl', isDefault: false },
-  { path: './crypto/Noise', type: 'NoiseImpl', isDefault: true },
-  { path: './geometry/DOMPoint', type: 'DOMPointImpl', isDefault: true },
-  { path: './geometry/DOMPointReadOnly', type: 'DOMPointReadOnlyImpl', isDefault: true },
-  { path: './geometry/DOMRect', type: 'DOMRectImpl', isDefault: true },
-  { path: './geometry/DOMRectReadOnly', type: 'DOMRectReadOnlyImpl', isDefault: true },
-  { path: './geometry/DOMMatrix', type: 'DOMMatrixImpl', isDefault: true },
-  { path: './image/ImageData', type: 'ImageDataImpl', isDefault: true },
+  { path: './domexception', type: 'DOMExceptionImpl', isDefault: true, name: 'DOMException' },
+  { path: './custom-elements/CustomElementRegistry', type: 'CustomElementRegistryImpl', isDefault: false, name: 'CustomElementRegistry' },
+  { path: './hr-time/Performance', type: 'PerformanceImpl', isDefault: false, name: 'Performance' },
+  { path: './range/AbstractRange', type: 'AbstractRangeImpl', isDefault: false, name: 'AbstractRange' },
+  { path: './range/Range', type: 'RangeImpl', isDefault: false, name: 'Range' },
+  { path: './mutation-observer/MutationObserver', type: 'MutationObserverImpl', isDefault: false, name: 'MutationObserver' },
+  { path: './mutation-observer/MutationRecord', type: 'MutationRecordImpl', isDefault: false, name: 'MutationRecord' },
+  { path: './crypto/Noise', type: 'NoiseImpl', isDefault: true, name: 'Noise' },
+  { path: './geometry/DOMPoint', type: 'DOMPointImpl', isDefault: true, name: 'DOMPoint' },
+  { path: './geometry/DOMPointReadOnly', type: 'DOMPointReadOnlyImpl', isDefault: true, name: 'DOMPointReadOnly' },
+  { path: './geometry/DOMRect', type: 'DOMRectImpl', isDefault: true, name: 'DOMRect' },
+  { path: './geometry/DOMRectReadOnly', type: 'DOMRectReadOnlyImpl', isDefault: true, name: 'DOMRectReadOnly' },
+  { path: './geometry/DOMMatrix', type: 'DOMMatrixImpl', isDefault: true, name: 'DOMMatrix' },
+  { path: './image/ImageData', type: 'ImageDataImpl', isDefault: true, name: 'ImageData' },
   // WebXR
-  { path: './xr/XRPose', type: 'XRPoseImpl', isDefault: true },
-  { path: './xr/XRRigidTransform', type: 'XRRigidTransformImpl', isDefault: true },
-  { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true }
+  { path: './xr/XRPose', type: 'XRPoseImpl', isDefault: true, name: 'XRPose' },
+  { path: './xr/XRRigidTransform', type: 'XRRigidTransformImpl', isDefault: true, name: 'XRRigidTransform' },
+  { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true, name: 'XRSession' }
 ];
 
 // Build the templates
@@ -102,7 +102,6 @@ const buildTypeImports = (arg) => {
 
 const buildHeadStatement = defaultTemplate(`
   TYPEIMPORTS
-
   let implementationLoaded = false;
   const implementedInterfaces = new Map<string, any>();
 `);
@@ -113,13 +112,19 @@ const buildHeadStatement = defaultTemplate(`
  * @param running parallel or not
  */
 
-const buildParallelImports = defaultTemplate(`
-  import(MODULE)
-`);
+const buildParallelImports = (arg) => {
+  const baseTemplate = defaultTemplate(`
+    import('${arg.MODULE}')
+  `);
+  return baseTemplate({});
+}
 
-const buildSequentialImports = defaultTemplate(`
-  await import(MODULE)
-`);
+const buildSequentialImports = (arg) => {
+  const baseTemplate = defaultTemplate(`
+    await import('${arg.MODULE}')
+  `);
+  return baseTemplate({});
+}
 
 const buildModule = defaultTemplate(`
   modules = Promise.all(SOURCE)
@@ -133,13 +138,18 @@ const buildIfStatement = defaultTemplate(`
   }
 `);
 
-const buildThen = defaultTemplate(`
-  TYPE
-`);
-
-const buildImplementedInterfaces = defaultTemplate(`
-  implementedInterfaces.set(TYPE, TYPE.default);
-`);
+const buildImplementedInterfaces = (arg) => {
+  if (arg.ISDEFAULT) {
+    const baseTemplate = defaultTemplate(`
+      implementedInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
+    `);
+    return baseTemplate({});
+  } 
+  const baseTemplate = defaultTemplate(`
+    implementedInterfaces.set('${arg.NAME}', ${arg.TYPE});
+  `);
+  return baseTemplate({});
+}
 
 const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
@@ -156,7 +166,7 @@ const buildLoadImplementations = defaultTemplate(`
 
 const buildExportFunction = (arg) => {
   const baseTemplate = defaultTemplate(`
-    export function getInterfaceWrapper(name: '${arg.TYPE}'): typeof ${arg.TYPE}; 
+    export function getInterfaceWrapper(name: '${arg.NAME}'): typeof ${arg.TYPE}; 
   `);
   return baseTemplate({}); 
 };
@@ -190,11 +200,11 @@ const headStatement = buildHeadStatement({
 });
 
 const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
-  MODULE: t.stringLiteral(specifier.path)
+  MODULE: specifier.path
 }));
 
 const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImports({
-  MODULE: t.stringLiteral(specifier.path)
+  MODULE: specifier.path
 }));
 
 const parallelModule = buildModule({
@@ -211,21 +221,30 @@ const ifStatement = buildIfStatement({
   SEQUENTIALMODULE: sequentialModule
 });
 
-const then = moduleSpecifiers.map(specifier => buildThen({
-  TYPE: specifier.type
-}));
+// Template cannot handle single-word task,
+// so I choose to use string concatenation to solve this problem.
+const then = moduleSpecifiers.map(specifier => {
+  if (specifier.isDefault) {
+    return specifier.type;
+  } else {
+    return `{ ${specifier.type} }`;
+  }
+}).join(', ');
 
 const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
+  NAME: specifier.name,
+  ISDEFAULT: specifier.isDefault,
   TYPE: specifier.type
 }));
 
 const loadImplementations = buildLoadImplementations({
   IFSTATEMENT: ifStatement,
-  THEN: t.arrayPattern(then.map(th => th.expression)),
+  THEN: then,
   IMPLEMENTEDINTERFACES: implementedInterfaces
 });
 
 const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
+  NAME: specifier.name,
   TYPE: specifier.type
 }));
 

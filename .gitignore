@@ -137,3 +137,6 @@ target
 
 # eslint config
 eslint.config.js
+
+# interfaces
+src/living/interfaces.ts
