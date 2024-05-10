@@ -90,14 +90,15 @@ const moduleSpecifiers = [
 const buildTypeImports = (arg) => {
   if (arg.IS_DEFAULT) {
     const baseTemplate = defaultTemplate(`
-      import type ${arg.TYPE} from '${arg.SPECIFIER}';
+      import type ${arg.TYPE} from '${arg.PATH}';
     `);
     return baseTemplate({});
-  } 
-  const baseTemplate = defaultTemplate(`
-    import type { ${arg.TYPE} } from '${arg.SPECIFIER}';
-  `);
-  return baseTemplate({});
+  } else {
+    const baseTemplate = defaultTemplate(`
+      import type { ${arg.TYPE} } from '${arg.PATH}';
+    `);
+    return baseTemplate({});
+  }
 };
 
 const buildHeadStatement = defaultTemplate(`
@@ -106,55 +107,46 @@ const buildHeadStatement = defaultTemplate(`
   const setInterfaces = new Map<string, any>();
 `);
 
-/**
- * solve the issue https://github.com/jestjs/jest/issues/11434 
- * by importing modules dynamically either in parallel or sequentially based on the isParallel flag.
- * @param running parallel or not
- */
-
 const buildParallelImports = (arg) => {
   const baseTemplate = defaultTemplate(`
     import('${arg.MODULE}')
   `);
   return baseTemplate({});
-}
+};
 
 const buildSequentialImports = (arg) => {
   const baseTemplate = defaultTemplate(`
     await import('${arg.MODULE}')
   `);
   return baseTemplate({});
-}
+};
 
 const buildModulesAssignment = defaultTemplate(`
   modules = Promise.all(SOURCE)
 `);
 
-const buildLoadStatement = defaultTemplate(`
-  if (isParallel) {
-    PARALLEL_MODULES
-  } else {
-    SEQUENTIAL_MODULES
-  }
-`);
-
-const buildImplementedInterfaces = (arg) => {
+const buildInterfaceSetter = (arg) => {
   if (arg.IS_DEFAULT) {
     const baseTemplate = defaultTemplate(`
       setInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
     `);
     return baseTemplate({});
-  } 
-  const baseTemplate = defaultTemplate(`
-    setInterfaces.set('${arg.NAME}', ${arg.TYPE});
-  `);
-  return baseTemplate({});
-}
+  } else {
+    const baseTemplate = defaultTemplate(`
+      setInterfaces.set('${arg.NAME}', ${arg.TYPE});
+    `);
+    return baseTemplate({});
+  }
+};
 
 const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
     let modules;
-    LOAD_STATEMENT
+    if (isParallel) {
+      PARALLEL_MODULES
+    } else {
+      SEQUENTIAL_MODULES
+    }
     return modules.then(([
       LOADED_MODULES
     ]) => {
@@ -164,7 +156,7 @@ const buildLoadImplementations = defaultTemplate(`
   }
 `);
 
-const buildExportGetInterfaceWrapper = (arg) => {
+const buildGetInterfaceWrapperTypedDeclaration = (arg) => {
   const baseTemplate = defaultTemplate(`
     export function getInterfaceWrapper(name: '${arg.NAME}'): typeof ${arg.TYPE}; 
   `);
@@ -172,7 +164,7 @@ const buildExportGetInterfaceWrapper = (arg) => {
 };
 
 const buildGetInterfaceWrapper = defaultTemplate(`
-  EXPORT_GET_INTERFACE_WRAPPER
+  GET_INTERFACE_WRAPPER_TYPED_DECLARATION
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -182,7 +174,7 @@ const buildGetInterfaceWrapper = defaultTemplate(`
   }
 `);
 
-const buildIntegration = defaultTemplate(`
+const buildInterfacesModule = defaultTemplate(`
   HEAD_STATEMENT
   LOAD_IMPLEMENTATIONS
   GET_INTERFACE_WRAPPER
@@ -191,7 +183,7 @@ const buildIntegration = defaultTemplate(`
 // Build the code
 const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
   TYPE: specifier.type,
-  SPECIFIER: specifier.path,
+  PATH: specifier.path,
   IS_DEFAULT: specifier.isDefault
 }));
 
@@ -215,11 +207,6 @@ const sequentialModules = buildModulesAssignment({
   SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
 });
 
-const loadStatement = buildLoadStatement({
-  PARALLEL_MODULES: parallelModules,
-  SEQUENTIAL_MODULES: sequentialModules
-});
-
 // Template cannot handle single-word task,
 // so I choose to use string concatenation to solve this problem.
 const loadedModules = moduleSpecifiers.map(specifier => {
@@ -230,35 +217,36 @@ const loadedModules = moduleSpecifiers.map(specifier => {
   }
 }).join(', ');
 
-const setInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
+const interfacesSetter = moduleSpecifiers.map(specifier => buildInterfaceSetter({
   NAME: specifier.name,
   IS_DEFAULT: specifier.isDefault,
   TYPE: specifier.type
 }));
 
 const loadImplementations = buildLoadImplementations({
-  LOAD_STATEMENT: loadStatement,
+  PARALLEL_MODULES: parallelModules,
+  SEQUENTIAL_MODULES: sequentialModules,
   LOADED_MODULES: loadedModules,
-  SET_INTERFACES: setInterfaces
+  SET_INTERFACES: interfacesSetter
 });
 
-const exportGetInterfaceWrapper = moduleSpecifiers.map(specifier => buildExportGetInterfaceWrapper({  
+const getInterfaceWrapperTypedDeclaration = moduleSpecifiers.map(specifier => buildGetInterfaceWrapperTypedDeclaration({  
   NAME: specifier.name,
   TYPE: specifier.type
 }));
 
 const getInterfaceWrapper = buildGetInterfaceWrapper({
-  EXPORT_GET_INTERFACE_WRAPPER: exportGetInterfaceWrapper
+  GET_INTERFACE_WRAPPER_TYPED_DECLARATION: getInterfaceWrapperTypedDeclaration
 });
 
-const integration = buildIntegration({
+const interfacesModule = buildInterfacesModule({
   HEAD_STATEMENT: headStatement,
   LOAD_IMPLEMENTATIONS: loadImplementations,
   GET_INTERFACE_WRAPPER: getInterfaceWrapper
 });
 
 // Generate the code
-const code = generate.default(t.program(integration)).code;
+const code = generate.default(t.program(interfacesModule)).code;
 const outputDir = 'src/living/';
 const outputPath = path.resolve(outputDir, 'interfaces.ts');
 fs.writeFileSync(outputPath, code, 'utf8');
