@@ -1,15 +1,8 @@
+import fs from 'fs';
+import path from 'path';
 import generate from '@babel/generator';
 import template from '@babel/template';
 import * as t from '@babel/types';
-import fs from 'fs';
-import path from 'path';
-
-const defaultTemplate = template.smart({
-  plugins: [
-    'typescript'
-  ],
-  syntacticPlaceholders: false
-});
 
 /**
  * This file is responsible for generating the `interfaces.ts` file in the `src/living` directory.
@@ -23,6 +16,202 @@ const defaultTemplate = template.smart({
  * are taken during both build time and runtime to guarantee the correct invocation of the function 
  * when using related interfaces.
  */
+
+class DomInterfaceGenerator {
+  constructor(moduleSpecifiers) {
+    this.moduleSpecifiers = moduleSpecifiers;
+    this.defaultTemplate = template.smart({
+      plugins: [
+        'typescript'
+      ],
+      syntacticPlaceholders: false
+    });
+  }
+
+  buildTypeImports(arg) {
+    if (arg.IS_DEFAULT) {
+      const baseTemplate = this.defaultTemplate(`
+        import type ${arg.TYPE} from '${arg.PATH}';
+      `);
+      return baseTemplate({});
+    } else {
+      const baseTemplate = this.defaultTemplate(`
+        import type { ${arg.TYPE} } from '${arg.PATH}';
+      `);
+      return baseTemplate({});
+    }
+  }
+
+  buildHeaderDeclaration() {
+    const typeImports = this.moduleSpecifiers.map(specifier => this.buildTypeImports({
+      TYPE: specifier.type,
+      PATH: specifier.path,
+      IS_DEFAULT: specifier.isDefault
+    }));
+
+    const baseTemplate = this.defaultTemplate(`
+      TYPE_IMPORTS
+      let implementationLoaded = false;
+      const setInterfaces = new Map<string, any>();
+    `);
+
+    return baseTemplate({ TYPE_IMPORTS: typeImports });
+  }
+
+  buildParallelImports(arg) {
+    const baseTemplate = this.defaultTemplate(`
+      import('${arg.MODULE}')
+    `);
+    return baseTemplate({});
+  }
+
+  buildSequentialImports(arg) {
+    const baseTemplate = this.defaultTemplate(`
+      await import('${arg.MODULE}')
+    `);
+    return baseTemplate({});
+  }
+
+  buildModulesAssignment(isParallel) {
+    const parallelImports = this.moduleSpecifiers.map(specifier => this.buildParallelImports({
+      MODULE: specifier.path
+    }));
+
+    const sequentialImports = this.moduleSpecifiers.map(specifier => this.buildSequentialImports({
+      MODULE: specifier.path
+    }));
+
+    const baseTemplate = this.defaultTemplate(`
+      modules = Promise.all(SOURCE)
+    `);
+
+    if(isParallel) {
+      return baseTemplate({
+        SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
+      });
+    } else {
+      return baseTemplate({
+        SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
+      });
+    }
+  }
+
+  buildSetInterfaceStatement(arg) {
+    if (arg.IS_DEFAULT) {
+      const baseTemplate = this.defaultTemplate(`
+        setInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
+      `);
+      return baseTemplate({});
+    } else {
+      const baseTemplate = this.defaultTemplate(`
+        setInterfaces.set('${arg.NAME}', ${arg.TYPE});
+      `);
+      return baseTemplate({});
+    }
+  }
+
+  buildLoadImplementations() {
+    const parallelModules = this.buildModulesAssignment(true);
+    const sequentialModules = this.buildModulesAssignment(false);
+    const loadedModules = this.moduleSpecifiers.map(specifier => {
+      if (specifier.isDefault) {
+        return specifier.type;
+      } else {
+        return `{ ${specifier.type} }`;
+      }
+    }).join(', ');
+
+    const setInterfaceStatement = this.moduleSpecifiers.map(specifier => this.buildSetInterfaceStatement({
+      NAME: specifier.name,
+      IS_DEFAULT: specifier.isDefault,
+      TYPE: specifier.type
+    }));
+
+    const baseTemplate = this.defaultTemplate(`
+      export async function loadImplementations(isParallel = true) {
+        let modules;
+        if (isParallel) {
+          PARALLEL_MODULES
+        } else {
+          SEQUENTIAL_MODULES
+        }
+        return modules.then(([
+          LOADED_MODULES
+        ]) => {
+          SET_INTERFACE_STATEMENT
+          implementationLoaded = true;
+        });
+      }
+    `);
+
+    return baseTemplate({
+      PARALLEL_MODULES: parallelModules,
+      SEQUENTIAL_MODULES: sequentialModules,
+      LOADED_MODULES: loadedModules,
+      SET_INTERFACE_STATEMENT: setInterfaceStatement
+    });
+  }
+
+  buildGetInterfaceWrapperTypedDeclaration(arg) {
+    const baseTemplate = this.defaultTemplate(`
+      export function getInterfaceWrapper(name: '${arg.NAME}'): typeof ${arg.TYPE}; 
+    `);
+    return baseTemplate({});
+  }
+
+  buildGetInterfaceWrapper() {
+    const getInterfaceWrapperTypedDeclaration = this.moduleSpecifiers.map(specifier => this.buildGetInterfaceWrapperTypedDeclaration({  
+      NAME: specifier.name,
+      TYPE: specifier.type
+    }));
+
+    const baseTemplate = this.defaultTemplate(`
+      GET_INTERFACE_WRAPPER_TYPED_DECLARATION
+      export function getInterfaceWrapper(name: string): any;
+      export function getInterfaceWrapper(name) {
+        if (!implementationLoaded) {
+          throw new Error('DOM Implementation not loaded');
+        }
+        return setInterfaces.get(name);
+      }
+    `);
+
+    return baseTemplate({
+      GET_INTERFACE_WRAPPER_TYPED_DECLARATION: getInterfaceWrapperTypedDeclaration
+    });
+  }
+
+  buildInterfacesModule() {
+    const headerDeclaration = this.buildHeaderDeclaration();
+    const loadImplementations = this.buildLoadImplementations();
+    const getInterfaceWrapper = this.buildGetInterfaceWrapper();
+
+    const baseTemplate = this.defaultTemplate(`
+      HEAD_DECLARATION
+      LOAD_IMPLEMENTATIONS
+      GET_INTERFACE_WRAPPER
+    `);
+
+    return baseTemplate({
+      HEAD_DECLARATION: headerDeclaration,
+      LOAD_IMPLEMENTATIONS: loadImplementations,
+      GET_INTERFACE_WRAPPER: getInterfaceWrapper
+    });
+  }
+
+  generateCode() {
+    const interfacesModule = this.buildInterfacesModule();
+    const code = generate.default(t.program(interfacesModule)).code;
+    return code;
+  }
+
+  writeToFile(outputPath) {
+    const code = this.generateCode();
+    const outputDir = 'src/living/';
+    const resolvedOutputPath = path.resolve(outputDir, outputPath);
+    fs.writeFileSync(resolvedOutputPath, code, 'utf8');
+  }
+}
 
 const moduleSpecifiers = [
   // Attributes
@@ -86,167 +275,5 @@ const moduleSpecifiers = [
   { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true, name: 'XRSession' }
 ];
 
-// Build the templates
-const buildTypeImports = (arg) => {
-  if (arg.IS_DEFAULT) {
-    const baseTemplate = defaultTemplate(`
-      import type ${arg.TYPE} from '${arg.PATH}';
-    `);
-    return baseTemplate({});
-  } else {
-    const baseTemplate = defaultTemplate(`
-      import type { ${arg.TYPE} } from '${arg.PATH}';
-    `);
-    return baseTemplate({});
-  }
-};
-
-const buildHeaderDeclaration = defaultTemplate(`
-  TYPE_IMPORTS
-  let implementationLoaded = false;
-  const setInterfaces = new Map<string, any>();
-`);
-
-const buildParallelImports = (arg) => {
-  const baseTemplate = defaultTemplate(`
-    import('${arg.MODULE}')
-  `);
-  return baseTemplate({});
-};
-
-const buildSequentialImports = (arg) => {
-  const baseTemplate = defaultTemplate(`
-    await import('${arg.MODULE}')
-  `);
-  return baseTemplate({});
-};
-
-const buildModulesAssignment = defaultTemplate(`
-  modules = Promise.all(SOURCE)
-`);
-
-const buildInterfaceSetter = (arg) => {
-  if (arg.IS_DEFAULT) {
-    const baseTemplate = defaultTemplate(`
-      setInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
-    `);
-    return baseTemplate({});
-  } else {
-    const baseTemplate = defaultTemplate(`
-      setInterfaces.set('${arg.NAME}', ${arg.TYPE});
-    `);
-    return baseTemplate({});
-  }
-};
-
-const buildLoadImplementations = defaultTemplate(`
-  export async function loadImplementations(isParallel = true) {
-    let modules;
-    if (isParallel) {
-      PARALLEL_MODULES
-    } else {
-      SEQUENTIAL_MODULES
-    }
-    return modules.then(([
-      LOADED_MODULES
-    ]) => {
-      INTERFACE_SETTER
-      implementationLoaded = true;
-    });
-  }
-`);
-
-const buildGetInterfaceWrapperTypedDeclaration = (arg) => {
-  const baseTemplate = defaultTemplate(`
-    export function getInterfaceWrapper(name: '${arg.NAME}'): typeof ${arg.TYPE}; 
-  `);
-  return baseTemplate({}); 
-};
-
-const buildGetInterfaceWrapper = defaultTemplate(`
-  GET_INTERFACE_WRAPPER_TYPED_DECLARATION
-  export function getInterfaceWrapper(name: string): any;
-  export function getInterfaceWrapper(name) {
-    if (!implementationLoaded) {
-      throw new Error('DOM Implementation not loaded');
-    }
-    return setInterfaces.get(name);
-  }
-`);
-
-const buildInterfacesModule = defaultTemplate(`
-  HEAD_DECLARATION
-  LOAD_IMPLEMENTATIONS
-  GET_INTERFACE_WRAPPER
-`);
-
-// Build the code
-const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
-  TYPE: specifier.type,
-  PATH: specifier.path,
-  IS_DEFAULT: specifier.isDefault
-}));
-
-const headerDeclaration = buildHeaderDeclaration({
-  TYPE_IMPORTS: typeImports
-});
-
-const parallelImports = moduleSpecifiers.map(specifier => buildParallelImports({
-  MODULE: specifier.path
-}));
-
-const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImports({
-  MODULE: specifier.path
-}));
-
-const parallelModules = buildModulesAssignment({
-  SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
-});
-
-const sequentialModules = buildModulesAssignment({
-  SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
-});
-
-// Template cannot handle single-word task,
-// so I choose to use string concatenation to solve this problem.
-const loadedModules = moduleSpecifiers.map(specifier => {
-  if (specifier.isDefault) {
-    return specifier.type;
-  } else {
-    return `{ ${specifier.type} }`;
-  }
-}).join(', ');
-
-const interfaceSetter = moduleSpecifiers.map(specifier => buildInterfaceSetter({
-  NAME: specifier.name,
-  IS_DEFAULT: specifier.isDefault,
-  TYPE: specifier.type
-}));
-
-const loadImplementations = buildLoadImplementations({
-  PARALLEL_MODULES: parallelModules,
-  SEQUENTIAL_MODULES: sequentialModules,
-  LOADED_MODULES: loadedModules,
-  INTERFACE_SETTER: interfaceSetter
-});
-
-const getInterfaceWrapperTypedDeclaration = moduleSpecifiers.map(specifier => buildGetInterfaceWrapperTypedDeclaration({  
-  NAME: specifier.name,
-  TYPE: specifier.type
-}));
-
-const getInterfaceWrapper = buildGetInterfaceWrapper({
-  GET_INTERFACE_WRAPPER_TYPED_DECLARATION: getInterfaceWrapperTypedDeclaration
-});
-
-const interfacesModule = buildInterfacesModule({
-  HEAD_DECLARATION: headerDeclaration,
-  LOAD_IMPLEMENTATIONS: loadImplementations,
-  GET_INTERFACE_WRAPPER: getInterfaceWrapper
-});
-
-// Generate the code
-const code = generate.default(t.program(interfacesModule)).code;
-const outputDir = 'src/living/';
-const outputPath = path.resolve(outputDir, 'interfaces.ts');
-fs.writeFileSync(outputPath, code, 'utf8');
+const generator = new DomInterfaceGenerator(moduleSpecifiers);
+generator.writeToFile('interface.ts');
