@@ -8,7 +8,7 @@ import { isHTMLContentElement } from '../../node-type';
 import { Control2D } from '../gui2d/control';
 import { domSymbolTree } from '../internal-constants';
 import DOMMatrixImpl from '../../geometry/DOMMatrix'
-import { post_multiply } from '../../geometry/MatrixFunction';
+import { postMultiply } from '../matrix-functions';
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
  */
@@ -365,7 +365,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         const x = parseFloat(transform.value);
         const translateMatrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, 0, 0, 1]);
         console.log("🐷", translateMatrix);
-        matrix = post_multiply(matrix, translateMatrix);
+        matrix = postMultiply(matrix, translateMatrix);
         // console.log("🐼", matrix);
       }
 
@@ -375,7 +375,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
         const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
         const rotateMatrix: DOMMatrix = new DOMMatrixImpl([cosValue, sinValue, 0, 0,  -sinValue, cosValue, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
-        matrix = post_multiply(matrix, rotateMatrix) as DOMMatrixImpl;
+        matrix = postMultiply(matrix, rotateMatrix) as DOMMatrixImpl;
         console.log("🐻‍❄️rotateMatrix: ", rotateMatrix);
       }
     });
