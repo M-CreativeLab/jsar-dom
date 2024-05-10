@@ -276,4 +276,4 @@ const moduleSpecifiers = [
 ];
 
 const generator = new DomInterfaceGenerator(moduleSpecifiers);
-generator.writeToFile('interface.ts');
+generator.writeToFile('interfaces.ts');
