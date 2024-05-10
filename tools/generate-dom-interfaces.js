@@ -101,7 +101,7 @@ const buildTypeImports = (arg) => {
   }
 };
 
-const buildHeadStatement = defaultTemplate(`
+const buildHeaderDeclaration = defaultTemplate(`
   TYPE_IMPORTS
   let implementationLoaded = false;
   const setInterfaces = new Map<string, any>();
@@ -150,7 +150,7 @@ const buildLoadImplementations = defaultTemplate(`
     return modules.then(([
       LOADED_MODULES
     ]) => {
-      SET_INTERFACES
+      INTERFACE_SETTER
       implementationLoaded = true;
     });
   }
@@ -175,7 +175,7 @@ const buildGetInterfaceWrapper = defaultTemplate(`
 `);
 
 const buildInterfacesModule = defaultTemplate(`
-  HEAD_STATEMENT
+  HEAD_DECLARATION
   LOAD_IMPLEMENTATIONS
   GET_INTERFACE_WRAPPER
 `);
@@ -187,7 +187,7 @@ const typeImports = moduleSpecifiers.map(specifier => buildTypeImports({
   IS_DEFAULT: specifier.isDefault
 }));
 
-const headStatement = buildHeadStatement({
+const headerDeclaration = buildHeaderDeclaration({
   TYPE_IMPORTS: typeImports
 });
 
@@ -217,7 +217,7 @@ const loadedModules = moduleSpecifiers.map(specifier => {
   }
 }).join(', ');
 
-const interfacesSetter = moduleSpecifiers.map(specifier => buildInterfaceSetter({
+const interfaceSetter = moduleSpecifiers.map(specifier => buildInterfaceSetter({
   NAME: specifier.name,
   IS_DEFAULT: specifier.isDefault,
   TYPE: specifier.type
@@ -227,7 +227,7 @@ const loadImplementations = buildLoadImplementations({
   PARALLEL_MODULES: parallelModules,
   SEQUENTIAL_MODULES: sequentialModules,
   LOADED_MODULES: loadedModules,
-  SET_INTERFACES: interfacesSetter
+  INTERFACE_SETTER: interfaceSetter
 });
 
 const getInterfaceWrapperTypedDeclaration = moduleSpecifiers.map(specifier => buildGetInterfaceWrapperTypedDeclaration({  
@@ -240,7 +240,7 @@ const getInterfaceWrapper = buildGetInterfaceWrapper({
 });
 
 const interfacesModule = buildInterfacesModule({
-  HEAD_STATEMENT: headStatement,
+  HEAD_DECLARATION: headerDeclaration,
   LOAD_IMPLEMENTATIONS: loadImplementations,
   GET_INTERFACE_WRAPPER: getInterfaceWrapper
 });
