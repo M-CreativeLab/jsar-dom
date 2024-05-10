@@ -17,7 +17,7 @@ import * as t from '@babel/types';
  * when using related interfaces.
  */
 
-class DomInterfaceGenerator {
+class DomInterfacesGenerator {
   constructor(moduleSpecifiers) {
     this.moduleSpecifiers = moduleSpecifiers;
     this.defaultTemplate = template.smart({
@@ -85,7 +85,7 @@ class DomInterfaceGenerator {
       modules = Promise.all(SOURCE)
     `);
 
-    if(isParallel) {
+    if (isParallel) {
       return baseTemplate({
         SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
       });
@@ -201,14 +201,12 @@ class DomInterfaceGenerator {
 
   generateCode() {
     const interfacesModule = this.buildInterfacesModule();
-    const code = generate.default(t.program(interfacesModule)).code;
-    return code;
+    return generate.default(t.program(interfacesModule)).code;
   }
 
   writeToFile(outputPath) {
     const code = this.generateCode();
-    const outputDir = 'src/living/';
-    const resolvedOutputPath = path.resolve(outputDir, outputPath);
+    const resolvedOutputPath = path.resolve(outputPath);
     fs.writeFileSync(resolvedOutputPath, code, 'utf8');
   }
 }
@@ -275,5 +273,5 @@ const moduleSpecifiers = [
   { path: './xr/XRSession', type: 'XRSessionImpl', isDefault: true, name: 'XRSession' }
 ];
 
-const generator = new DomInterfaceGenerator(moduleSpecifiers);
-generator.writeToFile('interfaces.ts');
+const generator = new DomInterfacesGenerator(moduleSpecifiers);
+generator.writeToFile('src/living/interfaces.ts');
