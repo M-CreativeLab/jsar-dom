@@ -132,9 +132,9 @@ const buildModulesAssignment = defaultTemplate(`
 
 const buildLoadStatement = defaultTemplate(`
   if (isParallel) {
-    PARALLEL_MODULE
+    PARALLEL_MODULES
   } else {
-    SEQUENTIAL_MODULE
+    SEQUENTIAL_MODULES
   }
 `);
 
@@ -164,7 +164,7 @@ const buildLoadImplementations = defaultTemplate(`
   }
 `);
 
-const buildExportFunction = (arg) => {
+const buildExportGetInterfaceWrapper = (arg) => {
   const baseTemplate = defaultTemplate(`
     export function getInterfaceWrapper(name: '${arg.NAME}'): typeof ${arg.TYPE}; 
   `);
@@ -172,7 +172,7 @@ const buildExportFunction = (arg) => {
 };
 
 const buildGetInterfaceWrapper = defaultTemplate(`
-  EXPORT_FUNCTION
+  EXPORT_GET_INTERFACE_WRAPPER
   export function getInterfaceWrapper(name: string): any;
   export function getInterfaceWrapper(name) {
     if (!implementationLoaded) {
@@ -207,17 +207,17 @@ const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImpor
   MODULE: specifier.path
 }));
 
-const parallelModule = buildModulesAssignment({
+const parallelModules = buildModulesAssignment({
   SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
 });
 
-const sequentialModule = buildModulesAssignment({
+const sequentialModules = buildModulesAssignment({
   SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
 });
 
 const loadStatement = buildLoadStatement({
-  PARALLEL_MODULE: parallelModule,
-  SEQUENTIAL_MODULE: sequentialModule
+  PARALLEL_MODULES: parallelModules,
+  SEQUENTIAL_MODULES: sequentialModules
 });
 
 // Template cannot handle single-word task,
@@ -242,13 +242,13 @@ const loadImplementations = buildLoadImplementations({
   SET_INTERFACES: setInterfaces
 });
 
-const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
+const exportGetInterfaceWrapper = moduleSpecifiers.map(specifier => buildExportGetInterfaceWrapper({  
   NAME: specifier.name,
   TYPE: specifier.type
 }));
 
 const getInterfaceWrapper = buildGetInterfaceWrapper({
-  EXPORT_FUNCTION: exportFunction
+  EXPORT_GET_INTERFACE_WRAPPER: exportGetInterfaceWrapper
 });
 
 const integration = buildIntegration({
