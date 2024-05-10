@@ -103,7 +103,7 @@ const buildTypeImports = (arg) => {
 const buildHeadStatement = defaultTemplate(`
   TYPE_IMPORTS
   let implementationLoaded = false;
-  const implementedInterfaces = new Map<string, any>();
+  const setInterfaces = new Map<string, any>();
 `);
 
 /**
@@ -126,12 +126,12 @@ const buildSequentialImports = (arg) => {
   return baseTemplate({});
 }
 
-const buildModule = defaultTemplate(`
+const buildModulesAssignment = defaultTemplate(`
   modules = Promise.all(SOURCE)
 `);
 
-const buildIfStatement = defaultTemplate(`
-  if (IS_PARALLEL) {
+const buildLoadStatement = defaultTemplate(`
+  if (isParallel) {
     PARALLEL_MODULE
   } else {
     SEQUENTIAL_MODULE
@@ -141,12 +141,12 @@ const buildIfStatement = defaultTemplate(`
 const buildImplementedInterfaces = (arg) => {
   if (arg.IS_DEFAULT) {
     const baseTemplate = defaultTemplate(`
-      implementedInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
+      setInterfaces.set('${arg.NAME}', ${arg.TYPE}.default);
     `);
     return baseTemplate({});
   } 
   const baseTemplate = defaultTemplate(`
-    implementedInterfaces.set('${arg.NAME}', ${arg.TYPE});
+    setInterfaces.set('${arg.NAME}', ${arg.TYPE});
   `);
   return baseTemplate({});
 }
@@ -154,11 +154,11 @@ const buildImplementedInterfaces = (arg) => {
 const buildLoadImplementations = defaultTemplate(`
   export async function loadImplementations(isParallel = true) {
     let modules;
-    IF_STATEMENT
+    LOAD_STATEMENT
     return modules.then(([
-      THEN
+      LOADED_MODULES
     ]) => {
-      IMPLEMENTED_INTERFACES
+      SET_INTERFACES
       implementationLoaded = true;
     });
   }
@@ -178,7 +178,7 @@ const buildGetInterfaceWrapper = defaultTemplate(`
     if (!implementationLoaded) {
       throw new Error('DOM Implementation not loaded');
     }
-    return implementedInterfaces.get(name);
+    return setInterfaces.get(name);
   }
 `);
 
@@ -207,23 +207,22 @@ const sequentialImports = moduleSpecifiers.map(specifier => buildSequentialImpor
   MODULE: specifier.path
 }));
 
-const parallelModule = buildModule({
+const parallelModule = buildModulesAssignment({
   SOURCE: t.arrayExpression(parallelImports.map(imp => imp.expression))
 });
 
-const sequentialModule = buildModule({
+const sequentialModule = buildModulesAssignment({
   SOURCE: t.arrayExpression(sequentialImports.map(imp => imp.expression))
 });
 
-const ifStatement = buildIfStatement({
-  IS_PARALLEL: t.identifier('isParallel'),
+const loadStatement = buildLoadStatement({
   PARALLEL_MODULE: parallelModule,
   SEQUENTIAL_MODULE: sequentialModule
 });
 
 // Template cannot handle single-word task,
 // so I choose to use string concatenation to solve this problem.
-const then = moduleSpecifiers.map(specifier => {
+const loadedModules = moduleSpecifiers.map(specifier => {
   if (specifier.isDefault) {
     return specifier.type;
   } else {
@@ -231,16 +230,16 @@ const then = moduleSpecifiers.map(specifier => {
   }
 }).join(', ');
 
-const implementedInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
+const setInterfaces = moduleSpecifiers.map(specifier => buildImplementedInterfaces({
   NAME: specifier.name,
   IS_DEFAULT: specifier.isDefault,
   TYPE: specifier.type
 }));
 
 const loadImplementations = buildLoadImplementations({
-  IF_STATEMENT: ifStatement,
-  THEN: then,
-  IMPLEMENTED_INTERFACES: implementedInterfaces
+  LOAD_STATEMENT: loadStatement,
+  LOADED_MODULES: loadedModules,
+  SET_INTERFACES: setInterfaces
 });
 
 const exportFunction = moduleSpecifiers.map(specifier => buildExportFunction({  
