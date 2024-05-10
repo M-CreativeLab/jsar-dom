@@ -28,6 +28,9 @@ jobs:
     - name: Install Node.js dependencies
       run: |
         npm ci && npx tsc --version
+    - name: Generate interfaces.ts
+      run: |
+        npm run gen-dom-interfaces
     - name: Build bindings
       run: |
         npm run bindings

@@ -134,3 +134,6 @@ target
 
 # macos
 .DS_Store
+
+# interfaces
+src/living/interfaces.ts

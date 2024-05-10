@@ -13,6 +13,7 @@
     "bindings": "node ./bindings/tools/build.cjs",
     "postbindings": "node ./bindings/tools/post-scripts.cjs",
     "gen-cdpfiles": "node --loader ./tsconfig-esm-loader.js src/cdp/builder/main.ts",
+    "gen-dom-interfaces": "node ./tools/generate-dom-interfaces.js",
     "test": "cross-env NODE_OPTIONS=--experimental-vm-modules jest",
     "test:ci": "cross-env NODE_OPTIONS=--experimental-vm-modules jest --ci --reporters=default --collectCoverage --coverageDirectory=\"./coverage\"",
     "headless-bin": "node --loader ./tsconfig-esm-loader.js ./src/impl-headless.ts",
@@ -53,6 +54,8 @@
     "xml-name-validator": "^5.0.0"
   },
   "devDependencies": {
+    "@babel/plugin-syntax-typescript": "^7.24.1",
+    "@babel/template": "^7.24.0",
     "@jest/globals": "^29.7.0",
     "@napi-rs/canvas": "^0.1.44",
     "@types/babel__core": "^7.20.1",
