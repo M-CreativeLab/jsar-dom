@@ -230,7 +230,10 @@ export class Control2D {
     }
   }
 
-
+  get element(): HTMLContentElement | ShadowRootImpl {
+    return this._element;
+  }
+  
   get transform(): DOMMatrix {
     return this._transform;
   }
