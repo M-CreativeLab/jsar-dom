@@ -135,6 +135,7 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
 
   private async _resizeImageData() {
     if (this._enableResizing && this._imageBitmap) {
+      console.log('height', this.height);
       this._imageData = await this._hostObject.decodeImage(this._imageBitmap, [this.width, this.height]);
     }
   }
@@ -203,7 +204,7 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
   }
 
   _renderSelf(rect: DOMRect, base: DOMRectReadOnly): void {
-    this._control.setImageData(this._imageData);
+    this._control.setImageData(this._imageBitmap);
     super._renderSelf(rect, base);
   }
 

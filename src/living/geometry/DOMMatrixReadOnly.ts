@@ -115,7 +115,6 @@ export default class DOMMatrixReadOnlyImpl implements DOMMatrixReadOnly {
   }
 
   [GET_MATRIX_ELEMENTS]() {
-    console.log('GET_MATRIX_ELEMENT called, elements:', this._matrixElements)
     return this._matrixElements;
   }
 

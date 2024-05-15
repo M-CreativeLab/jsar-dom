@@ -3,7 +3,27 @@
       <title>Spatial CSS Example (Basic)</title>
     </head>
     <space>
-      <plane />
+      <plane> 
+        <style type="text/css">
+          div {
+            background-color: red;
+            height: 100%;
+            width: 100%;
+            row-gap: 50px;
+            flex-direction: row;
+            padding: 50px;
+          }
+          img {
+            width: 20%;
+            height: 20%;
+            object-fit: cover;
+            transform: translateX(100px);
+          }
+        </style>
+        <div>
+          <img src="./texture.jpg">
+        </div>
+      </plane>
       <cube id="cube1" class="m_cube" />
     </space>
     <style type="text/scss">
@@ -28,7 +48,7 @@
       }
       #cube1 {
         position: 1 1 1;
-        transform: rotate(45deg);
+        transform: rotate(10deg);
         material: "liteblue";
         animation: rotate 5s infinite;
       }

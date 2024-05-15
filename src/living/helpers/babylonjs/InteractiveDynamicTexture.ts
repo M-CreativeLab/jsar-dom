@@ -291,6 +291,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     // Start rendering
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
+    // this.getContext().setTransform(1, 0, 0, 1, 0, 0);
     const isDirtyAfterRendering = this._iterateLayoutResult();
     this.update();
 
@@ -315,11 +316,14 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     } else {
       layout = currentElementOrControl._control.layoutNode.getLayout();
       const control =  currentElementOrControl._control;
-      const style = currentElementOrControl.style;
-      const transformStr = style.transform; 
+      const style = control._style;
+      console.log('style', style);
+      const transformStr = style.transform;
+      console.log('element', control.element);
       if (currentElementOrControl.parentElement === null) {
         control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
         control.currentTransform = control.transform;
+        currentElementOrControl._control = control;
       } else {
         control.transform = InteractiveDynamicTexture._parserTransform(transformStr); //    transform
         const parentElement = currentElementOrControl.parentElement;
@@ -327,6 +331,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
           const parentControl = parentElement._control;
           const parentTransform = parentControl.transform;
           control.currentTransform = postMultiply(parentTransform, control.transform);
+          currentElementOrControl._control = control;
         }
       }
 
@@ -356,6 +361,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
 
   // 不能在render里调，开销太大
   static _parserTransform(transformStr: string): DOMMatrix {
+    console.log('🐦', transformStr);
     const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
     const matches = [...transformStr.matchAll(pattern)];
     const transforms = matches.map(match => ({
@@ -366,19 +372,15 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     console.log(transforms);
     // const transforms = transformStr.split(' ').reverse(); // transformation is applied from right to left 
     let matrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,   0, 1, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
-    console.log("🐔matrix: ", matrix);
     transforms.forEach(transform => {
-      console.log("🐔🐔", transform.type);
       if (transform.type === 'translateX') {
         const x = parseFloat(transform.value);
         const translateMatrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, 0, 0, 1]);
-        console.log("🐷", translateMatrix);
         matrix = postMultiply(matrix, translateMatrix);
       }
 
       if (transform.type === 'rotate') {
         const angle = parseFloat(transform.value);
-        console.log("🐻🐻", Math.cos(angle * Math.PI / 180));
         const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
         const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
         const rotateMatrix: DOMMatrix = new DOMMatrixImpl([cosValue, sinValue, 0, 0,  -sinValue, cosValue, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);

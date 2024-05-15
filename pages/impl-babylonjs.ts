@@ -631,10 +631,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       // scene.debugLayer.show();
       // Show panels
-      panels = await Promise.all([
-        loadBuiltinPanel(
-          'spatial-devtools/console.xsml', nativeDocument, new BABYLON.Vector3(0, -0.8, -2)),
-      ]);
+      // panels = await Promise.all([
+      //   loadBuiltinPanel(
+      //     'spatial-devtools/console.xsml', nativeDocument, new BABYLON.Vector3(0, -0.8, -2)),
+      // ]);
     }
 
     cdpClient.rootSession.api.DOM.getDocument().then((result) => {

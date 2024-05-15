@@ -167,7 +167,7 @@ export class Control2D {
   protected _renderingContext: CanvasRenderingContext2D;
   private _overwriteHeight: number;
   private _overwriteWidth: number;
-  private _imageData: ImageDataImpl;
+  private _imageData: ImageBitmap;
   private _isDirty = true;
 
   private _transform: DOMMatrix;
@@ -199,7 +199,7 @@ export class Control2D {
     }
   }
 
-  setImageData(data: ImageDataImpl) {
+  setImageData(data: ImageBitmap) {
     this._imageData = data;
   }
 
@@ -392,7 +392,7 @@ export class Control2D {
     const canvasContext = this._renderingContext;
     const boxRect = new DOMRectImpl(x, y, width, height);
     const hasTextChildren = this._isElementOwnsInnerText();
-
+    
     /**
      * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
      */
@@ -412,6 +412,11 @@ export class Control2D {
     }
 
     /**
+     * Render the transform.
+     */
+    this._updateTransform(canvasContext);
+
+   /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
      */
     if (!this._renderBorders(canvasContext, boxRect)) {
@@ -427,11 +432,6 @@ export class Control2D {
       this._renderInnerText(canvasContext, boxRect);
     }
     this._lastRect = boxRect;
-
-    /**
-     * Render the transform.
-     */
-    this._updateTransform();
   }
 
   /**
@@ -766,13 +766,17 @@ export class Control2D {
       element.width = rect.width;
       element.height = rect.height;
     });
-    renderingContext.putImageData(this._imageData, rect.x, rect.y, 0, 0, rect.width, rect.height);
+    renderingContext.drawImage(this._imageData, rect.x, rect.y, rect.width, rect.height);
   }
   
-  _updateTransform() {
-    const transformMatrix = this.transform;
-    const ctx = this._renderingContext;
-    ctx.setTransform(transformMatrix);
+  _updateTransform(renderingContext: CanvasRenderingContext2D = this._renderingContext) {
+    const transformMatrix = this.currentTransform;
+    console.log('ctx -> transformMatrix', transformMatrix);
+    // renderingContext.setTransform(1, 0, 0, 1, 0, 0);
+    // renderingContext.translate(renderingContext.canvas.width / 2, renderingContext.canvas.height / 2);
+    // console.log('ctx.width', renderingContext.canvas.width);
+    // renderingContext.rotate(10 * Math.PI / 180);
+    renderingContext.setTransform(transformMatrix);
   }
 
   _accumulatesTransform() {
