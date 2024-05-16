@@ -1,3 +1,6 @@
+import type { ElementImpl } from './Element';
+import type CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
+
 import nwsapi from 'nwsapi';
 import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
@@ -8,6 +11,7 @@ import { NodeImpl } from './Node';
 export default class DocumentOrShadowRootImpl implements DocumentOrShadowRoot {
   _styleSheets: StyleSheetListImpl;
   _adoptedStyleSheets: CSSStyleSheetImpl[];
+  _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
 
   // CSS selectors
   _nwsapi: nwsapi.NWSAPI;

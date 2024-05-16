@@ -1,3 +1,5 @@
+import type DocumentOrShadowRootImpl from '../../nodes/DocumentOrShadowRoot';
+
 import * as taffy from '@bindings/taffy';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';
@@ -267,7 +269,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         /**
          * Check if the node has style cache, if not, it means the node should be updated.
          */
-        let styleCache = node._ownerDocument._styleCache;
+        const documentOrShadowRoot = node.getRootNode() as unknown as DocumentOrShadowRootImpl;
+        let styleCache = documentOrShadowRoot._styleCache;
         if (!styleCache) {
           return true;
         }

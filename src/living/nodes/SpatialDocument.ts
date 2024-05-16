@@ -332,7 +332,6 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
   _executingScriptsObservers: Set<Promise<void>> = new Set();
   _isSpaceReady: boolean = false;
   _lastModified: string;
-  _styleCache: WeakMap<ElementImpl, CSSStyleDeclaration | CSSSpatialStyleDeclaration> | null = null;
   _lastFocusedElement: Element | null;
   _spatialKeyframesMap: Map<string, CSSSpatialKeyframesRule> = new Map();
 
