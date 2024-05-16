@@ -778,16 +778,6 @@ export class Control2D {
     // renderingContext.rotate(10 * Math.PI / 180);
     renderingContext.setTransform(transformMatrix);
   }
-
-  _accumulatesTransform() {
-    const transformMatrix = this.transform;
-    const tmpElement = this._element;
-    const parentElement = tmpElement.parentElement as HTMLContentElement;
-    const parentControl = parentElement._control;
-    const parentMatrix = parentControl.currentTransform;
-    const transform =  parentMatrix.multiply(transformMatrix);
-    this.currentTransform = transform;
-  }
   
   containsPoint(x: number, y: number): boolean {
     const rect = this._lastRect;

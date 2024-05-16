@@ -1,23 +1,50 @@
 <xsml>
     <head>
       <title>Spatial CSS Example (Basic)</title>
+      <style type="text/scss">
+        @material litered {
+          diffuse-color: red;
+          specular-color: blue;
+          specular-power: 10.3;
+        }
+        @material liteblue {
+          material-type: physical-based;
+          albedo-color: blue;
+          specular-color:blue;
+          specular-power: 16;
+        }
+        @keyframes rotate {
+          0% {
+            rotation: 0 0 0;
+          }
+          100% {
+            rotation: 0 360 0;
+          }
+        }
+        #cube1 {
+          position: 1 1 1;
+          transform: rotate(10deg);
+          material: "liteblue";
+          animation: rotate 5s infinite;
+        }
+      </style>
     </head>
     <space>
-      <plane> 
+      <plane id="plane1"> 
         <style type="text/css">
           div {
             background-color: red;
-            height: 100%;
-            width: 100%;
+            height: 1024px;
+            width: 1024px;
             row-gap: 50px;
             flex-direction: row;
             padding: 50px;
           }
           img {
-            width: 20%;
-            height: 20%;
+            width: 25%;
+            height: 25%;
             object-fit: cover;
-            transform: translateX(100px);
+            position: relative;
           }
         </style>
         <div>
@@ -25,33 +52,32 @@
         </div>
       </plane>
       <cube id="cube1" class="m_cube" />
+      <script>
+        const plane = document.querySelector('plane');
+        const panel = plane.shadowRoot;
+        const div = panel.querySelector('div');
+        const img = div.querySelector('img');
+        div.addEventListener('mousemove', (event) => {
+          const mouseX = event.x;
+          console.log('mouseX', mouseX);
+          const mouseY = event.y;
+          console.log('mouseY', mouseY);
+          const x = Math.round(mouseX);
+          img.style.transform = `translateX(${x - 512}px)`;
+          
+        });
+        
+        /** if (plane) {
+          plane.addEventListener('rayenter', () => {
+            img.style.transform = "rotate(45deg)";
+            console.log('ray entered');
+          });
+          plane.addEventListener('rayleave', () => {
+            img.style.transform = "rotate(-45deg)";
+            console.log('ray leaved');
+          });
+        } */
+      </script>
     </space>
-    <style type="text/scss">
-      @material litered {
-        diffuse-color: red;
-        specular-color: blue;
-        specular-power: 10.3;
-      }
-      @material liteblue {
-        material-type: physical-based;
-        albedo-color: blue;
-        specular-color:blue;
-        specular-power: 16;
-      }
-      @keyframes rotate {
-        0% {
-          rotation: 0 0 0;
-        }
-        100% {
-          rotation: 0 360 0;
-        }
-      }
-      #cube1 {
-        position: 1 1 1;
-        transform: rotate(10deg);
-        material: "liteblue";
-        animation: rotate 5s infinite;
-      }
-    </style>
   </xsml>
   
