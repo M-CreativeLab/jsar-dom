@@ -5,9 +5,18 @@
       @material liteblue {
         diffuse-color: blue;
       }
+      @keyframes rotateSelf {
+        from {
+          rotation: 0 0 0;
+        }
+        to {
+          rotation: 0 360 0;
+        }
+      }
       #inner {
         position: 0 -1 0;
         material: "liteblue";
+        animation: "rotateSelf" infinite 5s;
       }
     </style>
   </head>

@@ -3,6 +3,7 @@ import type { NodeImpl } from '../nodes/Node';
 import type { ElementImpl } from '../nodes/Element';
 import type { SpatialElement } from '../nodes/SpatialElement';
 import type { HTMLElementImpl } from '../nodes/HTMLElement';
+import type DocumentOrShadowRootImpl from '../nodes/DocumentOrShadowRoot';
 import { isDocumentNode, isHTMLElement, isSpatialElement } from '../node-type';
 
 import CSSRuleListImpl from '../cssom/CSSRuleList';
@@ -50,9 +51,15 @@ export const propertiesWithResolvedValueImplemented = {
   },
 };
 
+/**
+ * Invalidates and clear the style cache map of the given element's root node.
+ * 
+ * @param elementImpl the element to invalidate the style cache for.
+ */
 export const invalidateStyleCache = (elementImpl: NodeImpl) => {
   if (elementImpl._attached) {
-    elementImpl._ownerDocument._styleCache = null;
+    const documentOrShadowRoot = elementImpl.getRootNode() as unknown as DocumentOrShadowRootImpl;
+    documentOrShadowRoot._styleCache = null;
   }
 };
 
@@ -88,12 +95,10 @@ export function getDeclarationForElement(elementImpl: SpatialElement): CSSSpatia
 export function getDeclarationForElement(elementImpl: HTMLElementImpl): CSSStyleDeclaration;
 export function getDeclarationForElement(elementImpl: ElementImpl): CSSStyleDeclaration;
 export function getDeclarationForElement(elementImpl: ElementImpl) {
-  /**
-   * FIXME: should we move the style cache to DocumentOrShadowRoot even though the _ownerDocument works?
-   */
-  let styleCache = elementImpl._ownerDocument._styleCache;
+  const documentOrShadowRoot = elementImpl.getRootNode() as unknown as DocumentOrShadowRootImpl;
+  let styleCache = documentOrShadowRoot._styleCache;
   if (!styleCache) {
-    styleCache = elementImpl._ownerDocument._styleCache = new WeakMap();
+    styleCache = documentOrShadowRoot._styleCache = new WeakMap();
   }
 
   const cachedDeclaration = styleCache.get(elementImpl);
