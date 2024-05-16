@@ -1,6 +1,5 @@
 import type { ElementImpl } from './Element';
 import type CSSSpatialStyleDeclaration from '../cssom/CSSSpatialStyleDeclaration';
-
 import nwsapi from 'nwsapi';
 import CSSStyleSheetImpl from '../cssom/CSSStyleSheet';
 import StyleSheetListImpl from '../cssom/StyleSheetList';
