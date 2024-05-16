@@ -1,5 +1,4 @@
 import type DocumentOrShadowRootImpl from '../../nodes/DocumentOrShadowRoot';
-
 import * as taffy from '@bindings/taffy';
 import { NativeDocument } from '../../../impl-interfaces';
 import { HTMLElementImpl } from '../../nodes/HTMLElement';
