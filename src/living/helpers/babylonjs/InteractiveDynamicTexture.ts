@@ -365,11 +365,21 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       value: match[2], 
       unit: match[3], 
     }));
-    let matrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,   0, 1, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
+    let matrix: DOMMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0,   
+      0, 1, 0, 0,  
+      0, 0, 1, 0,   
+      0, 0, 0, 1
+    ]);
     transforms.forEach(transform => {
       if (transform.type === 'translateX') {
         const x = parseFloat(transform.value);
-        const translateMatrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,  0, 1, 0, 0,  0, 0, 1, 0,  x, 0, 0, 1]);
+        const translateMatrix: DOMMatrix = new DOMMatrixImpl([
+          1, 0, 0, 0,  
+          0, 1, 0, 0,  
+          0, 0, 1, 0,  
+          x, 0, 0, 1
+        ]);
         matrix = postMultiply(matrix, translateMatrix);
       }
 
@@ -377,7 +387,12 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         const angle = parseFloat(transform.value);
         const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
         const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-        const rotateMatrix: DOMMatrix = new DOMMatrixImpl([cosValue, sinValue, 0, 0,  -sinValue, cosValue, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
+        const rotateMatrix: DOMMatrix = new DOMMatrixImpl([
+          cosValue, sinValue, 0, 0,  
+          -sinValue, cosValue, 0, 0,  
+          0, 0, 1, 0,   
+          0, 0, 0, 1
+        ]);
         matrix = postMultiply(matrix, rotateMatrix) as DOMMatrixImpl;
       }
     });
