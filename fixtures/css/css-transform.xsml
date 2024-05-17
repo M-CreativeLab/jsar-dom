@@ -2,11 +2,6 @@
     <head>
       <title>Spatial CSS Example (Basic)</title>
       <style type="text/scss">
-        @material litered {
-          diffuse-color: red;
-          specular-color: blue;
-          specular-power: 10.3;
-        }
         @material liteblue {
           material-type: physical-based;
           albedo-color: blue;
@@ -30,7 +25,7 @@
       </style>
     </head>
     <space>
-      <plane id="plane1"> 
+      <plane> 
         <style type="text/css">
           div {
             background-color: red;
@@ -51,7 +46,7 @@
           <img src="./texture.jpg">
         </div>
       </plane>
-      <cube id="cube1" class="m_cube" />
+      <cube class="m_cube" />
       <script>
         const plane = document.querySelector('plane');
         const panel = plane.shadowRoot;
