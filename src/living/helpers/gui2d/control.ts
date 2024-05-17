@@ -163,7 +163,7 @@ export class Control2D {
   private _lastRect: DOMRectReadOnlyImpl;
   private _lastCursor: BABYLON.Vector2;
   private _isCursorInside = false;
-  private _renderingContext: CanvasRenderingContext2D;
+  protected _renderingContext: CanvasRenderingContext2D; // for unit test
   private _overwriteHeight: number;
   private _overwriteWidth: number;
   private _imageData: ImageBitmap;
