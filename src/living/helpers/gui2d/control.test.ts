@@ -1,6 +1,6 @@
 import { Control2D } from './control';
-import { describe, jest, it, expect } from '@jest/globals'
-import DOMMatrix from '../../geometry/DOMMatrix'
+import { describe, jest, it, expect } from '@jest/globals';
+import DOMMatrix from '../../geometry/DOMMatrix';
 jest.mock('@jest/globals');
 
 class MockControl extends Control2D {

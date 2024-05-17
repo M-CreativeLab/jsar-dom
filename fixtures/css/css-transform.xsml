@@ -2,12 +2,6 @@
     <head>
       <title>Spatial CSS Example (Basic)</title>
       <style type="text/scss">
-        @material liteblue {
-          material-type: physical-based;
-          albedo-color: blue;
-          specular-color:blue;
-          specular-power: 16;
-        }
         @keyframes rotate {
           0% {
             rotation: 0 0 0;
@@ -15,12 +9,6 @@
           100% {
             rotation: 0 360 0;
           }
-        }
-        #cube1 {
-          position: 1 1 1;
-          transform: rotate(10deg);
-          material: "liteblue";
-          animation: rotate 5s infinite;
         }
       </style>
     </head>
@@ -43,10 +31,9 @@
           }
         </style>
         <div>
-          <img src="./texture.jpg">
+          <img src="../textures/texture.jpg">
         </div>
       </plane>
-      <cube class="m_cube" />
       <script>
         const plane = document.querySelector('plane');
         const panel = plane.shadowRoot;

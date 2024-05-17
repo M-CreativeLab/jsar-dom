@@ -315,7 +315,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       isDirtyAfterRendering = control.isDirty();
     } else {
       layout = currentElementOrControl._control.layoutNode.getLayout();
-      const control =  currentElementOrControl._control;
+      const control = currentElementOrControl._control;
       const style = control._style;
       const transformStr = style.transform;
       if (currentElementOrControl.parentElement === null) {
@@ -365,7 +365,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       value: match[2], 
       unit: match[3], 
     }));
-    let matrix: DOMMatrix = new DOMMatrixImpl([
+    let transformMatrix: DOMMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,   
       0, 1, 0, 0,  
       0, 0, 1, 0,   
@@ -380,7 +380,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
           0, 0, 1, 0,  
           x, 0, 0, 1
         ]);
-        matrix = postMultiply(matrix, translateMatrix);
+        transformMatrix = postMultiply(transformMatrix, translateMatrix);
       }
       if (transform.type === 'rotate') {
         const angle = parseFloat(transform.value);
@@ -392,10 +392,10 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
           0, 0, 1, 0,   
           0, 0, 0, 1
         ]);
-        matrix = postMultiply(matrix, rotateMatrix) as DOMMatrixImpl;
+        transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
       }
     });
-    return matrix;
+    return transformMatrix;
   }
 
   /**
