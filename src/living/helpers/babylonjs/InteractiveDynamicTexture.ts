@@ -9,6 +9,7 @@ import { Control2D } from '../gui2d/control';
 import { domSymbolTree } from '../internal-constants';
 import DOMMatrixImpl from '../../geometry/DOMMatrix'
 import { postMultiply } from '../matrix-functions';
+
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
  */
@@ -291,7 +292,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     // Start rendering
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
-    // this.getContext().setTransform(1, 0, 0, 1, 0, 0);
     const isDirtyAfterRendering = this._iterateLayoutResult();
     this.update();
 
@@ -317,15 +317,13 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       layout = currentElementOrControl._control.layoutNode.getLayout();
       const control =  currentElementOrControl._control;
       const style = control._style;
-      // console.log('style', style);
       const transformStr = style.transform;
-      // console.log('element', control.element);
       if (currentElementOrControl.parentElement === null) {
         control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
         control.currentTransform = control.transform;
         currentElementOrControl._control = control;
       } else {
-        control.transform = InteractiveDynamicTexture._parserTransform(transformStr); //    transform
+        control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
         const parentElement = currentElementOrControl.parentElement;
         if (parentElement instanceof HTMLContentElement) {
           const parentControl = parentElement._control;

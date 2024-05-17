@@ -10,7 +10,6 @@ import { TextImpl } from '../../nodes/Text';
 import DOMRectImpl from '../../geometry/DOMRect';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
-import type ImageDataImpl from '../../../living/image/ImageData';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 
 type LengthPercentageDimension = string | number;
@@ -392,7 +391,6 @@ export class Control2D {
     const canvasContext = this._renderingContext;
     const boxRect = new DOMRectImpl(x, y, width, height);
     const hasTextChildren = this._isElementOwnsInnerText();
-    
     /**
      * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
      */
@@ -416,7 +414,7 @@ export class Control2D {
      */
     this._updateTransform(canvasContext);
 
-   /**
+    /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
      */
     if (!this._renderBorders(canvasContext, boxRect)) {
