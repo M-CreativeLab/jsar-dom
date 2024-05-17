@@ -59,7 +59,6 @@
           console.log('mouseY', mouseY);
           const x = Math.round(mouseX);
           img.style.transform = `translateX(${x - 512}px)`;
-          
         });
       </script>
     </space>

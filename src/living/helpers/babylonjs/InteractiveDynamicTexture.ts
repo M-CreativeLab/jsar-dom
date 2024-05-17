@@ -382,7 +382,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         ]);
         matrix = postMultiply(matrix, translateMatrix);
       }
-
       if (transform.type === 'rotate') {
         const angle = parseFloat(transform.value);
         const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
