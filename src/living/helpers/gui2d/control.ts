@@ -771,11 +771,6 @@ export class Control2D {
   
   _updateTransform(renderingContext: CanvasRenderingContext2D = this._renderingContext) {
     const transformMatrix = this.currentTransform;
-    console.log('ctx -> transformMatrix', transformMatrix);
-    // renderingContext.setTransform(1, 0, 0, 1, 0, 0);
-    // renderingContext.translate(renderingContext.canvas.width / 2, renderingContext.canvas.height / 2);
-    // console.log('ctx.width', renderingContext.canvas.width);
-    // renderingContext.rotate(10 * Math.PI / 180);
     renderingContext.setTransform(transformMatrix);
   }
   

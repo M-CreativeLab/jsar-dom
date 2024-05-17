@@ -317,9 +317,9 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       layout = currentElementOrControl._control.layoutNode.getLayout();
       const control =  currentElementOrControl._control;
       const style = control._style;
-      console.log('style', style);
+      // console.log('style', style);
       const transformStr = style.transform;
-      console.log('element', control.element);
+      // console.log('element', control.element);
       if (currentElementOrControl.parentElement === null) {
         control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
         control.currentTransform = control.transform;
@@ -334,7 +334,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
           currentElementOrControl._control = control;
         }
       }
-
       currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
       elementOrShadowRoot = currentElementOrControl;
       isDirtyAfterRendering = currentElementOrControl._control.isDirty();
@@ -359,9 +358,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     return isDirtyAfterRendering;
   }
 
-  // 不能在render里调，开销太大
+  // cannot call it in `render()`, cuz it cost too much.
   static _parserTransform(transformStr: string): DOMMatrix {
-    console.log('🐦', transformStr);
     const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
     const matches = [...transformStr.matchAll(pattern)];
     const transforms = matches.map(match => ({
@@ -369,8 +367,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       value: match[2], 
       unit: match[3], 
     }));
-    console.log(transforms);
-    // const transforms = transformStr.split(' ').reverse(); // transformation is applied from right to left 
     let matrix: DOMMatrix = new DOMMatrixImpl([1, 0, 0, 0,   0, 1, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
     transforms.forEach(transform => {
       if (transform.type === 'translateX') {
@@ -385,7 +381,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
         const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
         const rotateMatrix: DOMMatrix = new DOMMatrixImpl([cosValue, sinValue, 0, 0,  -sinValue, cosValue, 0, 0,  0, 0, 1, 0,   0, 0, 0, 1]);
         matrix = postMultiply(matrix, rotateMatrix) as DOMMatrixImpl;
-        console.log("rotateMatrix: ", rotateMatrix);
       }
     });
     return matrix;

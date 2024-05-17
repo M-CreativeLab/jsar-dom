@@ -9,15 +9,11 @@ class MockControl extends Control2D {
 
         const mockContext: Partial<CanvasRenderingContext2D> = {
             setTransform: (...args: any[]) => {
-                console.log('setTransform is called with', args);
                 if (args.length === 6) {
                     this.transform = new DOMMatrix(args);
                 } else if (args.length === 1 && typeof args[0] === 'object') {
                     const transformInit: DOMMatrix2DInit = args[0];
-                    
                     this.transform = new DOMMatrix([transformInit.m11, transformInit.m12, 0, 0,     transformInit.m21, transformInit.m22, 0, 0,     0, 0, 1, 0,     transformInit.m41, transformInit.m42, 0, 1]); // change m32 m33 to pass the test
-                } else {
-                    console.error('Invalid arguments for setTransform');
                 }
             },
             getTransform: () => {
