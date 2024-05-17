@@ -1,52 +1,145 @@
 <xsml>
-    <head>
-      <title>Spatial CSS Example (Basic)</title>
-      <style type="text/scss">
-        @keyframes rotate {
-          0% {
-            rotation: 0 0 0;
-          }
-          100% {
-            rotation: 0 360 0;
-          }
+  <head>
+    <title>Spatial CSS Example (Basic)</title>
+    <style type="text/scss">
+      plane {
+        display: relative;
+        flex-direction: row;
+        row-gap: 50px;
+        padding: 50px;
+      }
+      plane#p1 {
+        background-color: red;
+        height: 1024px;
+        width: 1024px;
+        position: 0 0 0;
+      }
+      plane#p2 {
+        background-color: blue;
+        height: 1024px;
+        width: 1024px;
+        position: -2 0 0;
+      }
+      plane#p3 {
+        background-color: pink;
+        height: 1024px;
+        width: 1024px;
+        position: 2 0 0;
+      }
+    </style>
+  </head>
+  <space>
+    <plane id="p1"> 
+      <style type="text/css">
+        div {
+          background-color: #D3CDEB;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+        }   
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #887797;
         }
       </style>
-    </head>
-    <space>
-      <plane> 
-        <style type="text/css">
-          div {
-            background-color: red;
-            height: 1024px;
-            width: 1024px;
-            row-gap: 50px;
-            flex-direction: row;
-            padding: 50px;
-          }
-          img {
-            width: 25%;
-            height: 25%;
-            object-fit: cover;
-            position: relative;
-          }
-        </style>
-        <div>
-          <img src="../textures/texture.jpg">
+      <div>
+        <img src="../textures/texture.jpg" />
+        <p>interactive transform</p>
+      </div>
+    </plane>
+    <script>
+      const plane = document.querySelector('plane');
+      const panel = plane.shadowRoot;
+      const div = panel.querySelector('div');
+      const img = div.querySelector('img');
+      div.addEventListener('mousemove', (event) => {
+        const mouseX = event.x;
+        console.log('mouseX', mouseX);
+        const mouseY = event.y;
+        console.log('mouseY', mouseY);
+        const x = Math.round(mouseX);
+        img.style.transform = `translateX(${x - 512}px)`;
+      });
+    </script>
+    <plane id="p2">
+      <style type="text/css">
+        div {
+          background-color: #D9DFF3;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+          transform: rotate(45deg) translateX(10px);
+        }
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #7085B1;
+        }
+      </style>
+      <div>
+        <img src="../textures/texture.jpg" />
+        <p>nested transform</p>
+      </div>
+    </plane>
+    <plane id="p3"> 
+      <style type="text/css">
+        div {
+          background-color: #FFF8ED;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        div#d2 {
+          background-color: #F0CC89;
+          transform: rotate(20deg) translateX(200px);
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+          transform: translateX(100px) rotate(25deg);
+        }
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #D0A0A8;
+        }
+      </style>
+      <div id="d1">
+        <div id="d2">
+          <img src="../textures/texture.jpg" />
         </div>
-      </plane>
-      <script>
-        const plane = document.querySelector('plane');
-        const panel = plane.shadowRoot;
-        const div = panel.querySelector('div');
-        const img = div.querySelector('img');
-        div.addEventListener('mousemove', (event) => {
-          const mouseX = event.x;
-          console.log('mouseX', mouseX);
-          const mouseY = event.y;
-          console.log('mouseY', mouseY);
-          const x = Math.round(mouseX);
-          img.style.transform = `translateX(${x - 512}px)`;
-        });
-      </script>
-    </space>
-  </xsml>
+        <p>parent transform</p>
+      </div>
+    </plane>
+  </space>
+</xsml>
