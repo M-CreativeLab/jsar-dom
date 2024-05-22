@@ -315,23 +315,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       isDirtyAfterRendering = control.isDirty();
     } else {
       layout = currentElementOrControl._control.layoutNode.getLayout();
-      const control = currentElementOrControl._control;
-      const style = control._style;
-      const transformStr = style.transform;
-      if (currentElementOrControl.parentElement === null) {
-        control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
-        control.currentTransform = control.transform;
-        currentElementOrControl._control = control;
-      } else {
-        control.transform = InteractiveDynamicTexture._parserTransform(transformStr);
-        const parentElement = currentElementOrControl.parentElement;
-        if (parentElement instanceof HTMLContentElement) {
-          const parentControl = parentElement._control;
-          const parentTransform = parentControl.transform;
-          control.currentTransform = postMultiply(parentTransform, control.transform);
-          currentElementOrControl._control = control;
-        }
-      }
       currentElementOrControl._renderSelf.call(currentElementOrControl, layout, base);
       elementOrShadowRoot = currentElementOrControl;
       isDirtyAfterRendering = currentElementOrControl._control.isDirty();
@@ -354,48 +337,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       }
     }
     return isDirtyAfterRendering;
-  }
-
-  // cannot call it in `render()`, cuz it cost too much.
-  static _parserTransform(transformStr: string): DOMMatrix {
-    const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
-    const matches = [...transformStr.matchAll(pattern)];
-    const transforms = matches.map(match => ({
-      type: match[1], 
-      value: match[2], 
-      unit: match[3], 
-    }));
-    let transformMatrix: DOMMatrix = new DOMMatrixImpl([
-      1, 0, 0, 0,   
-      0, 1, 0, 0,  
-      0, 0, 1, 0,   
-      0, 0, 0, 1
-    ]);
-    transforms.forEach(transform => {
-      if (transform.type === 'translateX') {
-        const x = parseFloat(transform.value);
-        const translateMatrix: DOMMatrix = new DOMMatrixImpl([
-          1, 0, 0, 0,  
-          0, 1, 0, 0,  
-          0, 0, 1, 0,  
-          x, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, translateMatrix);
-      }
-      if (transform.type === 'rotate') {
-        const angle = parseFloat(transform.value);
-        const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
-        const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-        const rotateMatrix: DOMMatrix = new DOMMatrixImpl([
-          cosValue, sinValue, 0, 0,  
-          -sinValue, cosValue, 0, 0,  
-          0, 0, 1, 0,   
-          0, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
-      }
-    });
-    return transformMatrix;
   }
 
   /**

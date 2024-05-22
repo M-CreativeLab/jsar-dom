@@ -1,6 +1,6 @@
 import { Control2D } from './control';
 import { describe, jest, it, expect } from '@jest/globals';
-import DOMMatrix from '../../geometry/DOMMatrix';
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
 jest.mock('@jest/globals');
 
 class MockControl extends Control2D {
@@ -10,10 +10,10 @@ class MockControl extends Control2D {
     const mockContext: Partial<CanvasRenderingContext2D> = {
       setTransform: (...args: any[]) => {
         if (args.length === 6) {
-          this.transform = new DOMMatrix(args);
+          this.transformMatrix = new DOMMatrixImpl(args);
         } else if (args.length === 1 && typeof args[0] === 'object') {
           const transformInit: DOMMatrix2DInit = args[0];
-          this.transform = new DOMMatrix([
+          this.transformMatrix = new DOMMatrixImpl([
             transformInit.m11, transformInit.m12, 0, 0,
             transformInit.m21, transformInit.m22, 0, 0,
             0, 0, 1, 0,
@@ -22,23 +22,20 @@ class MockControl extends Control2D {
         }
       },
       getTransform: () => {
-        return this.transform;
+        return this.transformMatrix;
      },
     };
     this._renderingContext = mockContext as any;
   }
-  prepareTransformMatrix(matrix: DOMMatrix) {
-    this.transform = matrix;
-  }
-  expect(matrix: DOMMatrix) {
-    expect(this._renderingContext.getTransform()).toEqual(matrix);
+  prepareTransformMatrix(matrix: DOMMatrixImpl) {
+    this.transformMatrix = matrix;
   }
 }
 
 describe('Control', () => {
   it('should update transform correctly', () => {
     const control = new MockControl();
-    const matrix = new DOMMatrix([
+    const matrix = new DOMMatrixImpl([
         0, 1, 0, 0,    
         -1, 0, 0, 0,    
         0, 0, 1, 0,    
@@ -46,6 +43,32 @@ describe('Control', () => {
     ]);
     control.prepareTransformMatrix(matrix);
     control._updateTransform();
-    control.expect(matrix);
+    
+    expect((control as any)._renderingContext.getTransform()).toEqual(matrix);
+  });
+  
+  it('should return correct matrix', () => {
+    const transformStr = 'rotate(90deg) translateX(10px)';
+    const expectedMatrix = new DOMMatrixImpl([
+      0, 1, 0, 0,   
+      -1, 0, 0, 0,  
+      0, 0, 1, 0,  
+      0, 10, 0, 1
+    ]);
+    const result = Control2D._parserTransform(transformStr);
+
+    expect(result).toEqual(expectedMatrix);
+  })
+  it('should return identity matrix when no transform is applied', () => {
+    const transformStr = '';
+    const expectedMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0, 
+      0, 1, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ]);
+    const result = Control2D._parserTransform(transformStr);
+
+    expect(result).toEqual(expectedMatrix);
   });
 });

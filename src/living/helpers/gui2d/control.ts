@@ -11,6 +11,8 @@ import DOMRectImpl from '../../geometry/DOMRect';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
+import DOMMatrixImpl from '../../geometry/DOMMatrix'
+import { postMultiply } from '../matrix-functions';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -163,13 +165,13 @@ export class Control2D {
   private _lastRect: DOMRectReadOnlyImpl;
   private _lastCursor: BABYLON.Vector2;
   private _isCursorInside = false;
-  protected _renderingContext: CanvasRenderingContext2D; // for unit test
+  protected _renderingContext: CanvasRenderingContext2D;
   private _overwriteHeight: number;
   private _overwriteWidth: number;
-  private _imageData: ImageBitmap;
+  private _imageBitmap: ImageBitmap;
   private _isDirty = true;
-  private _transform: DOMMatrix;
-  private _currentTransform: DOMMatrix;
+  private _transformMatrix: DOMMatrixImpl;
+  private _currentTransformMatrix: DOMMatrixImpl;
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
@@ -197,8 +199,8 @@ export class Control2D {
     }
   }
 
-  setImageData(data: ImageBitmap) {
-    this._imageData = data;
+  setImageData(bitmap: ImageBitmap) {
+    this._imageBitmap = bitmap;
   }
 
   addChild(child: Control2D) {
@@ -228,20 +230,20 @@ export class Control2D {
     }
   }
 
-  get transform(): DOMMatrix {
-    return this._transform;
+  get transformMatrix(): DOMMatrixImpl {
+    return this._transformMatrix;
   }
   
-  set transform(value: DOMMatrix) {
-    this._transform = value;
+  set transformMatrix(value: DOMMatrixImpl) {
+    this._transformMatrix = value;
   }
 
-  get currentTransform(): DOMMatrix {
-    return this._currentTransform;
+  get currentTransformMatrix(): DOMMatrixImpl {
+    return this._currentTransformMatrix;
   }
   
-  set currentTransform(value: DOMMatrix) {
-    this._currentTransform = value;
+  set currentTransformMatrix(value: DOMMatrixImpl) {
+    this._currentTransformMatrix = value;
   }
   
   private _ownInnerText(): boolean {
@@ -389,7 +391,7 @@ export class Control2D {
     /**
      * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
      */
-    if (this._imageData && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
+    if (this._imageBitmap && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
       // Fix the size by the image.
       this._element._fixSizeByImage(boxRect);
       this._updateRectSize(boxRect.width, boxRect.height);
@@ -404,10 +406,12 @@ export class Control2D {
       }
     }
 
+    this._computedCurrentTransform();
+
     /**
-     * Render the transform.
+     * Adopt the transformMatrix on canvas.
      */
-    this._updateTransform(canvasContext);
+    this._updateTransform();
 
     /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
@@ -748,7 +752,7 @@ export class Control2D {
   }
 
   private _renderImageIfExists(renderingContext: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl) {
-    if (!this._imageData) {
+    if (!this._imageBitmap) {
       return;
     }
     if (!(this._element instanceof getInterfaceWrapper('HTMLImageElement'))) {
@@ -759,11 +763,74 @@ export class Control2D {
       element.width = rect.width;
       element.height = rect.height;
     });
-    renderingContext.drawImage(this._imageData, rect.x, rect.y, rect.width, rect.height);
+    renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
   
-  _updateTransform(renderingContext: CanvasRenderingContext2D = this._renderingContext) {
-    const transformMatrix = this.currentTransform;
+  private _computedCurrentTransform() {
+    const element = this._element;
+    if (element instanceof HTMLContentElement) {
+      const style = this._style;
+      const transformStr = style.transform;
+      if (element.parentElement === null) {
+        this.transformMatrix = Control2D._parserTransform(transformStr);
+        this.currentTransformMatrix = this.transformMatrix;
+      } else {
+        this.transformMatrix = Control2D._parserTransform(transformStr);
+        const parentElement = element.parentElement;
+        if (parentElement instanceof HTMLContentElement) {
+          const parentControl = parentElement._control;
+          const parentTransform = parentControl.transformMatrix;
+          this.currentTransformMatrix = postMultiply(parentTransform, this.transformMatrix);
+          element._control = this;
+        }
+      }
+    }
+  }
+  
+  static _parserTransform(transformStr: string): DOMMatrixImpl {
+    const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
+    const matches = [...transformStr.matchAll(pattern)];
+    const transforms = matches.map(match => ({
+      type: match[1], 
+      value: match[2], 
+      unit: match[3], 
+    }));
+    let transformMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0,   
+      0, 1, 0, 0,  
+      0, 0, 1, 0,   
+      0, 0, 0, 1
+    ]);
+    transforms.forEach(transform => {
+      if (transform.type === 'translateX') {
+        const x = parseFloat(transform.value);
+        const translateMatrix = new DOMMatrixImpl([
+          1, 0, 0, 0,  
+          0, 1, 0, 0,  
+          0, 0, 1, 0,  
+          x, 0, 0, 1
+        ]);
+        transformMatrix = postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
+      }
+      if (transform.type === 'rotate') {
+        const angle = parseFloat(transform.value);
+        const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+        const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+        const rotateMatrix = new DOMMatrixImpl([
+          cosValue, sinValue, 0, 0,  
+          -sinValue, cosValue, 0, 0,  
+          0, 0, 1, 0,   
+          0, 0, 0, 1
+        ]);
+        transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
+      }
+    });
+    return transformMatrix;
+  }
+
+  _updateTransform() {
+    const renderingContext = this._renderingContext;
+    const transformMatrix = this.currentTransformMatrix;
     renderingContext.setTransform(transformMatrix);
   }
   

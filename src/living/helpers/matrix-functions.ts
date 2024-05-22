@@ -1,7 +1,7 @@
 import { GET_MATRIX_ELEMENTS } from '../geometry/DOMMatrixReadOnly';
 import DOMMatrixImpl from '../geometry/DOMMatrix'; 
 
-export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix { 
+export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrixImpl { 
   const selfElements = self[GET_MATRIX_ELEMENTS]();
   const otherElements = other[GET_MATRIX_ELEMENTS]();
   const resElements: number[] = [];
@@ -15,7 +15,7 @@ export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix {
   return new DOMMatrixImpl(resElements);
 }
 
-export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix { 
+export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrixImpl { 
   const selfElements = self[GET_MATRIX_ELEMENTS]();
   const otherElements = other[GET_MATRIX_ELEMENTS]();
   const resElements: number[] = [];
