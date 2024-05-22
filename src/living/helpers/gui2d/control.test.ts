@@ -7,13 +7,19 @@ class MockControl extends Control2D {
   constructor() {
     super(<any>{}, <any>{});
 
-    const mockContext: Partial<CanvasRenderingContext2D> = {
+    interface MyCanvasRenderingContext2D extends CanvasRenderingContext2D {
+      transformMatrix: any;
+    }
+
+    const mockContext: Partial<MyCanvasRenderingContext2D> = {
+      transformMatrix: DOMMatrixImpl,
+
       setTransform: (...args: any[]) => {
         if (args.length === 6) {
-          this.transformMatrix = new DOMMatrixImpl(args);
+          mockContext.transformMatrix = new DOMMatrixImpl(args);
         } else if (args.length === 1 && typeof args[0] === 'object') {
           const transformInit: DOMMatrix2DInit = args[0];
-          this.transformMatrix = new DOMMatrixImpl([
+          mockContext.transformMatrix = new DOMMatrixImpl([
             transformInit.m11, transformInit.m12, 0, 0,
             transformInit.m21, transformInit.m22, 0, 0,
             0, 0, 1, 0,
@@ -22,53 +28,28 @@ class MockControl extends Control2D {
         }
       },
       getTransform: () => {
-        return this.transformMatrix;
-     },
+        return mockContext.transformMatrix;
+      },
     };
     this._renderingContext = mockContext as any;
   }
   prepareTransformMatrix(matrix: DOMMatrixImpl) {
-    this.transformMatrix = matrix;
+    this.currentTransformMatrix = matrix;
   }
 }
 
 describe('Control', () => {
-  it('should update transform correctly', () => {
+  it('should update currentTransformMatrix to _renderingContext.transformMatrix correctly', () => {
     const control = new MockControl();
     const matrix = new DOMMatrixImpl([
-        0, 1, 0, 0,    
-        -1, 0, 0, 0,    
-        0, 0, 1, 0,    
+        0, 1, 0, 0,
+        -1, 0, 0, 0,
+        0, 0, 1, 0,
         10, 0, 0, 1
     ]);
     control.prepareTransformMatrix(matrix);
     control._updateTransform();
     
     expect((control as any)._renderingContext.getTransform()).toEqual(matrix);
-  });
-  
-  it('should return correct matrix', () => {
-    const transformStr = 'rotate(90deg) translateX(10px)';
-    const expectedMatrix = new DOMMatrixImpl([
-      0, 1, 0, 0,   
-      -1, 0, 0, 0,  
-      0, 0, 1, 0,  
-      0, 10, 0, 1
-    ]);
-    const result = Control2D._parserTransform(transformStr);
-
-    expect(result).toEqual(expectedMatrix);
-  })
-  it('should return identity matrix when no transform is applied', () => {
-    const transformStr = '';
-    const expectedMatrix = new DOMMatrixImpl([
-      1, 0, 0, 0, 
-      0, 1, 0, 0, 
-      0, 0, 1, 0, 
-      0, 0, 0, 1
-    ]);
-    const result = Control2D._parserTransform(transformStr);
-
-    expect(result).toEqual(expectedMatrix);
   });
 });

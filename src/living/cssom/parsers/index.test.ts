@@ -1,6 +1,7 @@
 import { describe, it, expect } from '@jest/globals';
 import * as parsers from './';
 import CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
 
 describe('valueType', () => {
   it('returns color for red', () => {
@@ -378,5 +379,32 @@ describe('implicitSetter', () => {
     const setter = parsers.implicitSetter('position', '', partNames, validator, toStr);
     setter.call(decl, '1 1 1');
     expect(decl.position).toBe('1 1 1');
+  });
+});
+
+describe('parseTransform', () => {
+  it('should return correct matrix', () => {
+    const transformStr = 'rotate(90deg) translateX(10px)';
+    const expectedMatrix = new DOMMatrixImpl([
+      0, 1, 0, 0,
+      -1, 0, 0, 0,
+      0, 0, 1, 0,
+      0, 10, 0, 1
+    ]);
+    const result = parsers.parserTransform(transformStr);
+
+    expect(result).toEqual(expectedMatrix);
+  })
+  it('should return identity matrix when no transform is applied', () => {
+    const transformStr = '';
+    const expectedMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0, 
+      0, 1, 0, 0, 
+      0, 0, 1, 0, 
+      0, 0, 0, 1
+    ]);
+    const result = parsers.parserTransform(transformStr);
+
+    expect(result).toEqual(expectedMatrix);
   });
 });

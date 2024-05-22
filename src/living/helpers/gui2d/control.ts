@@ -13,6 +13,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix'
 import { postMultiply } from '../matrix-functions';
+import { parserTransform } from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -228,14 +229,6 @@ export class Control2D {
     } else {
       return null;
     }
-  }
-
-  get transformMatrix(): DOMMatrixImpl {
-    return this._transformMatrix;
-  }
-  
-  set transformMatrix(value: DOMMatrixImpl) {
-    this._transformMatrix = value;
   }
 
   get currentTransformMatrix(): DOMMatrixImpl {
@@ -772,60 +765,18 @@ export class Control2D {
       const style = this._style;
       const transformStr = style.transform;
       if (element.parentElement === null) {
-        this.transformMatrix = Control2D._parserTransform(transformStr);
-        this.currentTransformMatrix = this.transformMatrix;
+        this.currentTransformMatrix = parserTransform(transformStr);
       } else {
-        this.transformMatrix = Control2D._parserTransform(transformStr);
+        this.currentTransformMatrix = parserTransform(transformStr);
         const parentElement = element.parentElement;
         if (parentElement instanceof HTMLContentElement) {
           const parentControl = parentElement._control;
-          const parentTransform = parentControl.transformMatrix;
-          this.currentTransformMatrix = postMultiply(parentTransform, this.transformMatrix);
+          const parentCTM = parentControl.currentTransformMatrix;
+          this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
           element._control = this;
         }
       }
     }
-  }
-  
-  static _parserTransform(transformStr: string): DOMMatrixImpl {
-    const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
-    const matches = [...transformStr.matchAll(pattern)];
-    const transforms = matches.map(match => ({
-      type: match[1], 
-      value: match[2], 
-      unit: match[3], 
-    }));
-    let transformMatrix = new DOMMatrixImpl([
-      1, 0, 0, 0,   
-      0, 1, 0, 0,  
-      0, 0, 1, 0,   
-      0, 0, 0, 1
-    ]);
-    transforms.forEach(transform => {
-      if (transform.type === 'translateX') {
-        const x = parseFloat(transform.value);
-        const translateMatrix = new DOMMatrixImpl([
-          1, 0, 0, 0,  
-          0, 1, 0, 0,  
-          0, 0, 1, 0,  
-          x, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
-      }
-      if (transform.type === 'rotate') {
-        const angle = parseFloat(transform.value);
-        const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
-        const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-        const rotateMatrix = new DOMMatrixImpl([
-          cosValue, sinValue, 0, 0,  
-          -sinValue, cosValue, 0, 0,  
-          0, 0, 1, 0,   
-          0, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
-      }
-    });
-    return transformMatrix;
   }
 
   _updateTransform() {

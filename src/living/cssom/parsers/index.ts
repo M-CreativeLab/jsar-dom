@@ -3,6 +3,8 @@ import { hslToRgb } from '../utils/color-space';
 import { colorNames, namedColors } from './named-colors';
 import { defineSpatialProperty } from '../spatial-properties/helper';
 import * as animationShorthandParser from './animation-shorthand/index';
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
+import { postMultiply } from '../../helpers/matrix-functions';
 
 const integerRegEx = /^[-+]?[0-9]+$/;
 const numberRegEx = /^[-+]?[0-9]*\.?[0-9]+$/;
@@ -949,4 +951,45 @@ export function shorthandSetter(
       this._setProperty(property, calculated);
     }
   };
+}
+
+export function parserTransform(transformStr: string): DOMMatrixImpl {
+  const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
+  const matches = [...transformStr.matchAll(pattern)];
+  const transforms = matches.map(match => ({
+    type: match[1], 
+    value: match[2], 
+    unit: match[3], 
+  }));
+  let transformMatrix = new DOMMatrixImpl([
+    1, 0, 0, 0,   
+    0, 1, 0, 0,  
+    0, 0, 1, 0,   
+    0, 0, 0, 1
+  ]);
+  transforms.forEach(transform => {
+    if (transform.type === 'translateX') {
+      const x = parseFloat(transform.value);
+      const translateMatrix = new DOMMatrixImpl([
+        1, 0, 0, 0,  
+        0, 1, 0, 0,  
+        0, 0, 1, 0,  
+        x, 0, 0, 1
+      ]);
+      transformMatrix = postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
+    }
+    if (transform.type === 'rotate') {
+      const angle = parseFloat(transform.value);
+      const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+      const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+      const rotateMatrix = new DOMMatrixImpl([
+        cosValue, sinValue, 0, 0,  
+        -sinValue, cosValue, 0, 0,  
+        0, 0, 1, 0,   
+        0, 0, 0, 1
+      ]);
+      transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
+    }
+  });
+  return transformMatrix;
 }

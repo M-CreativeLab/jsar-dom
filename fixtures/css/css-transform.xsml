@@ -55,7 +55,7 @@
         }
       </style>
       <div>
-        <img src="../textures/texture.jpg" />
+        <img src="../textures/splatting.jpg" />
         <p>interactive transform</p>
       </div>
     </plane>
@@ -66,9 +66,9 @@
       const img = div.querySelector('img');
       div.addEventListener('mousemove', (event) => {
         const mouseX = event.x;
-        console.log('mouseX', mouseX);
+        // console.log('mouseX', mouseX);
         const mouseY = event.y;
-        console.log('mouseY', mouseY);
+        // console.log('mouseY', mouseY);
         const x = Math.round(mouseX);
         img.style.transform = `translateX(${x - 512}px)`;
       });
@@ -100,7 +100,7 @@
         }
       </style>
       <div>
-        <img src="../textures/texture.jpg" />
+        <img src="../textures/splatting.jpg" />
         <p>nested transform</p>
       </div>
     </plane>
@@ -136,7 +136,7 @@
       </style>
       <div id="d1">
         <div id="d2">
-          <img src="../textures/texture.jpg" />
+          <img src="../textures/splatting.jpg" />
         </div>
         <p>parent transform</p>
       </div>
