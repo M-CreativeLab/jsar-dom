@@ -7,8 +7,6 @@ import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { isHTMLContentElement } from '../../node-type';
 import { Control2D } from '../gui2d/control';
 import { domSymbolTree } from '../internal-constants';
-import DOMMatrixImpl from '../../geometry/DOMMatrix'
-import { postMultiply } from '../matrix-functions';
 
 /**
  * The `InteractiveDynamicTexture` is copied from BabylonJS `InteractiveDynamicTexture` and modified to support the texture to interact in JSAR runtime.
