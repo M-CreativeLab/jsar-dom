@@ -11,7 +11,7 @@ import DOMRectImpl from '../../geometry/DOMRect';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
-import DOMMatrixImpl from '../../geometry/DOMMatrix'
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply } from '../matrix-functions';
 import { parserTransform } from '../../cssom/parsers';
 
@@ -783,8 +783,8 @@ export class Control2D {
   
   _updateTransform() {
     const renderingContext = this._renderingContext;
-    const transformMatrix = this.currentTransformMatrix;
-    renderingContext.setTransform(transformMatrix);
+    const currentTransformMatrix = this.currentTransformMatrix;
+    renderingContext.setTransform(currentTransformMatrix);
   }
   
   containsPoint(x: number, y: number): boolean {
