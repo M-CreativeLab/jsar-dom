@@ -66,9 +66,6 @@
       const img = div.querySelector('img');
       div.addEventListener('mousemove', (event) => {
         const mouseX = event.x;
-        // console.log('mouseX', mouseX);
-        const mouseY = event.y;
-        // console.log('mouseY', mouseY);
         const x = Math.round(mouseX);
         img.style.transform = `translateX(${x - 512}px)`;
       });

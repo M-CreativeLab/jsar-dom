@@ -399,7 +399,7 @@ export class Control2D {
       }
     }
 
-    this._computedCurrentTransform();
+    this._updateCurrentTransformMatrix();
 
     /**
      * Adopt the transformMatrix on canvas.
@@ -759,26 +759,28 @@ export class Control2D {
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
   
-  private _computedCurrentTransform() {
+  private _updateCurrentTransformMatrix() {
     const element = this._element;
-    if (element instanceof HTMLContentElement) {
-      const style = this._style;
-      const transformStr = style.transform;
-      if (element.parentElement === null) {
-        this.currentTransformMatrix = parserTransform(transformStr);
-      } else {
-        this.currentTransformMatrix = parserTransform(transformStr);
-        const parentElement = element.parentElement;
-        if (parentElement instanceof HTMLContentElement) {
-          const parentControl = parentElement._control;
-          const parentCTM = parentControl.currentTransformMatrix;
-          this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
-          element._control = this;
-        }
-      }
+    const style = this._style;
+    if (element instanceof ShadowRootImpl) {
+      return;
+    } 
+    const transformStr = style.transform;
+    const parentElement = element.parentElement;
+    if (parentElement === null) {
+      this.currentTransformMatrix = parserTransform(transformStr);
+    } else {
+      this.currentTransformMatrix = parserTransform(transformStr);
+      if (!isHTMLContentElement(parentElement)) {
+        return;
+      } 
+      const parentControl = parentElement._control;
+      const parentCTM = parentControl.currentTransformMatrix;
+      this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
+      element._control = this;
     }
   }
-
+  
   _updateTransform() {
     const renderingContext = this._renderingContext;
     const transformMatrix = this.currentTransformMatrix;
