@@ -767,10 +767,10 @@ export class Control2D {
     } 
     const transformStr = style.transform;
     const parentElement = element.parentElement;
+    this.currentTransformMatrix = parserTransform(transformStr);
     if (parentElement === null) {
-      this.currentTransformMatrix = parserTransform(transformStr);
+      return;
     } else {
-      this.currentTransformMatrix = parserTransform(transformStr);
       // If the parent element isn't a HTMLContentElement, return.
       if (!isHTMLContentElement(parentElement)) {
         return;
