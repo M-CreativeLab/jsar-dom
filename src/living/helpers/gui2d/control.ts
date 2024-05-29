@@ -771,13 +771,13 @@ export class Control2D {
       this.currentTransformMatrix = parserTransform(transformStr);
     } else {
       this.currentTransformMatrix = parserTransform(transformStr);
+      // If the parent element isn't a HTMLContentElement, return.
       if (!isHTMLContentElement(parentElement)) {
         return;
       } 
       const parentControl = parentElement._control;
       const parentCTM = parentControl.currentTransformMatrix;
       this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
-      element._control = this;
     }
   }
   
