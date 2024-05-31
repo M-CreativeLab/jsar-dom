@@ -385,7 +385,7 @@ describe('implicitSetter', () => {
 describe('parseTransform', () => {
   it('should parse translateX correctly', () => {
     const result = parsers.parseTransform('translateX(10px)');
-    
+
     expect(result).toEqual([{ type: 'translateX', value: '10', unit: 'px' }]);
   });
 
@@ -402,52 +402,5 @@ describe('parseTransform', () => {
       { type: 'translateX', value: '10', unit: 'px' },
       { type: 'rotate', value: '45', unit: 'deg' },
     ]);
-  });
-});
-
-describe('calculateTransformMatrix', () => {
-  it('should calculate translateX correctly', () => {
-    const transforms = [{ type: 'translateX', value: '10', unit: 'px' }];
-    const result = parsers.calculateTransformMatrix(transforms);
-    const expectedMatrix = new DOMMatrixImpl([
-      1, 0, 0, 0,  
-      0, 1, 0, 0,  
-      0, 0, 1, 0,  
-      10, 0, 0, 1
-    ]);
-
-    expect(result).toEqual(expectedMatrix);
-  });
-
-  it('should calculate rotate correctly', () => {
-    const transforms = [{ type: 'rotate', value: '45', unit: 'deg' }];
-    const result = parsers.calculateTransformMatrix(transforms);
-    const cosValue = Number(Math.cos(45 * Math.PI / 180).toFixed(2));
-    const sinValue = Number(Math.sin(45 * Math.PI / 180).toFixed(2));
-    const expectedMatrix = new DOMMatrixImpl([
-      cosValue, sinValue, 0, 0,  
-      -sinValue, cosValue, 0, 0,  
-      0, 0, 1, 0,   
-      0, 0, 0, 1
-    ]);
-
-    expect(result).toEqual(expectedMatrix);
-  });
-
-  it('should calculate multiple transforms correctly', () => {
-    const transforms = [
-      { type: 'translateX', value: '10', unit: 'px' },
-      { type: 'rotate', value: '90', unit: 'deg' },
-    ];
-    const result = parsers.calculateTransformMatrix(transforms);
-    
-    const expectedMatrix = new DOMMatrixImpl([
-      0, 1, 0, 0,
-      -1, 0, 0, 0,
-      0, 0, 1, 0,
-      10, 0, 0, 1
-    ]);
-
-    expect(result).toEqual(expectedMatrix);
   });
 });

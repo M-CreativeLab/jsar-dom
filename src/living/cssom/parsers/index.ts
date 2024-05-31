@@ -962,37 +962,3 @@ export function parseTransform(transformStr: string) {
     unit: match[3], 
   }));
 }
-
-export function calculateTransformMatrix(transforms: { type: string, value: string, unit: string }[]): DOMMatrixImpl {
-  let transformMatrix = new DOMMatrixImpl([
-    1, 0, 0, 0,   
-    0, 1, 0, 0,  
-    0, 0, 1, 0,   
-    0, 0, 0, 1
-  ]);
-  transforms.forEach(transform => {
-    if (transform.type === 'translateX') {
-      const x = parseFloat(transform.value);
-      const translateMatrix = new DOMMatrixImpl([
-        1, 0, 0, 0,  
-        0, 1, 0, 0,  
-        0, 0, 1, 0,  
-        x, 0, 0, 1
-      ]);
-      transformMatrix = postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
-    }
-    if (transform.type === 'rotate') {
-      const angle = parseFloat(transform.value);
-      const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
-      const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-      const rotateMatrix = new DOMMatrixImpl([
-        cosValue, sinValue, 0, 0,  
-        -sinValue, cosValue, 0, 0,  
-        0, 0, 1, 0,   
-        0, 0, 0, 1
-      ]);
-      transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
-    }
-  });
-  return transformMatrix;
-}
