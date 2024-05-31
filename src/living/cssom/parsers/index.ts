@@ -18,7 +18,7 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
-const transformRegEx: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
+const transformRegEx = /(translateX|rotate)\((\d+)(px|deg)\)/g;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -952,13 +952,16 @@ export function shorthandSetter(
   };
 }
 
-export class TransformFunction {
-  type: string;
-  value: number;
-  unit: 'px' | 'deg';
+type TransformFunctionName = 'translateX' | 'rotate';
+type TransformFunctionUnit = 'px' | 'deg';
 
-  constructor(type: string, value: number, unit: 'px' | 'deg') {
-    this.type = type;
+export class TransformFunction {
+  name: TransformFunctionName;
+  value: number;
+  unit: TransformFunctionUnit;
+
+  constructor(name: TransformFunctionName, value: number, unit: TransformFunctionUnit) {
+    this.name = name;
     this.value = value;
     this.unit = unit;
   }
@@ -966,5 +969,5 @@ export class TransformFunction {
 
 export function parseTransform(transformStr: string) {
   const matches = [...transformStr.matchAll(transformRegEx)];
-  return matches.map(match => new TransformFunction(match[1], parseFloat(match[2]), match[3] as 'px' | 'deg'));
+  return matches.map(match => new TransformFunction(match[1] as TransformFunctionName, parseFloat(match[2]), match[3] as TransformFunctionUnit));
 }
