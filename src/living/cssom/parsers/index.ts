@@ -953,12 +953,20 @@ export function shorthandSetter(
   };
 }
 
+export class Transform {
+  type: string;
+  value: string;
+  unit: string;
+
+  constructor(type: string, value: string, unit: string) {
+    this.type = type;
+    this.value = value;
+    this.unit = unit;
+  }
+}
+
 export function parseTransform(transformStr: string) {
   const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
   const matches = [...transformStr.matchAll(pattern)];
-  return matches.map(match => ({
-    type: match[1], 
-    value: match[2], 
-    unit: match[3], 
-  }));
+  return matches.map(match => new Transform(match[1], match[2], match[3]));
 }

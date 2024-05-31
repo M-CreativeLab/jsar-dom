@@ -386,21 +386,29 @@ describe('parseTransform', () => {
   it('should parse translateX correctly', () => {
     const result = parsers.parseTransform('translateX(10px)');
 
-    expect(result).toEqual([{ type: 'translateX', value: '10', unit: 'px' }]);
+    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
+
+    expect(transforms).toEqual([
+      new parsers.Transform('translateX', '10', 'px')
+    ]);
   });
 
   it('should parse rotate correctly', () => {
     const result = parsers.parseTransform('rotate(45deg)');
+    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
 
-    expect(result).toEqual([{ type: 'rotate', value: '45', unit: 'deg' }]);
+    expect(transforms).toEqual([
+      new parsers.Transform('rotate', '45', 'deg')
+    ]);
   });
 
   it('should parse multiple transforms correctly', () => {
     const result = parsers.parseTransform('translateX(10px) rotate(45deg)');
-
-    expect(result).toEqual([
-      { type: 'translateX', value: '10', unit: 'px' },
-      { type: 'rotate', value: '45', unit: 'deg' },
+    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
+    
+    expect(transforms).toEqual([
+      new parsers.Transform('translateX', '10', 'px'),
+      new parsers.Transform('rotate', '45', 'deg')
     ]);
   });
 });
