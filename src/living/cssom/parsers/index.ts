@@ -953,14 +953,17 @@ export function shorthandSetter(
   };
 }
 
-export function parserTransform(transformStr: string): DOMMatrixImpl {
+export function parseTransform(transformStr: string) {
   const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
   const matches = [...transformStr.matchAll(pattern)];
-  const transforms = matches.map(match => ({
+  return matches.map(match => ({
     type: match[1], 
     value: match[2], 
     unit: match[3], 
   }));
+}
+
+export function calculateTransformMatrix(transforms: { type: string, value: string, unit: string }[]): DOMMatrixImpl {
   let transformMatrix = new DOMMatrixImpl([
     1, 0, 0, 0,   
     0, 1, 0, 0,  

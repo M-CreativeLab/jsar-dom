@@ -13,7 +13,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply } from '../matrix-functions';
-import { parserTransform } from '../../cssom/parsers';
+import { parseTransform, calculateTransformMatrix} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -767,7 +767,8 @@ export class Control2D {
     } 
     const transformStr = style.transform;
     const parentElement = element.parentElement;
-    this.currentTransformMatrix = parserTransform(transformStr);
+    const transforms = parseTransform(transformStr)
+    this.currentTransformMatrix = calculateTransformMatrix(transforms);
     if (parentElement === null) {
       return;
     } else {
