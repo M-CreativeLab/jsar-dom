@@ -769,7 +769,7 @@ export class Control2D {
     const parentElement = element.parentElement;
     const transformFunctions = parseTransform(transformStr);
     this.currentTransformMatrix = this.calculateTransformMatrix(transformFunctions);
-    if (parentElement === null) {
+    if (parentElement == null) {
       return;
     } else {
       if (!isHTMLContentElement(parentElement)) {
