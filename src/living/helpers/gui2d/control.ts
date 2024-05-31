@@ -758,9 +758,30 @@ export class Control2D {
     });
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
-  
 
-  private _calculateTransformMatrix(transforms: { type: string, value: string, unit: string }[]): DOMMatrixImpl {
+  private _updateCurrentTransformMatrix() {
+    const element = this._element;
+    const style = this._style;
+    if (element instanceof ShadowRootImpl) {
+      return;
+    } 
+    const transformStr = style.transform;
+    const parentElement = element.parentElement;
+    const transforms = parseTransform(transformStr)
+    this.currentTransformMatrix = this._calculateTransformMatrix(transforms);
+    if (parentElement === null) {
+      return;
+    } else {
+      if (!isHTMLContentElement(parentElement)) {
+        return;
+      } 
+      const parentControl = parentElement._control;
+      const parentCTM = parentControl.currentTransformMatrix;
+      this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
+    }
+  }
+  
+  _calculateTransformMatrix(transforms: { type: string, value: string, unit: string }[]): DOMMatrixImpl {
     let transformMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,   
       0, 1, 0, 0,  
@@ -792,28 +813,6 @@ export class Control2D {
       }
     });
     return transformMatrix;
-  }
-
-  private _updateCurrentTransformMatrix() {
-    const element = this._element;
-    const style = this._style;
-    if (element instanceof ShadowRootImpl) {
-      return;
-    } 
-    const transformStr = style.transform;
-    const parentElement = element.parentElement;
-    const transforms = parseTransform(transformStr)
-    this.currentTransformMatrix = this._calculateTransformMatrix(transforms);
-    if (parentElement === null) {
-      return;
-    } else {
-      if (!isHTMLContentElement(parentElement)) {
-        return;
-      } 
-      const parentControl = parentElement._control;
-      const parentCTM = parentControl.currentTransformMatrix;
-      this.currentTransformMatrix = postMultiply(parentCTM, this.currentTransformMatrix);
-    }
   }
   
   _updateTransform() {

@@ -50,7 +50,7 @@ describe('_calculateTransformMatrix', () => {
     ]);
     const control = new MockControl(matrix);
     const transforms = [{ type: 'translateX', value: '10', unit: 'px' }];
-    const result = control['_calculateTransformMatrix'](transforms);
+    const result = control._calculateTransformMatrix(transforms);
     const expectedMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,  
       0, 1, 0, 0,  
@@ -70,7 +70,7 @@ describe('_calculateTransformMatrix', () => {
     ]);
     const control = new MockControl(matrix);
     const transforms = [{ type: 'rotate', value: '45', unit: 'deg' }];
-    const result = control['_calculateTransformMatrix'](transforms);
+    const result = control._calculateTransformMatrix(transforms);
     const cosValue = Number(Math.cos(45 * Math.PI / 180).toFixed(2));
     const sinValue = Number(Math.sin(45 * Math.PI / 180).toFixed(2));
     const expectedMatrix = new DOMMatrixImpl([
@@ -95,7 +95,7 @@ describe('_calculateTransformMatrix', () => {
       { type: 'translateX', value: '10', unit: 'px' },
       { type: 'rotate', value: '90', unit: 'deg' },
     ];
-    const result = control['_calculateTransformMatrix'](transforms);
+    const result = control._calculateTransformMatrix(transforms);
     const expectedMatrix = new DOMMatrixImpl([
       0, 1, 0, 0,
       -1, 0, 0, 0,
