@@ -137,13 +137,14 @@
         const x = Math.round(mouseX);
         img.style.transform = `translateX(${x - 512}px)`;
       });
+      
       const plane3 = document.getElementById('p3');
       const panel3 = plane3.shadowRoot;
       const div1 = panel3.getElementById('d1');
       const div2 = div1.querySelector('div');
       const img2 = div2.querySelector('img');
-      let originMouseX  = 0;
-      let originMouseY = 0;
+      const originMouseX  = 0;
+      const originMouseY = 0;
       div2.addEventListener('mousemove', (event) => {
         const mouseX = event.x;
         const mouseY = event.y

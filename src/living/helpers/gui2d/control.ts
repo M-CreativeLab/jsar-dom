@@ -771,7 +771,6 @@ export class Control2D {
     if (parentElement === null) {
       return;
     } else {
-      // If the parent element isn't a HTMLContentElement, return.
       if (!isHTMLContentElement(parentElement)) {
         return;
       } 

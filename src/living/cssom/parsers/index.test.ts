@@ -383,7 +383,20 @@ describe('implicitSetter', () => {
 });
 
 describe('parseTransform', () => {
-  it('should return correct matrix', () => {
+  it('should return correct matrix while 1 transform is applied', () => {
+    const transformStr = 'translateX(10px)';
+    const expectedMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0,
+      0, 1, 0, 0,
+      0, 0, 1, 0,
+      10, 0, 0, 1
+    ]);
+    const result = parsers.parserTransform(transformStr);
+
+    expect(result).toEqual(expectedMatrix);
+  })
+
+  it('should return correct matrix while 2 transform is applied', () => {
     const transformStr = 'rotate(90deg) translateX(10px)';
     const expectedMatrix = new DOMMatrixImpl([
       0, 1, 0, 0,
@@ -395,6 +408,7 @@ describe('parseTransform', () => {
 
     expect(result).toEqual(expectedMatrix);
   })
+
   it('should return identity matrix when no transform is applied', () => {
     const transformStr = '';
     const expectedMatrix = new DOMMatrixImpl([
