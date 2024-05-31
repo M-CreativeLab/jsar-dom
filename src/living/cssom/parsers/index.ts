@@ -3,8 +3,6 @@ import { hslToRgb } from '../utils/color-space';
 import { colorNames, namedColors } from './named-colors';
 import { defineSpatialProperty } from '../spatial-properties/helper';
 import * as animationShorthandParser from './animation-shorthand/index';
-import DOMMatrixImpl from '../../geometry/DOMMatrix';
-import { postMultiply } from '../../helpers/matrix-functions';
 
 const integerRegEx = /^[-+]?[0-9]+$/;
 const numberRegEx = /^[-+]?[0-9]*\.?[0-9]+$/;
@@ -20,6 +18,7 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
+const transformRegEx: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -953,12 +952,12 @@ export function shorthandSetter(
   };
 }
 
-export class Transform {
+export class TransformFunction {
   type: string;
-  value: string;
-  unit: string;
+  value: number;
+  unit: 'px' | 'deg';
 
-  constructor(type: string, value: string, unit: string) {
+  constructor(type: string, value: number, unit: 'px' | 'deg') {
     this.type = type;
     this.value = value;
     this.unit = unit;
@@ -966,7 +965,6 @@ export class Transform {
 }
 
 export function parseTransform(transformStr: string) {
-  const pattern: RegExp = /(translateX|rotate)\((\d+)(px|deg)\)/g;
-  const matches = [...transformStr.matchAll(pattern)];
-  return matches.map(match => new Transform(match[1], match[2], match[3]));
+  const matches = [...transformStr.matchAll(transformRegEx)];
+  return matches.map(match => new TransformFunction(match[1], parseFloat(match[2]), match[3] as 'px' | 'deg'));
 }

@@ -13,7 +13,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply } from '../matrix-functions';
-import { parseTransform} from '../../cssom/parsers';
+import { parseTransform, TransformFunction} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -404,7 +404,7 @@ export class Control2D {
     /**
      * Adopt the transformMatrix on canvas.
      */
-    this._updateTransform();
+    this.updateTransform();
 
     /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
@@ -767,8 +767,8 @@ export class Control2D {
     } 
     const transformStr = style.transform;
     const parentElement = element.parentElement;
-    const transforms = parseTransform(transformStr)
-    this.currentTransformMatrix = this._calculateTransformMatrix(transforms);
+    const transformFunctions = parseTransform(transformStr);
+    this.currentTransformMatrix = this.calculateTransformMatrix(transformFunctions);
     if (parentElement === null) {
       return;
     } else {
@@ -781,41 +781,49 @@ export class Control2D {
     }
   }
   
-  _calculateTransformMatrix(transforms: { type: string, value: string, unit: string }[]): DOMMatrixImpl {
+  translate(transformMatrix: DOMMatrixImpl, x: number, y: number, z: number): DOMMatrixImpl {
+    const translateMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0,  
+      0, 1, 0, 0,  
+      0, 0, 1, 0,  
+      x, y, z, 1
+    ]);
+    return postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
+  }
+
+  rotate(transformMatrix: DOMMatrixImpl, angle: number): DOMMatrixImpl {
+    const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+    const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+    const rotateMatrix = new DOMMatrixImpl([
+      cosValue, sinValue, 0, 0,  
+      -sinValue, cosValue, 0, 0,  
+      0, 0, 1, 0,   
+      0, 0, 0, 1
+    ]);
+    return postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
+  }
+  
+  calculateTransformMatrix(transformFunctions: TransformFunction[]): DOMMatrixImpl {
     let transformMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,   
       0, 1, 0, 0,  
       0, 0, 1, 0,   
       0, 0, 0, 1
     ]);
-    transforms.forEach(transform => {
-      if (transform.type === 'translateX') {
-        const x = parseFloat(transform.value);
-        const translateMatrix = new DOMMatrixImpl([
-          1, 0, 0, 0,  
-          0, 1, 0, 0,  
-          0, 0, 1, 0,  
-          x, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, translateMatrix) as DOMMatrixImpl;
+    transformFunctions.forEach(transformFunction => {
+      if (transformFunction.type === 'translateX') {
+        const x = transformFunction.value;
+        transformMatrix = this.translate(transformMatrix, x, 0, 0);
       }
-      if (transform.type === 'rotate') {
-        const angle = parseFloat(transform.value);
-        const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
-        const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-        const rotateMatrix = new DOMMatrixImpl([
-          cosValue, sinValue, 0, 0,  
-          -sinValue, cosValue, 0, 0,  
-          0, 0, 1, 0,   
-          0, 0, 0, 1
-        ]);
-        transformMatrix = postMultiply(transformMatrix, rotateMatrix) as DOMMatrixImpl;
+      else if (transformFunction.type === 'rotate') {
+        const angle = transformFunction.value;
+        transformMatrix = this.rotate(transformMatrix, angle);
       }
     });
     return transformMatrix;
   }
-  
-  _updateTransform() {
+
+  updateTransform() {
     const renderingContext = this._renderingContext;
     const currentTransformMatrix = this.currentTransformMatrix;
     renderingContext.setTransform(currentTransformMatrix);

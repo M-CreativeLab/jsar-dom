@@ -385,30 +385,26 @@ describe('implicitSetter', () => {
 describe('parseTransform', () => {
   it('should parse translateX correctly', () => {
     const result = parsers.parseTransform('translateX(10px)');
-
-    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
-
+    const transforms = result.map(transform => new parsers.TransformFunction(transform.type, transform.value, transform.unit));
     expect(transforms).toEqual([
-      new parsers.Transform('translateX', '10', 'px')
+      new parsers.TransformFunction('translateX', 10, 'px')
     ]);
   });
 
   it('should parse rotate correctly', () => {
     const result = parsers.parseTransform('rotate(45deg)');
-    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
-
+    const transforms = result.map(transform => new parsers.TransformFunction(transform.type, transform.value, transform.unit));
     expect(transforms).toEqual([
-      new parsers.Transform('rotate', '45', 'deg')
+      new parsers.TransformFunction('rotate', 45, 'deg')
     ]);
   });
 
   it('should parse multiple transforms correctly', () => {
     const result = parsers.parseTransform('translateX(10px) rotate(45deg)');
-    const transforms = result.map(transform => new parsers.Transform(transform.type, transform.value, transform.unit));
-    
+    const transforms = result.map(transform => new parsers.TransformFunction(transform.type, transform.value, transform.unit));
     expect(transforms).toEqual([
-      new parsers.Transform('translateX', '10', 'px'),
-      new parsers.Transform('rotate', '45', 'deg')
+      new parsers.TransformFunction('translateX', 10, 'px'),
+      new parsers.TransformFunction('rotate', 45, 'deg')
     ]);
   });
 });
