@@ -30,10 +30,10 @@ class MockControl extends Control2D {
 describe('updateCtxTransform', () => {
   it('should update currentTransformMatrix to _renderingContext.transformMatrix correctly', () => {
     const matrix = new DOMMatrixImpl([
-        0, 1, 0, 0,
-        -1, 0, 0, 0,
-        0, 0, 1, 0,
-        10, 0, 0, 1
+      0, 1, 0, 0,
+      -1, 0, 0, 0,
+      0, 0, 1, 0,
+      10, 0, 0, 1
     ]);
     const control = new MockControl(matrix);
     control.updateCtxTransform();

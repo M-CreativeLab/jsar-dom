@@ -10,20 +10,20 @@ const matrix = new DOMMatrixImpl([
 ]);
 
 describe('rotate', () => {
-    it('should rotate the transform matrix correctly', () => {
-      const angle = 45;
-      const result = rotate(matrix, angle);
-      const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
-      const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
-      const expectedMatrix = new DOMMatrixImpl([
-        cosValue, sinValue, 0, 0,
-        -sinValue, cosValue, 0, 0,
-        0, 0, 1, 0,
-        0, 0, 0, 1
-      ]);
-      expect(result).toEqual(expectedMatrix);
-    });
+  it('should rotate the transform matrix correctly', () => {
+    const angle = 45;
+    const result = rotate(matrix, angle);
+    const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+    const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+    const expectedMatrix = new DOMMatrixImpl([
+      cosValue, sinValue, 0, 0,
+      -sinValue, cosValue, 0, 0,
+      0, 0, 1, 0,
+      0, 0, 0, 1
+    ]);
+    expect(result).toEqual(expectedMatrix);
   });
+});
   
 describe('translate', () => {
   it('should translate the transform matrix correctly', () => {
