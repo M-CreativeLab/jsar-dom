@@ -18,7 +18,6 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
-const transformRegEx = /(translateX|rotate)\((\d+)(px|deg)\)/g;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -952,8 +951,6 @@ export function shorthandSetter(
   };
 }
 
-type TransformFunctionName = 'translateX' | 'rotate';
-type TransformFunctionUnit = 'px' | 'deg';
 export class TransformFunction {
   name: PropertyStringValue;
   values: PropertyLengthValue | PropertyAngleValue;

@@ -763,6 +763,9 @@ export class Control2D {
   private _updateCurrentTransformMatrix() {
     const element = this._element;
     const style = this._style;
+    if (element instanceof ShadowRootImpl) {
+      return;
+    } 
     const transformStr = style.transform;
     const parentElement = element.parentElement;
     const transformFunctions = parseTransform(transformStr);
@@ -790,12 +793,9 @@ export class Control2D {
     transformFunctions.forEach(transformFunction => {
       if (transformFunction.name.str === 'translateX') {
         const x = transformFunction.values.value['number'] as number;
-        console.log('x', x);
         transformMatrix = translate(transformMatrix, x, 0, 0);
       } else if (transformFunction.name.str === 'rotate') {
         const angle = transformFunction.values.value as number;
-        console.log('rotate', transformFunction);
-        console.log('angle', angle);
         transformMatrix = rotate(transformMatrix, angle);
       }
     });

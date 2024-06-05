@@ -399,7 +399,6 @@ describe('parseTransform', () => {
 
   it('should parse multiple transforms correctly', () => {
     const result = parsers.parseTransform('translateX(10px) rotate(45deg)');
-    console.log('result', result);
     expect(result).toEqual([
       new parsers.TransformFunction('translateX', 10, 'px'),
       new parsers.TransformFunction('rotate', 45, 'deg')
