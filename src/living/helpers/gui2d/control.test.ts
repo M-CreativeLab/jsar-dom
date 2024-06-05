@@ -1,7 +1,7 @@
 import { Control2D } from './control';
 import { describe, jest, it, expect, beforeAll } from '@jest/globals';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
-import { TransformFunction } from '../../cssom/parsers'
+import { TransformFunction, UnionTransformFunction } from '../../cssom/parsers'
 jest.mock('@jest/globals');
 
 class MockControl extends Control2D {
@@ -50,7 +50,7 @@ describe('calculateTransformMatrix', () => {
       0, 0, 0, 1
     ]);
     const control = new MockControl(matrix);
-    const transformFunctions: TransformFunction[] = [
+    const transformFunctions: UnionTransformFunction[] = [
       new TransformFunction('translateX', 10, 'px')
     ];
     const result = control.calculateTransformMatrix(transformFunctions);
@@ -71,7 +71,7 @@ describe('calculateTransformMatrix', () => {
       0, 0, 0, 1
     ]);
     const control = new MockControl(matrix);
-    const transformFunctions: TransformFunction[] = [
+    const transformFunctions: UnionTransformFunction[] = [
       new TransformFunction('rotate', 45, 'deg')
     ];
     const result = control.calculateTransformMatrix(transformFunctions);
@@ -94,7 +94,7 @@ describe('calculateTransformMatrix', () => {
       0, 0, 0, 1
     ]);
     const control = new MockControl(matrix);
-    const transformFunctions: TransformFunction[] = [
+    const transformFunctions: UnionTransformFunction[] = [
       new TransformFunction('translateX', 10, 'px'),
       new TransformFunction('rotate', 90, 'deg')
     ];

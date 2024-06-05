@@ -951,37 +951,46 @@ export function shorthandSetter(
   };
 }
 
-export class TransformFunction {
-  name: PropertyStringValue;
-  values: PropertyLengthValue | PropertyAngleValue;
+export class TransformFunction<Tv> {
+  name: string;
+  values: Array<Tv>;
 
   constructor(name: string, value: number, unit: string) {
-    this.name = PropertyValue.createString(name);
+    this.name = name;
+    this.values = [];
     if (name === 'rotate') {
-      this.values = PropertyValue.createAngle(value);
+      this.values.push(PropertyValue.createAngle(value) as Tv);
     } else if (name ==='translateX') {
-      this.values = PropertyValue.createLength(value, unit as SupportedLengthUnit);
+      this.values.push(PropertyValue.createLength(value, unit as SupportedLengthUnit) as Tv);
     }
   }
 }
 
-export function parseTransform(transformStr: string) {
+export type TranslationTransformFunction = TransformFunction<PropertyLengthValue | PropertyPercentageValue>;
+export type RotationTransformFunction = TransformFunction<PropertyAngleValue>;
+export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
+
+const transformRegEx = /(\w+)\((\w+)\)/g;
+export function parseTransform(transformStr: string): UnionTransformFunction[] {
   const matches = [];
-  const transformValues = transformStr.split(')');
-  for (let i = 0; i < transformValues.length - 1; i++) {
-    const transformValue = transformValues[i];
-    const transformParts = transformValue.split('(');
-    const transformName = transformParts[0].trim();
-    const valueWithUnit = transformParts[1];
-    const value = parseFloat(valueWithUnit);
-    const unit = valueWithUnit.replace(value.toString(), '');
+  let match;
+  while ((match = transformRegEx.exec(transformStr)) !== null) {
+    const transformName = match[1];
+    const values = match[2];
     if (transformName === 'rotate') {
+      const angleValue = toAngleStr(values);
+      const radianValue = angleValue.toAngle('deg');
+      console.log('radianValue', radianValue);
       matches.push(new TransformFunction(
         transformName,
-        value,
-        unit
+        radianValue,
+        'deg'
       ));
     } else if (transformName === 'translateX') {
+      const lengthValue = toLengthStr(values);
+      const length = lengthValue.toLength();
+      const value = length.number;
+      const unit = length.unit;
       matches.push(new TransformFunction(
         transformName,
         value,
