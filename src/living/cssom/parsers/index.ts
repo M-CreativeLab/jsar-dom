@@ -954,20 +954,43 @@ export function shorthandSetter(
 
 type TransformFunctionName = 'translateX' | 'rotate';
 type TransformFunctionUnit = 'px' | 'deg';
-
 export class TransformFunction {
-  name: TransformFunctionName;
-  value: number;
-  unit: TransformFunctionUnit;
+  name: PropertyStringValue;
+  values: PropertyLengthValue | PropertyAngleValue;
 
-  constructor(name: TransformFunctionName, value: number, unit: TransformFunctionUnit) {
-    this.name = name;
-    this.value = value;
-    this.unit = unit;
+  constructor(name: string, value: number, unit: string) {
+    this.name = PropertyValue.createString(name);
+    if (name === 'rotate') {
+      this.values = PropertyValue.createAngle(value);
+    } else if (name ==='translateX') {
+      this.values = PropertyValue.createLength(value, unit as SupportedLengthUnit);
+    }
   }
 }
 
 export function parseTransform(transformStr: string) {
-  const matches = [...transformStr.matchAll(transformRegEx)];
-  return matches.map(match => new TransformFunction(match[1] as TransformFunctionName, parseFloat(match[2]), match[3] as TransformFunctionUnit));
+  const matches = [];
+  const transformValues = transformStr.split(')');
+  for (let i = 0; i < transformValues.length - 1; i++) {
+    const transformValue = transformValues[i];
+    const transformParts = transformValue.split('(');
+    const transformName = transformParts[0].trim();
+    const valueWithUnit = transformParts[1];
+    const value = parseFloat(valueWithUnit);
+    const unit = valueWithUnit.replace(value.toString(), '');
+    if (transformName === 'rotate') {
+      matches.push(new TransformFunction(
+        transformName,
+        value,
+        unit
+      ));
+    } else if (transformName === 'translateX') {
+      matches.push(new TransformFunction(
+        transformName,
+        value,
+        unit
+      ));
+    }
+  }
+  return matches;
 }

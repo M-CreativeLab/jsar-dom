@@ -13,7 +13,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply } from '../matrix-functions';
-import { parseTransform, TransformFunction} from '../../cssom/parsers';
+import { parseTransform, PropertyStringValue, TransformFunction} from '../../cssom/parsers';
 import { translate, rotate } from '../transform-functions'
 
 type LengthPercentageDimension = string | number;
@@ -763,9 +763,6 @@ export class Control2D {
   private _updateCurrentTransformMatrix() {
     const element = this._element;
     const style = this._style;
-    if (element instanceof ShadowRootImpl) {
-      return;
-    } 
     const transformStr = style.transform;
     const parentElement = element.parentElement;
     const transformFunctions = parseTransform(transformStr);
@@ -791,11 +788,14 @@ export class Control2D {
       0, 0, 0, 1
     ]);
     transformFunctions.forEach(transformFunction => {
-      if (transformFunction.name === 'translateX') {
-        const x = transformFunction.value;
+      if (transformFunction.name.str === 'translateX') {
+        const x = transformFunction.values.value['number'] as number;
+        console.log('x', x);
         transformMatrix = translate(transformMatrix, x, 0, 0);
-      } else if (transformFunction.name === 'rotate') {
-        const angle = transformFunction.value;
+      } else if (transformFunction.name.str === 'rotate') {
+        const angle = transformFunction.values.value as number;
+        console.log('rotate', transformFunction);
+        console.log('angle', angle);
         transformMatrix = rotate(transformMatrix, angle);
       }
     });
