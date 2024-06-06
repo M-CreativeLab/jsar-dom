@@ -952,18 +952,9 @@ export function shorthandSetter(
   };
 }
 
-function isValidAngle(values: string[]) {
+function isValidUnit(values: PropertyValue[]) {
   values.forEach(value => {
-    if (!angleRegEx.test(value)) {
-      return false;
-    }
-  })
-  return true;
-}
-
-function isValidLength(values: string[]) {
-  values.forEach(value => {
-    if(!lengthRegEx.test(value)) {
+    if(value === undefined) {
       return false;
     }
   })
@@ -973,6 +964,7 @@ function isValidLength(values: string[]) {
 export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
+  isValid: boolean;
 
   constructor(name: string, values: Tv[] = []) {
     this.name = name;
@@ -984,6 +976,9 @@ export class TranslationTransformFunction extends TransformFunction<PropertyLeng
   constructor(name: string, values: string[]) {
     const lengthValues = values.map(value => toLengthStr(value));
     super(name, lengthValues);
+    if (isValidUnit(lengthValues)) {
+      this.isValid = true;
+    }
   }
 }
 
@@ -991,6 +986,9 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
   constructor(name: string, values: string[]) {
     const angleValues = values.map(value => toAngleStr(value));
     super(name, angleValues);
+    if (isValidUnit(angleValues)) {
+      this.isValid = true;
+    }
   }
 }
 
@@ -1003,17 +1001,21 @@ export function parseTransform(transformStr: string): UnionTransformFunction[] {
     const transformName = result[1];
     const values: string[] = result[2].split(',').map(param => param.trim());
     if (transformName === 'rotate') {
-      if (!isValidAngle(values)) {
+      const rotateTransformFunction = new RotationTransformFunction(transformName, values);
+      if (rotateTransformFunction.isValid === true) {
+        results.push(rotateTransformFunction);
+      } else {
         results = [];
         break;
       }
-      results.push(new RotationTransformFunction(transformName, values));
     } else if (transformName === 'translateX') {
-      if (!isValidLength(values)) {
+      const translateTransformFunction = new TranslationTransformFunction(transformName, values);
+      if (translateTransformFunction.isValid === true) {
+        results.push(translateTransformFunction);
+      } else {
         results = [];
         break;
       }
-      results.push(new TranslationTransformFunction(transformName, values));
     } else {
       results = [];
       break;
