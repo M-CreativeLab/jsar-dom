@@ -954,17 +954,16 @@ export function shorthandSetter(
 
 function isValidUnit(values: PropertyValue[]) {
   values.forEach(value => {
-    if(value === undefined) {
+    if (value === undefined) {
       return false;
     }
-  })
+  });
   return true;
 }
 
 export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
-  isValid: boolean;
 
   constructor(name: string, values: Tv[] = []) {
     this.name = name;
@@ -973,53 +972,69 @@ export class TransformFunction<Tv> {
 }
 
 export class TranslationTransformFunction extends TransformFunction<PropertyLengthValue> {
-  constructor(name: string, values: string[]) {
-    const lengthValues = values.map(value => toLengthStr(value));
-    super(name, lengthValues);
-    if (isValidUnit(lengthValues)) {
-      this.isValid = true;
+  constructor(name: string, args: string[]) {
+    let values: PropertyLengthValue[];
+    for (let arg of args) {
+      const value = toLengthStr(arg);
+      if (value === undefined) {
+        values.length = 0;
+        break;
+      } else {
+        values.push(value);
+      }
     }
+    super(name, values);
+  }
+  get isValid(): boolean {
+    return this.values.length > 0;
   }
 }
 
 export class RotationTransformFunction extends TransformFunction<PropertyAngleValue> {
-  constructor(name: string, values: string[]) {
-    const angleValues = values.map(value => toAngleStr(value));
-    super(name, angleValues);
-    if (isValidUnit(angleValues)) {
-      this.isValid = true;
+  constructor(name: string, args: string[]) {
+    let values: PropertyAngleValue[];
+    for (let arg of args) {
+      const value = toAngleStr(arg);
+      if (value === undefined) {
+        values.length = 0;
+        break;
+      } else {
+        values.push(value);
+      }
     }
+    super(name, values);
+  }
+  get isValid(): boolean {
+    return this.values.length > 0;
   }
 }
 
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
-  let results: UnionTransformFunction[] = [];
-  let result;
-  while ((result = transformFunctionRegEx.exec(transformStr)) !== null) {
-    const transformName = result[1];
-    const values: string[] = result[2].split(',').map(param => param.trim());
-    if (transformName === 'rotate') {
-      const rotateTransformFunction = new RotationTransformFunction(transformName, values);
-      if (rotateTransformFunction.isValid === true) {
-        results.push(rotateTransformFunction);
+  let parsedTransformFunctions: UnionTransformFunction[] = [];
+  let parsedResult: string[];
+  while ((parsedResult = transformFunctionRegEx.exec(transformStr)) !== null) {
+    const transformFunctionName: string = parsedResult[1];
+    const transformFunctionArgs: string[] = parsedResult[2].split(',').map(param => param.trim());
+    let transformFunction: UnionTransformFunction | null = null;
+    if (transformFunctionName === 'rotate') {
+      transformFunction = new RotationTransformFunction(transformFunctionName, transformFunctionArgs);
+      if (transformFunction.isValid === true) {
+        parsedTransformFunctions.push(transformFunction);
       } else {
-        results = [];
-        break;
+        return [];
       }
-    } else if (transformName === 'translateX') {
-      const translateTransformFunction = new TranslationTransformFunction(transformName, values);
-      if (translateTransformFunction.isValid === true) {
-        results.push(translateTransformFunction);
+    } else if (transformFunctionName === 'translateX') {
+      transformFunction = new TranslationTransformFunction(transformFunctionName, transformFunctionArgs);
+      if (transformFunction.isValid === true) {
+        parsedTransformFunctions.push(transformFunction);
       } else {
-        results = [];
-        break;
+        return [];
       }
     } else {
-      results = [];
-      break;
+      return [];
     }
   }
-  return results;
+  return parsedTransformFunctions;
 }

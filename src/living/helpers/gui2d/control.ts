@@ -13,8 +13,8 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply } from '../matrix-functions';
-import { parseTransform, TransformFunction, UnionTransformFunction} from '../../cssom/parsers';
-import { translate, rotate } from '../transform-functions'
+import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
+import { translate, rotate } from '../transform-functions';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
