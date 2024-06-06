@@ -980,7 +980,6 @@ export function parseTransform(transformStr: string): UnionTransformFunction[] {
     if (transformName === 'rotate') {
       const angleValue = toAngleStr(values);
       const radianValue = angleValue.toAngle('deg');
-      console.log('radianValue', radianValue);
       matches.push(new TransformFunction(
         transformName,
         radianValue,

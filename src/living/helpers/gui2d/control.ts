@@ -172,7 +172,6 @@ export class Control2D {
   private _overwriteWidth: number;
   private _imageBitmap: ImageBitmap;
   private _isDirty = true;
-  private _transformMatrix: DOMMatrixImpl;
   private _currentTransformMatrix: DOMMatrixImpl;
   constructor(
     private _allocator: taffy.Allocator,
