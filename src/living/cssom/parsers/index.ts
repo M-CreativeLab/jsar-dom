@@ -18,7 +18,7 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
-const transformRegEx = /(\w+)\((\w+)\)/g;
+const transformFunctionRegEx = /(\w+)\((\w+)\)/g;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -974,13 +974,13 @@ export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
 
-  constructor(name: string, values: Tv[]=[]) {
+  constructor(name: string, values: Tv[] = []) {
     this.name = name;
     this.values = values;
   }
 }
 
-export class TranslationTransformFunction extends TransformFunction<PropertyLengthValue | PropertyPercentageValue> {
+export class TranslationTransformFunction extends TransformFunction<PropertyLengthValue> {
   constructor(name: string, values: string[]) {
     const lengthValues = values.map(value => toLengthStr(value));
     super(name, lengthValues);
@@ -999,10 +999,9 @@ export type UnionTransformFunction = TranslationTransformFunction | RotationTran
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
   let results: UnionTransformFunction[] = [];
   let result;
-  while ((result = transformRegEx.exec(transformStr)) !== null) {
-    console.log('result', result);
+  while ((result = transformFunctionRegEx.exec(transformStr)) !== null) {
     const transformName = result[1];
-    const values: string[] =  result[2].split(',').map(param => param.trim());
+    const values: string[] = result[2].split(',').map(param => param.trim());
     if (transformName === 'rotate') {
       if (!isValidAngle(values)) {
         results = [];
