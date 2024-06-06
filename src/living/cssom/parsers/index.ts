@@ -18,6 +18,7 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
+const transformRegEx = /(\w+)\(([^)]+)\)/;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -955,47 +956,44 @@ export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
 
-  constructor(name: string, value: number, unit: string) {
+  constructor(name: string, values: Tv[]=[]) {
     this.name = name;
-    this.values = [];
-    if (name === 'rotate') {
-      this.values.push(PropertyValue.createAngle(value) as Tv);
-    } else if (name ==='translateX') {
-      this.values.push(PropertyValue.createLength(value, unit as SupportedLengthUnit) as Tv);
-    }
+    this.values = values;
   }
 }
 
-export type TranslationTransformFunction = TransformFunction<PropertyLengthValue | PropertyPercentageValue>;
-export type RotationTransformFunction = TransformFunction<PropertyAngleValue>;
+export class TranslationTransformFunction extends TransformFunction<PropertyLengthValue | PropertyPercentageValue> {
+  constructor(name: string, values: string[]) {
+    const lengthValues = values.map(value => toLengthStr(value));
+    super(name, lengthValues);
+  }
+}
+export class RotationTransformFunction extends TransformFunction<PropertyAngleValue> {
+  constructor(name: string, values: string[]) {
+    const angleValues = values.map(value => toAngleStr(value));
+    super(name, angleValues);
+  }
+}
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
-const transformRegEx = /(\w+)\((\w+)\)/g;
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
-  const matches = [];
-  let match;
-  while ((match = transformRegEx.exec(transformStr)) !== null) {
-    const transformName = match[1];
-    const values = match[2];
+  const results:UnionTransformFunction[] = [];
+  let result;
+  while ((result = transformRegEx.exec(transformStr)) !== null) {
+    const transformName = result[1];
+    const values: string[] =  result[2].split(',').map(param => param.trim());
+    console.log('result', result);
     if (transformName === 'rotate') {
-      const angleValue = toAngleStr(values);
-      const radianValue = angleValue.toAngle('deg');
-      matches.push(new TransformFunction(
+      results.push(new RotationTransformFunction(
         transformName,
-        radianValue,
-        'deg'
+        values
       ));
     } else if (transformName === 'translateX') {
-      const lengthValue = toLengthStr(values);
-      const length = lengthValue.toLength();
-      const value = length.number;
-      const unit = length.unit;
-      matches.push(new TransformFunction(
+      results.push(new TranslationTransformFunction(
         transformName,
-        value,
-        unit
+        values
       ));
     }
   }
-  return matches;
+  return results;
 }
