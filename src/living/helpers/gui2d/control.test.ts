@@ -1,5 +1,5 @@
 import { Control2D } from './control';
-import { describe, jest, it, expect, beforeAll } from '@jest/globals';
+import { describe, jest, it, expect } from '@jest/globals';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { RotationTransformFunction, TranslationTransformFunction, UnionTransformFunction } from '../../cssom/parsers'
 jest.mock('@jest/globals');

@@ -1,4 +1,4 @@
-import { describe, jest, it, expect, beforeAll } from '@jest/globals';
+import { describe, it, expect } from '@jest/globals';
 import DOMMatrixImpl from '../geometry/DOMMatrix';
 import {translate, rotate} from './transform-functions';
 

@@ -1,7 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import * as parsers from './';
 import CSSSpatialStyleDeclaration from '../CSSSpatialStyleDeclaration';
-import DOMMatrixImpl from '../../geometry/DOMMatrix';
 
 describe('valueType', () => {
   it('returns color for red', () => {
@@ -386,22 +385,32 @@ describe('parseTransform', () => {
   it('should parse translateX correctly', () => {
     const result = parsers.parseTransform('translateX(10px)');
     expect(result).toEqual([
-      new parsers.TransformFunction('translateX', ['10px'])
+      new parsers.TranslationTransformFunction('translateX', ['10px'])
     ]);
   });
 
   it('should parse rotate correctly', () => {
     const result = parsers.parseTransform('rotate(45deg)');
     expect(result).toEqual([
-      new parsers.TransformFunction('rotate', ['45deg'])
+      new parsers.RotationTransformFunction('rotate', ['45deg'])
     ]);
   });
 
   it('should parse multiple transforms correctly', () => {
     const result = parsers.parseTransform('translateX(10px) rotate(45deg)');
     expect(result).toEqual([
-      new parsers.TransformFunction('translateX', ['10px']),
-      new parsers.TransformFunction('rotate', ['45deg'])
+      new parsers.TranslationTransformFunction('translateX', ['10px']),
+      new parsers.RotationTransformFunction('rotate', ['45deg'])
     ]);
   });
+
+  it('should process input function name error correctly', () => {
+    const result = parsers.parseTransform('translateM(10px)');
+    expect(result).toEqual([]);
+  })
+
+  it('should process input values error correctly', () => {
+    const result = parsers.parseTransform('translateX(10py)');
+    expect(result).toEqual([]);
+  })
 });

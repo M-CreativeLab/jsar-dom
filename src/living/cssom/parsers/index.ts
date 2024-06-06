@@ -18,7 +18,7 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
-const transformRegEx = /(\w+)\(([^)]+)\)/;
+const transformRegEx = /(\w+)\((\w+)\)/g;
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -952,6 +952,24 @@ export function shorthandSetter(
   };
 }
 
+function isValidAngle(values: string[]) {
+  values.forEach(value => {
+    if (!angleRegEx.test(value)) {
+      return false;
+    }
+  })
+  return true;
+}
+
+function isValidLength(values: string[]) {
+  values.forEach(value => {
+    if(!lengthRegEx.test(value)) {
+      return false;
+    }
+  })
+  return true;
+}
+
 export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
@@ -968,31 +986,38 @@ export class TranslationTransformFunction extends TransformFunction<PropertyLeng
     super(name, lengthValues);
   }
 }
+
 export class RotationTransformFunction extends TransformFunction<PropertyAngleValue> {
   constructor(name: string, values: string[]) {
     const angleValues = values.map(value => toAngleStr(value));
     super(name, angleValues);
   }
 }
+
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
-  const results:UnionTransformFunction[] = [];
+  let results: UnionTransformFunction[] = [];
   let result;
   while ((result = transformRegEx.exec(transformStr)) !== null) {
+    console.log('result', result);
     const transformName = result[1];
     const values: string[] =  result[2].split(',').map(param => param.trim());
-    console.log('result', result);
     if (transformName === 'rotate') {
-      results.push(new RotationTransformFunction(
-        transformName,
-        values
-      ));
+      if (!isValidAngle(values)) {
+        results = [];
+        break;
+      }
+      results.push(new RotationTransformFunction(transformName, values));
     } else if (transformName === 'translateX') {
-      results.push(new TranslationTransformFunction(
-        transformName,
-        values
-      ));
+      if (!isValidLength(values)) {
+        results = [];
+        break;
+      }
+      results.push(new TranslationTransformFunction(transformName, values));
+    } else {
+      results = [];
+      break;
     }
   }
   return results;
