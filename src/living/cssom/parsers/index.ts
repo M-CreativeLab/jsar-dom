@@ -18,30 +18,43 @@ const calcRegEx = /^calc\(([^)]*)\)$/;
 const colorRegEx4 =
   /^hsla?\(\s*(-?\d+|-?\d*.\d+)\s*,\s*(-?\d+|-?\d*.\d+)%\s*,\s*(-?\d+|-?\d*.\d+)%\s*(,\s*(-?\d+|-?\d*.\d+)\s*)?\)/;
 const angleRegEx = /^([-+]?[0-9]*\.?[0-9]+)(deg|grad|rad)$/;
-const css3TransformFunctionNames = [
-  'matrix',
-  'matrix3d',
-  'perspective',
-  'rotate',
-  'rotate3d',
-  'rotateX',
-  'rotateY',
-  'rotateZ',
-  'translate',
-  'translate3d',
-  'translateX',
-  'translateY',
-  'translateZ',
-  'scale',
-  'scale3d',
-  'scaleX',
-  'scaleY',
-  'scaleZ',
-  'skew',
-  'skewX',
-  'skewY',
-];
-const transformFunctionRegEx = new RegExp(`(${css3TransformFunctionNames.sort(
+const css3TransformFunctionNames = {
+  matrix: [
+    'matrix',
+    'matrix3d'
+  ],
+  perspective: [
+    'perspective'
+  ],
+  rotate: [
+    'rotate',
+    'rotate3d',
+    'rotateX',
+    'rotateY',
+    'rotateZ'
+  ],
+  translate: [
+    'translate',
+    'translate3d',
+    'translateX',
+    'translateY',
+    'translateZ'
+  ],
+  scale: [
+    'scale',
+    'scale3d',
+    'scaleX',
+    'scaleY',
+    'scaleZ'
+  ],
+  skew: [
+    'skew',
+    'skewX',
+    'skewY'
+  ]
+};
+const allTransformFunctionNames = Object.values(css3TransformFunctionNames).flat();
+const transformFunctionRegEx = new RegExp(`(${allTransformFunctionNames.sort(
   (a, b) => b.length - a.length
 ).join('|')})\\b\\(([^)]+)\\)`, 'g');
 
@@ -1016,14 +1029,12 @@ export class TransformFunction<Tv> {
     return values;
   }
 
-  getType(): typeof TranslationTransformFunction | typeof RotationTransformFunction{
-    if (this.name === 'translateX') {
-      return TranslationTransformFunction;
-    }
-    else if (this.name === 'rotate') {
-      return RotationTransformFunction;
-    }
-    return null;
+  isRotate(): this is RotationTransformFunction {
+    return css3TransformFunctionNames['rotate'].includes(this.name);
+  } 
+
+  isTranslate(): this is TranslationTransformFunction {
+    return css3TransformFunctionNames['translate'].includes(this.name);
   }
 }
 

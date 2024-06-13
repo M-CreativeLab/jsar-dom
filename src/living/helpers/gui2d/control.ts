@@ -13,7 +13,7 @@ import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply, translate, rotate } from '../matrix-functions';
-import { parseTransform, RotationTransformFunction, TranslationTransformFunction, UnionTransformFunction} from '../../cssom/parsers';
+import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -781,11 +781,9 @@ export class Control2D {
       0, 0, 0, 1
     ]);
     transformFunctions.forEach(transformFunction => {
-      if (transformFunction.name === 'translateX') {
-        transformFunction = transformFunction as TranslationTransformFunction;
+      if (transformFunction.isTranslate()) {
         transformMatrix = translate(transformMatrix, transformFunction.x, transformFunction.y, transformFunction.z);
-      } else if (transformFunction.name === 'rotate') {
-        transformFunction = transformFunction as RotationTransformFunction;
+      } else if (transformFunction.isRotate()) {
         transformMatrix = rotate(transformMatrix, transformFunction.angle);
       }
     });
