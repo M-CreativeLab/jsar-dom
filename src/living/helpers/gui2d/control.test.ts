@@ -14,7 +14,7 @@ class MockControl extends Control2D {
 
     const mockContext: Partial<MyCanvasRenderingContext2D> = {
       transformMatrix: DOMMatrixImpl,
-
+      
       setTransform: (...args: any[]) => {
         mockContext.transformMatrix = args[0];
       },
@@ -22,7 +22,7 @@ class MockControl extends Control2D {
         return mockContext.transformMatrix;
       },
     };
-    this._renderingContext = mockContext as any;
+    this._renderingContext = mockContext as MyCanvasRenderingContext2D; 
     this.currentTransformMatrix = matrix;
   }  
 }
