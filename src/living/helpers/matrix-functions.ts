@@ -1,7 +1,7 @@
 import { GET_MATRIX_ELEMENTS } from '../geometry/DOMMatrixReadOnly';
 import DOMMatrixImpl from '../geometry/DOMMatrix'; 
 
-export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrixImpl { 
+export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix { 
   const selfElements = self[GET_MATRIX_ELEMENTS]();
   const otherElements = other[GET_MATRIX_ELEMENTS]();
   const resElements: number[] = [];
@@ -15,7 +15,7 @@ export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrixImpl {
   return new DOMMatrixImpl(resElements);
 }
 
-export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrixImpl { 
+export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix{ 
   const selfElements = self[GET_MATRIX_ELEMENTS]();
   const otherElements = other[GET_MATRIX_ELEMENTS]();
   const resElements: number[] = [];
@@ -27,4 +27,26 @@ export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrixImpl {
     resElements[i] = resElement;
   }
   return new DOMMatrixImpl(resElements);
+}
+
+export function translate(transformMatrix: DOMMatrix, x: number, y: number, z: number): DOMMatrix {
+  const translateMatrix = new DOMMatrixImpl([
+    1, 0, 0, 0,  
+    0, 1, 0, 0,  
+    0, 0, 1, 0,  
+    x, y, z, 1
+  ]);
+  return postMultiply(transformMatrix, translateMatrix);
+}
+
+export function rotate(transformMatrix: DOMMatrix, angle: number): DOMMatrix {
+  const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+  const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+  const rotateMatrix = new DOMMatrixImpl([
+    cosValue, sinValue, 0, 0,  
+    -sinValue, cosValue, 0, 0,  
+    0, 0, 1, 0,   
+    0, 0, 0, 1
+  ]);
+  return postMultiply(transformMatrix, rotateMatrix);
 }

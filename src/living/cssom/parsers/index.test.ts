@@ -407,10 +407,10 @@ describe('parseTransform', () => {
   it('should process input function name error correctly', () => {
     const result = parsers.parseTransform('translateM(10px)');
     expect(result).toEqual([]);
-  })
+  });
 
   it('should process input values error correctly', () => {
     const result = parsers.parseTransform('translateX(10py)');
     expect(result).toEqual([]);
-  })
+  });
 });

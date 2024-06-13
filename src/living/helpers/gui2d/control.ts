@@ -12,9 +12,8 @@ import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
-import { postMultiply } from '../matrix-functions';
-import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
-import { translate, rotate } from '../transform-functions';
+import { postMultiply, translate, rotate } from '../matrix-functions';
+import { parseTransform, RotationTransformFunction, TranslationTransformFunction, UnionTransformFunction} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -172,7 +171,7 @@ export class Control2D {
   private _overwriteWidth: number;
   private _imageBitmap: ImageBitmap;
   private _isDirty = true;
-  private _currentTransformMatrix: DOMMatrixImpl;
+  public currentTransformMatrix: DOMMatrix;
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
@@ -229,14 +228,6 @@ export class Control2D {
     } else {
       return null;
     }
-  }
-
-  get currentTransformMatrix(): DOMMatrixImpl {
-    return this._currentTransformMatrix;
-  }
-  
-  set currentTransformMatrix(value: DOMMatrixImpl) {
-    this._currentTransformMatrix = value;
   }
   
   private _ownInnerText(): boolean {
@@ -782,8 +773,8 @@ export class Control2D {
     }
   }
   
-  calculateTransformMatrix(transformFunctions: UnionTransformFunction[]): DOMMatrixImpl {
-    let transformMatrix = new DOMMatrixImpl([
+  calculateTransformMatrix(transformFunctions: UnionTransformFunction[]): DOMMatrix {
+    let transformMatrix: DOMMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,   
       0, 1, 0, 0,  
       0, 0, 1, 0,   
@@ -791,11 +782,11 @@ export class Control2D {
     ]);
     transformFunctions.forEach(transformFunction => {
       if (transformFunction.name === 'translateX') {
-        const x = transformFunction.values[0].value['number'];
-        transformMatrix = translate(transformMatrix, x, 0, 0);
+        transformFunction = transformFunction as TranslationTransformFunction;
+        transformMatrix = translate(transformMatrix, transformFunction.x, transformFunction.y, transformFunction.z);
       } else if (transformFunction.name === 'rotate') {
-        const angle = transformFunction.values[0].value as number;
-        transformMatrix = rotate(transformMatrix, angle);
+        transformFunction = transformFunction as RotationTransformFunction;
+        transformMatrix = rotate(transformMatrix, transformFunction.angle);
       }
     });
     return transformMatrix;
