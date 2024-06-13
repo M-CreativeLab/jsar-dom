@@ -1,7 +1,7 @@
 import { Control2D } from './control';
 import { describe, jest, it, expect } from '@jest/globals';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
-import { RotationTransformFunction, TranslationTransformFunction, UnionTransformFunction } from '../../cssom/parsers'
+import { RotationTransformFunction, TranslationTransformFunction, UnionTransformFunction } from '../../cssom/parsers';
 jest.mock('@jest/globals');
 
 class MockControl extends Control2D {
@@ -16,7 +16,7 @@ class MockControl extends Control2D {
       transformMatrix: DOMMatrixImpl,
 
       setTransform: (...args: any[]) => {
-        mockContext.transformMatrix = args[0]
+        mockContext.transformMatrix = args[0];
       },
       getTransform: () => {
         return mockContext.transformMatrix;

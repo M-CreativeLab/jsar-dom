@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import DOMMatrixImpl from '../geometry/DOMMatrix';
-import {translate, rotate} from './transform-functions';
+import { translate, rotate } from './transform-functions';
 
 const matrix = new DOMMatrixImpl([
   1, 0, 0, 0,
