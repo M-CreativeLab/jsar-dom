@@ -27,7 +27,7 @@ class MockControl extends Control2D {
   }  
 }
 
-describe('updateCtxTransform', () => {
+describe('syncRenderingContextTransform', () => {
   it('should update currentTransformMatrix to _renderingContext.transformMatrix correctly', () => {
     const matrix = new DOMMatrixImpl([
       0, 1, 0, 0,
@@ -36,7 +36,7 @@ describe('updateCtxTransform', () => {
       10, 0, 0, 1
     ]);
     const control = new MockControl(matrix);
-    control.updateCtxTransform();
+    control.syncRenderingContextTransform();
     expect((control as any)._renderingContext.getTransform()).toEqual(matrix);
   });
 });

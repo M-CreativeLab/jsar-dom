@@ -395,7 +395,7 @@ export class Control2D {
     /**
      * Adopt the transformMatrix on canvas.
      */
-    this.updateCtxTransform();
+    this.syncRenderingContextTransform();
 
     /**
      * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
@@ -790,7 +790,7 @@ export class Control2D {
     return transformMatrix;
   }
 
-  updateCtxTransform() {
+  syncRenderingContextTransform() {
     const renderingContext = this._renderingContext;
     const currentTransformMatrix = this.currentTransformMatrix;
     renderingContext.setTransform(currentTransformMatrix);

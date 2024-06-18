@@ -991,13 +991,13 @@ export function shorthandSetter(
 }
 
 function createAndAddTransformFunctionTo(
-  parsedTransformFunctions: UnionTransformFunction[],
+  list: UnionTransformFunction[],
   { constructor, name, args }: 
   { constructor: new (name: string, args: string[]) => UnionTransformFunction, name: string, args: string[]}
 ): boolean {
   const transformFunction = new constructor(name, args);
   if (transformFunction.valid) {
-    parsedTransformFunctions.push(transformFunction);
+    list.push(transformFunction);
     return true;
   }
   return false;
@@ -1069,13 +1069,13 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
-  const parsedTransformFunctions: UnionTransformFunction[] = [];
+  const list: UnionTransformFunction[] = [];
   let parsedResult: string[] = [];
   while ((parsedResult = transformFunctionRegEx.exec(transformStr)) !== null) {
     const transformFunctionName: string = parsedResult[1];
     const transformFunctionArgs: string[] = parsedResult[2].split(',').map(arg => arg.trim());
     if (transformFunctionName === 'rotate') {
-      if (!createAndAddTransformFunctionTo(parsedTransformFunctions, {
+      if (!createAndAddTransformFunctionTo(list, {
         constructor: RotationTransformFunction,
         name: transformFunctionName,
         args: transformFunctionArgs
@@ -1083,7 +1083,7 @@ export function parseTransform(transformStr: string): UnionTransformFunction[] {
         return [];
       }
     } else if (transformFunctionName === 'translateX') {
-      if (!createAndAddTransformFunctionTo(parsedTransformFunctions, {
+      if (!createAndAddTransformFunctionTo(list, {
         constructor: TranslationTransformFunction,
         name: transformFunctionName,
         args: transformFunctionArgs
@@ -1094,5 +1094,5 @@ export function parseTransform(transformStr: string): UnionTransformFunction[] {
       return [];
     }
   }
-  return parsedTransformFunctions;
+  return list;
 }
