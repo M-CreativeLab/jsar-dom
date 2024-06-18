@@ -1,6 +1,6 @@
 import { describe, it, expect } from '@jest/globals';
 import DOMMatrixImpl from '../geometry/DOMMatrix';
-import { translate, rotate } from './matrix-functions';
+import { translate, rotate2d } from './matrix-functions';
 
 const matrix: DOMMatrix = new DOMMatrixImpl([
   1, 0, 0, 0,
@@ -9,10 +9,10 @@ const matrix: DOMMatrix = new DOMMatrixImpl([
   0, 0, 0, 1
 ]);
 
-describe('rotate', () => {
-  it('should rotate the transform matrix correctly', () => {
+describe('rotate2d', () => {
+  it('should rotate2d the transform matrix correctly', () => {
     const angle = 45;
-    const result = rotate(matrix, angle);
+    const result = rotate2d(matrix, angle);
     const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
     const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
     const expectedMatrix: DOMMatrix = new DOMMatrixImpl([

@@ -15,7 +15,7 @@ export function postMultiply(self: DOMMatrix, other: DOMMatrix): DOMMatrix {
   return new DOMMatrixImpl(resElements);
 }
 
-export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix{ 
+export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix { 
   const selfElements = self[GET_MATRIX_ELEMENTS]();
   const otherElements = other[GET_MATRIX_ELEMENTS]();
   const resElements: number[] = [];
@@ -39,7 +39,7 @@ export function translate(transformMatrix: DOMMatrix, x: number, y: number, z: n
   return postMultiply(transformMatrix, translateMatrix);
 }
 
-export function rotate(transformMatrix: DOMMatrix, angle: number): DOMMatrix {
+export function rotate2d(transformMatrix: DOMMatrix, angle: number): DOMMatrix {
   const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
   const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
   const rotateMatrix = new DOMMatrixImpl([

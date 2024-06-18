@@ -54,9 +54,7 @@ const css3TransformFunctionNames = {
   ]
 };
 const allTransformFunctionNames = Object.values(css3TransformFunctionNames).flat();
-const transformFunctionRegEx = new RegExp(`(${allTransformFunctionNames.sort(
-  (a, b) => b.length - a.length
-).join('|')})\\b\\(([^)]+)\\)`, 'g');
+const transformFunctionRegEx = new RegExp(`(${allTransformFunctionNames.join('|')})\\((\\w+)\\)`, 'g');
 
 export enum CSSValueType {
   INTEGER = 1,
@@ -992,8 +990,7 @@ export function shorthandSetter(
 
 function createAndAddTransformFunctionTo(
   list: UnionTransformFunction[],
-  { constructor, name, args }: 
-  { constructor: new (name: string, args: string[]) => UnionTransformFunction, name: string, args: string[]}
+  { constructor, name, args }: { constructor: new (name: string, args: string[]) => UnionTransformFunction, name: string, args: string[]}
 ): boolean {
   const transformFunction = new constructor(name, args);
   if (transformFunction.valid) {
@@ -1012,11 +1009,11 @@ export class TransformFunction<Tv> {
     this.values = values;
   }
 
-  static processArgs(
+  static ProcessArgs<Tv>(
     args: string[], 
-    converter: (arg: string) => PropertyLengthValue | PropertyAngleValue
-  ): PropertyLengthValue[] | PropertyAngleValue[] {
-    let values = [];
+    converter: (arg: string) => Tv
+  ): Tv[] {
+    let values: Tv[] = [];
     for (let arg of args) {
       const value = converter(arg);
       if (value === undefined) {
@@ -1027,6 +1024,10 @@ export class TransformFunction<Tv> {
       }
     }
     return values;
+  }
+
+  get valid(): boolean {
+    throw new Error("Method 'valid' must be implemented in derived classes");
   }
 
   isRotate(): this is RotationTransformFunction {
@@ -1042,13 +1043,15 @@ export class TranslationTransformFunction extends TransformFunction<PropertyLeng
   x: number;
   y: number;
   z: number;
+
   constructor(name: string, args: string[]) {
-    const values = TransformFunction.processArgs(args, toLengthStr) as PropertyLengthValue[];
+    const values = TransformFunction.ProcessArgs(args, toLengthStr);
     super(name, values);
     this.x = values[0]?.value?.['number'] ?? 0;
     this.y = values[1]?.value?.['number'] ?? 0;
     this.z = values[2]?.value?.['number'] ?? 0;
   }
+
   get valid(): boolean {
     return this.values.length > 0 && this.values.length < 4;
   }
@@ -1056,11 +1059,13 @@ export class TranslationTransformFunction extends TransformFunction<PropertyLeng
 
 export class RotationTransformFunction extends TransformFunction<PropertyAngleValue> {
   angle: number;
+
   constructor(name: string, args: string[]) {
-    const values = TransformFunction.processArgs(args, toAngleStr) as PropertyAngleValue[];
+    const values = TransformFunction.ProcessArgs(args, toAngleStr);
     super(name, values);
     this.angle = values[0].value as number;
   }
+
   get valid(): boolean {
     return this.values.length === 1;
   }
@@ -1068,31 +1073,45 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
 
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
+const transformFunctionConstructors = {
+  [css3TransformFunctionNames['rotate'][0]]: RotationTransformFunction,
+  [css3TransformFunctionNames['rotate'][1]]: RotationTransformFunction,
+  [css3TransformFunctionNames['rotate'][2]]: RotationTransformFunction,
+  [css3TransformFunctionNames['rotate'][3]]: RotationTransformFunction,
+  [css3TransformFunctionNames['rotate'][4]]: RotationTransformFunction,
+  [css3TransformFunctionNames['translate'][0]]: TranslationTransformFunction,
+  [css3TransformFunctionNames['translate'][1]]: TranslationTransformFunction,
+  [css3TransformFunctionNames['translate'][2]]: TranslationTransformFunction,
+  [css3TransformFunctionNames['translate'][3]]: TranslationTransformFunction,
+  [css3TransformFunctionNames['translate'][4]]: TranslationTransformFunction
+};
+
+function addTransformFunctionToList(
+  list: UnionTransformFunction[], 
+  transformFunctionName: string, 
+  transformFunctionArgs: string[]
+): UnionTransformFunction[] {
+  const constructor = transformFunctionConstructors[transformFunctionName];
+  if (constructor) {
+    if (!createAndAddTransformFunctionTo(list, {
+      constructor: constructor,
+      name: transformFunctionName,
+      args: transformFunctionArgs
+    })) {
+      return [];
+    }
+  } else {
+    return [];
+  }
+}
+
 export function parseTransform(transformStr: string): UnionTransformFunction[] {
   const list: UnionTransformFunction[] = [];
   let parsedResult: string[] = [];
   while ((parsedResult = transformFunctionRegEx.exec(transformStr)) !== null) {
     const transformFunctionName: string = parsedResult[1];
     const transformFunctionArgs: string[] = parsedResult[2].split(',').map(arg => arg.trim());
-    if (transformFunctionName === 'rotate') {
-      if (!createAndAddTransformFunctionTo(list, {
-        constructor: RotationTransformFunction,
-        name: transformFunctionName,
-        args: transformFunctionArgs
-      })) {
-        return [];
-      }
-    } else if (transformFunctionName === 'translateX') {
-      if (!createAndAddTransformFunctionTo(list, {
-        constructor: TranslationTransformFunction,
-        name: transformFunctionName,
-        args: transformFunctionArgs
-      })) {
-        return [];
-      }
-    } else {
-      return [];
-    }
+    addTransformFunctionToList(list, transformFunctionName, transformFunctionArgs);
   }
   return list;
 }

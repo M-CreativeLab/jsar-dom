@@ -12,7 +12,7 @@ import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
 import DOMMatrixImpl from '../../geometry/DOMMatrix';
-import { postMultiply, translate, rotate } from '../matrix-functions';
+import { postMultiply, translate, rotate2d } from '../matrix-functions';
 import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
@@ -171,7 +171,7 @@ export class Control2D {
   private _overwriteWidth: number;
   private _imageBitmap: ImageBitmap;
   private _isDirty = true;
-  public currentTransformMatrix: DOMMatrix;
+  protected currentTransformMatrix: DOMMatrix;
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
@@ -373,7 +373,7 @@ export class Control2D {
     const boxRect = new DOMRectImpl(x, y, width, height);
     const hasTextChildren = this._isElementOwnsInnerText();
     /**
-     * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
+     * 1. Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
      */
     if (this._imageBitmap && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
       // Fix the size by the image.
@@ -390,24 +390,31 @@ export class Control2D {
       }
     }
 
+    /**
+     * 2. Calculate the transform matrix.
+     */
     this._updateCurrentTransformMatrix();
 
     /**
-     * Adopt the transformMatrix on canvas.
+     * 3. Adopt the transformMatrix on canvas.
      */
     this.syncRenderingContextTransform();
 
     /**
-     * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
+     * 4. Check if we need to render the borders, if yes, render the borders
+     * and fill the background, otherwise use `_renderRect` to fill a rect with background.
      */
     if (!this._renderBorders(canvasContext, boxRect)) {
       this._renderRect(canvasContext, boxRect);
     }
 
+    /**
+     * 5. Render the image if it exists.
+     */
     this._renderImageIfExists(canvasContext, boxRect);
 
     /**
-     * Render the inner text.
+     * 6. Render the inner text.
      */
     if (hasTextChildren) {
       this._renderInnerText(canvasContext, boxRect);
@@ -747,22 +754,23 @@ export class Control2D {
       element.width = rect.width;
       element.height = rect.height;
     });
+    /**
+     * NOTE|feichi|: `putImageData` paints image onto canvas without transform,
+     * while `drawImage` draws image onto canvas which is suitable for us.
+     */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
 
   private _updateCurrentTransformMatrix() {
     const element = this._element;
-    const style = this._style;
     if (element instanceof ShadowRootImpl) {
       return;
     } 
-    const transformStr = style.transform;
+    const transformStr = this._style.transform;
     const parentElement = element.parentElement;
-    const transformFunctions = parseTransform(transformStr);
-    const transformMatrix = this.calculateTransformMatrix(transformFunctions);
+    const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
     if (parentElement == null) {
       this.currentTransformMatrix = transformMatrix;
-      return;
     } else {
       if (!isHTMLContentElement(parentElement)) {
         return;
@@ -784,7 +792,7 @@ export class Control2D {
       if (transformFunction.isTranslate()) {
         transformMatrix = translate(transformMatrix, transformFunction.x, transformFunction.y, transformFunction.z);
       } else if (transformFunction.isRotate()) {
-        transformMatrix = rotate(transformMatrix, transformFunction.angle);
+        transformMatrix = rotate2d(transformMatrix, transformFunction.angle);
       }
     });
     return transformMatrix;
