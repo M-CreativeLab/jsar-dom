@@ -756,8 +756,9 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE|feichi|: `putImageData` paints image onto canvas without transform,
-     * while `drawImage` draws image onto canvas which is suitable for us.
+     * NOTE(feichi): `putImageData` paints image onto canvas without transform,
+     * causing the `CTM` cannot sync onto canvas correctly,
+     * while `drawImage` drawing image onto canvas can solve it.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
@@ -770,6 +771,9 @@ export class Control2D {
     const transformStr = this._style.transform;
     const parentElement = element.parentElement;
     const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
+    /**
+     * If the parentElement is the direct childNodes of ShadowRoot, it will be null.
+     */
     if (parentElement == null) {
       this.currentTransformMatrix = transformMatrix;
     } else {
@@ -790,9 +794,9 @@ export class Control2D {
       0, 0, 0, 1
     ]);
     transformFunctions.forEach(transformFunction => {
-      if (transformFunction.isTranslate()) {
+      if (transformFunction.isTranslation()) {
         transformMatrix = translate(transformMatrix, transformFunction.x, transformFunction.y, transformFunction.z);
-      } else if (transformFunction.isRotate()) {
+      } else if (transformFunction.isRotation()) {
         transformMatrix = rotate2d(transformMatrix, transformFunction.angle);
       }
     });

@@ -999,11 +999,11 @@ export class TransformFunction<Tv> {
 
   static ProcessArgs<Tv>(
     args: string[], 
-    converter: (arg: string) => Tv
+    convert: (arg: string) => Tv
   ): Tv[] {
     let values: Tv[] = [];
     for (let arg of args) {
-      const value = converter(arg);
+      const value = convert(arg);
       if (value === undefined) {
         values.length = 0;
         break;
@@ -1015,14 +1015,14 @@ export class TransformFunction<Tv> {
   }
 
   get valid(): boolean {
-    throw new Error("Method 'valid' must be implemented in derived classes");
+    throw new Error('Method `valid` must be implemented in derived classes');
   }
 
-  isRotate(): this is RotationTransformFunction {
+  isRotation(): this is RotationTransformFunction {
     return css3TransformFunctionNames['rotate'].includes(this.name);
   } 
 
-  isTranslate(): this is TranslationTransformFunction {
+  isTranslation(): this is TranslationTransformFunction {
     return css3TransformFunctionNames['translate'].includes(this.name);
   }
 }
@@ -1061,18 +1061,16 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
 
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
 
-const transformFunctionConstructors = {
-  [css3TransformFunctionNames['rotate'][0]]: RotationTransformFunction,
-  [css3TransformFunctionNames['rotate'][1]]: RotationTransformFunction,
-  [css3TransformFunctionNames['rotate'][2]]: RotationTransformFunction,
-  [css3TransformFunctionNames['rotate'][3]]: RotationTransformFunction,
-  [css3TransformFunctionNames['rotate'][4]]: RotationTransformFunction,
-  [css3TransformFunctionNames['translate'][0]]: TranslationTransformFunction,
-  [css3TransformFunctionNames['translate'][1]]: TranslationTransformFunction,
-  [css3TransformFunctionNames['translate'][2]]: TranslationTransformFunction,
-  [css3TransformFunctionNames['translate'][3]]: TranslationTransformFunction,
-  [css3TransformFunctionNames['translate'][4]]: TranslationTransformFunction
-};
+const transformFunctionConstructors = {};
+
+const functionNames = ['rotate', 'translate'];
+const functionConstructors = [RotationTransformFunction, TranslationTransformFunction];
+
+functionNames.forEach((name, index) => {
+  css3TransformFunctionNames[name].forEach((subName) => {
+    transformFunctionConstructors[subName] = functionConstructors[index];
+  });
+});
 
 function addTransformFunctionToList(
   list: UnionTransformFunction[], 
