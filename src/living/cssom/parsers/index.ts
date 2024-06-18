@@ -988,18 +988,6 @@ export function shorthandSetter(
   };
 }
 
-function createAndAddTransformFunctionTo(
-  list: UnionTransformFunction[],
-  { constructor, name, args }: { constructor: new (name: string, args: string[]) => UnionTransformFunction, name: string, args: string[]}
-): boolean {
-  const transformFunction = new constructor(name, args);
-  if (transformFunction.valid) {
-    list.push(transformFunction);
-    return true;
-  }
-  return false;
-}
-
 export class TransformFunction<Tv> {
   name: string;
   values: Array<Tv>;
@@ -1063,7 +1051,7 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
   constructor(name: string, args: string[]) {
     const values = TransformFunction.ProcessArgs(args, toAngleStr);
     super(name, values);
-    this.angle = values[0].value as number;
+    this.angle = values[0].value;
   }
 
   get valid(): boolean {
@@ -1093,16 +1081,12 @@ function addTransformFunctionToList(
 ): UnionTransformFunction[] {
   const constructor = transformFunctionConstructors[transformFunctionName];
   if (constructor) {
-    if (!createAndAddTransformFunctionTo(list, {
-      constructor: constructor,
-      name: transformFunctionName,
-      args: transformFunctionArgs
-    })) {
-      return [];
+    const transformFunction = new constructor(transformFunctionName, transformFunctionArgs);
+    if (transformFunction.valid) {
+      list.push(transformFunction);
     }
-  } else {
-    return [];
   }
+  return list;
 }
 
 export function parseTransform(transformStr: string): UnionTransformFunction[] {

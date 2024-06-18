@@ -172,6 +172,7 @@ export class Control2D {
   private _imageBitmap: ImageBitmap;
   private _isDirty = true;
   protected currentTransformMatrix: DOMMatrix;
+  
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
