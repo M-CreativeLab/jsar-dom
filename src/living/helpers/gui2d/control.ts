@@ -756,8 +756,9 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas
-     * so that the current transformation matrix (CTM) is not applied.
+     * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas,
+     * which causes the transformation matrix not to be applied to the pixels.
+     * 
      * The `drawImage` method draws the image onto the canvas.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
