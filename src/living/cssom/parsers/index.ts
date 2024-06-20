@@ -982,11 +982,11 @@ export class TransformFunction<Tv> {
   }
 
   isRotation(): this is RotationTransformFunction {
-    return css3TransformFunctions['rotate'].names.includes(this.name);
+    return this.name in css3TransformFunctions['rotate'].names;
   } 
 
   isTranslation(): this is TranslationTransformFunction {
-    return css3TransformFunctions['translate']['names'].includes(this.name);
+    return this.name.startsWith('translate');
   }
 }
 
