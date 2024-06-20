@@ -8,10 +8,10 @@ import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
 import DOMRectImpl from '../../geometry/DOMRect';
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
 import { getInterfaceWrapper } from '../../../living/interfaces';
-import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { postMultiply, translate, rotate2d } from '../matrix-functions';
 import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
 
@@ -756,10 +756,10 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE(feichi): The `putImageData` method paints an image onto the canvas without applying any transformations,
-     * which can cause the current transformation matrix (CTM) to not sync correctly with the canvas.
-     * On the other hand, the `drawImage` method can be used to draw an image onto the canvas
-     * and ensures that the CTM is applied correctly.
+     * NOTE(feichi): The `putImageData` method paints an image onto the canvas by directly operating on the pixels.
+     * Therefore, the Current Transformation Matrix (CTM) does not affect the image.
+     * On the other hand, the `drawImage` method draws an image onto the canvas, 
+     * and it does ensure that the CTM is applied correctly.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
@@ -776,7 +776,7 @@ export class Control2D {
      * <shadow-root>
      *   <div> </div>
      * </shadow-root>
-     * The div above is the direct childNode of ShadowRoot, so its parentElement is null.
+     * If parentNode is a shadow-root, we just apply the transform matrix to CTM.
      */
     if (parentElement == null) {
       this.currentTransformMatrix = transformMatrix;
