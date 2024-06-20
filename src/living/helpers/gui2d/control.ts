@@ -758,8 +758,6 @@ export class Control2D {
     /**
      * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas,
      * which causes the transformation matrix not to be applied to the pixels.
-     * 
-     * The `drawImage` method draws the image onto the canvas.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
@@ -793,7 +791,6 @@ export class Control2D {
     const parentControl = parentElement._control;
     const parentCTM = parentControl.currentTransformMatrix;
     this.currentTransformMatrix = postMultiply(parentCTM, transformMatrix);
-    
   }
   
   calculateTransformMatrix(transformFunctions: UnionTransformFunction[]): DOMMatrix {
