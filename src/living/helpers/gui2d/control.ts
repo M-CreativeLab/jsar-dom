@@ -756,9 +756,10 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE(feichi): `putImageData` paints image onto canvas without transform,
-     * causing the `CTM` cannot sync onto canvas correctly,
-     * while `drawImage` drawing image onto canvas can solve it.
+     * NOTE(feichi): The `putImageData` method paints an image onto the canvas without applying any transformations,
+     * which can cause the current transformation matrix (CTM) to not sync correctly with the canvas.
+     * On the other hand, the `drawImage` method can be used to draw an image onto the canvas
+     * and ensures that the CTM is applied correctly.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
@@ -772,7 +773,10 @@ export class Control2D {
     const parentElement = element.parentElement;
     const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
     /**
-     * If the parentElement is the direct childNodes of ShadowRoot, it will be null.
+     * <shadow-root>
+     *   <div> </div>
+     * </shadow-root>
+     * The div above is the direct childNode of ShadowRoot, so its parentElement is null.
      */
     if (parentElement == null) {
       this.currentTransformMatrix = transformMatrix;

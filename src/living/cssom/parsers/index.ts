@@ -982,11 +982,11 @@ export class TransformFunction<Tv> {
   }
 
   isRotation(): this is RotationTransformFunction {
-    return css3TransformFunctionNames['rotate']['names'].includes(this.name);
+    return css3TransformFunctions['rotate'].names.includes(this.name);
   } 
 
   isTranslation(): this is TranslationTransformFunction {
-    return css3TransformFunctionNames['translate']['names'].includes(this.name);
+    return css3TransformFunctions['translate']['names'].includes(this.name);
   }
 }
 
@@ -1022,7 +1022,7 @@ export class RotationTransformFunction extends TransformFunction<PropertyAngleVa
   }
 }
 
-const css3TransformFunctionNames = {
+const css3TransformFunctions = {
   matrix: {
     constructor: null,
     names: ['matrix', 'matrix3d']
@@ -1048,7 +1048,7 @@ const css3TransformFunctionNames = {
     names: [ 'skew', 'skewX', 'skewY']
   }
 };
-const allTransformFunctionNames = Object.values(css3TransformFunctionNames).flatMap(obj => obj.names);
+const allTransformFunctionNames = Object.values(css3TransformFunctions).flatMap(obj => obj.names);
 const transformFunctionRegEx = new RegExp(`(${allTransformFunctionNames.join('|')})\\((\\w+)\\)`, 'g');
 
 export type UnionTransformFunction = TranslationTransformFunction | RotationTransformFunction;
@@ -1058,7 +1058,7 @@ function addTransformFunctionToList(
   transformFunctionName: string, 
   transformFunctionArgs: string[]
 ): UnionTransformFunction[] {
-  const transformFunctionData = Object.values(css3TransformFunctionNames)
+  const transformFunctionData = Object.values(css3TransformFunctions)
     .find(({ names }) => names.includes(transformFunctionName));
   const constructor = transformFunctionData?.constructor;
   if (constructor) {
