@@ -28,3 +28,25 @@ export function preMultiply(other: DOMMatrix, self: DOMMatrix): DOMMatrix {
   }
   return new DOMMatrixImpl(resElements);
 }
+
+export function translate(transformMatrix: DOMMatrix, x: number, y: number, z: number): DOMMatrix {
+  const translateMatrix = new DOMMatrixImpl([
+    1, 0, 0, 0,  
+    0, 1, 0, 0,  
+    0, 0, 1, 0,  
+    x, y, z, 1
+  ]);
+  return postMultiply(transformMatrix, translateMatrix);
+}
+
+export function rotate2d(transformMatrix: DOMMatrix, angle: number): DOMMatrix {
+  const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
+  const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
+  const rotateMatrix = new DOMMatrixImpl([
+    cosValue, sinValue, 0, 0,  
+    -sinValue, cosValue, 0, 0,  
+    0, 0, 1, 0,   
+    0, 0, 0, 1
+  ]);
+  return postMultiply(transformMatrix, rotateMatrix);
+}

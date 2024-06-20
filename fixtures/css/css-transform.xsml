@@ -1,0 +1,158 @@
+<xsml>
+  <head>
+    <title>Spatial CSS Example (Basic)</title>
+    <style type="text/scss">
+      plane {
+        display: relative;
+        flex-direction: row;
+        row-gap: 50px;
+        padding: 50px;
+      }
+      plane#p1 {
+        background-color: red;
+        height: 1024px;
+        width: 1024px;
+        position: 0 0 0;
+      }
+      plane#p2 {
+        background-color: blue;
+        height: 1024px;
+        width: 1024px;
+        position: -2 0 0;
+      }
+      plane#p3 {
+        background-color: pink;
+        height: 1024px;
+        width: 1024px;
+        position: 2 0 0;
+      }
+    </style>
+  </head>
+  <space>
+    <plane id="p1"> 
+      <style type="text/css">
+        div {
+          background-color: #D3CDEB;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+        }   
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #887797;
+        }
+      </style>
+      <div>
+        <img src="../textures/splatting.jpg" />
+        <p>interactive transform</p>
+      </div>
+    </plane>
+    <plane id="p2">
+      <style type="text/css">
+        div {
+          background-color: #D9DFF3;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+          transform: rotate(45deg) translateX(10px);
+        }
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #7085B1;
+        }
+      </style>
+      <div>
+        <img src="../textures/splatting.jpg" />
+        <p>nested transform</p>
+      </div>
+    </plane>
+    <plane id="p3"> 
+      <style type="text/css">
+        div {
+          background-color: #FFF8ED;
+          height: 1024px;
+          width: 1024px;
+          row-gap: 50px;
+          flex-direction: row;
+          padding: 50px;
+        }
+        div#d2 {
+          background-color: #F0CC89;
+          transform: rotate(20deg) translateX(200px);
+        }
+        img {
+          width: 25%;
+          height: 25%;
+          object-fit: cover;
+          position: relative;
+          transform: translateX(100px) rotate(25deg);
+        }
+        p {
+          position: absolute;
+          text-align: center;
+          font-size: 60px;
+          height: 100%;
+          width: 100%;
+          color: #D0A0A8;
+        }
+      </style>
+      <div id="d1">
+        <div id="d2">
+          <img src="../textures/splatting.jpg" id="img"/>
+        </div>
+        <p>parent transform</p>
+      </div>
+    </plane>
+    <script>
+      const plane = document.getElementById('p1');
+      const panel = plane.shadowRoot;
+      const div = panel.querySelector('div');
+      const img = div.querySelector('img');
+      div.addEventListener('mousemove', (event) => {
+        const mouseX = event.x;
+        const x = Math.round(mouseX);
+        img.style.transform = `translateX(${x - 512}px)`;
+      });
+      
+      const plane3 = document.getElementById('p3');
+      const panel3 = plane3.shadowRoot;
+      const div1 = panel3.getElementById('d1');
+      const div2 = div1.querySelector('div');
+      const img2 = div2.querySelector('img');
+      const originMouseX  = 0;
+      const originMouseY = 0;
+      div2.addEventListener('mousemove', (event) => {
+        const mouseX = event.x;
+        const mouseY = event.y
+        const x = Math.round(mouseX);
+        const y = Math.round(mouseY);
+        const angle = Math.round(Math.atan2(y - originMouseY, x - originMouseX ) * (180 / Math.PI));
+        img2.style.transform = `rotate(${angle}deg)`;
+      });
+    </script>
+  </space>
+</xsml>

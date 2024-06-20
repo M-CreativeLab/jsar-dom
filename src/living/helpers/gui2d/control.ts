@@ -8,10 +8,12 @@ import DOMRectReadOnlyImpl from '../../geometry/DOMRectReadOnly';
 import { HTMLContentElement } from '../../nodes/HTMLContentElement';
 import { TextImpl } from '../../nodes/Text';
 import DOMRectImpl from '../../geometry/DOMRect';
+import DOMMatrixImpl from '../../geometry/DOMMatrix';
 import { MouseEventImpl } from '../../events/MouseEvent';
 import { ShadowRootImpl } from '../../nodes/ShadowRoot';
-import type ImageDataImpl from '../../../living/image/ImageData';
 import { getInterfaceWrapper } from '../../../living/interfaces';
+import { postMultiply, translate, rotate2d } from '../matrix-functions';
+import { parseTransform, UnionTransformFunction} from '../../cssom/parsers';
 
 type LengthPercentageDimension = string | number;
 type LayoutStyle = Partial<{
@@ -164,12 +166,13 @@ export class Control2D {
   private _lastRect: DOMRectReadOnlyImpl;
   private _lastCursor: BABYLON.Vector2;
   private _isCursorInside = false;
-  private _renderingContext: CanvasRenderingContext2D;
+  protected _renderingContext: CanvasRenderingContext2D;
   private _overwriteHeight: number;
   private _overwriteWidth: number;
-  private _imageData: ImageDataImpl;
+  private _imageBitmap: ImageBitmap;
   private _isDirty = true;
-
+  protected currentTransformMatrix: DOMMatrix;
+  
   constructor(
     private _allocator: taffy.Allocator,
     private _element: HTMLContentElement | ShadowRootImpl
@@ -197,8 +200,8 @@ export class Control2D {
     }
   }
 
-  setImageData(data: ImageDataImpl) {
-    this._imageData = data;
+  setImageData(bitmap: ImageBitmap) {
+    this._imageBitmap = bitmap;
   }
 
   addChild(child: Control2D) {
@@ -227,7 +230,7 @@ export class Control2D {
       return null;
     }
   }
-
+  
   private _ownInnerText(): boolean {
     const element = this._element;
     return element.childNodes.length === 1 && isTextNode(element);
@@ -370,11 +373,10 @@ export class Control2D {
     const canvasContext = this._renderingContext;
     const boxRect = new DOMRectImpl(x, y, width, height);
     const hasTextChildren = this._isElementOwnsInnerText();
-
     /**
-     * Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
+     * 1. Check if this node is an image or has text children, if yes, we need to fix the size by the image or text.
      */
-    if (this._imageData && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
+    if (this._imageBitmap && this._element instanceof getInterfaceWrapper('HTMLImageElement')) {
       // Fix the size by the image.
       this._element._fixSizeByImage(boxRect);
       this._updateRectSize(boxRect.width, boxRect.height);
@@ -390,16 +392,30 @@ export class Control2D {
     }
 
     /**
-     * Check if we need to render the borders, if yes, render the borders and fill the background, otherwise use `_renderRect` to fill a rect with background.
+     * 2. Calculate the transform matrix.
+     */
+    this._updateCurrentTransformMatrix();
+
+    /**
+     * 3. Adopt the transformMatrix on canvas.
+     */
+    this.syncRenderingContextTransform();
+
+    /**
+     * 4. Check if we need to render the borders, if yes, render the borders
+     * and fill the background, otherwise use `_renderRect` to fill a rect with background.
      */
     if (!this._renderBorders(canvasContext, boxRect)) {
       this._renderRect(canvasContext, boxRect);
     }
 
+    /**
+     * 5. Render the image if it exists.
+     */
     this._renderImageIfExists(canvasContext, boxRect);
 
     /**
-     * Render the inner text.
+     * 6. Render the inner text.
      */
     if (hasTextChildren) {
       this._renderInnerText(canvasContext, boxRect);
@@ -728,7 +744,7 @@ export class Control2D {
   }
 
   private _renderImageIfExists(renderingContext: CanvasRenderingContext2D, rect: DOMRectReadOnlyImpl) {
-    if (!this._imageData) {
+    if (!this._imageBitmap) {
       return;
     }
     if (!(this._element instanceof getInterfaceWrapper('HTMLImageElement'))) {
@@ -739,9 +755,67 @@ export class Control2D {
       element.width = rect.width;
       element.height = rect.height;
     });
-    renderingContext.putImageData(this._imageData, rect.x, rect.y, 0, 0, rect.width, rect.height);
+    /**
+     * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas,
+     * which causes the transformation matrix not to be applied to the pixels.
+     */
+    renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
 
+  private _updateCurrentTransformMatrix() {
+    /**
+     * 1. If the element is a shadowroot, we just return.
+     */
+    const element = this._element;
+    if (element instanceof ShadowRootImpl) {
+      return;
+    } 
+    const transformStr = this._style.transform;
+    const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
+    const parentNode = element.parentNode;
+    /**
+     * 2. If parentNode is a shadowroot, we just apply the transform matrix to CTM.
+     */
+    if (parentNode instanceof ShadowRootImpl) {
+      this.currentTransformMatrix = transformMatrix;
+      return;
+    } 
+    /**
+     * 3. If the parentElement is a HTMLContentElement, we need to apply results 
+     * from the parent's CTM post multiply the transform matrix to CTM.
+     */
+    const parentElement = element.parentElement;
+    if (!isHTMLContentElement(parentElement)) {
+      return;
+    } 
+    const parentControl = parentElement._control;
+    const parentCTM = parentControl.currentTransformMatrix;
+    this.currentTransformMatrix = postMultiply(parentCTM, transformMatrix);
+  }
+  
+  calculateTransformMatrix(transformFunctions: UnionTransformFunction[]): DOMMatrix {
+    let transformMatrix: DOMMatrix = new DOMMatrixImpl([
+      1, 0, 0, 0,   
+      0, 1, 0, 0,  
+      0, 0, 1, 0,   
+      0, 0, 0, 1
+    ]);
+    transformFunctions.forEach(transformFunction => {
+      if (transformFunction.isTranslation()) {
+        transformMatrix = translate(transformMatrix, transformFunction.x, transformFunction.y, transformFunction.z);
+      } else if (transformFunction.isRotation()) {
+        transformMatrix = rotate2d(transformMatrix, transformFunction.angle);
+      }
+    });
+    return transformMatrix;
+  }
+
+  syncRenderingContextTransform() {
+    const renderingContext = this._renderingContext;
+    const currentTransformMatrix = this.currentTransformMatrix;
+    renderingContext.setTransform(currentTransformMatrix);
+  }
+  
   containsPoint(x: number, y: number): boolean {
     const rect = this._lastRect;
     if (!rect) {

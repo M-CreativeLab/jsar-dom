@@ -203,7 +203,7 @@ export default class HTMLImageElementImpl extends HTMLContentElement implements 
   }
 
   _renderSelf(rect: DOMRect, base: DOMRectReadOnly): void {
-    this._control.setImageData(this._imageData);
+    this._control.setImageData(this._imageBitmap);
     super._renderSelf(rect, base);
   }
 

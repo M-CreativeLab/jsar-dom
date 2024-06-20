@@ -380,3 +380,37 @@ describe('implicitSetter', () => {
     expect(decl.position).toBe('1 1 1');
   });
 });
+
+describe('parseTransform', () => {
+  it('should parse translateX correctly', () => {
+    const result = parsers.parseTransform('translateX(10px)');
+    expect(result).toEqual([
+      new parsers.TranslationTransformFunction('translateX', ['10px'])
+    ]);
+  });
+
+  it('should parse rotate correctly', () => {
+    const result = parsers.parseTransform('rotate(45deg)');
+    expect(result).toEqual([
+      new parsers.RotationTransformFunction('rotate', ['45deg'])
+    ]);
+  });
+
+  it('should parse multiple transforms correctly', () => {
+    const result = parsers.parseTransform('translateX(10px) rotate(45deg)');
+    expect(result).toEqual([
+      new parsers.TranslationTransformFunction('translateX', ['10px']),
+      new parsers.RotationTransformFunction('rotate', ['45deg'])
+    ]);
+  });
+
+  it('should process input function name error correctly', () => {
+    const result = parsers.parseTransform('translateM(10px)');
+    expect(result).toEqual([]);
+  });
+
+  it('should process input values error correctly', () => {
+    const result = parsers.parseTransform('translateX(10py)');
+    expect(result).toEqual([]);
+  });
+});
