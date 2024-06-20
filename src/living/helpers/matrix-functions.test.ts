@@ -11,7 +11,7 @@ const matrix: DOMMatrix = new DOMMatrixImpl([
 
 describe('rotate2d', () => {
   it('should rotate2d the transform matrix correctly', () => {
-    const angle = 45;
+    const angle = Math.random() * 360;
     const result = rotate2d(matrix, angle);
     const cosValue = Number(Math.cos(angle * Math.PI / 180).toFixed(2));
     const sinValue = Number(Math.sin(angle * Math.PI / 180).toFixed(2));
@@ -27,9 +27,9 @@ describe('rotate2d', () => {
   
 describe('translate', () => {
   it('should translate the transform matrix correctly', () => {
-    const x = 10;
-    const y = 20;
-    const z = 30;
+    const x = Math.random() * 100;
+    const y = Math.random() * 100;
+    const z = Math.random() * 100;
     const result = translate(matrix, x, y, z);
     const expectedMatrix: DOMMatrix = new DOMMatrixImpl([
       1, 0, 0, 0,
