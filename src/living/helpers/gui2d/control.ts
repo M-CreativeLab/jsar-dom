@@ -757,9 +757,8 @@ export class Control2D {
     });
     /**
      * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas
-     * without applying the current transformation matrix (CTM).
-     * In contrast, the `drawImage` method first sends a command to draw the image onto the canvas,
-     * ensuring that the CTM is applied correctly during this process.
+     * so that the current transformation matrix (CTM) is not applied.
+     * The `drawImage` method draws the image onto the canvas.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
