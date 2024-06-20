@@ -756,38 +756,43 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE(feichi): The `putImageData` method paints an image onto the canvas by directly operating on the pixels.
-     * Therefore, the Current Transformation Matrix (CTM) does not affect the image.
-     * On the other hand, the `drawImage` method draws an image onto the canvas, 
-     * and it does ensure that the CTM is applied correctly.
+     * NOTE(feichi): The `putImageData` method puts the image's pixels onto the canvas,
+     * while the `drawImage` method sends a command to draw the image onto the canvas, 
+     * ensuring that the current transformation matrix (CTM) is applied correctly.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
 
   private _updateCurrentTransformMatrix() {
+    /**
+     * 1. If the element is a shadow-root, we just return.
+     */
     const element = this._element;
     if (element instanceof ShadowRootImpl) {
       return;
     } 
     const transformStr = this._style.transform;
-    const parentElement = element.parentElement;
     const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
+    const parentNode = element.parentNode;
     /**
-     * <shadow-root>
-     *   <div> </div>
-     * </shadow-root>
-     * If parentNode is a shadow-root, we just apply the transform matrix to CTM.
+     * 2. If parentNode is a shadow-root, we just apply the transform matrix to CTM.
      */
-    if (parentElement == null) {
+    if (parentNode instanceof ShadowRootImpl) {
       this.currentTransformMatrix = transformMatrix;
-    } else {
-      if (!isHTMLContentElement(parentElement)) {
-        return;
-      } 
-      const parentControl = parentElement._control;
-      const parentCTM = parentControl.currentTransformMatrix;
-      this.currentTransformMatrix = postMultiply(parentCTM, transformMatrix);
-    }
+      return;
+    } 
+    /**
+     * 3. If the parentNode is a HTMLContentElement, we need to apply results 
+     * from the parent's CTM post multiply the transform matrix to CTM.
+     */
+    const parentElement = element.parentElement;
+    if (!isHTMLContentElement(parentElement)) {
+      return;
+    } 
+    const parentControl = parentElement._control;
+    const parentCTM = parentControl.currentTransformMatrix;
+    this.currentTransformMatrix = postMultiply(parentCTM, transformMatrix);
+    
   }
   
   calculateTransformMatrix(transformFunctions: UnionTransformFunction[]): DOMMatrix {
