@@ -756,16 +756,17 @@ export class Control2D {
       element.height = rect.height;
     });
     /**
-     * NOTE(feichi): The `putImageData` method puts the image's pixels onto the canvas,
-     * while the `drawImage` method sends a command to draw the image onto the canvas, 
-     * ensuring that the current transformation matrix (CTM) is applied correctly.
+     * NOTE (Faych): The `putImageData` method directly places the image's pixels onto the canvas
+     * without applying the current transformation matrix (CTM).
+     * In contrast, the `drawImage` method first sends a command to draw the image onto the canvas,
+     * ensuring that the CTM is applied correctly during this process.
      */
     renderingContext.drawImage(this._imageBitmap, rect.x, rect.y, rect.width, rect.height);
   }
 
   private _updateCurrentTransformMatrix() {
     /**
-     * 1. If the element is a shadow-root, we just return.
+     * 1. If the element is a shadowroot, we just return.
      */
     const element = this._element;
     if (element instanceof ShadowRootImpl) {
@@ -775,14 +776,14 @@ export class Control2D {
     const transformMatrix = this.calculateTransformMatrix(parseTransform(transformStr));
     const parentNode = element.parentNode;
     /**
-     * 2. If parentNode is a shadow-root, we just apply the transform matrix to CTM.
+     * 2. If parentNode is a shadowroot, we just apply the transform matrix to CTM.
      */
     if (parentNode instanceof ShadowRootImpl) {
       this.currentTransformMatrix = transformMatrix;
       return;
     } 
     /**
-     * 3. If the parentNode is a HTMLContentElement, we need to apply results 
+     * 3. If the parentElement is a HTMLContentElement, we need to apply results 
      * from the parent's CTM post multiply the transform matrix to CTM.
      */
     const parentElement = element.parentElement;
