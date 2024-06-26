@@ -10,13 +10,24 @@ spatialDocument.addEventListener('spaceReady', () => {
     }
     
     const panel = plane.shadowRoot;
-    const div = panel.querySelector('div');    
-    const img = div.querySelector('img');
+    const div = panel.querySelector('div');
+    const img1 = div.querySelector('img');
+    // const img1 = spatialDocument.getElementById('img1');
+    // const img2 = spatialDocument.getElementById('img2');
 
     ctx.drawImage(bitmap, 0, 0);
 
-    // const leftImageData = getShapeFromImage(bitmap, 'rect');
-    // const rightImageData = cutShapeFromImage(bitmap, 'rect');
+    const leftImageData = getShapeFromImage(bitmap, 'rect');
+    const rightImageData = cutShapeFromImage(bitmap, 'rect');
+
+    const leftImageURL = await convertImageDataToDataURL(leftImageData);
+    const rightImageURL = await convertImageDataToDataURL(rightImageData);
+    console.log('leftImageURL', leftImageURL);
+    console.log('rightImageURL', rightImageURL);
+
+    img1.src = leftImageURL;
+    div.style.backgroundImage = `url(${rightImageURL})`;
+    
     // // const imageData = rightImageData;
 
     // const imageData = combineImages(leftImageData, rightImageData);

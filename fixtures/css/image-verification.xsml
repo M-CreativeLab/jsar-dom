@@ -14,8 +14,24 @@
   </head>
   <space> 
     <plane width="3072" height="1024"> 
+      <style> 
+        #img1 {
+          position: 0 0;
+          width: 1024px;
+          height: 1024px;        
+        }
+        #img2 {
+          position: 2048 0;
+          width: 1024px;
+          height: 1024px;
+        }
+        div {
+          color: aliceblue;
+        }
+      </style>
       <div> 
-        <img/>
+        <img id="img1"/>
+        <img id="img2"/>
       </div>
     </plane>
   </space>
