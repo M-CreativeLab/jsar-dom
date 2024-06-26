@@ -1,0 +1,97 @@
+<xsml> 
+  <head> 
+    <title>Image Verification Demo</title>
+    <style> 
+      space {
+        position: 0 -1 -1;
+      }
+      plane {
+        display: relative;
+        flex-direction: row;
+        row-gap: 50px;
+        padding: 50px;
+      }
+      plane#p1 {
+        background-color: red;
+        height: 1024px;
+        width: 3072px;
+        position: 0.4 0 0;
+      }
+    </style>
+  </head>
+  <space> 
+    <plane id="p1"> 
+      <style> 
+        img {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          position: relative;
+        }
+      </style>
+      <!-- <div id="d1"> 
+        <img src="../textures/bump.png" />
+      </div>
+      <div id="d2">
+        <img src="../textures/splatting.jpg" />
+      </div> -->
+    </plane>
+  </space>
+  <script> 
+    // const plane = document.getElementById('p1');
+    const plane = document.querySelector('plane');
+    // const panel = plane.shadowRoot;
+    // const div = panel.querySelector('div');
+    // const img = div.querySelector('img');
+
+    const canvas = plane.attachCanvasTexture(3072, 1024);
+    console.log('canvas', canvas);
+    const context = canvas.getContext('2d');
+    console.log('context', context);
+    context.fillRect(0, 0, 1024, 1024);
+
+    // 创建一个新的Image对象，用于加载原图
+    const originalImage = new Image();
+    originalImage.src = '../textures/splatting.jpg';
+    console.log('originalImage.src', originalImage.src);
+    console.log('originalImage', originalImage);
+    context.drawImage(originalImage, 0, 0, 1024, 1024);
+    
+    // 当原图加载完成后，从中剪切出形状，并将新图像设置为img元素的src
+    originalImage.onload = function() {
+      const shape = context.rect(0, 0, 1024, 1024);
+      const newImage = cutShapeFromImage(originalImage, shape);
+      // img.src = newImage.src;
+      // console.log('newImage.src', newImage.src);
+    };
+
+    function cutShapeFromImage(image, shape) {
+      const opCanvas = new OffscreenCanvas(1024, 1024);
+      const opContext = opCanvas.getContext('2d');
+      opContext.drawImage(image, 0, 0);
+
+      // 设置合成操作为'destination-out'，这样后续的绘制操作会从已有的内容中删除像素
+      opContext.globalCompositeOperation = 'destination-out';
+
+      // 绘制几何形状，这将从原图中"挖掉"这个形状
+      opContext.fill(shape);
+
+      const imageData = opContext.getImageData(0, 0, 1024, 1024);
+
+      // 创建一个新的canvas，大小与几何形状相同，背景为透明
+      const newCanvas = new OffscreenCanvas(1024, 1024);
+      newCanvas.width = 1024;
+      newCanvas.height = 1024;
+      const newContext = newCanvas.getContext('2d');
+
+      // 将"挖掉"的形状绘制到新的canvas上
+      context.putImageData(imageData, 0, 0, 1024, 1024, 0, 0, 1024, 1024);
+
+      // 将新的canvas转换为图片
+      const newImage = new Image();
+      // newImage.src = newCanvas.toDataURL();
+
+      return newImage;
+    }
+  </script>
+</xsml>
