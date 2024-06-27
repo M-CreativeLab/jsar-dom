@@ -8,27 +8,27 @@ spatialDocument.addEventListener('spaceReady', () => {
     if (ctx == null) {
       return;
     }
-    
+
     const panel = plane.shadowRoot;
     const div = panel.querySelector('div');
-    const img1 = div.querySelector('img');
-    // const img1 = spatialDocument.getElementById('img1');
-    // const img2 = spatialDocument.getElementById('img2');
-
-    ctx.drawImage(bitmap, 0, 0);
+    const images = div.querySelectorAll('img');
+    const img1 = images[0];
+    const img2 = images[1];
 
     const leftImageData = getShapeFromImage(bitmap, 'rect');
     const rightImageData = cutShapeFromImage(bitmap, 'rect');
 
     const leftImageURL = await convertImageDataToDataURL(leftImageData);
     const rightImageURL = await convertImageDataToDataURL(rightImageData);
-    console.log('leftImageURL', leftImageURL);
-    console.log('rightImageURL', rightImageURL);
+    // console.log('leftImageURL', leftImageURL);
+    // console.log('rightImageURL', rightImageURL);
 
     img1.src = leftImageURL;
-    div.style.backgroundImage = `url(${rightImageURL})`;
-    
-    // // const imageData = rightImageData;
+    img2.src = rightImageURL;
+
+    // console.log('img1.style', img1.style);
+
+    // const imageData = rightImageData;
 
     // const imageData = combineImages(leftImageData, rightImageData);
 
@@ -71,6 +71,23 @@ async function convertImageDataToDataURL(imageData: ImageData): Promise<string> 
   return dataURL;
 }
 
+function moveImageWithRay(img) {
+  const originMouseX  = img.style.originX;
+  img.addEventListener('mouseclick', (event) => {
+    const currentMouseX = event.x;
+    if (currentMouseX < originMouseX + 20 && currentMouseX > originMouseX - 20) {
+
+    }
+    const gapX = originMouseX - currentMouseX;
+    img.style.transform = `translateX(${gapX}px)`;
+  })
+  img.addEventListener('mouseLeave', (event) => {
+    const currentMouseX = event.x;
+    const gapX = originMouseX - currentMouseX;
+    img.style.transform = `translateX(${gapX}px)`;
+  })
+}
+
 function cutShapeFromImage(image, shape: string) {
   const canvas = new OffscreenCanvas(image.width, image.height);
   const ctx = canvas.getContext('2d');
@@ -108,18 +125,4 @@ function getShapeFromImage(image, shape: string) {
   const imageData = ctx.getImageData(0, 0, image.width, image.height);
 
   return imageData;
-}
-
-function combineImages(image1: ImageData, image2: ImageData): ImageData {
-  const width = image1.width * 3;
-  const height = image1.height;
-  
-  const canvas = new OffscreenCanvas(width, height);
-  const ctx = canvas.getContext('2d');
-
-  ctx.putImageData(image1, 0, 0);
-  ctx.putImageData(image2, image1.width * 2, 0);
-
-  const combinedImageData = ctx.getImageData(0, 0, width, height);
-  return combinedImageData;
 }

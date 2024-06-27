@@ -13,26 +13,30 @@
     <script type="module" src="image-verification.ts"></script>
   </head>
   <space> 
-    <plane width="3072" height="1024"> 
-      <style> 
+    <plane width="600" height="200"> 
+      <style type="text/css">
+        img {
+          display: flex;
+        }
         #img1 {
-          position: 0 0;
-          width: 1024px;
-          height: 1024px;        
+          height: 100%;
         }
         #img2 {
-          position: 2048 0;
-          width: 1024px;
-          height: 1024px;
+          height: 100%;
         }
         div {
-          color: aliceblue;
+          height: 100%;
+          width: 100%;
+          display: flex;
+          flex-direction: row;
+          justify-content: space-between;
         }
       </style>
-      <div> 
-        <img id="img1"/>
-        <img id="img2"/>
+      <div > 
+        <img id="img1" />
+        <img id="img2" />
       </div>
     </plane>
+    <cube />
   </space>
 </xsml>
