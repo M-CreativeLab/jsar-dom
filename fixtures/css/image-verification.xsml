@@ -13,27 +13,36 @@
     <script type="module" src="image-verification.ts"></script>
   </head>
   <space> 
-    <plane width="600" height="200"> 
+    <plane width="800" height="200"> 
       <style type="text/css">
         img {
-          display: flex;
+          display: block;
         }
         #img1 {
           height: 100%;
         }
         #img2 {
           height: 100%;
+          right: 0;
         }
         div {
           height: 100%;
           width: 100%;
           display: flex;
+          position: absolute;
           flex-direction: row;
           justify-content: space-between;
+        }
+        #text {
+          margin: auto;
+          display: block;
+          color: white;
+          text-align: center;
         }
       </style>
       <div > 
         <img id="img1" />
+        <p id="text"> 。</p>
         <img id="img2" />
       </div>
     </plane>
