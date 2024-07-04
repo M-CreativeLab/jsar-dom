@@ -1,0 +1,53 @@
+<xsml> 
+  <head> 
+    <title>Image Verification Demo</title>
+    <style> 
+      space {
+        position: 0 -1 -1;
+      }
+      plane {
+        display: relative;
+        flex-direction: row;
+      }
+    </style>
+    <script type="module" src="image-verification.ts"></script>
+  </head>
+  <space> 
+    <plane width="800" height="200"> 
+      <style type="text/css">
+        img {
+          display: block;
+          position: relative;
+        }
+        #img1 {
+          height: 100%;
+          left: 0;
+        }
+        #img2 {
+          height: 100%;
+          right: 0;
+        }
+        div {
+          height: 100%;
+          width: 100%;
+          display: flex;
+          position: absolute;
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        #text {
+          margin: auto;
+          display: block;
+          color: black;
+          text-align: center;
+        }
+      </style>
+      <div > 
+        <img id="img1" />
+        <p id="text"> . </p>
+        <img id="img2" />
+      </div>
+    </plane>
+    <cube />
+  </space>
+</xsml>
