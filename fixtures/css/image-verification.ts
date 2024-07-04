@@ -15,8 +15,10 @@ spatialDocument.addEventListener('spaceReady', () => {
     if (ctx == null) {
       return;
     }
-    const leftImageData = getShapeFromImage(bitmap, 'rect');
-    const rightImageData = cutShapeFromImage(bitmap, 'rect');
+
+    const shape = getRandomShape();
+    const leftImageData = getShapeFromImage(bitmap, shape);
+    const rightImageData = cutShapeFromImage(bitmap, shape);
 
     const leftImageURL = await convertImageDataToDataURL(leftImageData);
     const rightImageURL = await convertImageDataToDataURL(rightImageData);
@@ -49,12 +51,15 @@ async function convertImageDataToDataURL(imageData: ImageData): Promise<string> 
 }
 
 function moveImageWithRay() {
-  div.addEventListener('mousemove', (event) => {
+  div.addEventListener('raymove', (event) => {
     const mouseX = Math.round(event.x);
     const gapX = mouseX - 128;
     img1.style.transform = `translateX(${gapX}px)`;
     if (gapX >= 763 && gapX <= 773) {
       p.textContent = 'Success!';
+      p.style.color = 'white';
+    } else {
+      p.textContent = '';
     }
   })
 }
@@ -63,11 +68,21 @@ function cutShapeFromImage(image, shape: string) {
   const canvas = new OffscreenCanvas(image.width, image.height);
   const ctx = canvas.getContext('2d');
   ctx.drawImage(image, 0, 0);
-
   ctx.globalCompositeOperation = 'destination-out';
 
   if (shape === 'rect') {
     ctx.fillRect(1/4 * image.width, 1/4 * image.height, 1/2 * image.width, 1/2 * image.height);
+  } else if (shape === 'circle') {
+    ctx.beginPath();
+    ctx.arc(image.width / 2, image.height / 2, Math.min(image.width, image.height) / 4, 0, 2 * Math.PI);
+    ctx.fill();
+  } else if (shape === 'triangle') {
+    ctx.beginPath();
+    ctx.moveTo(1/2 * image.width, 1/4 * image.height);
+    ctx.lineTo(1/4 * image.width, 3/4 * image.height);
+    ctx.lineTo(3/4 * image.width, 3/4 * image.height);
+    ctx.closePath();
+    ctx.fill();
   }
 
   const imageData = ctx.getImageData(0, 0, image.width, image.height);
@@ -83,6 +98,17 @@ function getShapeFromImage(image, shape: string) {
     ctx.beginPath();
     ctx.rect(1/4 * image.width, 1/4 * image.height, 1/2 * image.width, 1/2 * image.height);
     ctx.clip();
+  } else if (shape === 'circle') {
+    ctx.beginPath();
+    ctx.arc(image.width / 2, image.height / 2, Math.min(image.width, image.height) / 4, 0, 2 * Math.PI);
+    ctx.clip();
+  } else if (shape === 'triangle') {
+    ctx.beginPath();
+    ctx.moveTo(1/2 * image.width, 1/4 * image.height);
+    ctx.lineTo(1/4 * image.width, 3/4 * image.height);
+    ctx.lineTo(3/4 * image.width, 3/4 * image.height);
+    ctx.closePath();
+    ctx.clip();
   }
 
   ctx.drawImage(image, 0, 0);
@@ -90,4 +116,10 @@ function getShapeFromImage(image, shape: string) {
   const imageData = ctx.getImageData(0, 0, image.width, image.height);
 
   return imageData;
+}
+
+function getRandomShape() {
+  const shapes = ['rect', 'circle', 'triangle'];
+  const randomIndex = Math.floor(Math.random() * shapes.length);
+  return shapes[randomIndex];
 }

@@ -17,9 +17,11 @@
       <style type="text/css">
         img {
           display: block;
+          position: relative;
         }
         #img1 {
           height: 100%;
+          left: 0;
         }
         #img2 {
           height: 100%;
@@ -36,13 +38,13 @@
         #text {
           margin: auto;
           display: block;
-          color: white;
+          color: black;
           text-align: center;
         }
       </style>
       <div > 
         <img id="img1" />
-        <p id="text"> 。</p>
+        <p id="text"> . </p>
         <img id="img2" />
       </div>
     </plane>
