@@ -1,7 +1,7 @@
 <xsml>
   <head>
     <title>External Mesh Example(Glb)</title>
-    <link id="my" rel="mesh" href="model/rokid-jungle.glb" />
+    <link id="my" rel="mesh" href="http://ar.rokidcdn.com/web-assets/pages/models/dog.glb" />
     <style>
       space {
         rotation: 0 0 0;

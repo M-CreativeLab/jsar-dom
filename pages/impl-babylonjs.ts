@@ -1,5 +1,6 @@
 /// <reference path="node_modules/@types/wicg-file-system-access/index.d.ts" />
 
+import 'babylonjs';
 import {
   SpatialDocumentImpl,
   DOMParser,
@@ -17,12 +18,10 @@ import {
   XRFeature,
   XRSessionBackendInit,
 } from '../src';
-import 'babylonjs';
 
 import { canParseURL } from '../src/living/helpers/url';
 import type ImageDataImpl from '../src/living/image/ImageData';
 import { JSARInputEvent } from '../src/input-event';
-import { SPATIAL_OBJECT_GUID_SYMBOL } from '../src/symbols';
 import { WebXRDefaultExperience } from './xr/DefaultExperience';
 
 interface EngineOnBabylonjs extends BABYLON.Engine, EventTarget { }
@@ -257,6 +256,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
 
     const scene = this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.1, 1);
+    this._scene.useRightHandedSystem = false
 
     const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
       'https://assets.babylonjs.com/environments/environmentSpecular.env', this._scene);
@@ -276,7 +276,6 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
     camera.wheelDeltaPercentage = 0.01;
 
     camera.setPosition(new BABYLON.Vector3(0, 1, -5));
-    camera.setTarget(BABYLON.Vector3.Zero());
     camera.attachControl(canvas, false, true);
 
     const light = new BABYLON.HemisphericLight('light', new BABYLON.Vector3(0, 2, -5), this._scene);
@@ -500,7 +499,6 @@ async function requestXRExperience(): Promise<XRSession> {
       optionalFeatures: [],
     }, xrHelper.renderTarget);
     // Just moving the object space to the front of the camera
-    currentDom.document.space.position.z = 1.5;
     console.log('entered WebXR session', xrHelper);
     return xrHelper.baseExperience.sessionManager.session;
   } else {
@@ -622,13 +620,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     nativeDocument.addClientCdpTransport(transport);
 
-    const spaceNode = currentDom.document.space.asNativeType<BABYLON.TransformNode>();
-    spaceNode.setEnabled(false);
-
     await currentDom.waitForSpaceReady();
     {
-      fitSpaceWithScene(spaceNode, 2.5);
-
       // scene.debugLayer.show();
       // Show panels
       panels = await Promise.all([

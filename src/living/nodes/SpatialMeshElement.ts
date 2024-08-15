@@ -2,6 +2,8 @@ import { NativeDocument } from '../../impl-interfaces';
 import DOMExceptionImpl from '../domexception';
 import { SpatialElement } from './SpatialElement';
 
+const defaultFitSize = 0.3;
+
 export default class SpatialMeshElement extends SpatialElement {
   private _cachedName: string;
 
@@ -27,6 +29,18 @@ export default class SpatialMeshElement extends SpatialElement {
   }
   set selector(value: string) {
     this.setAttribute('selector', value);
+  }
+
+  get fitSize(): number {
+    const v = parseFloat(this.getAttribute('fit-size'));
+    if (v <= 0 || v > 1 || isNaN(v)) {
+      return defaultFitSize;
+    } else {
+      return v;
+    }
+  }
+  set fitSize(value: number) {
+    this.setAttribute('fit-size', value.toString());
   }
 
   async _attach() {
@@ -59,6 +73,10 @@ export default class SpatialMeshElement extends SpatialElement {
     const contentElement = this._instantiate();
     this.appendChild(contentElement);
     contentElement.asNativeType().parent = containerNode; // Set the parent of the content native node to be the container node.
+
+    // Fit the content element to the size
+    this._fitTo(containerNode, this.fitSize);
+    containerNode.rotate(BABYLON.Axis.Y, Math.PI, BABYLON.Space.LOCAL);
   }
 
   _instantiate(): SpatialElement {
@@ -66,6 +84,13 @@ export default class SpatialMeshElement extends SpatialElement {
     const { ref, selector } = this;
     const assetsBundle = windowBase._getAssetsBundle(ref);
     return assetsBundle.instantiate(selector, this._getName());
+  }
+
+  private _fitTo(node: BABYLON.TransformNode, ratio: number = defaultFitSize) {
+    const boundingVectors = node.getHierarchyBoundingVectors(true);
+    const totalSize = boundingVectors.max.subtract(boundingVectors.min);
+    const scalingFactor = Math.min(ratio / totalSize.x, ratio / totalSize.y, ratio / totalSize.z);
+    node.scaling.multiplyInPlace(new BABYLON.Vector3(scalingFactor, scalingFactor, scalingFactor));
   }
 
   private _getName(): string {

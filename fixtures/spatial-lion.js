@@ -248,6 +248,7 @@ let isBlowing = false;
 let targetX = 0;
 let targetY = 0;
 
+const frameDuration = 1000 / 45;
 (function render() {
   fan.isBlowing = isBlowing;
   fan.update(targetX, targetY);
@@ -257,7 +258,7 @@ let targetY = 0;
   } else {
     lion.lookAt(targetX, targetY);
   }
-  setTimeout(render, 16);
+  setTimeout(render, frameDuration);
 })();
 
 async function createAudioPlayer(name) {

@@ -1,6 +1,7 @@
 <xsml version="1.0">
   <head>
     <title>Spatial Lion Example</title>
+    <meta name="viewport" content="bounding-size=0.3" />
     <style type="text/scss">
       @material yellow {
         diffuse-color: #fdd276;

@@ -115,6 +115,7 @@ export class ElementImpl extends NodeImpl implements Element {
   ariaColIndex: string;
   ariaColSpan: string;
   ariaCurrent: string;
+  ariaDescription: string;
   ariaDisabled: string;
   ariaExpanded: string;
   ariaHasPopup: string;
@@ -198,7 +199,7 @@ export class ElementImpl extends NodeImpl implements Element {
   }
 
   get ownerDocument(): Document {
-    return this._ownerDocument;
+    return this._ownerDocument as unknown as Document;
   }
 
   get prefix() {

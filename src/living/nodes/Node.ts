@@ -187,6 +187,8 @@ export class NodeImpl extends EventTarget implements Node {
   _registeredObserverList: Array<ObserverItem> = [];
   _memoizedQueries = {};
   _ceState: string;
+  _rootNode: Node;
+  _rootNodeWithComposed: Node;
 
   /**
    * The followings are used by inspector protocol
@@ -292,7 +294,7 @@ export class NodeImpl extends EventTarget implements Node {
   }
 
   get ownerDocument(): Document {
-    return this.nodeType === NodeTypes.DOCUMENT_NODE ? null : this._ownerDocument;
+    return this.nodeType === NodeTypes.DOCUMENT_NODE ? null : this._ownerDocument as unknown as Document;
   }
 
   get nextSibling(): ChildNode | null {
@@ -494,7 +496,18 @@ export class NodeImpl extends EventTarget implements Node {
     return isInclusiveAncestor(this, other);
   }
   getRootNode(options?: GetRootNodeOptions): Node {
-    return options?.composed ? shadowIncludingRoot(this) : nodeRoot(this);
+    const isComposed = options?.composed === true;
+    if (isComposed) {
+      if (!this._rootNodeWithComposed) {
+        this._rootNodeWithComposed = shadowIncludingRoot(this);
+      }
+      return this._rootNodeWithComposed;
+    } else {
+      if (!this._rootNode) {
+        this._rootNode = nodeRoot(this);
+      }
+      return this._rootNode;
+    }
   }
   hasChildNodes(): boolean {
     return domSymbolTree.hasChildren(this);

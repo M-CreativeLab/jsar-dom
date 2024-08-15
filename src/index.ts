@@ -1,4 +1,3 @@
-import 'babylonjs';
 import './living/helpers/babylonjs/patches';
 import './living/helpers/babylonjs/loaders/gLTF/index';
 import viewportParser from 'metaviewport-parser';
@@ -51,7 +50,7 @@ export class JSARDOM<T extends NativeDocument> {
   }
 
   get document(): SpatialDocumentImpl<T> {
-    return this[windowSymbol].document as SpatialDocumentImpl<T>;
+    return this[windowSymbol].document as unknown as SpatialDocumentImpl<T>;
   }
 
   get nativeDocument(): T {

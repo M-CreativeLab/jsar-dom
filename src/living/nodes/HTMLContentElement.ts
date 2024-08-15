@@ -107,6 +107,7 @@ export class HTMLContentElement extends HTMLElementImpl {
         );
       }
     });
+    this._control.updateLayoutStyle();
   }
 
   _attrModified(name: string, value: string, oldValue: string): void {

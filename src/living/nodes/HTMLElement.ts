@@ -52,7 +52,7 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   showPopover(): void {
     throw new Error('The method "HTMLElement.prototype.showPopover()" not implemented.');
   }
-  togglePopover(force?: boolean): void {
+  togglePopover(force?: boolean): boolean {
     throw new Error('The method "HTMLElement.prototype.togglePopover()" not implemented.');
   }
 
@@ -71,6 +71,7 @@ export class HTMLElementImpl extends ElementImpl implements HTMLElement {
   onanimationstart: (this: GlobalEventHandlers, ev: AnimationEvent) => any;
   onauxclick: (this: GlobalEventHandlers, ev: MouseEvent) => any;
   onbeforeinput: (this: GlobalEventHandlers, ev: InputEvent) => any;
+  onbeforetoggle: (this: GlobalEventHandlers, ev: Event) => any;
   onblur: (this: GlobalEventHandlers, ev: FocusEvent) => any;
   oncancel: (this: GlobalEventHandlers, ev: Event) => any;
   oncanplay: (this: GlobalEventHandlers, ev: Event) => any;

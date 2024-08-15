@@ -239,8 +239,11 @@ export class Control2D {
   private _parseLengthStr(input: string): LengthPercentageDimension | 'auto' {
     if (input.endsWith('px')) {
       return parseFloat(input);
+    } else if (input.endsWith('%')) {
+      return input;
+    } else {
+      return 'auto';
     }
-    return input;
   }
 
   private _initializeLayoutStyle() {
@@ -250,8 +253,9 @@ export class Control2D {
       height: this._overwriteHeight || 'auto',
       width: this._overwriteWidth || 'auto',
     };
-    if (this._style) {
-      const inputStyle = this._style;
+
+    const inputStyle = this._style;
+    if (inputStyle) {
       if (inputStyle.height) {
         layoutStyle.height = this._parseLengthStr(inputStyle.height);
       }

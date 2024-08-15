@@ -242,9 +242,25 @@ export interface NativeDocument extends EventTarget {
   getContainerPose(): XRPose;
 
   /**
-   * It returns a `XRPose` which represents the pose of the viewer in space.
+   * It returns the `XRSession` instance created by the implementator. In some of WebXR runtimes, there is a default XRSession will
+   * be created once the document is requested. This method will return the XRSession instance for those runtimes.
    */
-  getViewerPose?(): XRPose;
+  getXRSession?(): XRSession | null;
+
+  /**
+   * It returns a number which represents the recommeneded size of the bounding box of the document. It works as a hint for the native
+   * engine how to fit the spatial document, but not a strict constraint.
+   * 
+   * It only works when the document has a viewport <meta> tag such as:
+   * 
+   * ```
+   * <meta name="viewport" content="bouding-size=0.5, initial-scale=1">
+   * ```
+   * 
+   * With the above tag, this document will be fit into a bounding box with a size of 0.5 * getRecommendedBoudingSize(), that means the
+   * bounding-size is not an absolute value in meters, but a percentage of the recommended size.
+   */
+  getRecommendedBoudingSize?(): number;
 
   /**
    * It returns a map of preloaded meshes.

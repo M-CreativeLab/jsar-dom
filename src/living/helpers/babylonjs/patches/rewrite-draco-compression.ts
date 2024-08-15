@@ -104,12 +104,18 @@ function decodeMesh(decoderModule, dataView, attributes, onIndicesData, onAttrib
 }
 
 // Check if the browser env
-const decoderModulePending = Promise.all([
-  import('./draco_decoder_gltf.cjs'),
-  import('./draco_decoder_gltf.wasm.cjs'),
-]).then(([DracoDecoderModule, wasmBinary]) => {
-  return DracoDecoderModule.default(wasmBinary.default);
-});
+let decoderModulePending: Promise<any> = null;
+function loadDecoderModule(): Promise<any> {
+  if (decoderModulePending == null) {
+    decoderModulePending = Promise.all([
+      import('./draco_decoder_gltf.cjs'),
+      import('./draco_decoder_gltf.wasm.cjs'),
+    ]).then(([DracoDecoderModule, wasmBinary]) => {
+      return DracoDecoderModule.default(wasmBinary.default);
+    });
+  }
+  return decoderModulePending;
+}
 
 (BABYLON.DracoCompression as any)._Default = {
   dispose() {
@@ -120,7 +126,7 @@ const decoderModulePending = Promise.all([
    * @returns a promise that resolves when ready
    */
   whenReadyAsync() {
-    return decoderModulePending;
+    return loadDecoderModule();
   },
   /**
    * Decode Draco compressed mesh data to vertex data.
@@ -131,7 +137,7 @@ const decoderModulePending = Promise.all([
    */
   decodeMeshAsync(data: ArrayBuffer | ArrayBufferView, attributes, dividers) {
     const dataView = data instanceof ArrayBuffer ? new Uint8Array(data) : data;
-    return decoderModulePending.then((decoderModule) => {
+    return loadDecoderModule().then((decoderModule) => {
       const vertexData = new BABYLON.VertexData();
       decodeMesh(decoderModule, dataView, attributes, (indices) => {
         vertexData.indices = indices;

@@ -206,6 +206,7 @@ export default class HTMLLinkElementImpl extends HTMLElementImpl implements HTML
           resolve(true);
 
         } catch (err) {
+          console.log(err.stack);
           reject(new DOMException(`Failed to load spatial model(${this.href}): ${err.message}`, 'INVALID_STATE_ERR'));
         }
       })
