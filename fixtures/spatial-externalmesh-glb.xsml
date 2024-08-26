@@ -4,7 +4,7 @@
     <link id="my" rel="mesh" href="http://ar.rokidcdn.com/web-assets/pages/models/dog.glb" />
     <style>
       space {
-        rotation: 0 0 0;
+        position: 0 0 0;
       }
     </style>
   </head>

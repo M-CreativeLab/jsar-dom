@@ -256,7 +256,7 @@ class NativeDocumentOnBabylonjs extends EventTarget implements NativeDocument {
 
     const scene = this._scene = new BABYLON.Scene(this.engine);
     this._scene.clearColor = new BABYLON.Color4(0.1, 0.1, 0.1, 1);
-    this._scene.useRightHandedSystem = false
+    this._scene.useRightHandedSystem = false;
 
     const hdrTexture = BABYLON.CubeTexture.CreateFromPrefilteredData(
       'https://assets.babylonjs.com/environments/environmentSpecular.env', this._scene);

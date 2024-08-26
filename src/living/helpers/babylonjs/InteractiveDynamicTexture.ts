@@ -25,9 +25,11 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   private _started = false;
   /** if the texture is dirty */
   private _isDirty = true;
+  /** If the texture rendering is enabled */
+  private _renderingEnabled: boolean = false;
   /** if the texture is rendering */
   private _isRendering = false;
-  private _ownerNativeDocument: NativeDocument;
+  private _isTextureDirty = false;
   private _pointerObserver: BABYLON.Nullable<BABYLON.Observer<BABYLON.PointerInfo>>;
   private _renderObserver: BABYLON.Nullable<BABYLON.Observer<BABYLON.Scene>>;
   /**
@@ -162,7 +164,6 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       return;
     }
     this.applyYInversionOnUpdate = invertY;
-    this._ownerNativeDocument = shadowRoot._hostObject;
     this._shadowRoot = shadowRoot;
 
     const ownerDocument = shadowRoot._ownerDocument;
@@ -178,11 +179,14 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
       this._onResize();
     }
     this._texture.isReady = true;
+    this._renderingEnabled = true;
     this._renderObserver = scene.onBeforeRenderObservable.add(() => {
-      if (this._started) {
-        this.renderToTexture();
+      if (this._started && this._isTextureDirty) {
+        this.update();
+        this._isTextureDirty = false;
       }
     });
+    this._onTextureFrame();
   }
 
   /**
@@ -197,6 +201,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
    * Release all resources
    */
   public dispose(): void {
+    this._renderingEnabled = false;
     const scene = this.getScene();
     if (!scene) {
       return;
@@ -211,6 +216,16 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     this.onControlPickedObservable.clear();
     this.onGuiReadyObservable.clear();
     super.dispose();
+  }
+
+  private _onTextureFrame() {
+    if (!this._renderingEnabled) {
+      return;
+    }
+    if (this._started) {
+      this.renderToTexture();
+    }
+    window.requestAnimationFrame(this._onTextureFrame.bind(this));
   }
 
   private _onResize(): void {
@@ -251,6 +266,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
 
   public markAsDirty(value: boolean = true) {
     this._isDirty = value;
+    this._isTextureDirty = value;
   }
 
   public renderToTexture() {
@@ -291,10 +307,9 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     const size = this.getSize();
     this.getContext().clearRect(0, 0, size.width, size.height);
     const isDirtyAfterRendering = this._iterateLayoutResult();
-    this.update();
 
     // Post steps
-    this._isDirty = isDirtyAfterRendering;
+    this.markAsDirty(isDirtyAfterRendering);
     this._isRendering = false;
   }
 
@@ -476,8 +491,8 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
   public static CreateForMesh(
     shadowRoot: ShadowRootImpl,
     mesh: BABYLON.AbstractMesh,
-    width = 1024,
-    height = 1024,
+    width,
+    height,
     supportPointerMove = true,
     onlyAlphaTesting = true,
     enableLighting = false,
