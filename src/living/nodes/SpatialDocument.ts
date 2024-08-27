@@ -415,7 +415,13 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         }
         Promise.all(waitlist).then(dispatchSpaceReadyEvent);
       }
-    });
+    }, { once: true });
+    this.addEventListener('spaceReady', () => {
+      if (!this._disableSpaceFitting) {
+        const recommendedContentSize = nativeDocument.getRecommendedBoudingSize?.() || 1.0;
+        this._fitSpaceTo(this._spaceViewportBoundingSize * recommendedContentSize);
+      }
+    }, { once: true });
 
     // Bypass the GOMContentLoaded event from the XSML document.
     nativeDocument.addEventListener('DOMContentLoaded', (event) => {
@@ -1257,6 +1263,21 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
 
   _createAttribute(privateData: ConstructorParameters<typeof AttrImpl>[2]) {
     return new AttrImpl(this._hostObject, [], privateData);
+  }
+
+  _disableSpaceFitting: boolean = false;
+  _spaceViewportBoundingSize: number = 1.0;
+
+  /**
+   * Fit the <space /> to the target size.
+   * @param targetSize 
+   */
+  _fitSpaceTo(targetSize: number) {
+    const targetNode = this._ownerDocument.space.asNativeType<BABYLON.TransformNode>();
+    const boundingVectors = targetNode.getHierarchyBoundingVectors(true);
+    const totalSize = boundingVectors.max.subtract(boundingVectors.min);
+    const scalingFactor = Math.min(targetSize / totalSize.x, targetSize / totalSize.y, targetSize / totalSize.z);
+    targetNode.scaling.multiplyInPlace(new BABYLON.Vector3(scalingFactor, scalingFactor, scalingFactor));
   }
 }
 

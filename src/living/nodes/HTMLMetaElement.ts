@@ -37,7 +37,13 @@ class ViewportMeta {
           viewport.userScalable = value === 'yes';
           break;
         case 'bounding-size':
-          viewport.boundingSize = parseFloat(value);
+          if (value === 'auto') {
+            viewport.boundingSize = 1.0;
+          } else if (value === 'unlimited') {
+            viewport.boundingSize = Infinity;
+          } else {
+            viewport.boundingSize = parseFloat(value);
+          }
           break;
         case 'depth':
           viewport.depth = parseFloat(value);
@@ -83,19 +89,10 @@ export default class HTMLMetaElementImpl extends HTMLElementImpl implements HTML
       return;
     }
     const viewportConfig = ViewportMeta.Parse(input);
-    this._ownerDocument.addEventListener('load', () => {
-      const spaceTransform = this._ownerDocument.space.asNativeType<BABYLON.TransformNode>();
-      const recommendedContentSize = this._hostObject.getRecommendedBoudingSize?.() || 1.0;
-      const targetSize = viewportConfig.boundingSize * recommendedContentSize;
-      this.#fitTo(spaceTransform, targetSize);
-    });
-  }
-
-  #fitTo(node: BABYLON.TransformNode, targetSize: number) {
-    const boundingVectors = node.getHierarchyBoundingVectors(true);
-    const totalSize = boundingVectors.max.subtract(boundingVectors.min);
-    const scalingFactor = Math.min(targetSize / totalSize.x, targetSize / totalSize.y, targetSize / totalSize.z);
-    node.scaling.multiplyInPlace(new BABYLON.Vector3(scalingFactor, scalingFactor, scalingFactor));
-    console.log('Fitting to', targetSize, totalSize, scalingFactor);
+    if (viewportConfig.boundingSize === Infinity) {
+      this._ownerDocument._disableSpaceFitting = true;
+    } else {
+      this._ownerDocument._spaceViewportBoundingSize = viewportConfig.boundingSize;
+    }
   }
 }

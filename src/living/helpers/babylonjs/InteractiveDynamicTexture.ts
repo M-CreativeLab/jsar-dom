@@ -225,7 +225,7 @@ export class InteractiveDynamicTexture extends BABYLON.DynamicTexture {
     if (this._started) {
       this.renderToTexture();
     }
-    window.requestAnimationFrame(this._onTextureFrame.bind(this));
+    requestAnimationFrame(this._onTextureFrame.bind(this));
   }
 
   private _onResize(): void {

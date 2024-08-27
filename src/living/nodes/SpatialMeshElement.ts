@@ -2,8 +2,6 @@ import { NativeDocument } from '../../impl-interfaces';
 import DOMExceptionImpl from '../domexception';
 import { SpatialElement } from './SpatialElement';
 
-const defaultFitSize = 0.3;
-
 export default class SpatialMeshElement extends SpatialElement {
   private _cachedName: string;
 
@@ -34,7 +32,7 @@ export default class SpatialMeshElement extends SpatialElement {
   get fitSize(): number {
     const v = parseFloat(this.getAttribute('fit-size'));
     if (v <= 0 || v > 1 || isNaN(v)) {
-      return defaultFitSize;
+      return 0;
     } else {
       return v;
     }
@@ -75,7 +73,9 @@ export default class SpatialMeshElement extends SpatialElement {
     contentElement.asNativeType().parent = containerNode; // Set the parent of the content native node to be the container node.
 
     // Fit the content element to the size
-    this._fitTo(containerNode, this.fitSize);
+    if (this.fitSize > 0) {
+      this._fitTo(containerNode, this.fitSize);
+    }
     containerNode.rotate(BABYLON.Axis.Y, Math.PI, BABYLON.Space.LOCAL);
   }
 
@@ -86,7 +86,7 @@ export default class SpatialMeshElement extends SpatialElement {
     return assetsBundle.instantiate(selector, this._getName());
   }
 
-  private _fitTo(node: BABYLON.TransformNode, ratio: number = defaultFitSize) {
+  private _fitTo(node: BABYLON.TransformNode, ratio: number) {
     const boundingVectors = node.getHierarchyBoundingVectors(true);
     const totalSize = boundingVectors.max.subtract(boundingVectors.min);
     const scalingFactor = Math.min(ratio / totalSize.x, ratio / totalSize.y, ratio / totalSize.z);
