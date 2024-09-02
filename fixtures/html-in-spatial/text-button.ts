@@ -68,6 +68,7 @@ for (let sub of subChildren) {
   subElement.addEventListener('mouseup', () => {
     subElement.style.backgroundColor = 'rgba(30,33,33,.95)';
     if (subElement.textContent == null) {
+      console.warn(`No text content found in the element`);
       return;
     }
     const playAudio = audios[subElement.textContent];

@@ -421,6 +421,7 @@ export class SpatialDocumentImpl<T extends NativeDocument = NativeDocument> exte
         const recommendedContentSize = nativeDocument.getRecommendedBoudingSize?.() || 1.0;
         this._fitSpaceTo(this._spaceViewportBoundingSize * recommendedContentSize);
       }
+      this.space.enabled = true;
     }, { once: true });
 
     // Bypass the GOMContentLoaded event from the XSML document.

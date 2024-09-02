@@ -172,12 +172,10 @@ export default class HTMLMediaElementImpl extends HTMLElementImpl implements HTM
   protected async _play(when: number): Promise<void> {
     if (this.readyState < MediaReadyState.HAVE_CURRENT_DATA) {
       return new Promise<void>((resolve) => {
-        const _play = () => {
-          this.removeEventListener('loadeddata', _play);
+        this.addEventListener('loadeddata', () => {
           this._playerNative.play(when);
           resolve();
-        };
-        this.addEventListener('loadeddata', _play);
+        }, { once: true });
       });
     } else {
       this._playerNative.play(when);

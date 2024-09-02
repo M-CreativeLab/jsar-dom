@@ -1,7 +1,6 @@
 <xsml version="1.0">
   <head>
     <title>Spatial Lion Example</title>
-    <meta name="viewport" content="bounding-size=0.3" />
     <style type="text/scss">
       @material yellow {
         diffuse-color: #fdd276;
@@ -325,7 +324,7 @@
           <cube id="fan_prop4" width="10" height="30" depth="2" />
         </bound>
       </bound>
-      <cube id="fan_sphere" width="10" height="10" depth="3" />
+      <cube id="fan_sphere" width="20" height="20" depth="3" />
     </bound>
   </space>
 </xsml>

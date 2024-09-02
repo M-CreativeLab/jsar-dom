@@ -144,6 +144,15 @@ export class SpatialElement extends ElementImpl {
     this._internalObject.scaling = new BABYLON.Vector3(value.x, value.y, value.z);
   }
 
+  get enabled(): boolean {
+    return this._internalObject?.isEnabled() || false;
+  }
+  set enabled(value: boolean) {
+    if (this._internalObject) {
+      this._internalObject.setEnabled(value);
+    }
+  }
+
   /**
    * Set the value of a spatial attribute, it will throw an error if the spatial element is attached.
    * 

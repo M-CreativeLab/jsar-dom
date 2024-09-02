@@ -69,6 +69,10 @@ class FanController {
   #targetPositionX = 0;
   #targetPositionY = 0;
 
+  constructor() {
+    this.#container.isPickable = true;
+  }
+
   update(x, y) {
     this.#container.lookAt(this.lion.head.position);
     this.#targetPositionX = -rule3(x, -200, 200, -250, 250);
@@ -275,49 +279,42 @@ async function createAudioPlayer(name) {
   };
 }
 
+let playBlowingAudio;
+let blowingAudio;
+
+function stopBlowingAudio() {
+  if (blowingAudio) {
+    blowingAudio.pause();
+    blowingAudio = null;
+  }
+}
+
 const fanElement = document.querySelector('#fan_sphere');
+const fanNode = fanElement.asNativeType();
+fanNode.isPickable = true;
 fanElement.addEventListener('rayenter', () => {
-  fanElement.asNativeType().renderOutline = true;
-  fanElement.asNativeType().outlineWidth = 2;
+  fanNode.renderOverlay = true;
 });
 fanElement.addEventListener('rayleave', () => {
-  fanElement.asNativeType().renderOutline = false;
+  fanNode.renderOverlay = false;
+  isBlowing = false;
+  stopBlowingAudio();
 });
 
-let blowingAudio;
 fanElement.addEventListener('raydown', async () => {
   isBlowing = true;
-  if (blowingAudio) {
-    blowingAudio.load();
-    blowingAudio.play();
-  } else {
-    const play = await createAudioPlayer('fan.mp3');
-    blowingAudio = play(1.0);
+  if (typeof playBlowingAudio !== 'function') {
+    playBlowingAudio = await createAudioPlayer('fan.mp3');
   }
+  blowingAudio = playBlowingAudio(1.0);
 });
 fanElement.addEventListener('rayup', () => {
   isBlowing = false;
-  if (blowingAudio) {
-    blowingAudio.pause();
-  }
+  stopBlowingAudio();
 });
-
-// spaceDocument.watchInputEvent();
-// spaceDocument.addEventListener('mouse', (event) => {
-//   const { inputData } = event;
-//   if (inputData.Action === 'move') {
-//     targetX = inputData.PositionX - screenWidth / 2;
-//     targetY = inputData.PositionY - screenHeight / 2;
-//   } else if (inputData.Action === 'down') {
-//     isBlowing = true;
-//   } else if (inputData.Action === 'up') {
-//     isBlowing = false;
-//   }
-// });
 
 // let lastIndexFingerTipX = 0;
 // let lastUpdateTimestamp = 0;
-
 // spaceDocument.addEventListener('handtracking', (event) => {
 //   const { inputData } = event;
 //   if (inputData.Type === 1) {
